@@ -16,7 +16,8 @@ export type IconName =
   | 'calendar'
   | 'chevron'
   | 'external'
-  | 'shield';
+  | 'shield'
+  | 'arrow-up';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -35,6 +36,7 @@ const PATHS: Record<IconName, string> = {
   chevron: 'M6 9l6 6 6-6',
   external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14 20 4',
   shield: 'M12 3 5 6v6c0 5 3.2 8.4 7 9.5 3.8-1.1 7-4.5 7-9.5V6l-7-3Z',
+  'arrow-up': 'M12 19V5M6 11l6-6 6 6',
 };
 
 @Component({

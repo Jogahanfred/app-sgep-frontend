@@ -1,9 +1,27 @@
+.header-spacer {
+  height: var(--header-height);
+}
+
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  right: 0;
+  left: 0;
   z-index: 40;
   background: #ffffff;
   border-bottom: 1px solid transparent;
+  transform: translateY(0);
+  transition: transform 420ms var(--ease-out);
+}
+
+.header--hidden:not(.header--mega) {
+  transform: translateY(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header {
+    transition: none;
+  }
 }
 
 .header--mega,

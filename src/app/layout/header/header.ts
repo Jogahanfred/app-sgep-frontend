@@ -10,6 +10,7 @@ import { MAIN_NAV } from '../navigation/nav.data';
 import { MegaMenu } from '../navigation/mega-menu';
 import { NavigationMenu } from '../navigation/navigation-menu';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
+import { ScrollChrome } from '../scroll-chrome.service';
 
 @Component({
   selector: 'app-header',
@@ -20,8 +21,10 @@ import { MobileMenu } from '../mobile-menu/mobile-menu';
 })
 export class Header {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly chrome = inject(ScrollChrome);
   readonly groups = MAIN_NAV;
   readonly scrolled = signal(false);
+  readonly hidden = signal(false);
   readonly mobileOpen = signal(false);
   readonly loginOpen = signal(false);
   readonly loginMessage = signal<string | null>(null);
@@ -33,7 +36,30 @@ export class Header {
   });
 
   constructor() {
-    const onScroll = () => this.scrolled.set(window.scrollY > 8);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const atTop = y < 12;
+      this.scrolled.set(y > 8);
+      this.chrome.atTop.set(atTop);
+
+      if (this.megaLabel() || this.mobileOpen()) {
+        this.setHidden(false);
+        lastY = y;
+        return;
+      }
+
+      if (atTop) {
+        this.setHidden(false);
+      } else if (y > lastY + 4) {
+        this.setHidden(true);
+        this.closeMega();
+      } else if (y < lastY - 4) {
+        this.setHidden(false);
+      }
+
+      lastY = y;
+    };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') this.closeMega();
     };
@@ -45,6 +71,11 @@ export class Header {
       window.removeEventListener('keydown', onKey);
       document.body.style.removeProperty('overflow');
     });
+  }
+
+  private setHidden(hidden: boolean): void {
+    this.hidden.set(hidden);
+    this.chrome.headerHidden.set(hidden);
   }
 
   openGroup(): NavGroup | null {

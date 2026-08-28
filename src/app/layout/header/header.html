@@ -1,4 +1,10 @@
-<header class="header" [class.header--stuck]="scrolled()" [class.header--mega]="!!megaLabel()">
+<div class="header-spacer" aria-hidden="true"></div>
+<header
+  class="header"
+  [class.header--stuck]="scrolled()"
+  [class.header--mega]="!!megaLabel()"
+  [class.header--hidden]="hidden()"
+>
   <div class="header__bar">
     <a class="logo" routerLink="/" aria-label="Helvia Banca, inicio" (click)="closeMega()">
       <span class="logo__mark" aria-hidden="true"></span>
