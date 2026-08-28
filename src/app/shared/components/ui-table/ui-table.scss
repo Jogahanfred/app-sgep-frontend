@@ -138,9 +138,10 @@ tbody tr {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem 1.25rem;
-  padding: 0.65rem 1rem;
-  background: #f3f4f6;
+  gap: 0.75rem 1.5rem;
+  padding: 0.65rem 1.15rem;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
 }
 
 .ui-table__meta,
@@ -148,48 +149,61 @@ tbody tr {
 .ui-table__pager {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+}
+
+.ui-table__meta {
+  gap: 1.15rem;
 }
 
 .ui-table__show {
   position: relative;
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
+  gap: 0.45rem;
+}
+
+.ui-table__show-label {
+  color: var(--color-secondary);
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .ui-table__size {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 3.1rem;
-  min-height: 1.85rem;
-  padding: 0 0.4rem;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 3.25rem;
+  min-height: 1.9rem;
+  padding: 0 0.5rem;
   border: 1px solid var(--color-primary);
-  border-radius: 0.35rem;
+  border-radius: 0.4rem;
   background: #fff;
-  color: var(--color-text);
+  color: var(--color-secondary);
   font: inherit;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
 }
 
 .ui-table__size app-icon {
-  width: 0.7rem;
-  height: 0.7rem;
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+.ui-table__size--open app-icon {
+  transform: rotate(180deg);
 }
 
 .ui-table__sizes {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 0.3rem);
+  bottom: calc(100% + 0.25rem);
   z-index: 2;
   margin: 0;
-  padding: 0.25rem 0;
+  padding: 0.2rem 0;
   list-style: none;
-  min-width: 4.2rem;
+  min-width: 3.6rem;
   border: 1px solid var(--color-primary);
-  border-radius: 0.35rem;
+  border-radius: 0.4rem;
   background: #fff;
 }
 
@@ -197,11 +211,12 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.35rem;
   width: 100%;
-  padding: 0.35rem 0.55rem;
+  padding: 0.3rem 0.5rem;
   border: 0;
   background: none;
+  color: var(--color-secondary);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -214,24 +229,28 @@ tbody tr {
 
 .ui-table__range {
   margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
+  color: #9a9a9a;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.ui-table__pager {
+  gap: 0.35rem;
 }
 
 .ui-table__nav,
 .ui-table__page {
   display: inline-grid;
   place-items: center;
-  min-width: 1.55rem;
-  min-height: 1.55rem;
+  width: 1.85rem;
+  height: 1.85rem;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: 0.15rem;
   background: transparent;
-  color: #777;
+  color: var(--color-secondary);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -243,13 +262,13 @@ tbody tr {
 }
 
 .ui-table__nav:disabled {
-  opacity: 0.32;
+  color: #c8c8c8;
   cursor: not-allowed;
 }
 
 .ui-table__nav-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 .visually-hidden {
