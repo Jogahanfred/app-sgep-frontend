@@ -88,7 +88,10 @@
                   >
                     {{ size }}
                     @if (pageSize() === size) {
-                      <app-icon name="mark-box" />
+                      <svg class="ui-table__choice" viewBox="0 0 16 16" aria-hidden="true">
+                        <rect x="2" y="2" width="12" height="12" />
+                        <path d="M5.2 10.8 10.8 5.2" />
+                      </svg>
                     }
                   </button>
                 </li>

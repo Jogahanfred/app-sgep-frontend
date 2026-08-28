@@ -238,9 +238,13 @@ tbody tr {
   font-weight: 800;
 }
 
-.ui-table__sizes app-icon {
-  width: 0.85rem;
-  height: 0.85rem;
+.ui-table__choice {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
 }
 
 .ui-table__range {
