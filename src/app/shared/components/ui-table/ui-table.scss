@@ -201,7 +201,7 @@ tbody tr {
   list-style: none;
   min-width: 3.8rem;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 3px;
   background: #fff;
   box-shadow: 0 4px 12px #0002;
 }
@@ -229,7 +229,7 @@ tbody tr {
 }
 
 .ui-table__sizes [aria-selected='true'] {
-  background: #f4f4f4 radial-gradient(#d4d4d4 1px, #0000 1px) 0 0 / 3px 3px;
+  background: #f4f4f4 radial-gradient(#e8e8e8 1px, #0000 1px) 0 0 / 3px 3px;
   color: var(--color-primary);
   font-weight: 800;
 }

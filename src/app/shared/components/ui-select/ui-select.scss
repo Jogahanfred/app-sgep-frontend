@@ -105,7 +105,7 @@
   z-index: 8;
   overflow: hidden;
   background: #fff;
-  border-radius: 2px;
+  border-radius: 3px;
   box-shadow: 0 8px 22px #0000001a;
 }
 
@@ -148,7 +148,7 @@
 }
 
 .sm__opt.sm__opt--on {
-  background: #f4f4f4 radial-gradient(#d4d4d4 1px, #0000 1px) 0 0 / 3px 3px;
+  background: #f4f4f4 radial-gradient(#e8e8e8 1px, #0000 1px) 0 0 / 3px 3px;
   color: var(--color-primary);
   font-weight: 700;
 }
