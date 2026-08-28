@@ -14,10 +14,10 @@
     [attr.aria-label]="ariaLabel()"
     [attr.tabindex]="disabled() || loading() ? -1 : null"
   >
-    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
     @if (icon(); as iconName) {
       <app-icon [name]="iconName" />
     }
+    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
   </a>
 } @else {
   <button
@@ -30,9 +30,9 @@
     [attr.aria-busy]="loading() || null"
     [attr.aria-label]="ariaLabel()"
   >
-    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
     @if (icon(); as iconName) {
       <app-icon [name]="iconName" />
     }
+    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
   </button>
 }

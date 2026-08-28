@@ -48,21 +48,6 @@
 
   @if (showPager()) {
     <div class="ui-table__footer">
-      <label class="ui-table__show">
-        <span>Mostrar</span>
-        <select
-          [value]="pageSize()"
-          aria-label="Filas por página"
-          (change)="onPageSizeChange($event)"
-        >
-          @for (size of pageSizeOptions(); track size) {
-            <option [value]="size">{{ size }}</option>
-          }
-        </select>
-      </label>
-
-      <p class="ui-table__range">{{ rangeLabel() }}</p>
-
       <nav class="ui-table__pager" aria-label="Paginación">
         <button
           type="button"
@@ -99,6 +84,22 @@
           <app-icon class="ui-table__nav-icon" name="arrow-right" />
         </button>
       </nav>
+
+      <div class="ui-table__meta">
+        <p class="ui-table__range">{{ rangeLabel() }}</p>
+        <label class="ui-table__show">
+          <span>Por página</span>
+          <select
+            [value]="pageSize()"
+            aria-label="Filas por página"
+            (change)="onPageSizeChange($event)"
+          >
+            @for (size of pageSizeOptions(); track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+      </div>
     </div>
   }
 </div>

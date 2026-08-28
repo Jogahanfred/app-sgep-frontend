@@ -41,8 +41,8 @@ describe('UsersListPage', () => {
     expect(text).toContain('Martín Ruiz');
     expect(root.querySelector('input[type="search"]')?.getAttribute('placeholder')).toContain('nombres');
     expect(text).toContain('Nuevo usuario');
-    expect(text).toContain('Mostrar');
-    expect(text).toContain('Mostrando 1–5 de 8');
+    expect(text).toContain('Por página');
+    expect(text).toContain('Mostrando 1-5 de 8');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('app-modal')).toBeNull();
   });
@@ -56,7 +56,7 @@ describe('UsersListPage', () => {
     next.click();
     fixture.detectChanges();
     expect(root.textContent).toContain('Sofía');
-    expect(root.textContent).toContain('Mostrando 6–8 de 8');
+    expect(root.textContent).toContain('Mostrando 6-8 de 8');
   });
 
   it('filtra por estado inactivo', async () => {

@@ -37,7 +37,7 @@ describe('UiTable', () => {
     }).compileComponents();
   });
 
-  it('pagina las filas y el control Mostrar cambia el tamaño de página', () => {
+  it('pagina las filas y el control Por página cambia el tamaño de página', () => {
     const fixture = TestBed.createComponent(UiTable);
     fixture.componentRef.setInput('columns', COLUMNS);
     fixture.componentRef.setInput('rows', rows(8));
@@ -45,8 +45,8 @@ describe('UiTable', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.textContent).toContain('Mostrar');
-    expect(root.textContent).toContain('Mostrando 1–5 de 8');
+    expect(root.textContent).toContain('Por página');
+    expect(root.textContent).toContain('Mostrando 1-5 de 8');
     expect(root.textContent).toContain('Persona 1');
     expect(root.textContent).toContain('Persona 5');
     expect(root.textContent).not.toContain('Persona 6');
@@ -55,14 +55,14 @@ describe('UiTable', () => {
     next.click();
     fixture.detectChanges();
     expect(root.textContent).toContain('Persona 6');
-    expect(root.textContent).toContain('Mostrando 6–8 de 8');
+    expect(root.textContent).toContain('Mostrando 6-8 de 8');
     expect(root.textContent).not.toContain('Persona 1');
 
     const select = root.querySelector('select') as HTMLSelectElement;
     select.value = '10';
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(root.textContent).toContain('Mostrando 1–8 de 8');
+    expect(root.textContent).toContain('Mostrando 1-8 de 8');
     expect(root.textContent).toContain('Persona 1');
     expect(root.textContent).toContain('Persona 8');
   });

@@ -67,7 +67,7 @@ export class UiTable {
   readonly rangeEnd = computed(() => Math.min(this.page() * this.pageSize(), this.total()));
   readonly rangeLabel = computed(() => {
     if (this.total() === 0) return '0 resultados';
-    return `Mostrando ${this.rangeStart()}–${this.rangeEnd()} de ${this.total()}`;
+    return `Mostrando ${this.rangeStart()}-${this.rangeEnd()} de ${this.total()}`;
   });
   readonly pageItems = computed(() => this.buildPageItems(this.page(), this.totalPages()));
   readonly canPrev = computed(() => this.page() > 1);
