@@ -5,13 +5,13 @@
   [attr.aria-label]="label()"
   [attr.aria-busy]="true"
 >
+  <div class="ui-loading__stage">
+    <ui-siga-loader [loop]="loop()" [label]="label()" />
+  </div>
   @if (title()) {
     <p class="ui-loading__title">{{ title() }}</p>
   }
   @if (subtitle()) {
     <p class="ui-loading__lead">{{ subtitle() }}</p>
   }
-  <div class="ui-loading__stage">
-    <ui-siga-loader [loop]="loop()" [label]="label()" />
-  </div>
 </div>
