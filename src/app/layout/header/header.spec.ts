@@ -33,7 +33,12 @@ describe('Header', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.userchip')?.textContent).toContain('Elena');
     expect(root.querySelector('.header__login')).toBeNull();
-    expect(root.textContent).toContain('Salir');
+    expect(root.textContent).not.toContain('Cerrar sesión');
+
+    fixture.componentInstance.toggleUserMenu();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Mi perfil');
+    expect(root.textContent).toContain('Cerrar sesión');
   });
 
   it('abre el menú móvil', async () => {

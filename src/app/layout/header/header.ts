@@ -33,6 +33,7 @@ export class Header {
   readonly loginOpen = signal(false);
   readonly loginMessage = signal<string | null>(null);
   readonly megaLabel = signal<string | null>(null);
+  readonly userMenuOpen = signal(false);
 
   readonly loginForm = new FormGroup({
     user: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] }),
@@ -65,14 +66,25 @@ export class Header {
       lastY = y;
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') this.closeMega();
+      if (event.key === 'Escape') {
+        this.closeMega();
+        this.closeUserMenu();
+      }
+    };
+    const onDocClick = (event: MouseEvent) => {
+      if (!this.userMenuOpen()) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('.usermenu')) return;
+      this.closeUserMenu();
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('keydown', onKey);
+    document.addEventListener('click', onDocClick);
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onDocClick);
       document.body.style.removeProperty('overflow');
     });
   }
@@ -94,6 +106,20 @@ export class Header {
 
   closeMega(): void {
     this.setMega(null);
+  }
+
+  toggleUserMenu(): void {
+    this.closeMega();
+    this.userMenuOpen.update((open) => !open);
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
+  goProfile(): void {
+    this.closeUserMenu();
+    this.closeMega();
   }
 
   toggleMobile(): void {
@@ -129,6 +155,7 @@ export class Header {
   signOut(): void {
     this.session.signOut();
     this.closeMega();
+    this.closeUserMenu();
     void this.router.navigate(['/']);
   }
 

@@ -116,22 +116,65 @@
   height: 0.85rem;
 }
 
-.userchip {
+.usermenu {
+  position: relative;
   display: none;
-  align-items: flex-end;
-  gap: 0.45rem;
-  min-height: 0;
-  padding: 0 0.55rem 0 0.25rem;
+}
+
+.userchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0 0.55rem 0 0.2rem;
+  border: 0;
+  background: transparent;
   line-height: 1;
   border-radius: var(--radius-pill);
   color: #222;
   font-weight: 600;
   font-size: 0.9rem;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.userchip:hover {
+.userchip:hover,
+.usermenu--open .userchip {
   background: rgb(0 0 0 / 4%);
+}
+
+.usermenu__panel {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 45;
+  min-width: 11.5rem;
+  padding: 0.4rem 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.65rem;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.usermenu__panel a,
+.usermenu__panel button {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: #222;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.usermenu__panel a:hover,
+.usermenu__panel button:hover {
+  background: rgb(30 138 230 / 8%);
+  color: var(--color-primary);
 }
 
 .header__burger {
@@ -185,8 +228,9 @@
   }
 
   .util,
-  .userchip {
+  .usermenu {
     display: inline-flex;
+    align-items: center;
   }
 
   .header__burger {

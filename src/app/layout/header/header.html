@@ -21,11 +21,25 @@
         <app-icon name="chevron" />
       </button>
       @if (session.loggedIn()) {
-        <a class="userchip" routerLink="/perfil" (click)="closeMega()">
-          <ui-avatar [name]="session.displayName()" size="sm" />
-          <span>{{ session.displayName() }}</span>
-        </a>
-        <button type="button" class="util" (click)="signOut()">Salir</button>
+        <div class="usermenu" [class.usermenu--open]="userMenuOpen()">
+          <button
+            type="button"
+            class="userchip"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="menu"
+            aria-controls="user-menu"
+            (click)="toggleUserMenu(); $event.stopPropagation()"
+          >
+            <ui-avatar [name]="session.displayName()" size="sm" />
+            <span>{{ session.displayName() }}</span>
+          </button>
+          @if (userMenuOpen()) {
+            <div id="user-menu" class="usermenu__panel" role="menu">
+              <a routerLink="/perfil" role="menuitem" (click)="goProfile()">Mi perfil</a>
+              <button type="button" role="menuitem" (click)="signOut()">Cerrar sesión</button>
+            </div>
+          }
+        </div>
       } @else {
         <button type="button" class="util header__login" (click)="openLogin()">
           Acceso clientes
