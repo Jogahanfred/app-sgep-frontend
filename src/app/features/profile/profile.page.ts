@@ -167,40 +167,40 @@ export class ProfilePage {
     return message;
   }
 
-  saveData(): void {
-    this.runSave(
+  saveData(): Promise<void> {
+    return this.runSave(
       this.dataForm,
       this.updateProfile.execute(this.dataForm.getRawValue()),
       'Hemos actualizado tus datos personales.',
     );
   }
 
-  saveContact(): void {
-    this.runSave(
+  saveContact(): Promise<void> {
+    return this.runSave(
       this.contactForm,
       this.updateContact.execute(this.contactForm.getRawValue()),
       'Correo y teléfono actualizados.',
     );
   }
 
-  saveAddress(): void {
-    this.runSave(
+  saveAddress(): Promise<void> {
+    return this.runSave(
       this.addressForm,
       this.updateAddress.execute(this.addressForm.getRawValue()),
       'Dirección actualizada.',
     );
   }
 
-  savePrefs(): void {
-    this.runSave(
+  savePrefs(): Promise<void> {
+    return this.runSave(
       this.prefsForm,
       this.updatePrefs.execute(this.prefsForm.getRawValue()),
       'Preferencias guardadas.',
     );
   }
 
-  savePassword(): void {
-    this.runSave(
+  savePassword(): Promise<void> {
+    return this.runSave(
       this.passwordForm,
       this.changePassword.execute(this.passwordForm.getRawValue()),
       'Contraseña cambiada. En un banco real te desconectaríamos el resto de sesiones.',

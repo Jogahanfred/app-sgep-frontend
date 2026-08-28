@@ -27,10 +27,10 @@ describe('Header', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Elena');
-    expect(text).toContain('Salir');
-    expect(text).not.toContain('Acceso clientes');
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.userchip')?.textContent).toContain('Elena');
+    expect(root.querySelector('.header__login')).toBeNull();
+    expect(root.textContent).toContain('Salir');
   });
 
   it('abre el menú móvil', async () => {
