@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 120" role="img" aria-labelledby="sigaLightTitle">
-  <title id="sigaLightTitle">SIGA Rumbo Acad&#233;mico</title>
-  <g transform="translate(8 12)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" role="img" aria-labelledby="sigaLightTitle">
+  <title id="sigaLightTitle">SIGA</title>
+  <g transform="translate(4 14) scale(0.72)">
     <polygon fill="#e2186e" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="#c9a227" points="78,0 118,20 104,32 88,14"/>
     <polygon fill="#7eb6d4" points="6,34 72,22 82,36 16,48"/>
@@ -8,13 +8,5 @@
     <polygon fill="#d0122a" points="12,56 64,46 74,60 22,70"/>
     <polygon fill="#dce0e4" points="18,78 52,70 62,84 28,92"/>
   </g>
-  <g transform="translate(154 10) skewX(-10)">
-    <text y="50" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="56" font-weight="900" stroke="#ffffff" stroke-width="2" paint-order="stroke fill"><tspan x="0">S</tspan><tspan x="56">I</tspan><tspan x="100">G</tspan><tspan x="162">A</tspan></text>
-    <rect x="2" y="58" width="48" height="5" fill="#e2186e"/>
-    <rect x="50" y="58" width="42" height="5" fill="#c9a227"/>
-    <rect x="92" y="58" width="42" height="5" fill="#7eb6d4"/>
-    <rect x="134" y="58" width="36" height="5" fill="#dce0e4"/>
-    <rect x="170" y="58" width="48" height="5" fill="#d0122a"/>
-    <text x="2" y="84" fill="#c9a227" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="14" font-weight="900" letter-spacing="3.2">RUMBO ACAD&#201;MICO</text>
-  </g>
+  <text x="112" y="78" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="80" font-weight="900" letter-spacing="6" stroke="#ffffff" stroke-width="1.4" paint-order="stroke fill">SIGA</text>
 </svg>
