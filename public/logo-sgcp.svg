@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 128" role="img" aria-labelledby="sgcpTitle sgcpDesc">
   <title id="sgcpTitle">SGCP</title>
-  <desc id="sgcpDesc">Marca SGCP inspirada en una cinta en vuelo. Azul de aviación, no es una marca existente.</desc>
+  <desc id="sgcpDesc">SGCP mark: flight ribbon and initials. Aviation blue.</desc>
   <defs>
     <linearGradient id="sgcpSky" x1="10" y1="6" x2="100" y2="112" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#5eb8f5"/>
@@ -12,7 +12,6 @@
       <stop offset="1" stop-color="#1270c4"/>
     </linearGradient>
   </defs>
-
   <g transform="translate(8 10)">
     <polygon fill="url(#sgcpSky)" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="url(#sgcpEdge)" points="78,0 118,20 104,32 88,14"/>
@@ -21,14 +20,5 @@
     <polygon fill="url(#sgcpSky)" points="12,56 64,46 74,60 22,70"/>
     <polygon fill="url(#sgcpSky)" points="18,78 52,70 62,84 28,92"/>
   </g>
-
-  <text
-    x="154"
-    y="86"
-    fill="#0f4f88"
-    font-family="Manrope, Arial, Helvetica, sans-serif"
-    font-size="62"
-    font-weight="800"
-    letter-spacing="6"
-  >SGCP</text>
+  <text x="154" y="86" fill="#0f4f88" font-family="Manrope, Arial, Helvetica, sans-serif" font-size="62" font-weight="800" letter-spacing="6">SGCP</text>
 </svg>
