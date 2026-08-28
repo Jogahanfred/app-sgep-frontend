@@ -42,7 +42,12 @@
       }
     </ul>
     <div class="drawer__cta">
-      <app-button variant="secondary" [fullWidth]="true" (click)="requestLogin()">Acceso clientes</app-button>
+      @if (session.loggedIn()) {
+        <app-button href="/perfil" variant="secondary" [fullWidth]="true" (click)="close()">Mi perfil</app-button>
+        <app-button variant="ghost" [fullWidth]="true" (click)="requestLogout()">Salir</app-button>
+      } @else {
+        <app-button variant="secondary" [fullWidth]="true" (click)="requestLogin()">Acceso clientes</app-button>
+      }
       <app-button href="/hazte-cliente" [fullWidth]="true" (click)="close()">Hazte cliente</app-button>
     </div>
   </div>

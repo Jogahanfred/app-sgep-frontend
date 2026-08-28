@@ -21,10 +21,18 @@
         Español
         <app-icon name="chevron" />
       </button>
-      <button type="button" class="util header__login" (click)="openLogin()">
-        Acceso clientes
-        <app-icon name="chevron" />
-      </button>
+      @if (session.loggedIn()) {
+        <a class="userchip" routerLink="/perfil" (click)="closeMega()">
+          <ui-avatar [name]="session.displayName()" size="sm" />
+          <span>{{ session.displayName() }}</span>
+        </a>
+        <button type="button" class="util" (click)="signOut()">Salir</button>
+      } @else {
+        <button type="button" class="util header__login" (click)="openLogin()">
+          Acceso clientes
+          <app-icon name="chevron" />
+        </button>
+      }
       <app-button href="/hazte-cliente" size="sm" (click)="closeMega()">Hazte cliente</app-button>
       <button
         type="button"
@@ -58,6 +66,7 @@
     [open]="mobileOpen()"
     (closed)="closeMobile()"
     (loginRequested)="openLogin()"
+    (logoutRequested)="signOut()"
   />
 </div>
 

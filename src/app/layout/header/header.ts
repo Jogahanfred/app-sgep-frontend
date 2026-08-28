@@ -1,27 +1,31 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import type { NavGroup } from '@shared/models/nav.model';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
+import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { Modal } from '@shared/components/modal/modal';
 import { MAIN_NAV } from '../navigation/nav.data';
 import { MegaMenu } from '../navigation/mega-menu';
 import { NavigationMenu } from '../navigation/navigation-menu';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
+import { ClientSession } from '../client-session.service';
 import { ScrollChrome } from '../scroll-chrome.service';
 
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, Modal, UiInput, ReactiveFormsModule, Icon],
+  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, Modal, UiInput, ReactiveFormsModule, Icon, UiAvatar],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header {
   private readonly destroyRef = inject(DestroyRef);
   private readonly chrome = inject(ScrollChrome);
+  private readonly router = inject(Router);
+  readonly session = inject(ClientSession);
   readonly groups = MAIN_NAV;
   readonly scrolled = signal(false);
   readonly hidden = signal(false);
@@ -116,8 +120,16 @@ export class Header {
       this.loginForm.markAllAsTouched();
       return;
     }
-    this.loginMessage.set('Esto es una demostración. Helvia no procesa accesos reales.');
+    this.session.signIn('Elena');
     this.loginForm.reset();
+    this.closeLogin();
+    void this.router.navigate(['/perfil']);
+  }
+
+  signOut(): void {
+    this.session.signOut();
+    this.closeMega();
+    void this.router.navigate(['/']);
   }
 
   userError(): string | undefined {

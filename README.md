@@ -108,6 +108,7 @@ MockProductRepository
 | `GetFaqs` / `GetHelpTopics` | Faq |
 | `CalculateLoanInstallment` | Dominio (`calculateFrenchAmortization`) |
 | `CalculateMortgageInstallment` | Dominio (`calculateMortgageAmortization`) |
+| `GetCurrentUser` / `UpdateUser*` / `ChangeUserPassword` | UserProfile |
 
 Los casos de uso son clases TypeScript planas. Angular solo aparece en `core/di` para registrar factories.
 
@@ -173,6 +174,7 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/hipotecas` | Hipotecas |
 | `/inversion` | Inversión |
 | `/hazte-cliente` | Alta (formulario demo) |
+| `/perfil` | Perfil de usuario (foto, datos, correo, contraseña) |
 
 Las features se cargan con **lazy loading** (`loadComponent`).
 
@@ -188,7 +190,7 @@ Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBa
 
 Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
 
-`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`.
+`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`.
 
 Barrel: `src/app/shared/components/ui/index.ts`.
 
@@ -213,6 +215,6 @@ HomePage
 
 ## Tests mínimos
 
-- Dominio: `loan-calculator.spec.ts`
-- Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`
-- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`
+- Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`
+- Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`
+- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`

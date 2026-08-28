@@ -1,3 +1,4 @@
+export { UiAvatar } from '../ui-avatar/ui-avatar';
 export { UiAmountField } from '../ui-amount-field/ui-amount-field';
 export { UiCalcPanel } from '../ui-calc-panel/ui-calc-panel';
 export { UiCheckbox } from '../ui-checkbox/ui-checkbox';

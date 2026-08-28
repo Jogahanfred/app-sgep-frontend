@@ -72,5 +72,15 @@ export const routes: Routes = [
       },
     },
   },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+    data: {
+      seo: {
+        title: 'Mi perfil | Helvia Banca',
+        description: 'Foto, datos personales, correo y seguridad de tu perfil Helvia. Entorno de demostración.',
+      },
+    },
+  },
   { path: '**', redirectTo: '' },
 ];

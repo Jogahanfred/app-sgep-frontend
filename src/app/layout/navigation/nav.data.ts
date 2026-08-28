@@ -15,6 +15,7 @@ const particulares: NavColumn[] = [
       {
         heading: 'Banca online',
         links: [
+          { label: 'Mi perfil', href: '/perfil' },
           { label: 'App Helvia', href: '/cuentas' },
           { label: 'Pagos inmediatos', href: '/cuentas' },
           { label: 'Transferencias', href: '/cuentas' },

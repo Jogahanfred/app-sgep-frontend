@@ -24,7 +24,10 @@ export type IconName =
   | 'warning'
   | 'id-card'
   | 'phone'
-  | 'cross';
+  | 'cross'
+  | 'camera'
+  | 'lock'
+  | 'mail';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -51,7 +54,10 @@ const PATHS: Record<IconName, string> = {
   'id-card': 'M4 7h16v11H4zM8 11h.01M12 11h5M12 14h5',
   phone: 'M7 4h3l1 4-2 1a12 12 0 0 0 6 6l1-2 4 1v3a2 2 0 0 1-2 2A16 16 0 0 1 5 6a2 2 0 0 1 2-2Z',
   cross: 'M8 8l8 8M16 8l-8 8',
-};
+  camera: 'M4 8h3l2-2h6l2 2h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z',
+  lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v10H6z',
+  mail: 'M4 7h16v11H4zM4 7l8 6 8-6',
+}
 
 @Component({
   selector: 'app-icon',

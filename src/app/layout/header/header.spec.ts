@@ -21,6 +21,18 @@ describe('Header', () => {
     expect(text).toContain('Particulares');
   });
 
+  it('muestra el chip de cliente tras el acceso demo', async () => {
+    const fixture = TestBed.createComponent(Header);
+    fixture.componentInstance.session.signIn('Elena');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Elena');
+    expect(text).toContain('Salir');
+    expect(text).not.toContain('Acceso clientes');
+  });
+
   it('abre el menú móvil', async () => {
     const fixture = TestBed.createComponent(Header);
     const component = fixture.componentInstance;

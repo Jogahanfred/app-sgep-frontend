@@ -5,3 +5,4 @@ export type { InvestmentRepository } from './investment.repository';
 export type { LoanRepository } from './loan.repository';
 export type { ProductRepository } from './product.repository';
 export type { PromotionRepository } from './promotion.repository';
+export type { UserProfileRepository } from './user-profile.repository';

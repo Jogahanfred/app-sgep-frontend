@@ -2,7 +2,9 @@ import { Provider } from '@angular/core';
 import {
   CalculateLoanInstallment,
   CalculateMortgageInstallment,
+  ChangeUserPassword,
   GetAccounts,
+  GetCurrentUser,
   GetCards,
   GetFaqs,
   GetFeaturedProducts,
@@ -13,6 +15,11 @@ import {
   GetMortgages,
   GetProductsByNeed,
   GetPromotions,
+  UpdateUserAddress,
+  UpdateUserContact,
+  UpdateUserPhoto,
+  UpdateUserPreferences,
+  UpdateUserProfile,
 } from '../application';
 import { MockAccountRepository } from '../adapters/mock/mock-account.repository';
 import { MockCardRepository } from '../adapters/mock/mock-card.repository';
@@ -21,6 +28,7 @@ import { MockInvestmentRepository } from '../adapters/mock/mock-investment.repos
 import { MockLoanRepository } from '../adapters/mock/mock-loan.repository';
 import { MockProductRepository } from '../adapters/mock/mock-product.repository';
 import { MockPromotionRepository } from '../adapters/mock/mock-promotion.repository';
+import { MockUserProfileRepository } from '../adapters/mock/mock-user.repository';
 import type {
   AccountRepository,
   CardRepository,
@@ -29,6 +37,7 @@ import type {
   LoanRepository,
   ProductRepository,
   PromotionRepository,
+  UserProfileRepository,
 } from '../ports';
 import {
   ACCOUNT_REPOSITORY,
@@ -38,6 +47,7 @@ import {
   LOAN_REPOSITORY,
   PRODUCT_REPOSITORY,
   PROMOTION_REPOSITORY,
+  USER_PROFILE_REPOSITORY,
 } from './tokens';
 
 export const CORE_PROVIDERS: Provider[] = [
@@ -48,6 +58,7 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: LOAN_REPOSITORY, useClass: MockLoanRepository },
   { provide: INVESTMENT_REPOSITORY, useClass: MockInvestmentRepository },
   { provide: FAQ_REPOSITORY, useClass: MockFaqRepository },
+  { provide: USER_PROFILE_REPOSITORY, useClass: MockUserProfileRepository },
   { provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() },
   { provide: CalculateMortgageInstallment, useFactory: () => new CalculateMortgageInstallment() },
   {
@@ -99,6 +110,41 @@ export const CORE_PROVIDERS: Provider[] = [
     provide: GetProductsByNeed,
     useFactory: (repo: ProductRepository) => new GetProductsByNeed(repo),
     deps: [PRODUCT_REPOSITORY],
+  },
+  {
+    provide: GetCurrentUser,
+    useFactory: (repo: UserProfileRepository) => new GetCurrentUser(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: UpdateUserProfile,
+    useFactory: (repo: UserProfileRepository) => new UpdateUserProfile(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: UpdateUserContact,
+    useFactory: (repo: UserProfileRepository) => new UpdateUserContact(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: UpdateUserAddress,
+    useFactory: (repo: UserProfileRepository) => new UpdateUserAddress(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: UpdateUserPhoto,
+    useFactory: (repo: UserProfileRepository) => new UpdateUserPhoto(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: UpdateUserPreferences,
+    useFactory: (repo: UserProfileRepository) => new UpdateUserPreferences(repo),
+    deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: ChangeUserPassword,
+    useFactory: (repo: UserProfileRepository) => new ChangeUserPassword(repo),
+    deps: [USER_PROFILE_REPOSITORY],
   },
   {
     provide: GetHomeContent,

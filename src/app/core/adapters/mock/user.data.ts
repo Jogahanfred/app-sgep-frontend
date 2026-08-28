@@ -1,0 +1,27 @@
+import type { UserProfile } from '../../domain/entities';
+
+export const DEMO_USER: UserProfile = {
+  id: 'usr-elena-martin',
+  firstName: 'Elena',
+  lastName: 'Martín',
+  secondLastName: 'Ruiz',
+  documentType: 'dni',
+  documentNumber: '25198467M',
+  birthDate: '1988-04-12',
+  nationality: 'España',
+  email: 'elena.martin@correo.helvia.demo',
+  phonePrefix: '+34',
+  phone: '612345678',
+  address: 'Calle del Puerto Alba 14, 3º B',
+  city: 'Valencia',
+  postalCode: '46002',
+  province: 'Valencia',
+  occupation: 'Diseñadora de producto',
+  photoUrl: null,
+  language: 'es',
+  marketingEmail: false,
+  marketingSms: false,
+  securityAlerts: true,
+  twoFactorEnabled: false,
+  lastPasswordChange: '2026-03-18',
+};

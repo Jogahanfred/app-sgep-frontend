@@ -104,6 +104,23 @@
   height: 0.85rem;
 }
 
+.userchip {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.25rem;
+  border-radius: var(--radius-pill);
+  color: #222;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.userchip:hover {
+  background: rgb(0 0 0 / 4%);
+}
+
 .header__burger {
   display: inline-flex;
   flex-direction: column;
@@ -154,7 +171,8 @@
     display: flex;
   }
 
-  .util {
+  .util,
+  .userchip {
     display: inline-flex;
   }
 

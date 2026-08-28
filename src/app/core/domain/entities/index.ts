@@ -25,3 +25,12 @@ export type { NeedId, NeedOption } from './need-option';
 export type { Product, ProductCategory } from './product';
 export { PRODUCT_CATEGORIES } from './product';
 export type { Promotion, PromotionVariant } from './promotion';
+export type {
+  AddressInput,
+  ContactInput,
+  PasswordChangeInput,
+  PersonalDataInput,
+  PreferenceInput,
+  UserProfile,
+} from './user-profile';
+export { DEMO_PASSWORD } from './user-profile';

@@ -1,3 +1,10 @@
+export { ChangeUserPassword } from './use-cases/change-user-password';
+export { GetCurrentUser } from './use-cases/get-current-user';
+export { UpdateUserAddress } from './use-cases/update-user-address';
+export { UpdateUserContact } from './use-cases/update-user-contact';
+export { UpdateUserPhoto } from './use-cases/update-user-photo';
+export { UpdateUserPreferences } from './use-cases/update-user-preferences';
+export { UpdateUserProfile } from './use-cases/update-user-profile';
 export { CalculateLoanInstallment } from './use-cases/calculate-loan-installment';
 export { CalculateMortgageInstallment } from './use-cases/calculate-mortgage-installment';
 export { annualNominalToTae } from '../domain/services/loan-calculator';

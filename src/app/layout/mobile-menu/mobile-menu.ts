@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { NavGroup } from '@shared/models/nav.model';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
+import { ClientSession } from '../client-session.service';
 
 @Component({
   selector: 'app-mobile-menu',
@@ -12,10 +13,12 @@ import { Icon } from '@shared/components/icon/icon';
   styleUrl: './mobile-menu.scss',
 })
 export class MobileMenu {
+  readonly session = inject(ClientSession);
   readonly groups = input.required<NavGroup[]>();
   readonly open = input(false);
   readonly closed = output<void>();
   readonly loginRequested = output<void>();
+  readonly logoutRequested = output<void>();
   readonly openSection = signal<string | null>(null);
 
   toggle(label: string): void {
@@ -29,6 +32,11 @@ export class MobileMenu {
 
   requestLogin(): void {
     this.loginRequested.emit();
+    this.close();
+  }
+
+  requestLogout(): void {
+    this.logoutRequested.emit();
     this.close();
   }
 }

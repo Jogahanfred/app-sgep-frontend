@@ -14,3 +14,10 @@ export class InvalidLoanInputError extends DomainError {
     this.name = 'InvalidLoanInputError';
   }
 }
+
+export class InvalidUserProfileError extends DomainError {
+  constructor(message: string) {
+    super(message, 'INVALID_USER_PROFILE');
+    this.name = 'InvalidUserProfileError';
+  }
+}

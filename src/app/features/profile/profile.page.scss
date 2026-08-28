@@ -1,0 +1,178 @@
+.pf {
+  padding-block: var(--spacing-xl) var(--spacing-3xl);
+}
+
+.pf__kicker {
+  margin: 0 0 0.35rem;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.pf h1 {
+  font-size: var(--fs-4xl);
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.pf__lead {
+  margin: var(--spacing-md) 0 var(--spacing-xl);
+  max-width: 40rem;
+  color: var(--color-text-secondary);
+}
+
+.pf__layout {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 960px) {
+  .pf__layout {
+    grid-template-columns: 16.5rem minmax(0, 1fr) 15.5rem;
+    align-items: start;
+  }
+}
+
+.pf__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.pf__who {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.pf__name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.pf__mail {
+  margin: 0.15rem 0 0;
+  color: #777;
+  font-size: var(--fs-xs);
+  word-break: break-all;
+}
+
+.pf__tab {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #333;
+  text-align: left;
+}
+
+.pf__tab--on {
+  background: var(--color-control-soft);
+  color: var(--color-control);
+  font-weight: 700;
+}
+
+.pf__main {
+  display: grid;
+  gap: 1rem;
+}
+
+.pf__main h2 {
+  margin: 0 0 0.45rem;
+  color: #333;
+  font-size: var(--fs-xl);
+}
+
+.pf__hint,
+.pf__meta {
+  margin: 0 0 1rem;
+  color: #666;
+  font-size: var(--fs-sm);
+}
+
+.pf__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pf__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pf__phone {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pf__phone {
+    grid-template-columns: 7.5rem 1fr;
+    align-items: end;
+  }
+}
+
+.pf__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.35rem;
+}
+
+.pf__photo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.pf__photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pf__file {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.pf__file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.pf__toggles {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.15rem;
+}
+
+.pf :is(ui-input, ui-select) {
+  display: block;
+}
