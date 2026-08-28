@@ -87,9 +87,8 @@ tbody tr:not(.ui-table__empty-row) {
   }
 }
 
-tbody tr:not(.ui-table__empty-row):hover {
-  outline: 1px solid #c5e4f7;
-  outline-offset: -1px;
+tbody tr:not(.ui-table__empty-row):hover td {
+  background: #f3f8fd;
 }
 
 .ui-table__cell--left {
