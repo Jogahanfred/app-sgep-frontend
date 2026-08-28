@@ -64,6 +64,14 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              ".trycloudflare.com",
+              ".loca.lt",
+              "arena-ringtones-education-corp.trycloudflare.com",
+              "petite-berries-hug.loca.lt"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "helvia-banca:build:production"
