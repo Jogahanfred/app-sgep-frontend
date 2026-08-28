@@ -2,6 +2,7 @@
   class="sm"
   [class.sm--sm]="size() === 'sm'"
   [class.sm--lg]="size() === 'lg'"
+  [class.sm--compact]="compact()"
   appClickOutside
   (appClickOutside)="close()"
 >
@@ -13,7 +14,9 @@
       <p class="sm__title">{{ title() }}</p>
     </div>
   }
-  <ui-field-label [label]="label()" [forId]="id()" [required]="required()" [subLabel]="subLabel()" />
+  @if (!compact()) {
+    <ui-field-label [label]="label()" [forId]="id()" [required]="required()" [subLabel]="subLabel()" />
+  }
   <button
     type="button"
     class="sm__trigger"
@@ -24,6 +27,7 @@
     [attr.aria-expanded]="open()"
     [attr.aria-busy]="loading() || null"
     [attr.aria-invalid]="error() ? true : null"
+    [attr.aria-label]="compact() ? label() : null"
     aria-haspopup="listbox"
     (click)="toggle()"
     (keydown)="onKeydown($event)"

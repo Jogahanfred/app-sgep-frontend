@@ -13,6 +13,9 @@ export type UiSelectSize = 'sm' | 'md' | 'lg';
   imports: [ClickOutsideDirective, UiError, UiFieldLabel, Icon],
   templateUrl: './ui-select.html',
   styleUrl: './ui-select.scss',
+  host: {
+    '[class.is-compact]': 'compact()',
+  },
 })
 export class UiSelect {
   readonly id = input.required<string>();
@@ -33,6 +36,7 @@ export class UiSelect {
   readonly disabled = input(false);
   readonly emptyMessage = input('No hay items cargados.');
   readonly emptyFilterMessage = input('No se encontraron resultados.');
+  readonly compact = input(false);
   readonly valueChange = output<string>();
 
   readonly open = signal(false);

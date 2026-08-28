@@ -57,6 +57,25 @@ describe('UiSelect', () => {
     expect(locked.fixture.componentInstance.open()).toBe(false);
   });
 
+  it('en compacto oculta la etiqueta y usa letra más pequeña en las opciones', () => {
+    const fixture = TestBed.createComponent(UiSelect);
+    fixture.componentRef.setInput('id', 'page-size');
+    fixture.componentRef.setInput('label', 'Filas por página');
+    fixture.componentRef.setInput('compact', true);
+    fixture.componentRef.setInput('uppercase', false);
+    fixture.componentRef.setInput('options', [
+      { value: '10', label: '10' },
+      { value: '20', label: '20' },
+    ]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('ui-field-label')).toBeNull();
+    expect(root.querySelector('.sm--compact')).not.toBeNull();
+    (root.querySelector('.sm__trigger') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(root.querySelector('.sm__opt')?.classList.contains('sm__opt--caps')).toBe(false);
+  });
+
   it('filtra opciones y muestra el vacío si no hay coincidencias', () => {
     const { fixture } = mount({ filter: true });
     const trigger = (fixture.nativeElement as HTMLElement).querySelector('.sm__trigger') as HTMLButtonElement;

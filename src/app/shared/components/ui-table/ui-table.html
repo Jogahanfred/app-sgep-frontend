@@ -62,42 +62,18 @@
     <div class="ui-table__footer">
       <div class="ui-table__meta">
         <p class="ui-table__range">{{ rangeLabel() }}</p>
-        <div class="ui-table__show" appClickOutside (appClickOutside)="closeSize()">
+        <div class="ui-table__show">
           <span class="ui-table__show-label">Por página:</span>
-          <button
-            type="button"
-            class="ui-table__size"
-            [class.ui-table__size--open]="sizeOpen()"
-            [attr.aria-expanded]="sizeOpen()"
-            aria-haspopup="listbox"
-            aria-label="Filas por página"
-            (click)="toggleSize()"
-          >
-            {{ pageSize() }}
-            <app-icon name="chevron" />
-          </button>
-          @if (sizeOpen()) {
-            <ul class="ui-table__sizes" role="listbox">
-              @for (size of pageSizeOptions(); track size) {
-                <li>
-                  <button
-                    type="button"
-                    role="option"
-                    [attr.aria-selected]="pageSize() === size"
-                    (click)="pickPageSize(size)"
-                  >
-                    {{ size }}
-                    @if (pageSize() === size) {
-                      <svg class="ui-table__choice" viewBox="0 0 16 16" aria-hidden="true">
-                        <rect x="2" y="2" width="12" height="12" />
-                        <path d="M5.2 10.8 10.8 5.2" />
-                      </svg>
-                    }
-                  </button>
-                </li>
-              }
-            </ul>
-          }
+          <ui-select
+            [id]="pageSizeId()"
+            label="Filas por página"
+            size="sm"
+            [compact]="true"
+            [uppercase]="false"
+            [options]="pageSizeChoices()"
+            [value]="'' + pageSize()"
+            (valueChange)="onPageSize($event)"
+          />
         </div>
       </div>
 

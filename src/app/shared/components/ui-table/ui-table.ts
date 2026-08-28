@@ -10,9 +10,9 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ClickOutsideDirective } from '@shared/directives/click-outside.directive';
 import { Icon } from '../icon/icon';
 import { UiLoading } from '../ui-loading/ui-loading';
+import { UiSelect } from '../ui-select/ui-select';
 
 export type UiTableBadgeTone = 'active' | 'inactive';
 export type UiTableAlign = 'left' | 'center' | 'right';
@@ -37,7 +37,7 @@ export interface UiTableRow {
 @Component({
   selector: 'ui-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ClickOutsideDirective, Icon, UiLoading],
+  imports: [RouterLink, Icon, UiLoading, UiSelect],
   templateUrl: './ui-table.html',
   styleUrl: './ui-table.scss',
 })
@@ -55,7 +55,6 @@ export class UiTable {
   readonly selectedIdChange = output<string | null>();
   readonly pageSizeOptions = input<readonly number[]>([10, 20, 50]);
   readonly initialPageSize = input(10);
-  readonly sizeOpen = signal(false);
 
   readonly pageSize = linkedSignal(() => this.initialPageSize());
   readonly page = signal(1);
@@ -79,6 +78,13 @@ export class UiTable {
   readonly canPrev = computed(() => this.page() > 1);
   readonly canNext = computed(() => this.page() < this.totalPages());
   readonly showPager = computed(() => !this.loading() && this.total() > 0);
+  readonly pageSizeChoices = computed(() =>
+    this.pageSizeOptions().map((size) => ({ value: String(size), label: String(size) })),
+  );
+  readonly pageSizeId = computed(() => {
+    const slug = this.heading().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'tabla';
+    return `${slug}-page-size`;
+  });
 
   constructor() {
     effect(() => {
@@ -110,17 +116,8 @@ export class UiTable {
     this.page.set(1);
   }
 
-  pickPageSize(size: number): void {
-    this.setPageSize(size);
-    this.sizeOpen.set(false);
-  }
-
-  toggleSize(): void {
-    this.sizeOpen.update((open) => !open);
-  }
-
-  closeSize(): void {
-    this.sizeOpen.set(false);
+  onPageSize(value: string): void {
+    this.setPageSize(Number(value));
   }
 
   selectRow(row: UiTableRow): void {

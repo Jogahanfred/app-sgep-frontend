@@ -2,6 +2,10 @@
   display: block;
 }
 
+:host.is-compact {
+  display: inline-block;
+}
+
 .sm {
   position: relative;
   display: grid;
@@ -165,4 +169,38 @@
   padding: 0.75rem 0.9rem;
   color: #8a8a8a;
   font-size: 0.82rem;
+}
+
+.sm--compact {
+  display: inline-grid;
+  gap: 0;
+  width: auto;
+}
+
+.sm--compact .sm__trigger {
+  width: auto;
+  min-width: 3.25rem;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  border-color: var(--color-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.sm--compact .sm__panel {
+  top: auto;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: auto;
+  min-width: 100%;
+}
+
+.sm--compact .sm__opt {
+  padding: 0.32rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+.sm--compact .sm__mark {
+  width: 0.85rem;
+  height: 0.85rem;
 }
