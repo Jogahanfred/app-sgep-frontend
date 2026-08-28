@@ -182,7 +182,7 @@ Las features se cargan con **lazy loading** (`loadComponent`).
 
 ## Design system
 
-Identidad propia: rojo de marca (`#ec0000`), teal de controles (`#0b5c5e`) y tipografía Manrope.
+Identidad propia: azul de aviación (`#0c4a7a`), teal de controles (`#004d4d`) y tipografía Manrope.
 
 Tokens en `src/styles/_tokens.scss`. Breakpoints: 480 / 768 / 1024 / 1280.
 

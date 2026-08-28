@@ -129,6 +129,7 @@
           <form [formGroup]="contactForm" (ngSubmit)="saveContact()" novalidate>
             <ui-form-card>
               <h2>Correo y teléfono</h2>
+              <div class="pf__stack">
               <ui-input
                 id="pf-email"
                 label="Correo electrónico"
@@ -161,6 +162,7 @@
                   autocomplete="tel"
                 />
               </div>
+              </div>
               <div class="pf__actions">
                 <app-button type="submit" [disabled]="saving()">Guardar contacto</app-button>
               </div>
@@ -172,6 +174,7 @@
           <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" novalidate>
             <ui-form-card>
               <h2>Dirección fiscal</h2>
+              <div class="pf__stack">
               <ui-input
                 id="pf-addr"
                 label="Dirección"
@@ -207,6 +210,7 @@
                   [error]="requiredError(addressForm, 'province', 'Indica la provincia.')"
                 />
               </div>
+              </div>
               <div class="pf__actions">
                 <app-button type="submit" [disabled]="saving()">Guardar dirección</app-button>
               </div>
@@ -222,6 +226,7 @@
                 En esta demo la contraseña actual es <strong>{{ demoPassword }}</strong>. La nueva debe tener 8
                 caracteres, mayúscula, número y símbolo.
               </p>
+              <div class="pf__stack">
               <ui-input
                 id="pf-cur"
                 label="Contraseña actual"
@@ -252,6 +257,7 @@
                 [error]="requiredError(passwordForm, 'confirmPassword', 'Repite la contraseña.')"
                 autocomplete="new-password"
               />
+              </div>
               <p class="pf__meta">Último cambio: {{ user.lastPasswordChange }}</p>
               <div class="pf__actions">
                 <app-button type="submit" [disabled]="saving()">Actualizar contraseña</app-button>

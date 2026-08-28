@@ -72,18 +72,18 @@
 
 .onb form {
   display: grid;
-  gap: 1rem;
+  gap: 1.75rem;
 }
 
 .onb :is(ui-select, ui-input, ui-checkbox) {
   display: block;
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .onb__phone {
   display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1.75rem;
+  margin-top: 0;
 }
 
 @media (min-width: 640px) {

@@ -24,7 +24,7 @@ import { profileInitials } from '@core/domain/services/user-profile';
       justify-content: center;
       overflow: hidden;
       border-radius: 50%;
-      background: #f3d9d4;
+      background: #d4e4f0;
       color: var(--color-primary);
       font-weight: 800;
       letter-spacing: 0.02em;
