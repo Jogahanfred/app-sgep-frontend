@@ -15,10 +15,10 @@ describe('Header', () => {
     await fixture.whenStable();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Helvia');
-    expect((fixture.nativeElement as HTMLElement).querySelector('.logo__sgcp')?.getAttribute('src')).toBe(
-      '/logo-sgcp.svg',
-    );
+    const logo = (fixture.nativeElement as HTMLElement).querySelector('.logo__sgcp');
+    expect(logo?.getAttribute('src')).toBe('/logo-sgcp.svg');
+    expect(logo?.getAttribute('alt')).toBe('SIGA');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.logo__text')).toBeNull();
     expect(text).toContain('Acceso clientes');
     expect(text).toContain('Hazte cliente');
     expect(text).toContain('Particulares');
