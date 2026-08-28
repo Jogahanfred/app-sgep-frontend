@@ -35,7 +35,8 @@ export type IconName =
   | 'search'
   | 'eye'
   | 'pencil'
-  | 'trash';
+  | 'trash'
+  | 'mark-box';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -73,6 +74,7 @@ const PATHS: Record<IconName, string> = {
   eye: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
   pencil: 'M4 20h4L18 10l-4-4L4 16v4ZM13.5 6.5l4 4',
   trash: 'M5 7h14M10 7V5h4v2M8 7l1 13h6l1-13',
+  'mark-box': 'M6 6h12v12H6zM9 15l6-6',
 }
 
 @Component({

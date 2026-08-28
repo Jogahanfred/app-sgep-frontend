@@ -161,7 +161,7 @@ tbody tr {
 }
 
 .ui-table__show-label {
-  color: var(--color-secondary);
+  color: #8a8a8a;
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -199,32 +199,48 @@ tbody tr {
   bottom: calc(100% + 0.25rem);
   z-index: 2;
   margin: 0;
-  padding: 0.2rem 0;
+  padding: 0;
   list-style: none;
-  min-width: 3.6rem;
-  border: 1px solid var(--color-primary);
-  border-radius: 0.4rem;
+  min-width: 3.8rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0.35rem;
   background: #fff;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
+}
+
+.ui-table__sizes li + li {
+  border-top: 1px solid #eee;
 }
 
 .ui-table__sizes button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
+  gap: 0.4rem;
   width: 100%;
-  padding: 0.3rem 0.5rem;
+  padding: 0.4rem 0.55rem;
   border: 0;
-  background: none;
-  color: var(--color-secondary);
+  background: #fff;
+  color: #5a5a5a;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.ui-table__sizes button:hover,
+.ui-table__sizes button:hover {
+  background: #f7f7f7;
+}
+
 .ui-table__sizes [aria-selected='true'] {
+  background: #eeeeee;
   color: var(--color-primary);
+  font-weight: 800;
+}
+
+.ui-table__sizes app-icon {
+  width: 0.85rem;
+  height: 0.85rem;
 }
 
 .ui-table__range {
@@ -246,7 +262,7 @@ tbody tr {
   height: 2.4rem;
   padding: 0;
   border: 0;
-  border-radius: 0.15rem;
+  border-radius: 0;
   background: transparent;
   color: var(--color-secondary);
   font: inherit;

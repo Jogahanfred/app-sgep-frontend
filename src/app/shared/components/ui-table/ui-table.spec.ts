@@ -69,6 +69,9 @@ describe('UiTable', () => {
     const size = root.querySelector('[aria-label="Filas por página"]') as HTMLButtonElement;
     size.click();
     fixture.detectChanges();
+    const selected = root.querySelector('[role="option"][aria-selected="true"]') as HTMLButtonElement;
+    expect(selected.textContent).toContain('10');
+    expect(selected.querySelector('app-icon')).not.toBeNull();
     const option = Array.from(root.querySelectorAll('[role="option"]')).find((node) =>
       (node.textContent ?? '').includes('20'),
     ) as HTMLButtonElement;
