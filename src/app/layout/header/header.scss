@@ -2,8 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgb(246 243 236 / 92%);
-  backdrop-filter: blur(12px);
+  background: var(--color-background);
   border-bottom: 1px solid transparent;
 }
 

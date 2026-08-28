@@ -1,8 +1,7 @@
 .hero {
   padding-block: var(--spacing-3xl) var(--spacing-2xl);
-  background:
-    radial-gradient(circle at 90% 10%, rgb(196 163 90 / 16%), transparent 34%),
-    linear-gradient(180deg, #efebe3 0%, var(--color-background) 100%);
+  background-color: var(--color-background);
+  background-image: radial-gradient(circle at 90% 10%, rgb(196 163 90 / 14%), transparent 34%);
 }
 
 .hero--compact {

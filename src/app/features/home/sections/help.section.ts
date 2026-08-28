@@ -14,7 +14,6 @@ import { Section } from '@shared/components/section/section';
       eyebrow="Estamos cerca"
       title="¿Necesitas ayuda?"
       subtitle="Oficinas, cita previa y un centro de ayuda. El canal lo eliges tú."
-      tone="alt"
       sectionId="ayuda"
     >
       <div class="help">

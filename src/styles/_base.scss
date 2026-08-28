@@ -1,9 +1,16 @@
+html,
+body,
+app-root,
+.app-shell,
+.app-shell__main {
+  background-color: var(--color-background);
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--fs-md);
   line-height: var(--lh-body);
   color: var(--color-text);
-  background: var(--color-background);
 }
 
 h1,
