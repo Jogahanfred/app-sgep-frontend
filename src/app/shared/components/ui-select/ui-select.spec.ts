@@ -37,6 +37,13 @@ describe('UiSelect', () => {
     fixture.detectChanges();
     expect(emitted).toEqual(['dni']);
     expect(fixture.componentInstance.open()).toBe(false);
+
+    fixture.componentRef.setInput('value', 'dni');
+    trigger.click();
+    fixture.detectChanges();
+    const selected = (fixture.nativeElement as HTMLElement).querySelector('[aria-selected="true"]') as HTMLButtonElement;
+    expect(selected.classList.contains('sm__opt--on')).toBe(true);
+    expect(selected.querySelector('.sm__mark')).not.toBeNull();
   });
 
   it('marca el campo requerido y no abre si está deshabilitado', () => {

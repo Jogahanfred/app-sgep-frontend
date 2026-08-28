@@ -147,18 +147,18 @@
   background: #f7f7f7;
 }
 
-.sm__opt--on {
-  background: #eee;
+.sm__opt.sm__opt--on {
+  background: #e8e8e8;
   color: var(--color-primary);
   font-weight: 700;
 }
 
 .sm__mark {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 1.15rem;
+  height: 1.15rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.6;
 }
 
 .sm__empty {
