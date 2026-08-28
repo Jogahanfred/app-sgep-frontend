@@ -12,7 +12,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     .fc {
       overflow: visible;
       padding: 1.7rem 1.5rem 1.7rem;
-      background: #fff;
+      background: var(--color-surface);
       border: 1px solid var(--color-border-subtle);
       border-radius: 0.75rem;
     }

@@ -8,7 +8,7 @@
   right: 0;
   left: 0;
   z-index: 40;
-  background: #ffffff;
+  background: var(--color-surface);
   border-bottom: 1px solid transparent;
   transform: translateY(0);
   transition: transform 420ms var(--ease-out);
@@ -31,7 +31,7 @@
 }
 
 .header__mega {
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .header--stuck {
