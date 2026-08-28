@@ -17,9 +17,20 @@
 }
 
 .footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.55rem;
   font-size: var(--fs-2xl);
   font-weight: 800;
-  color: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer__logo {
+  display: block;
+  height: 2.15rem;
+  width: auto;
 }
 
 .footer__tag,

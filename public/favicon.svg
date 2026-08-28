@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="10" fill="#1E8AE6"/>
-  <text x="32" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#FFFFFF">H</text>
+  <rect width="64" height="64" rx="12" fill="#0f4f88"/>
+  <g transform="translate(6 8) scale(0.4)">
+    <polygon fill="#5eb8f5" points="0,12 78,0 88,14 10,26"/>
+    <polygon fill="#a8dbff" points="78,0 118,20 104,32 88,14"/>
+    <polygon fill="#1e8ae6" points="6,34 72,22 82,36 16,48"/>
+    <polygon fill="#7ec8f8" points="72,22 108,40 94,52 82,36"/>
+    <polygon fill="#1e8ae6" points="12,56 64,46 74,60 22,70"/>
+    <polygon fill="#5eb8f5" points="18,78 52,70 62,84 28,92"/>
+  </g>
 </svg>

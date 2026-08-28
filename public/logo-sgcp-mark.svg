@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 110" role="img" aria-label="SGCP">
+  <defs>
+    <linearGradient id="sgcpSkyMark" x1="10" y1="6" x2="100" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5eb8f5"/>
+      <stop offset="0.45" stop-color="#1e8ae6"/>
+      <stop offset="1" stop-color="#0f4f88"/>
+    </linearGradient>
+    <linearGradient id="sgcpEdgeMark" x1="88" y1="2" x2="126" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a8dbff"/>
+      <stop offset="1" stop-color="#1270c4"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4 6)">
+    <polygon fill="url(#sgcpSkyMark)" points="0,12 78,0 88,14 10,26"/>
+    <polygon fill="url(#sgcpEdgeMark)" points="78,0 118,20 104,32 88,14"/>
+    <polygon fill="url(#sgcpSkyMark)" points="6,34 72,22 82,36 16,48"/>
+    <polygon fill="url(#sgcpEdgeMark)" points="72,22 108,40 94,52 82,36"/>
+    <polygon fill="url(#sgcpSkyMark)" points="12,56 64,46 74,60 22,70"/>
+    <polygon fill="url(#sgcpSkyMark)" points="18,78 52,70 62,84 28,92"/>
+  </g>
+</svg>

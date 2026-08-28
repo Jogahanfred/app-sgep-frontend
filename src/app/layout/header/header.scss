@@ -64,6 +64,16 @@
   width: auto;
 }
 
+@media (max-width: 479px) {
+  .logo__sgcp {
+    height: 1.7rem;
+  }
+
+  .logo__text {
+    font-size: 1.05rem;
+  }
+}
+
 .logo__text {
   line-height: 1;
 }
