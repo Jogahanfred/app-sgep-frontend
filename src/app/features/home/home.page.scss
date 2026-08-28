@@ -38,6 +38,17 @@
   background: #ffffff;
 }
 
+.home-loader__download {
+  margin: 1.15rem 0 0;
+}
+
+.home-loader__download a {
+  color: var(--color-primary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 .home-sk {
   display: grid;
   justify-items: center;
