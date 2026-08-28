@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ListSpecialties, ListUserRoles } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
-import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
 
 export type CatalogKind = 'roles' | 'specialties';
@@ -16,7 +16,7 @@ export type CatalogKind = 'roles' | 'specialties';
 @Component({
   selector: 'app-items-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Alert, Button, Icon, UiLoading, UiSelect],
+  imports: [Alert, Button, Icon, UiSelect, UiTable],
   templateUrl: './items-list.page.html',
   styleUrl: './items-list.page.scss',
 })
@@ -38,7 +38,6 @@ export class ItemsListPage {
       (history.state?.['notice'] as string | undefined) ??
       null,
   );
-  readonly statusLabel = statusLabel;
   readonly title = this.isRoles ? 'Roles de usuario' : 'Especialidades';
   readonly lead = this.isRoles
     ? 'Catálogo de roles: administrador, dirección académica, instrucción y alumnado.'
@@ -54,6 +53,13 @@ export class ItemsListPage {
     { value: 'inactive', label: 'Inactivos' },
   ];
 
+  readonly columns: UiTableColumn[] = [
+    { id: 'name', header: this.nameLabel },
+    { id: 'description', header: 'Descripción' },
+    { id: 'status', header: 'Estado' },
+    { id: 'action', header: '', align: 'right' },
+  ];
+
   readonly filtered = computed(() => {
     const needle = this.query();
     const status = this.statusFilter();
@@ -62,6 +68,18 @@ export class ItemsListPage {
       return matchesAdminSearch([item.name, item.description], needle);
     });
   });
+
+  readonly tableRows = computed<UiTableRow[]>(() =>
+    this.filtered().map((item) => ({
+      id: item.id,
+      cells: {
+        name: item.name,
+        description: item.description || '—',
+        status: { text: statusLabel(item.status), badge: item.status },
+        action: { text: 'Editar', href: `${this.editBase}/${item.id}` },
+      },
+    })),
+  );
 
   constructor() {
     const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();

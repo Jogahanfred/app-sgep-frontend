@@ -1,0 +1,104 @@
+<div class="ui-table" [class.ui-table--loading]="loading()">
+  @if (loading()) {
+    <div class="ui-table__state" role="status">
+      <ui-loading
+        [title]="loadingTitle()"
+        [subtitle]="loadingSubtitle()"
+        [label]="loadingLabel()"
+      />
+    </div>
+  } @else if (total() === 0) {
+    <div class="ui-table__empty" role="status">
+      <p>{{ emptyTitle() }}</p>
+    </div>
+  } @else {
+    <div class="ui-table__scroll">
+      <table>
+        @if (caption()) {
+          <caption class="visually-hidden">{{ caption() }}</caption>
+        }
+        <thead>
+          <tr>
+            @for (column of columns(); track column.id) {
+              <th [class.ui-table__cell--right]="column.align === 'right'">{{ column.header }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of pagedRows(); track row.id) {
+            <tr>
+              @for (column of columns(); track column.id) {
+                @let item = cell(row, column.id);
+                <td [class.ui-table__cell--right]="column.align === 'right'">
+                  @if (item.badge) {
+                    <span [class]="'ui-table__badge ui-table__badge--' + item.badge">{{ item.text }}</span>
+                  } @else if (item.href) {
+                    <a class="ui-table__link" [routerLink]="item.href">{{ item.text }}</a>
+                  } @else {
+                    {{ item.text }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (showPager()) {
+    <div class="ui-table__footer">
+      <label class="ui-table__show">
+        <span>Mostrar</span>
+        <select
+          [value]="pageSize()"
+          aria-label="Filas por página"
+          (change)="onPageSizeChange($event)"
+        >
+          @for (size of pageSizeOptions(); track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+
+      <p class="ui-table__range">{{ rangeLabel() }}</p>
+
+      <nav class="ui-table__pager" aria-label="Paginación">
+        <button
+          type="button"
+          class="ui-table__nav"
+          [disabled]="!canPrev()"
+          aria-label="Página anterior"
+          (click)="prev()"
+        >
+          <app-icon class="ui-table__nav-icon ui-table__nav-icon--prev" name="arrow-right" />
+        </button>
+        @for (item of pageItems(); track $index) {
+          @if (item === 'ellipsis') {
+            <span class="ui-table__ellipsis" aria-hidden="true">…</span>
+          } @else {
+            <button
+              type="button"
+              class="ui-table__page"
+              [class.ui-table__page--on]="item === page()"
+              [attr.aria-current]="item === page() ? 'page' : null"
+              [attr.aria-label]="'Página ' + item"
+              (click)="goToPage(item)"
+            >
+              {{ item }}
+            </button>
+          }
+        }
+        <button
+          type="button"
+          class="ui-table__nav"
+          [disabled]="!canNext()"
+          aria-label="Página siguiente"
+          (click)="next()"
+        >
+          <app-icon class="ui-table__nav-icon" name="arrow-right" />
+        </button>
+      </nav>
+    </div>
+  }
+</div>

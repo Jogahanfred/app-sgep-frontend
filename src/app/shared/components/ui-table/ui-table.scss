@@ -1,0 +1,242 @@
+:host {
+  display: block;
+}
+
+.ui-table {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.ui-table__scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 44rem;
+}
+
+th,
+td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: var(--fs-sm);
+  vertical-align: middle;
+}
+
+th {
+  color: #5a5a5a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #f8fafc;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: #f7fbff;
+}
+
+.ui-table__cell--right {
+  text-align: right;
+}
+
+.ui-table__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.ui-table__badge--active {
+  background: #e7f6ee;
+  color: var(--color-success);
+}
+
+.ui-table__badge--inactive {
+  background: #f3f3f3;
+  color: #666;
+}
+
+.ui-table__link {
+  color: var(--color-primary);
+  font-weight: 800;
+  font-size: var(--fs-sm);
+  text-decoration: none;
+}
+
+.ui-table__link:hover {
+  text-decoration: underline;
+}
+
+.ui-table__state,
+.ui-table__empty {
+  position: relative;
+  min-height: 16rem;
+  padding: 2rem 1rem;
+}
+
+.ui-table__state ui-loading {
+  position: absolute;
+  inset: 0;
+}
+
+.ui-table__empty {
+  display: grid;
+  place-items: center;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.ui-table__empty p {
+  margin: 0;
+  max-width: 28rem;
+}
+
+.ui-table__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-border-subtle);
+  background: #f8fafc;
+}
+
+.ui-table__show {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ui-table__show select {
+  min-width: 4.25rem;
+  min-height: 2.15rem;
+  padding: 0 1.75rem 0 0.65rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
+  background:
+    #fff
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%234a4a4a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 0.55rem center;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 800;
+  appearance: none;
+  cursor: pointer;
+}
+
+.ui-table__show select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(30 138 230 / 16%);
+}
+
+.ui-table__range {
+  margin: 0;
+  flex: 1 1 auto;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ui-table__pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ui-table__nav,
+.ui-table__page {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.15rem;
+  min-height: 2.15rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ui-table__nav:hover:not(:disabled),
+.ui-table__page:hover:not(.ui-table__page--on) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.ui-table__nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ui-table__page--on {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.ui-table__nav:focus-visible,
+.ui-table__page:focus-visible,
+.ui-table__show select:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.ui-table__nav-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ui-table__nav-icon--prev {
+  transform: rotate(180deg);
+}
+
+.ui-table__ellipsis {
+  min-width: 1.25rem;
+  color: #888;
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 767px) {
+  .ui-table__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ui-table__range {
+    text-align: center;
+  }
+
+  .ui-table__pager {
+    justify-content: center;
+  }
+}

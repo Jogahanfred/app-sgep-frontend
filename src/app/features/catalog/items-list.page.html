@@ -27,40 +27,18 @@
     />
   </div>
 
-  @if (loadState() === 'loading') {
-    <div class="ap__table-wrap ap__state">
-      <ui-loading [title]="'Cargando ' + title.toLowerCase()" subtitle="Un momento." [label]="'Cargando ' + title" />
-    </div>
-  } @else if (loadState() === 'error') {
+  @if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar el catálogo. Recarga la página.</app-alert>
-  } @else if (filtered().length === 0) {
-    <app-alert>No hay resultados con ese buscador o filtro de estado.</app-alert>
   } @else {
-    <div class="ap__table-wrap">
-      <table class="ap__table">
-        <thead>
-          <tr>
-            <th>{{ nameLabel }}</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filtered(); track item.id) {
-            <tr>
-              <td>{{ item.name }}</td>
-              <td>{{ item.description || '—' }}</td>
-              <td>
-                <span [class]="'ap__badge ap__badge--' + item.status">{{ statusLabel(item.status) }}</span>
-              </td>
-              <td>
-                <a class="ap__link" [routerLink]="[editBase, item.id]">Editar</a>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+    <ui-table
+      [caption]="title"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [loading]="loadState() === 'loading'"
+      [loadingTitle]="'Cargando ' + title.toLowerCase()"
+      loadingSubtitle="Un momento."
+      [loadingLabel]="'Cargando ' + title"
+      emptyTitle="No hay resultados con ese buscador o filtro de estado."
+    />
   }
 </div>

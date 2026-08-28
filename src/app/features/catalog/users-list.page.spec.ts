@@ -41,7 +41,22 @@ describe('UsersListPage', () => {
     expect(text).toContain('Martín Ruiz');
     expect(root.querySelector('input[type="search"]')?.getAttribute('placeholder')).toContain('nombres');
     expect(text).toContain('Nuevo usuario');
+    expect(text).toContain('Mostrar');
+    expect(text).toContain('Mostrando 1–5 de 8');
+    expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('app-modal')).toBeNull();
+  });
+
+  it('pasa a la siguiente página del listado', async () => {
+    const fixture = TestBed.createComponent(UsersListPage);
+    await waitReady(fixture);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).not.toContain('Sofía');
+    const next = root.querySelector('[aria-label="Página siguiente"]') as HTMLButtonElement;
+    next.click();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Sofía');
+    expect(root.textContent).toContain('Mostrando 6–8 de 8');
   });
 
   it('filtra por estado inactivo', async () => {

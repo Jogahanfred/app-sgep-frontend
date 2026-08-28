@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ListAdminUsers } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, UserEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
-import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
 
 @Component({
   selector: 'app-users-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Alert, Button, Icon, UiLoading, UiSelect],
+  imports: [Alert, Button, Icon, UiSelect, UiTable],
   templateUrl: './users-list.page.html',
   styleUrl: './users-list.page.scss',
 })
@@ -32,12 +32,22 @@ export class UsersListPage {
       (history.state?.['notice'] as string | undefined) ??
       null,
   );
-  readonly statusLabel = statusLabel;
 
   readonly statusOptions: ChoiceOption[] = [
     { value: 'all', label: 'Todos' },
     { value: 'active', label: 'Activos' },
     { value: 'inactive', label: 'Inactivos' },
+  ];
+
+  readonly columns: UiTableColumn[] = [
+    { id: 'firstName', header: 'Nombres' },
+    { id: 'lastName', header: 'Apellidos' },
+    { id: 'email', header: 'Correo electrónico' },
+    { id: 'document', header: 'DNI / Documento' },
+    { id: 'entryDate', header: 'Fecha de ingreso' },
+    { id: 'indicative', header: 'Indicativo' },
+    { id: 'status', header: 'Estado' },
+    { id: 'action', header: '', align: 'right' },
   ];
 
   readonly filtered = computed(() => {
@@ -51,6 +61,22 @@ export class UsersListPage {
       );
     });
   });
+
+  readonly tableRows = computed<UiTableRow[]>(() =>
+    this.filtered().map((user) => ({
+      id: user.id,
+      cells: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        document: user.documentNumber,
+        entryDate: this.formatDate(user.entryDate),
+        indicative: user.indicative || '—',
+        status: { text: statusLabel(user.status), badge: user.status },
+        action: { text: 'Editar', href: `/catalogo/usuarios/${user.id}` },
+      },
+    })),
+  );
 
   constructor() {
     this.listUsers

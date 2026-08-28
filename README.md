@@ -203,7 +203,7 @@ Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBa
 
 Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
 
-`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
+`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-table`, `ui-checkbox`, `ui-input`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
 
 Barrel: `src/app/shared/components/ui/index.ts`.
 
@@ -231,4 +231,4 @@ HomePage
 
 - Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`, `admin-catalog.spec.ts`
 - Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`, `create-admin-user`, `create-user-role`
-- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `MyUserPage`, `UsersListPage`
+- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `MyUserPage`, `UsersListPage`, `UiTable`

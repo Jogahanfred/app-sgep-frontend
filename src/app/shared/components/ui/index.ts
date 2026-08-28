@@ -16,6 +16,7 @@ export { UiSegmentedControl } from '../ui-segmented-control/ui-segmented-control
 export { UiLoading } from '../ui-loading/ui-loading';
 export { UiSigaLoader } from '../ui-siga-loader/ui-siga-loader';
 export { UiSelect } from '../ui-select/ui-select';
+export { UiTable, type UiTableCell, type UiTableColumn, type UiTableRow } from '../ui-table/ui-table';
 export { UiStepperInput } from '../ui-stepper-input/ui-stepper-input';
 export { UiSteps } from '../ui-steps/ui-steps';
 export { UiToggle } from '../ui-toggle/ui-toggle';
