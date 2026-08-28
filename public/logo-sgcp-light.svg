@@ -1,33 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 100" role="img" aria-labelledby="sgcpLightTitle">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 100" role="img" aria-labelledby="sgcpLightTitle">
   <title id="sgcpLightTitle">SGCP Gesti&#243;n Acad&#233;mica</title>
 
-  <rect x="4" y="8" width="152" height="84" rx="10" fill="#0a2a3c"/>
+  <polygon fill="#c5c9ce" points="46,50 78,48 24,10 12,18"/>
+  <polygon fill="#e2186e" points="46,50 78,52 24,90 12,82"/>
+  <polygon fill="#7eb6d4" points="6,50 34,44 108,46 132,50 108,54 34,56"/>
+  <polygon fill="#c9a227" points="96,50 118,34 126,38 108,50 126,62 118,66"/>
+  <polygon fill="#d0122a" points="6,50 22,46 22,54"/>
 
-  <path fill="#c5c9ce" d="M52 48 L68 46 L38 8 L16 6 L10 14 L40 48 Z"/>
-  <path fill="#d0122a" d="M16 6 L38 8 L34 18 L14 16 Z"/>
-  <path fill="#e2186e" d="M10 14 L40 48 L34 49 L14 16 Z"/>
-  <rect x="22" y="20" width="18" height="4" rx="2" fill="#7eb6d4" transform="rotate(-28 31 22)"/>
-
-  <path fill="#c5c9ce" d="M52 52 L68 54 L38 92 L16 94 L10 86 L40 52 Z"/>
-  <path fill="#c9a227" d="M16 94 L38 92 L34 82 L14 84 Z"/>
-  <path fill="#7eb6d4" d="M10 86 L40 52 L34 51 L14 84 Z"/>
-  <rect x="22" y="76" width="18" height="4" rx="2" fill="#d0122a" transform="rotate(28 31 78)"/>
-
-  <path fill="#7eb6d4" d="M12 50 L26 45.5 L50 44 L102 45.5 L122 47.5 L144 50 L122 52.5 L102 54.5 L50 56 L26 54.5 Z"/>
-  <path fill="#e2186e" d="M12 50 L26 45.5 L26 54.5 Z"/>
-  <ellipse cx="44" cy="50" rx="11" ry="3.4" fill="#5eb8f6"/>
-  <ellipse cx="46" cy="49.2" rx="5" ry="1.4" fill="#ffffff" opacity="0.45"/>
-  <path fill="#1a1a1a" opacity="0.4" d="M58 46.8 L78 47.4 L78 52.6 L58 53.2 Z"/>
-  <ellipse cx="142" cy="50" rx="6" ry="3.6" fill="#1a1a1a"/>
-  <ellipse cx="139" cy="50" rx="3" ry="1.8" fill="#c9a227"/>
-
-  <path fill="#c9a227" d="M30 45 L42 43 L38 38 L24 41 Z"/>
-  <path fill="#c9a227" d="M30 55 L42 57 L38 62 L24 59 Z"/>
-
-  <path fill="#d0122a" d="M98 40 L118 32 L126 35 L108 48 Z"/>
-  <path fill="#e2186e" d="M98 60 L118 68 L126 65 L108 52 Z"/>
-  <path fill="#c9a227" d="M104 42 L116 36 L118 38 L108 46 Z"/>
-
-  <text x="176" y="54" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="54" font-weight="900" letter-spacing="-2" stroke="#ffffff" stroke-width="1.6" paint-order="stroke fill">SGCP</text>
-  <text x="178" y="82" fill="#d7dee3" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="0.6">Gesti&#243;n Acad&#233;mica</text>
+  <text x="152" y="54" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="54" font-weight="900" letter-spacing="-2" stroke="#ffffff" stroke-width="1.6" paint-order="stroke fill">SGCP</text>
+  <text x="154" y="82" fill="#d7dee3" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="0.6">Gesti&#243;n Acad&#233;mica</text>
 </svg>
