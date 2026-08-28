@@ -23,6 +23,7 @@ describe('Header', () => {
     expect(text).toContain('Acceso clientes');
     expect(text).toContain('Hazte cliente');
     expect(text).toContain('Particulares');
+    expect(text).toContain('Configuración');
   });
 
   it('muestra el chip de cliente tras el acceso demo', async () => {
@@ -39,7 +40,6 @@ describe('Header', () => {
     fixture.componentInstance.toggleUserMenu();
     fixture.detectChanges();
     expect(root.textContent).toContain('Mi perfil');
-    expect(root.textContent).toContain('Catálogo');
     expect(root.textContent).toContain('Cerrar sesión');
   });
 
@@ -63,5 +63,20 @@ describe('Header', () => {
     expect(text).toContain('Cuentas');
     expect(text).toContain('Hipotecas');
     expect(text).toContain('Préstamos');
+  });
+
+  it('abre Configuración y muestra Catálogos debajo', async () => {
+    const fixture = TestBed.createComponent(Header);
+    const component = fixture.componentInstance;
+    component.setMega('Configuración');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(component.openGroup()?.label).toBe('Configuración');
+    expect(text).toContain('Catálogos');
+    expect(text).toContain('Usuarios');
+    expect(text).toContain('Roles');
+    expect(text).toContain('Especialidades');
   });
 });

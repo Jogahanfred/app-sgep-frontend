@@ -183,6 +183,8 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
+El header incluye **Configuración** → **Catálogos** (usuarios, roles y especialidades).
+
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
 | `/catalogo/especialidades` | Catálogo de especialidades (`SpecialtyEntity`) |

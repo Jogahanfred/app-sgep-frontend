@@ -229,12 +229,28 @@ const select: NavColumn[] = [
   },
 ];
 
+const configuracion: NavColumn[] = [
+  {
+    blocks: [
+      {
+        heading: 'Catálogos',
+        links: [
+          { label: 'Usuarios', href: '/catalogo/usuarios' },
+          { label: 'Roles', href: '/catalogo/roles' },
+          { label: 'Especialidades', href: '/catalogo/especialidades' },
+        ],
+      },
+    ],
+  },
+];
+
 export const AUDIENCE_NAV: NavGroup[] = [
   { label: 'Particulares', columns: particulares },
   { label: 'Empresas', columns: empresas },
   { label: 'Autónomos', columns: autonomos },
   { label: 'Banca Privada', columns: privada },
   { label: 'Select', columns: select },
+  { label: 'Configuración', columns: configuracion },
 ];
 
 export const MAIN_NAV = AUDIENCE_NAV;
