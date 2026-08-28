@@ -235,23 +235,23 @@ tbody tr {
 }
 
 .ui-table__pager {
-  gap: 0.35rem;
+  gap: 0.45rem;
 }
 
 .ui-table__nav,
 .ui-table__page {
   display: inline-grid;
   place-items: center;
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 2.4rem;
+  height: 2.4rem;
   padding: 0;
   border: 0;
   border-radius: 0.15rem;
   background: transparent;
   color: var(--color-secondary);
   font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -267,8 +267,8 @@ tbody tr {
 }
 
 .ui-table__nav-icon {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .visually-hidden {
