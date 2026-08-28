@@ -17,12 +17,12 @@ import { Alert } from '@shared/components/alert/alert';
 import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Button } from '@shared/components/button/button';
 import { Container } from '@shared/components/container/container';
-import { Icon } from '@shared/components/icon/icon';
 import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
+import { UiDatePicker } from '@shared/components/ui-date-picker/ui-date-picker';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
-import { UiHelp } from '@shared/components/ui-help/ui-help';
 import { UiInput } from '@shared/components/ui-input/ui-input';
+import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiToggle } from '@shared/components/ui-toggle/ui-toggle';
 import type { ChoiceOption } from '@shared/models/choice.model';
@@ -39,11 +39,11 @@ export type ProfileSection = 'photo' | 'data' | 'contact' | 'address' | 'securit
     Breadcrumb,
     Button,
     Alert,
-    Icon,
     UiAvatar,
+    UiDatePicker,
     UiFormCard,
-    UiHelp,
     UiInput,
+    UiSegmentedControl,
     UiSelect,
     UiCheckbox,
     UiToggle,
@@ -62,15 +62,14 @@ export class ProfilePage {
   private readonly changePassword = inject(ChangeUserPassword);
   private readonly session = inject(ClientSession);
 
-  readonly sections: { id: ProfileSection; label: string; icon: 'user' | 'id-card' | 'mail' | 'pin' | 'lock' | 'help' }[] =
-    [
-      { id: 'photo', label: 'Foto', icon: 'user' },
-      { id: 'data', label: 'Datos', icon: 'id-card' },
-      { id: 'contact', label: 'Correo y teléfono', icon: 'mail' },
-      { id: 'address', label: 'Dirección', icon: 'pin' },
-      { id: 'security', label: 'Contraseña', icon: 'lock' },
-      { id: 'prefs', label: 'Preferencias', icon: 'help' },
-    ];
+  readonly sectionOptions: ChoiceOption[] = [
+    { value: 'photo', label: 'Foto' },
+    { value: 'data', label: 'Datos' },
+    { value: 'contact', label: 'Correo y teléfono' },
+    { value: 'address', label: 'Dirección' },
+    { value: 'security', label: 'Contraseña' },
+    { value: 'prefs', label: 'Preferencias' },
+  ];
 
   readonly documents: ChoiceOption[] = [
     { value: 'dni', label: 'DNI' },
@@ -155,8 +154,8 @@ export class ProfilePage {
     return [user.firstName, user.lastName, user.secondLastName].filter(Boolean).join(' ');
   }
 
-  select(id: ProfileSection): void {
-    this.section.set(id);
+  select(id: string): void {
+    this.section.set(id as ProfileSection);
     this.notice.set(null);
     this.error.set(null);
   }

@@ -13,278 +13,264 @@
     } @else if (status() === 'error') {
       <app-alert tone="error">No hemos podido cargar el perfil. Recarga la página.</app-alert>
     } @else if (profile(); as user) {
-      <div class="pf__layout">
-        <nav class="pf__nav" aria-label="Secciones del perfil">
-          <div class="pf__who">
-            <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="md" />
-            <div>
-              <p class="pf__name">{{ fullName() }}</p>
-              <p class="pf__mail">{{ user.email }}</p>
+      <div class="pf__who">
+        <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="md" />
+        <div>
+          <p class="pf__name">{{ fullName() }}</p>
+          <p class="pf__mail">{{ user.email }}</p>
+        </div>
+      </div>
+
+      <ui-segmented-control
+        label="Secciones del perfil"
+        [wrap]="true"
+        [options]="sectionOptions"
+        [value]="section()"
+        (valueChange)="select($event)"
+      />
+
+      <div class="pf__main">
+        @if (notice()) {
+          <app-alert tone="success">{{ notice() }}</app-alert>
+        }
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+
+        @if (section() === 'photo') {
+          <ui-form-card>
+            <h2>Foto de perfil</h2>
+            <p class="pf__hint">JPEG, PNG o WebP. Máximo 2 MB. Si no hay foto, usamos tus iniciales.</p>
+            <div class="pf__photo">
+              <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="lg" />
+              <div class="pf__photo-actions">
+                <label class="pf__file">
+                  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+                  Cambiar foto
+                </label>
+                <app-button variant="ghost" (click)="removePhoto()" [disabled]="!user.photoUrl || saving()">
+                  Quitar foto
+                </app-button>
+              </div>
             </div>
-          </div>
-          @for (item of sections; track item.id) {
-            <button
-              type="button"
-              class="pf__tab"
-              [class.pf__tab--on]="section() === item.id"
-              [attr.aria-current]="section() === item.id ? 'page' : null"
-              (click)="select(item.id)"
-            >
-              <app-icon [name]="item.icon" />
-              {{ item.label }}
-            </button>
-          }
-        </nav>
+          </ui-form-card>
+        }
 
-        <div class="pf__main">
-          @if (notice()) {
-            <app-alert tone="success">{{ notice() }}</app-alert>
-          }
-          @if (error()) {
-            <app-alert tone="error">{{ error() }}</app-alert>
-          }
-
-          @if (section() === 'photo') {
+        @if (section() === 'data') {
+          <form [formGroup]="dataForm" (ngSubmit)="saveData()" novalidate>
             <ui-form-card>
-              <h2>Foto de perfil</h2>
-              <p class="pf__hint">JPEG, PNG o WebP. Máximo 2 MB. Si no hay foto, usamos tus iniciales.</p>
-              <div class="pf__photo">
-                <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="lg" />
-                <div class="pf__photo-actions">
-                  <label class="pf__file">
-                    <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
-                    Cambiar foto
-                  </label>
-                  <app-button variant="ghost" (click)="removePhoto()" [disabled]="!user.photoUrl || saving()">
-                    Quitar foto
-                  </app-button>
-                </div>
+              <h2>Datos personales</h2>
+              <div class="pf__grid">
+                <ui-input
+                  id="pf-name"
+                  label="Nombre"
+                  [field]="dataForm.controls.firstName"
+                  [error]="requiredError(dataForm, 'firstName', 'Escribe tu nombre.')"
+                  autocomplete="given-name"
+                />
+                <ui-input
+                  id="pf-last"
+                  label="Primer apellido"
+                  [field]="dataForm.controls.lastName"
+                  [error]="requiredError(dataForm, 'lastName', 'Escribe tu primer apellido.')"
+                  autocomplete="family-name"
+                />
+                <ui-input id="pf-last2" label="Segundo apellido" [field]="dataForm.controls.secondLastName" />
+                <ui-select
+                  id="pf-doc"
+                  label="Tipo de documento"
+                  [options]="documents"
+                  [value]="dataForm.controls.documentType.value"
+                  (valueChange)="dataForm.controls.documentType.setValue($event)"
+                />
+                <ui-input
+                  id="pf-docn"
+                  label="Número de documento"
+                  [field]="dataForm.controls.documentNumber"
+                  [error]="requiredError(dataForm, 'documentNumber', 'Indica el número.')"
+                />
+                <ui-date-picker
+                  id="pf-birth"
+                  label="Fecha de nacimiento"
+                  [field]="dataForm.controls.birthDate"
+                  [error]="requiredError(dataForm, 'birthDate', 'Indica la fecha.')"
+                />
+                <ui-input
+                  id="pf-nat"
+                  label="Nacionalidad"
+                  [field]="dataForm.controls.nationality"
+                  [error]="requiredError(dataForm, 'nationality', 'Indica la nacionalidad.')"
+                />
+                <ui-input id="pf-job" label="Ocupación" [field]="dataForm.controls.occupation" />
+              </div>
+              <div class="pf__actions">
+                <app-button type="submit" [disabled]="saving()">Guardar datos</app-button>
               </div>
             </ui-form-card>
-          }
+          </form>
+        }
 
-          @if (section() === 'data') {
-            <form [formGroup]="dataForm" (ngSubmit)="saveData()" novalidate>
-              <ui-form-card>
-                <h2>Datos personales</h2>
-                <div class="pf__grid">
-                  <ui-input
-                    id="pf-name"
-                    label="Nombre"
-                    [field]="dataForm.controls.firstName"
-                    [error]="requiredError(dataForm, 'firstName', 'Escribe tu nombre.')"
-                    autocomplete="given-name"
-                  />
-                  <ui-input
-                    id="pf-last"
-                    label="Primer apellido"
-                    [field]="dataForm.controls.lastName"
-                    [error]="requiredError(dataForm, 'lastName', 'Escribe tu primer apellido.')"
-                    autocomplete="family-name"
-                  />
-                  <ui-input id="pf-last2" label="Segundo apellido" [field]="dataForm.controls.secondLastName" />
-                  <ui-select
-                    id="pf-doc"
-                    label="Tipo de documento"
-                    [options]="documents"
-                    [value]="dataForm.controls.documentType.value"
-                    (valueChange)="dataForm.controls.documentType.setValue($event)"
-                  />
-                  <ui-input
-                    id="pf-docn"
-                    label="Número de documento"
-                    [field]="dataForm.controls.documentNumber"
-                    [error]="requiredError(dataForm, 'documentNumber', 'Indica el número.')"
-                  />
-                  <ui-input
-                    id="pf-birth"
-                    label="Fecha de nacimiento"
-                    type="date"
-                    [field]="dataForm.controls.birthDate"
-                    [error]="requiredError(dataForm, 'birthDate', 'Indica la fecha.')"
-                  />
-                  <ui-input
-                    id="pf-nat"
-                    label="Nacionalidad"
-                    [field]="dataForm.controls.nationality"
-                    [error]="requiredError(dataForm, 'nationality', 'Indica la nacionalidad.')"
-                  />
-                  <ui-input id="pf-job" label="Ocupación" [field]="dataForm.controls.occupation" />
-                </div>
-                <div class="pf__actions">
-                  <app-button type="submit" [disabled]="saving()">Guardar datos</app-button>
-                </div>
-              </ui-form-card>
-            </form>
-          }
-
-          @if (section() === 'contact') {
-            <form [formGroup]="contactForm" (ngSubmit)="saveContact()" novalidate>
-              <ui-form-card>
-                <h2>Correo y teléfono</h2>
-                <ui-input
-                  id="pf-email"
-                  label="Correo electrónico"
-                  type="email"
-                  [field]="contactForm.controls.email"
-                  [error]="requiredError(contactForm, 'email', 'Necesitamos un correo válido.')"
-                  autocomplete="email"
-                  info="Usamos este correo para avisos de seguridad y justificación de operaciones."
-                />
-                <div class="pf__phone">
-                  <ui-select
-                    id="pf-prefix"
-                    label="Prefijo"
-                    [uppercase]="false"
-                    [options]="prefixes"
-                    [value]="contactForm.controls.phonePrefix.value"
-                    (valueChange)="contactForm.controls.phonePrefix.setValue($event)"
-                  />
-                  <ui-input
-                    id="pf-phone"
-                    label="Teléfono móvil"
-                    type="tel"
-                    [field]="contactForm.controls.phone"
-                    [error]="requiredError(contactForm, 'phone', 'Introduce 9 dígitos.')"
-                    autocomplete="tel"
-                  />
-                </div>
-                <div class="pf__actions">
-                  <app-button type="submit" [disabled]="saving()">Guardar contacto</app-button>
-                </div>
-              </ui-form-card>
-            </form>
-          }
-
-          @if (section() === 'address') {
-            <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" novalidate>
-              <ui-form-card>
-                <h2>Dirección fiscal</h2>
-                <ui-input
-                  id="pf-addr"
-                  label="Dirección"
-                  [field]="addressForm.controls.address"
-                  [error]="requiredError(addressForm, 'address', 'Indica la dirección.')"
-                  autocomplete="street-address"
-                />
-                <div class="pf__grid">
-                  <ui-input
-                    id="pf-city"
-                    label="Localidad"
-                    [field]="addressForm.controls.city"
-                    [error]="requiredError(addressForm, 'city', 'Indica la localidad.')"
-                  />
-                  <ui-input
-                    id="pf-zip"
-                    label="Código postal"
-                    [field]="addressForm.controls.postalCode"
-                    [error]="requiredError(addressForm, 'postalCode', 'Cinco dígitos.')"
-                  />
-                  <ui-input
-                    id="pf-prov"
-                    label="Provincia"
-                    [field]="addressForm.controls.province"
-                    [error]="requiredError(addressForm, 'province', 'Indica la provincia.')"
-                  />
-                </div>
-                <div class="pf__actions">
-                  <app-button type="submit" [disabled]="saving()">Guardar dirección</app-button>
-                </div>
-              </ui-form-card>
-            </form>
-          }
-
-          @if (section() === 'security') {
-            <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
-              <ui-form-card>
-                <h2>Cambiar contraseña</h2>
-                <p class="pf__hint">
-                  En esta demo la contraseña actual es <strong>{{ demoPassword }}</strong>. La nueva debe tener 8
-                  caracteres, mayúscula, número y símbolo.
-                </p>
-                <ui-input
-                  id="pf-cur"
-                  label="Contraseña actual"
-                  type="password"
-                  [field]="passwordForm.controls.currentPassword"
-                  [error]="requiredError(passwordForm, 'currentPassword', 'Escribe la contraseña actual.')"
-                  autocomplete="current-password"
-                />
-                <ui-input
-                  id="pf-new"
-                  label="Nueva contraseña"
-                  type="password"
-                  [field]="passwordForm.controls.newPassword"
-                  [error]="requiredError(passwordForm, 'newPassword', 'Mínimo 8 caracteres.')"
-                  autocomplete="new-password"
-                />
-                <ui-input
-                  id="pf-rep"
-                  label="Repite la nueva contraseña"
-                  type="password"
-                  [field]="passwordForm.controls.confirmPassword"
-                  [error]="requiredError(passwordForm, 'confirmPassword', 'Repite la contraseña.')"
-                  autocomplete="new-password"
-                />
-                <p class="pf__meta">Último cambio: {{ user.lastPasswordChange }}</p>
-                <div class="pf__actions">
-                  <app-button type="submit" [disabled]="saving()">Actualizar contraseña</app-button>
-                </div>
-              </ui-form-card>
-            </form>
-          }
-
-          @if (section() === 'prefs') {
-            <form [formGroup]="prefsForm" (ngSubmit)="savePrefs()" novalidate>
-              <ui-form-card>
-                <h2>Preferencias</h2>
+        @if (section() === 'contact') {
+          <form [formGroup]="contactForm" (ngSubmit)="saveContact()" novalidate>
+            <ui-form-card>
+              <h2>Correo y teléfono</h2>
+              <ui-input
+                id="pf-email"
+                label="Correo electrónico"
+                type="email"
+                [field]="contactForm.controls.email"
+                [error]="requiredError(contactForm, 'email', 'Necesitamos un correo válido.')"
+                autocomplete="email"
+                info="Usamos este correo para avisos de seguridad y justificación de operaciones."
+              />
+              <div class="pf__phone">
                 <ui-select
-                  id="pf-lang"
-                  label="Idioma de la banca online"
+                  id="pf-prefix"
+                  label="Prefijo"
                   [uppercase]="false"
-                  [options]="languages"
-                  [value]="prefsForm.controls.language.value"
-                  (valueChange)="prefsForm.controls.language.setValue($event)"
+                  [options]="prefixes"
+                  [value]="contactForm.controls.phonePrefix.value"
+                  (valueChange)="contactForm.controls.phonePrefix.setValue($event)"
                 />
-                <div class="pf__toggles">
-                  <ui-toggle
-                    id="pf-2fa"
-                    label="Activar verificación en dos pasos"
-                    info="En la demo solo se guarda el estado. No envía SMS reales."
-                    [checked]="prefsForm.controls.twoFactorEnabled.value"
-                    (checkedChange)="prefsForm.controls.twoFactorEnabled.setValue($event)"
-                  />
-                  <ui-checkbox
-                    id="pf-sec"
-                    label="Avisos de seguridad (accesos y movimientos)"
-                    [checked]="prefsForm.controls.securityAlerts.value"
-                    (checkedChange)="prefsForm.controls.securityAlerts.setValue($event)"
-                  />
-                  <ui-checkbox
-                    id="pf-em"
-                    label="Ofertas y novedades por correo"
-                    [checked]="prefsForm.controls.marketingEmail.value"
-                    (checkedChange)="prefsForm.controls.marketingEmail.setValue($event)"
-                  />
-                  <ui-checkbox
-                    id="pf-sms"
-                    label="Ofertas por SMS"
-                    [checked]="prefsForm.controls.marketingSms.value"
-                    (checkedChange)="prefsForm.controls.marketingSms.setValue($event)"
-                  />
-                </div>
-                <div class="pf__actions">
-                  <app-button type="submit" [disabled]="saving()">Guardar preferencias</app-button>
-                </div>
-              </ui-form-card>
-            </form>
-          }
-        </div>
+                <ui-input
+                  id="pf-phone"
+                  label="Teléfono móvil"
+                  type="tel"
+                  [field]="contactForm.controls.phone"
+                  [error]="requiredError(contactForm, 'phone', 'Introduce 9 dígitos.')"
+                  autocomplete="tel"
+                />
+              </div>
+              <div class="pf__actions">
+                <app-button type="submit" [disabled]="saving()">Guardar contacto</app-button>
+              </div>
+            </ui-form-card>
+          </form>
+        }
 
-        <ui-help
-          title="¿Dudas con tu perfil?"
-          body="De lunes a viernes, de 8:00 a 22:00. En un banco real, el cambio de documento o de correo pediría una verificación."
-        />
+        @if (section() === 'address') {
+          <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" novalidate>
+            <ui-form-card>
+              <h2>Dirección fiscal</h2>
+              <ui-input
+                id="pf-addr"
+                label="Dirección"
+                [field]="addressForm.controls.address"
+                [error]="requiredError(addressForm, 'address', 'Indica la dirección.')"
+                autocomplete="street-address"
+              />
+              <div class="pf__grid">
+                <ui-input
+                  id="pf-city"
+                  label="Localidad"
+                  [field]="addressForm.controls.city"
+                  [error]="requiredError(addressForm, 'city', 'Indica la localidad.')"
+                />
+                <ui-input
+                  id="pf-zip"
+                  label="Código postal"
+                  [field]="addressForm.controls.postalCode"
+                  [error]="requiredError(addressForm, 'postalCode', 'Cinco dígitos.')"
+                />
+                <ui-input
+                  id="pf-prov"
+                  label="Provincia"
+                  [field]="addressForm.controls.province"
+                  [error]="requiredError(addressForm, 'province', 'Indica la provincia.')"
+                />
+              </div>
+              <div class="pf__actions">
+                <app-button type="submit" [disabled]="saving()">Guardar dirección</app-button>
+              </div>
+            </ui-form-card>
+          </form>
+        }
+
+        @if (section() === 'security') {
+          <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+            <ui-form-card>
+              <h2>Cambiar contraseña</h2>
+              <p class="pf__hint">
+                En esta demo la contraseña actual es <strong>{{ demoPassword }}</strong>. La nueva debe tener 8
+                caracteres, mayúscula, número y símbolo.
+              </p>
+              <ui-input
+                id="pf-cur"
+                label="Contraseña actual"
+                type="password"
+                [field]="passwordForm.controls.currentPassword"
+                [error]="requiredError(passwordForm, 'currentPassword', 'Escribe la contraseña actual.')"
+                autocomplete="current-password"
+              />
+              <ui-input
+                id="pf-new"
+                label="Nueva contraseña"
+                type="password"
+                [field]="passwordForm.controls.newPassword"
+                [error]="requiredError(passwordForm, 'newPassword', 'Mínimo 8 caracteres.')"
+                autocomplete="new-password"
+              />
+              <ui-input
+                id="pf-rep"
+                label="Repite la nueva contraseña"
+                type="password"
+                [field]="passwordForm.controls.confirmPassword"
+                [error]="requiredError(passwordForm, 'confirmPassword', 'Repite la contraseña.')"
+                autocomplete="new-password"
+              />
+              <p class="pf__meta">Último cambio: {{ user.lastPasswordChange }}</p>
+              <div class="pf__actions">
+                <app-button type="submit" [disabled]="saving()">Actualizar contraseña</app-button>
+              </div>
+            </ui-form-card>
+          </form>
+        }
+
+        @if (section() === 'prefs') {
+          <form [formGroup]="prefsForm" (ngSubmit)="savePrefs()" novalidate>
+            <ui-form-card>
+              <h2>Preferencias</h2>
+              <ui-select
+                id="pf-lang"
+                label="Idioma de la banca online"
+                [uppercase]="false"
+                [options]="languages"
+                [value]="prefsForm.controls.language.value"
+                (valueChange)="prefsForm.controls.language.setValue($event)"
+              />
+              <div class="pf__toggles">
+                <ui-toggle
+                  id="pf-2fa"
+                  label="Activar verificación en dos pasos"
+                  info="En la demo solo se guarda el estado. No envía SMS reales."
+                  [checked]="prefsForm.controls.twoFactorEnabled.value"
+                  (checkedChange)="prefsForm.controls.twoFactorEnabled.setValue($event)"
+                />
+                <ui-checkbox
+                  id="pf-sec"
+                  label="Avisos de seguridad (accesos y movimientos)"
+                  [checked]="prefsForm.controls.securityAlerts.value"
+                  (checkedChange)="prefsForm.controls.securityAlerts.setValue($event)"
+                />
+                <ui-checkbox
+                  id="pf-em"
+                  label="Ofertas y novedades por correo"
+                  [checked]="prefsForm.controls.marketingEmail.value"
+                  (checkedChange)="prefsForm.controls.marketingEmail.setValue($event)"
+                />
+                <ui-checkbox
+                  id="pf-sms"
+                  label="Ofertas por SMS"
+                  [checked]="prefsForm.controls.marketingSms.value"
+                  (checkedChange)="prefsForm.controls.marketingSms.setValue($event)"
+                />
+              </div>
+              <div class="pf__actions">
+                <app-button type="submit" [disabled]="saving()">Guardar preferencias</app-button>
+              </div>
+            </ui-form-card>
+          </form>
+        }
       </div>
     }
   </div>

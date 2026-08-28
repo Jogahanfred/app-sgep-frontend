@@ -13,7 +13,7 @@ import { UiFieldLabel } from '../ui-field-label/ui-field-label';
 export class UiInput {
   readonly id = input.required<string>();
   readonly label = input.required<string>();
-  readonly type = input<'text' | 'email' | 'tel' | 'number' | 'password' | 'date'>('text');
+  readonly type = input<'text' | 'email' | 'tel' | 'number' | 'password'>('text');
   readonly field = input.required<FormControl<string> | FormControl<number>>();
   readonly hint = input<string | undefined>(undefined);
   readonly error = input<string | undefined>(undefined);

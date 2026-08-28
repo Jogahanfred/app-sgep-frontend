@@ -39,3 +39,13 @@
   color: #fff;
   font-weight: 700;
 }
+
+.sp--wrap {
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.sp--wrap .sp__btn {
+  flex: 0 1 auto;
+}

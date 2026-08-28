@@ -31,6 +31,9 @@ describe('ProfilePage', () => {
     expect(text).toContain('Datos');
     expect(text).toContain('Correo y teléfono');
     expect(text).toContain('Contraseña');
+    expect(text).not.toContain('¿Dudas con tu perfil?');
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-help')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-segmented-control')).not.toBeNull();
   });
 
   it('cambia a la sección de correo', async () => {

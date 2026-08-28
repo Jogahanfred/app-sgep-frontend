@@ -2,6 +2,7 @@ export { UiAvatar } from '../ui-avatar/ui-avatar';
 export { UiAmountField } from '../ui-amount-field/ui-amount-field';
 export { UiCalcPanel } from '../ui-calc-panel/ui-calc-panel';
 export { UiCheckbox } from '../ui-checkbox/ui-checkbox';
+export { UiDatePicker } from '../ui-date-picker/ui-date-picker';
 export { UiError } from '../ui-error/ui-error';
 export { UiFieldLabel } from '../ui-field-label/ui-field-label';
 export { UiFormCard } from '../ui-form-card/ui-form-card';

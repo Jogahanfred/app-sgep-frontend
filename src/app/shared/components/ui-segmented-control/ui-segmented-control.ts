@@ -5,7 +5,7 @@ import type { ChoiceOption } from '@shared/models/choice.model';
   selector: 'ui-segmented-control',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="sp" role="radiogroup" [attr.aria-label]="label()">
+    <div class="sp" [class.sp--wrap]="wrap()" role="radiogroup" [attr.aria-label]="label()">
       @for (option of options(); track option.value) {
         <button
           type="button"
@@ -26,5 +26,6 @@ export class UiSegmentedControl {
   readonly label = input.required<string>();
   readonly options = input.required<ChoiceOption[]>();
   readonly value = input.required<string>();
+  readonly wrap = input(false);
   readonly valueChange = output<string>();
 }

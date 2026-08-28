@@ -1,0 +1,97 @@
+<div class="dp" appClickOutside (appClickOutside)="close()">
+  <ui-field-label [label]="label()" [info]="info()" [forId]="id()" />
+  <button
+    type="button"
+    class="dp__trigger"
+    [id]="id()"
+    [class.dp__trigger--open]="open()"
+    [class.dp__trigger--error]="!!error()"
+    [attr.aria-expanded]="open()"
+    aria-haspopup="dialog"
+    (click)="toggle()"
+    (keydown)="onKeydown($event)"
+  >
+    <span [class.dp__ph]="!displayValue()">{{ displayValue() || 'Elige una fecha' }}</span>
+    <app-icon name="calendar" />
+  </button>
+
+  @if (open()) {
+    <div class="dp__pop" role="dialog" [attr.aria-label]="label()">
+      <div class="dp__nav">
+        <button type="button" class="dp__arrow" aria-label="Anterior" (click)="step(-1)">
+          <app-icon name="chevron" />
+        </button>
+        <button type="button" class="dp__title" (click)="liftView()" [disabled]="view() === 'years'">
+          {{ title() }}
+        </button>
+        <button type="button" class="dp__arrow" aria-label="Siguiente" (click)="step(1)">
+          <app-icon name="chevron" />
+        </button>
+      </div>
+
+      @if (view() === 'days') {
+        <div class="dp__week" aria-hidden="true">
+          @for (day of weekdays; track day) {
+            <span>{{ day }}</span>
+          }
+        </div>
+        <div class="dp__grid" role="grid">
+          @for (cell of cells(); track cell.iso) {
+            <button
+              type="button"
+              class="dp__day"
+              role="gridcell"
+              [class.dp__day--out]="!cell.inMonth"
+              [class.dp__day--on]="cell.iso === selectedIso()"
+              [class.dp__day--today]="cell.iso === todayIso && cell.iso !== selectedIso()"
+              [attr.aria-selected]="cell.iso === selectedIso()"
+              (click)="pickDay(cell.iso)"
+            >
+              {{ cell.day }}
+            </button>
+          }
+        </div>
+      }
+
+      @if (view() === 'months') {
+        <div class="dp__chips">
+          @for (month of monthsShort; track month; let index = $index) {
+            <button
+              type="button"
+              class="dp__chip"
+              [class.dp__chip--on]="index === cursor().month"
+              (click)="pickMonth(index)"
+            >
+              {{ month }}
+            </button>
+          }
+        </div>
+      }
+
+      @if (view() === 'years') {
+        <div class="dp__chips">
+          @for (year of years(); track year) {
+            <button
+              type="button"
+              class="dp__chip"
+              [class.dp__chip--on]="year === cursor().year"
+              [disabled]="year < minYear() || year > maxYear()"
+              (click)="pickYear(year)"
+            >
+              {{ year }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="dp__foot">
+        <button type="button" class="dp__link" (click)="clear()">Borrar</button>
+        <button type="button" class="dp__link" (click)="pickToday()">Hoy</button>
+      </div>
+    </div>
+  }
+
+  @if (error(); as message) {
+    <ui-error [message]="message" />
+  }
+</div>
