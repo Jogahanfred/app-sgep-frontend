@@ -5,11 +5,13 @@
       <p class="adm__lead">Personas, roles y especialidades del sistema. Tu ficha personal está en Mi perfil.</p>
     </header>
 
-    <nav class="adm__nav" aria-label="Catálogo">
-      <a routerLink="/catalogo/usuarios" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Usuarios</a>
-      <a routerLink="/catalogo/roles" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Roles</a>
-      <a routerLink="/catalogo/especialidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Especialidades</a>
-    </nav>
+    @if (showDomainNav()) {
+      <nav class="adm__nav" aria-label="Catálogo">
+        <a routerLink="/catalogo/usuarios" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Usuarios</a>
+        <a routerLink="/catalogo/roles" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Roles</a>
+        <a routerLink="/catalogo/especialidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Especialidades</a>
+      </nav>
+    }
 
     <router-outlet />
   </div>
