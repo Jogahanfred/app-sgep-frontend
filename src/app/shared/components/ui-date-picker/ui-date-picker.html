@@ -7,6 +7,7 @@
     [class.dp__trigger--open]="open()"
     [class.dp__trigger--error]="!!error()"
     [attr.aria-expanded]="open()"
+    [disabled]="field().disabled"
     aria-haspopup="dialog"
     (click)="toggle()"
     (keydown)="onKeydown($event)"

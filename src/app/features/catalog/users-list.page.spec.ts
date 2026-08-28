@@ -25,6 +25,14 @@ async function waitReady(fixture: ComponentFixture<UsersListPage>): Promise<void
 
 describe('UsersListPage', () => {
   beforeEach(async () => {
+    if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+      HTMLDialogElement.prototype.showModal = function showModal() {
+        this.setAttribute('open', '');
+      };
+      HTMLDialogElement.prototype.close = function close() {
+        this.removeAttribute('open');
+      };
+    }
     await TestBed.configureTestingModule({
       imports: [UsersListPage],
       providers: [provideRouter([]), ...CORE_PROVIDERS],
@@ -49,8 +57,22 @@ describe('UsersListPage', () => {
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('[aria-label="Primera página"]')).not.toBeNull();
     expect(root.querySelector('app-user-quick-create')).toBeNull();
-    expect(root.querySelector('app-modal')).toBeNull();
     expect(root.querySelector('a[href="/catalogo/usuarios/nuevo"]')).not.toBeNull();
+  });
+
+  it('pide confirmación antes de dar de baja', async () => {
+    const fixture = TestBed.createComponent(UsersListPage);
+    await waitReady(fixture);
+    fixture.componentInstance.selectedId.set('usr-elena-martin');
+    fixture.componentInstance.askDeactivate();
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Confirmar baja');
+    expect(text).toContain('Elena');
+    expect(text).toContain('Dar de baja');
+    fixture.componentInstance.closeConfirm();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.users().find((user) => user.id === 'usr-elena-martin')?.status).toBe('active');
   });
 
   it('lleva el alta a una pantalla del catálogo', async () => {

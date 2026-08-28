@@ -41,10 +41,19 @@
       (selectedIdChange)="selectedId.set($event)"
     >
       <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
-      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goSelected()">Detalle</app-button>
-      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goSelected()">Modificar</app-button>
-      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="deactivateSelected()">Baja</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="askDeactivate()">Baja</app-button>
     </ui-table>
   }
 
+  <app-modal title="Confirmar baja" [open]="confirmOpen()" (closed)="closeConfirm()">
+    <p class="ap__confirm">
+      ¿Seguro que quieres dar de baja {{ isRoles ? 'el rol' : 'la especialidad' }} «{{ confirmName() }}»?
+    </p>
+    <div class="ap__actions">
+      <app-button variant="ghost" (click)="closeConfirm()">Cancelar</app-button>
+      <app-button (click)="confirmDeactivate()">Dar de baja</app-button>
+    </div>
+  </app-modal>
 </div>

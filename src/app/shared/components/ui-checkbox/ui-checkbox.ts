@@ -10,6 +10,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
         type="checkbox"
         [id]="id()"
         [checked]="checked()"
+        [disabled]="disabled()"
         (change)="onChange($event)"
       />
       <span class="ck__box" aria-hidden="true">
@@ -28,9 +29,11 @@ export class UiCheckbox {
   readonly id = input.required<string>();
   readonly label = input.required<string>();
   readonly checked = input(false);
+  readonly disabled = input(false);
   readonly checkedChange = output<boolean>();
 
   onChange(event: Event): void {
+    if (this.disabled()) return;
     this.checkedChange.emit((event.target as HTMLInputElement).checked);
   }
 }

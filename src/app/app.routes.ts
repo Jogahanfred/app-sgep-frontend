@@ -149,12 +149,24 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'usuarios/:id',
+        path: 'usuarios/:id/editar',
         loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
         data: {
+          mode: 'edit',
           seo: {
             title: 'Editar usuario | SIGA',
             description: 'Datos generales, roles y especialidades de una persona.',
+          },
+        },
+      },
+      {
+        path: 'usuarios/:id',
+        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Detalle de usuario | SIGA',
+            description: 'Consulta los datos de una persona, sin modificar.',
           },
         },
       },
@@ -181,13 +193,26 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'roles/:id/editar',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'roles',
+          mode: 'edit',
+          seo: {
+            title: 'Editar rol | SIGA',
+            description: 'Nombre, descripción y estado del rol.',
+          },
+        },
+      },
+      {
         path: 'roles/:id',
         loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'roles',
+          mode: 'view',
           seo: {
-            title: 'Editar rol | SIGA',
-            description: 'Nombre, descripción y estado del rol.',
+            title: 'Detalle de rol | SIGA',
+            description: 'Consulta el rol, sin modificar.',
           },
         },
       },
@@ -214,13 +239,26 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'especialidades/:id/editar',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'specialties',
+          mode: 'edit',
+          seo: {
+            title: 'Editar especialidad | SIGA',
+            description: 'Nombre, descripción y estado de la especialidad.',
+          },
+        },
+      },
+      {
         path: 'especialidades/:id',
         loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'specialties',
+          mode: 'view',
           seo: {
-            title: 'Editar especialidad | SIGA',
-            description: 'Nombre, descripción y estado de la especialidad.',
+            title: 'Detalle de especialidad | SIGA',
+            description: 'Consulta la especialidad, sin modificar.',
           },
         },
       },

@@ -50,6 +50,7 @@ export class UserFormPage {
 
   readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isCreate = !this.editingId;
+  readonly isView = this.route.snapshot.data['mode'] === 'view';
   readonly roles = signal<UserRoleEntity[]>([]);
   readonly specialties = signal<SpecialtyEntity[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
@@ -59,7 +60,15 @@ export class UserFormPage {
   readonly selectedRoleIds = signal<string[]>([]);
   readonly selectedSpecialtyIds = signal<string[]>([]);
 
-  readonly title = computed(() => (this.isCreate ? 'Nuevo usuario' : 'Editar usuario'));
+  readonly title = computed(() => {
+    if (this.isCreate) return 'Nuevo usuario';
+    return this.isView ? 'Detalle de usuario' : 'Editar usuario';
+  });
+  readonly lead = computed(() =>
+    this.isView
+      ? 'Consulta los datos generales, roles y especialidades. Esta pantalla no permite cambios.'
+      : 'Completa los datos generales y, si aplica, los roles y especialidades.',
+  );
 
   readonly entityStatusOptions: ChoiceOption[] = entityStatusOptions;
 
@@ -110,6 +119,7 @@ export class UserFormPage {
               indicative: user.indicative ?? '',
               status: user.status,
             });
+            if (this.isView) this.form.disable({ emitEvent: false });
           }
           this.loadState.set('ready');
         },
@@ -126,16 +136,19 @@ export class UserFormPage {
   }
 
   toggleRole(id: string, checked: boolean): void {
+    if (this.isView) return;
     this.selectedRoleIds.update((current) => (checked ? [...current, id] : current.filter((item) => item !== id)));
   }
 
   toggleSpecialty(id: string, checked: boolean): void {
+    if (this.isView) return;
     this.selectedSpecialtyIds.update((current) =>
       checked ? [...current, id] : current.filter((item) => item !== id),
     );
   }
 
   async save(): Promise<void> {
+    if (this.isView) return;
     this.error.set(null);
     if (this.form.invalid) {
       this.form.markAllAsTouched();

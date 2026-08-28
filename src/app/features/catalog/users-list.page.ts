@@ -7,6 +7,7 @@ import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-cat
 import type { EntityStatus, UserEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
+import { Modal } from '@shared/components/modal/modal';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
@@ -15,7 +16,7 @@ import type { ChoiceOption } from '@shared/models/choice.model';
 @Component({
   selector: 'app-users-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, UiInput, UiSelect, UiTable],
+  imports: [Alert, Button, Modal, UiInput, UiSelect, UiTable],
   templateUrl: './users-list.page.html',
   styleUrl: './users-list.page.scss',
 })
@@ -31,6 +32,8 @@ export class UsersListPage {
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
+  readonly confirmOpen = signal(false);
+  readonly confirmName = signal('');
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -99,12 +102,33 @@ export class UsersListPage {
     return `${day}/${month}/${year}`;
   }
 
-  goSelected(): void {
+  goDetail(): void {
     const href = this.selectedHref();
     if (href) void this.router.navigateByUrl(href);
   }
 
-  deactivateSelected(): void {
+  goEdit(): void {
+    const href = this.selectedHref();
+    if (href) void this.router.navigateByUrl(`${href}/editar`);
+  }
+
+  askDeactivate(): void {
+    const user = this.users().find((item) => item.id === this.selectedId());
+    if (!user) return;
+    this.confirmName.set(`${user.firstName} ${user.lastName}`.trim());
+    this.confirmOpen.set(true);
+  }
+
+  closeConfirm(): void {
+    this.confirmOpen.set(false);
+  }
+
+  confirmDeactivate(): void {
+    this.confirmOpen.set(false);
+    this.deactivateSelected();
+  }
+
+  private deactivateSelected(): void {
     const user = this.users().find((item) => item.id === this.selectedId());
     if (!user) return;
     this.updateUser

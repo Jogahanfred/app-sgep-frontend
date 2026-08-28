@@ -17,12 +17,12 @@ export class CatalogLayout {
   readonly showDomainNav = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => !isCreateUrl(event.urlAfterRedirects)),
+      map((event) => !isRecordUrl(event.urlAfterRedirects)),
     ),
-    { initialValue: !isCreateUrl(this.router.url) },
+    { initialValue: !isRecordUrl(this.router.url) },
   );
 }
 
-function isCreateUrl(url: string): boolean {
-  return /\/nuevo(?:[/?#]|$)/.test(url);
+function isRecordUrl(url: string): boolean {
+  return /\/catalogo\/(usuarios|roles|especialidades)\/[^/?#]+/.test(url);
 }

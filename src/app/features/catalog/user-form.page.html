@@ -2,7 +2,7 @@
   <div class="ap__head">
     <div>
       <h1>{{ title() }}</h1>
-      <p class="ap__lead">Completa los datos generales y, si aplica, los roles y especialidades.</p>
+      <p class="ap__lead">{{ lead() }}</p>
     </div>
     <app-button href="/catalogo/usuarios" variant="ghost">Volver al listado</app-button>
   </div>
@@ -57,16 +57,18 @@
               [field]="form.controls.email"
               [error]="requiredError('email', 'Necesitamos un correo válido.')"
             />
-            <ui-input
-              id="usr-pass"
-              label="Contraseña"
-              type="password"
-              icon="lock"
-              [placeholder]="isCreate ? 'Mínimo 8 caracteres' : 'Déjala vacía para no cambiarla'"
-              [field]="form.controls.password"
-              [error]="requiredError('password', 'La contraseña es obligatoria.')"
-              [info]="isCreate ? 'Mayúscula, número y símbolo.' : 'Solo rellena si quieres cambiar la clave.'"
-            />
+            @if (!isView) {
+              <ui-input
+                id="usr-pass"
+                label="Contraseña"
+                type="password"
+                icon="lock"
+                [placeholder]="isCreate ? 'Mínimo 8 caracteres' : 'Déjala vacía para no cambiarla'"
+                [field]="form.controls.password"
+                [error]="requiredError('password', 'La contraseña es obligatoria.')"
+                [info]="isCreate ? 'Mayúscula, número y símbolo.' : 'Solo rellena si quieres cambiar la clave.'"
+              />
+            }
             <ui-input
               id="usr-dni"
               label="DNI / Documento"
@@ -95,6 +97,7 @@
               [uppercase]="false"
               [options]="entityStatusOptions"
               [value]="form.controls.status.value"
+              [disabled]="isView"
               (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
             />
           </div>
@@ -108,6 +111,7 @@
                   [id]="'usr-role-' + role.id"
                   [label]="role.name + (role.status === 'inactive' ? ' (inactivo)' : '')"
                   [checked]="selectedRoleIds().includes(role.id)"
+                  [disabled]="isView"
                   (checkedChange)="toggleRole(role.id, $event)"
                 />
                 <p>{{ role.description }}</p>
@@ -124,6 +128,7 @@
                   [id]="'usr-spc-' + specialty.id"
                   [label]="specialty.name + (specialty.status === 'inactive' ? ' (inactiva)' : '')"
                   [checked]="selectedSpecialtyIds().includes(specialty.id)"
+                  [disabled]="isView"
                   (checkedChange)="toggleSpecialty(specialty.id, $event)"
                 />
                 <p>{{ specialty.description }}</p>
@@ -133,8 +138,10 @@
         }
 
         <div class="ap__actions">
-          <app-button variant="ghost" href="/catalogo/usuarios">Cancelar</app-button>
-          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear usuario' : 'Guardar cambios' }}</app-button>
+          <app-button variant="ghost" href="/catalogo/usuarios">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear usuario' : 'Guardar cambios' }}</app-button>
+          }
         </div>
       </form>
     </ui-form-card>

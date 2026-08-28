@@ -10,6 +10,11 @@
   color: #333;
 }
 
+.ck:has(.ck__native:disabled) {
+  cursor: default;
+  opacity: 0.72;
+}
+
 .ck__native {
   position: absolute;
   width: 1px;

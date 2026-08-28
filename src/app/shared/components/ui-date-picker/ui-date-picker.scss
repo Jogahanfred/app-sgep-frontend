@@ -33,6 +33,12 @@
   border-color: var(--color-error);
 }
 
+.dp__trigger:disabled {
+  cursor: default;
+  color: #6a6a6a;
+  background: #f7f7f7;
+}
+
 .dp__value {
   display: inline-flex;
   align-items: center;

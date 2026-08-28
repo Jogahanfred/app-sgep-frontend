@@ -128,6 +128,7 @@ export class UiDatePicker {
   });
 
   toggle(): void {
+    if (this.field().disabled) return;
     if (this.open()) {
       this.close();
       return;

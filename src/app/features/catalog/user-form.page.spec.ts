@@ -44,4 +44,32 @@ describe('UserFormPage', () => {
     expect(text).toContain('Especialidades');
     expect(root.querySelector('app-modal')).toBeNull();
   });
+
+  it('muestra el detalle en solo lectura, sin guardar', async () => {
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [UserFormPage],
+      providers: [
+        provideRouter([]),
+        ...CORE_PROVIDERS,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: { get: () => 'usr-elena-martin' }, data: { mode: 'view' } },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(UserFormPage);
+    await waitReady(fixture);
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
+    expect(text).toContain('Detalle de usuario');
+    expect(text).toContain('no permite cambios');
+    expect(text).not.toContain('Guardar cambios');
+    expect(text).not.toContain('Contraseña');
+    expect(text).toContain('04/03/2019');
+    expect(root.querySelector('input:disabled')).not.toBeNull();
+  });
 });

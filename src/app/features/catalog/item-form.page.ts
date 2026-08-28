@@ -36,6 +36,7 @@ export class ItemFormPage {
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
   readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isCreate = !this.editingId;
+  readonly isView = this.route.snapshot.data['mode'] === 'view';
   readonly isRoles = this.kind === 'roles';
   readonly loadState = signal<'loading' | 'ready' | 'error'>(this.isCreate ? 'ready' : 'loading');
   readonly saving = signal(false);
@@ -46,7 +47,16 @@ export class ItemFormPage {
 
   readonly title = computed(() => {
     if (this.isCreate) return this.isRoles ? 'Nuevo rol' : 'Nueva especialidad';
+    if (this.isView) return this.isRoles ? 'Detalle de rol' : 'Detalle de especialidad';
     return this.isRoles ? 'Editar rol' : 'Editar especialidad';
+  });
+  readonly lead = computed(() => {
+    if (this.isView) {
+      return this.isRoles
+        ? 'Consulta el nombre, la descripción y el estado del rol. Esta pantalla no permite cambios.'
+        : 'Consulta el nombre, la descripción y el estado de la especialidad. Esta pantalla no permite cambios.';
+    }
+    return this.isRoles ? 'Nombre, descripción y estado del rol.' : 'Nombre, descripción y estado de la especialidad.';
   });
 
   readonly entityStatusOptions: ChoiceOption[] = [
@@ -72,6 +82,7 @@ export class ItemFormPage {
           return;
         }
         this.form.reset({ name: item.name, description: item.description, status: item.status });
+        if (this.isView) this.form.disable({ emitEvent: false });
         this.loadState.set('ready');
       },
       error: () => this.loadState.set('error'),
@@ -85,6 +96,7 @@ export class ItemFormPage {
   }
 
   async save(): Promise<void> {
+    if (this.isView) return;
     this.error.set(null);
     if (this.form.invalid) {
       this.form.markAllAsTouched();

@@ -35,6 +35,17 @@ function configure(catalog: 'roles' | 'specialties'): Promise<void> {
 }
 
 describe('ItemsListPage', () => {
+  beforeEach(() => {
+    if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+      HTMLDialogElement.prototype.showModal = function showModal() {
+        this.setAttribute('open', '');
+      };
+      HTMLDialogElement.prototype.close = function close() {
+        this.removeAttribute('open');
+      };
+    }
+  });
+
   afterEach(() => TestBed.resetTestingModule());
 
   it('lista los roles del catálogo', async () => {
@@ -54,8 +65,22 @@ describe('ItemsListPage', () => {
     expect(text).toContain('Por página:');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('app-item-quick-create')).toBeNull();
-    expect(root.querySelector('app-modal')).toBeNull();
     expect(root.querySelector('a[href="/catalogo/roles/nuevo"]')).not.toBeNull();
+  });
+
+  it('pide confirmación antes de dar de baja un rol', async () => {
+    await configure('roles');
+    const fixture = TestBed.createComponent(ItemsListPage);
+    await waitReady(fixture);
+    fixture.componentInstance.selectedId.set('role-admin');
+    fixture.componentInstance.askDeactivate();
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Confirmar baja');
+    expect(text).toContain('Administrador');
+    fixture.componentInstance.closeConfirm();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.items().find((item) => item.id === 'role-admin')?.status).toBe('active');
   });
 
   it('lleva el alta de rol a una pantalla del catálogo', async () => {

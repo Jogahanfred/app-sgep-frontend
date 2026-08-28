@@ -7,6 +7,7 @@ import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-cat
 import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
+import { Modal } from '@shared/components/modal/modal';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
@@ -18,7 +19,7 @@ export type { CatalogKind };
 @Component({
   selector: 'app-items-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, UiInput, UiSelect, UiTable],
+  imports: [Alert, Button, Modal, UiInput, UiSelect, UiTable],
   templateUrl: './items-list.page.html',
   styleUrl: './items-list.page.scss',
 })
@@ -39,6 +40,8 @@ export class ItemsListPage {
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
+  readonly confirmOpen = signal(false);
+  readonly confirmName = signal('');
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -91,12 +94,33 @@ export class ItemsListPage {
     this.reload();
   }
 
-  goSelected(): void {
+  goDetail(): void {
     const id = this.selectedId();
     if (id) void this.router.navigate([this.editBase, id]);
   }
 
-  deactivateSelected(): void {
+  goEdit(): void {
+    const id = this.selectedId();
+    if (id) void this.router.navigate([this.editBase, id, 'editar']);
+  }
+
+  askDeactivate(): void {
+    const item = this.items().find((entry) => entry.id === this.selectedId());
+    if (!item) return;
+    this.confirmName.set(item.name);
+    this.confirmOpen.set(true);
+  }
+
+  closeConfirm(): void {
+    this.confirmOpen.set(false);
+  }
+
+  confirmDeactivate(): void {
+    this.confirmOpen.set(false);
+    this.deactivateSelected();
+  }
+
+  private deactivateSelected(): void {
     const item = this.items().find((entry) => entry.id === this.selectedId());
     if (!item) return;
     const stream = this.isRoles
