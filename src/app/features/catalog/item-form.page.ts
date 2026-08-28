@@ -13,6 +13,7 @@ import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
 import type { CatalogKind } from './items-list.page';
 
 @Component({
@@ -32,6 +33,7 @@ export class ItemFormPage {
   private readonly listSpecialties = inject(ListSpecialties);
   private readonly createSpecialty = inject(CreateSpecialty);
   private readonly updateSpecialty = inject(UpdateSpecialty);
+  private readonly toast = inject(ToastService);
 
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
   readonly editingId = this.route.snapshot.paramMap.get('id');
@@ -108,17 +110,17 @@ export class ItemFormPage {
       const id = this.editingId;
       if (id) {
         await firstValueFrom(this.update$(id, payload));
-        await this.router.navigate([this.listHref], {
-          state: { notice: this.isRoles ? 'Rol actualizado.' : 'Especialidad actualizada.' },
-        });
+        this.toast.success(this.isRoles ? 'Rol actualizado.' : 'Especialidad actualizada.');
+        await this.router.navigate([this.listHref]);
       } else {
         await firstValueFrom(this.create$(payload));
-        await this.router.navigate([this.listHref], {
-          state: { notice: this.isRoles ? 'Rol creado.' : 'Especialidad creada.' },
-        });
+        this.toast.success(this.isRoles ? 'Rol creado.' : 'Especialidad creada.');
+        await this.router.navigate([this.listHref]);
       }
     } catch (err: unknown) {
-      this.error.set(err instanceof DomainError ? err.message : 'No hemos podido guardar los cambios.');
+      const message = err instanceof DomainError ? err.message : 'No hemos podido guardar los cambios.';
+      this.error.set(message);
+      this.toast.error(message);
     } finally {
       this.saving.set(false);
     }

@@ -7,7 +7,8 @@ import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-cat
 import type { EntityStatus, UserEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Modal } from '@shared/components/modal/modal';
+import { UiConfirmDialog } from '@shared/components/ui-confirm-dialog/ui-confirm-dialog';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
@@ -16,7 +17,7 @@ import type { ChoiceOption } from '@shared/models/choice.model';
 @Component({
   selector: 'app-users-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Modal, UiInput, UiSelect, UiTable],
+  imports: [Alert, Button, UiConfirmDialog, UiInput, UiSelect, UiTable],
   templateUrl: './users-list.page.html',
   styleUrl: './users-list.page.scss',
 })
@@ -25,6 +26,7 @@ export class UsersListPage {
   private readonly listUsers = inject(ListAdminUsers);
   private readonly updateUser = inject(UpdateAdminUser);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly users = signal<UserEntity[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
@@ -34,10 +36,9 @@ export class UsersListPage {
   readonly selectedId = signal<string | null>(null);
   readonly confirmOpen = signal(false);
   readonly confirmName = signal('');
-  readonly notice = signal<string | null>(
-    (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
-      (history.state?.['notice'] as string | undefined) ??
-      null,
+  readonly confirmMessage = computed(
+    () =>
+      `¿Seguro que quieres dar de baja a ${this.confirmName()}? Dejará de poder ingresar al sistema.`,
   );
 
   readonly statusOptions: ChoiceOption[] = [
@@ -146,10 +147,11 @@ export class UsersListPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notice.set('La persona ha pasado a baja.');
+          this.toast.success('La persona ha pasado a baja.');
           this.selectedId.set(null);
           this.reload();
         },
+        error: () => this.toast.error('No hemos podido dar de baja a la persona.'),
       });
   }
 

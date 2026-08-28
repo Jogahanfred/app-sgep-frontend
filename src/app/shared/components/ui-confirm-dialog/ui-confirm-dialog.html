@@ -1,0 +1,7 @@
+<app-modal [title]="title()" [open]="open()" (closed)="onClose()">
+  <p class="cd__msg">{{ message() }}</p>
+  <div class="cd__actions">
+    <app-button variant="ghost" (click)="onClose()">{{ cancelLabel() }}</app-button>
+    <app-button (click)="onConfirm()">{{ confirmLabel() }}</app-button>
+  </div>
+</app-modal>

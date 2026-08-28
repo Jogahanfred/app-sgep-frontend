@@ -1,10 +1,6 @@
 <div class="ap">
   <p class="ap__lead">{{ lead }}</p>
 
-  @if (notice()) {
-    <app-alert tone="success">{{ notice() }}</app-alert>
-  }
-
   <div class="ap__toolbar">
     <ui-input
       id="catalog-search"
@@ -47,13 +43,12 @@
     </ui-table>
   }
 
-  <app-modal title="Confirmar baja" [open]="confirmOpen()" (closed)="closeConfirm()">
-    <p class="ap__confirm">
-      ¿Seguro que quieres dar de baja {{ isRoles ? 'el rol' : 'la especialidad' }} «{{ confirmName() }}»?
-    </p>
-    <div class="ap__actions">
-      <app-button variant="ghost" (click)="closeConfirm()">Cancelar</app-button>
-      <app-button (click)="confirmDeactivate()">Dar de baja</app-button>
-    </div>
-  </app-modal>
+  <ui-confirm-dialog
+    title="Confirmar baja"
+    confirmLabel="Dar de baja"
+    [open]="confirmOpen()"
+    [message]="confirmMessage()"
+    (closed)="closeConfirm()"
+    (confirmed)="confirmDeactivate()"
+  />
 </div>

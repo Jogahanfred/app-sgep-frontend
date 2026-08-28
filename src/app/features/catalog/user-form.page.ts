@@ -16,6 +16,7 @@ import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
 import { catalogPasswordValidator, entityStatusOptions, touchedError } from './catalog-form';
 
 type UserTab = 'general' | 'roles' | 'specialties';
@@ -47,6 +48,7 @@ export class UserFormPage {
   private readonly updateUser = inject(UpdateAdminUser);
   private readonly listRoles = inject(ListUserRoles);
   private readonly listSpecialties = inject(ListSpecialties);
+  private readonly toast = inject(ToastService);
 
   readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isCreate = !this.editingId;
@@ -164,15 +166,17 @@ export class UserFormPage {
     try {
       if (this.editingId) {
         await firstValueFrom(this.updateUser.execute(this.editingId, payload));
-        await this.router.navigate(['/catalogo/usuarios'], { state: { notice: 'Hemos actualizado a la persona.' } });
+        this.toast.success('Hemos actualizado a la persona.');
+        await this.router.navigate(['/catalogo/usuarios']);
       } else {
         await firstValueFrom(this.createUser.execute(payload));
-        await this.router.navigate(['/catalogo/usuarios'], {
-          state: { notice: 'La persona ya puede ingresar al sistema.' },
-        });
+        this.toast.success('La persona ya puede ingresar al sistema.');
+        await this.router.navigate(['/catalogo/usuarios']);
       }
     } catch (err: unknown) {
-      this.error.set(err instanceof DomainError ? err.message : 'No hemos podido guardar el usuario.');
+      const message = err instanceof DomainError ? err.message : 'No hemos podido guardar el usuario.';
+      this.error.set(message);
+      this.toast.error(message);
       this.tab.set('general');
     } finally {
       this.saving.set(false);

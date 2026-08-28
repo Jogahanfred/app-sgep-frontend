@@ -1,0 +1,16 @@
+:host {
+  display: contents;
+}
+
+.cd__msg {
+  margin: 0 0 1.15rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.cd__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}

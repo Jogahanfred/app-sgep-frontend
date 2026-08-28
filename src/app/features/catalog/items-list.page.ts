@@ -7,7 +7,8 @@ import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-cat
 import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Modal } from '@shared/components/modal/modal';
+import { UiConfirmDialog } from '@shared/components/ui-confirm-dialog/ui-confirm-dialog';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
@@ -19,7 +20,7 @@ export type { CatalogKind };
 @Component({
   selector: 'app-items-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Modal, UiInput, UiSelect, UiTable],
+  imports: [Alert, Button, UiConfirmDialog, UiInput, UiSelect, UiTable],
   templateUrl: './items-list.page.html',
   styleUrl: './items-list.page.scss',
 })
@@ -31,6 +32,7 @@ export class ItemsListPage {
   private readonly listSpecialties = inject(ListSpecialties);
   private readonly updateRole = inject(UpdateUserRole);
   private readonly updateSpecialty = inject(UpdateSpecialty);
+  private readonly toast = inject(ToastService);
 
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
   readonly isRoles = this.kind === 'roles';
@@ -42,10 +44,9 @@ export class ItemsListPage {
   readonly selectedId = signal<string | null>(null);
   readonly confirmOpen = signal(false);
   readonly confirmName = signal('');
-  readonly notice = signal<string | null>(
-    (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
-      (history.state?.['notice'] as string | undefined) ??
-      null,
+  readonly confirmMessage = computed(
+    () =>
+      `¿Seguro que quieres dar de baja ${this.isRoles ? 'el rol' : 'la especialidad'} «${this.confirmName()}»?`,
   );
   readonly title = this.isRoles ? 'Roles de usuario' : 'Especialidades';
   readonly lead = this.isRoles
@@ -128,10 +129,11 @@ export class ItemsListPage {
       : this.updateSpecialty.execute(item.id, { name: item.name, description: item.description, status: 'inactive' });
     stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.notice.set('El registro ha pasado a baja.');
+        this.toast.success('El registro ha pasado a baja.');
         this.selectedId.set(null);
         this.reload();
       },
+      error: () => this.toast.error('No hemos podido dar de baja el registro.'),
     });
   }
 
