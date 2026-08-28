@@ -184,7 +184,7 @@
   padding: 0 0.5rem;
   border-color: var(--color-primary);
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .sm--compact .sm__panel {
@@ -195,13 +195,14 @@
   min-width: 100%;
 }
 
-.sm--compact .sm__opt {
+.sm--compact .sm__opt,
+.sm--compact .sm__opt.sm__opt--on {
   padding: 0.28rem 0.5rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .sm--compact .sm__mark {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.7rem;
+  height: 0.7rem;
 }
