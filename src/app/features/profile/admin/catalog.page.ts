@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { CreateSpecialty, CreateUserRole, ListSpecialties, ListUserRoles, UpdateSpecialty, UpdateUserRole } from '@core/application';
-import { statusLabel } from '@core/domain/services/admin-catalog';
+import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import { DomainError } from '@core/domain/errors/domain-error';
 import type { CatalogWriteInput, EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
@@ -36,7 +36,7 @@ export class CatalogPage {
   private readonly updateSpecialty = inject(UpdateSpecialty);
 
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
-  readonly items = signal<Array<UserRoleEntity | SpecialtyEntity>>([]);
+  readonly items = signal<(UserRoleEntity | SpecialtyEntity)[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
@@ -74,12 +74,11 @@ export class CatalogPage {
   });
 
   readonly filtered = computed(() => {
-    const needle = this.query().trim().toLowerCase();
+    const needle = this.query();
     const status = this.statusFilter();
     return this.items().filter((item) => {
       if (status !== 'all' && item.status !== status) return false;
-      if (!needle) return true;
-      return `${item.name} ${item.description}`.toLowerCase().includes(needle);
+      return matchesAdminSearch([item.name, item.description], needle);
     });
   });
 

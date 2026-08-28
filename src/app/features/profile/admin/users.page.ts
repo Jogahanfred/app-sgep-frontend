@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, firstValueFrom } from 'rxjs';
 import { CreateAdminUser, ListAdminUsers, ListSpecialties, ListUserRoles, UpdateAdminUser } from '@core/application';
-import { statusLabel } from '@core/domain/services/admin-catalog';
+import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import { DomainError } from '@core/domain/errors/domain-error';
 import type { EntityStatus, SpecialtyEntity, UserEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
@@ -93,13 +93,14 @@ export class UsersPage {
   });
 
   readonly filtered = computed(() => {
-    const needle = this.query().trim().toLowerCase();
+    const needle = this.query();
     const status = this.statusFilter();
     return this.users().filter((user) => {
       if (status !== 'all' && user.status !== status) return false;
-      if (!needle) return true;
-      const hay = [user.firstName, user.lastName, user.email, user.documentNumber, user.indicative ?? ''].join(' ');
-      return hay.toLowerCase().includes(needle);
+      return matchesAdminSearch(
+        [user.firstName, user.lastName, user.email, user.documentNumber, user.indicative],
+        needle,
+      );
     });
   });
 

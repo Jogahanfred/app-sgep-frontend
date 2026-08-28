@@ -1,6 +1,6 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { vi } from 'vitest';
+import { beforeAll, vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
 import { UsersPage } from './users.page';
 
@@ -12,6 +12,15 @@ vi.mock('lottie-web', () => ({
     }),
   },
 }));
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    this.open = false;
+  };
+});
 
 async function waitReady(fixture: ComponentFixture<UsersPage>): Promise<void> {
   fixture.detectChanges();
@@ -34,11 +43,12 @@ describe('UsersPage', () => {
   it('pinta la tabla de personas y el buscador', async () => {
     const fixture = TestBed.createComponent(UsersPage);
     await waitReady(fixture);
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
     expect(text).toContain('Usuarios');
     expect(text).toContain('Elena');
     expect(text).toContain('Martín Ruiz');
-    expect(text).toContain('Buscar por nombres');
+    expect(root.querySelector('input[type="search"]')?.getAttribute('placeholder')).toContain('nombres');
     expect(text).toContain('Nuevo usuario');
   });
 

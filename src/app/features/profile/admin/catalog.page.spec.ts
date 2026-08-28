@@ -1,6 +1,6 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { vi } from 'vitest';
+import { beforeAll, vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
 import { CatalogPage } from './catalog.page';
 
@@ -12,6 +12,15 @@ vi.mock('lottie-web', () => ({
     }),
   },
 }));
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    this.open = false;
+  };
+});
 
 async function waitReady(fixture: ComponentFixture<CatalogPage>): Promise<void> {
   fixture.detectChanges();

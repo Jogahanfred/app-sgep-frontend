@@ -176,7 +176,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   }
 
   private assertUniqueName(
-    items: Array<{ id: string; name: string }>,
+    items: { id: string; name: string }[],
     name: string,
     message: string,
     ignoreId?: string,

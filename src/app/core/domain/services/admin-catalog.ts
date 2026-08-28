@@ -83,13 +83,20 @@ export function assertCatalogWrite(input: CatalogWriteInput, nameLabel: string):
   };
 }
 
+function fold(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase();
+}
+
 export function matchesAdminSearch(
-  haystack: Array<string | null | undefined>,
+  haystack: (string | null | undefined)[],
   query: string,
 ): boolean {
-  const needle = query.trim().toLowerCase();
+  const needle = fold(query.trim());
   if (!needle) return true;
-  return haystack.some((part) => (part ?? '').toLowerCase().includes(needle));
+  return haystack.some((part) => fold(part ?? '').includes(needle));
 }
 
 export function statusLabel(status: EntityStatus): string {
