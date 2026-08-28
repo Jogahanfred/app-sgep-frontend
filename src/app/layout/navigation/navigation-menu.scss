@@ -11,18 +11,32 @@
   align-items: center;
   gap: 0.25rem;
   min-height: 2.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.7rem;
   border: 0;
   background: transparent;
-  border-radius: var(--radius-pill);
   font-weight: 600;
+  font-size: 0.95rem;
   text-decoration: none;
+  color: var(--color-text);
 }
 
-.nav__trigger:hover,
-.nav__link:hover,
+.nav__link {
+  position: relative;
+}
+
 .nav__link.is-active {
-  background: rgb(11 61 56 / 6%);
+  color: var(--color-primary);
+}
+
+.nav__link.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.15rem;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 2px;
 }
 
 .nav__item {
@@ -59,14 +73,4 @@
 .nav__panel a:hover,
 .nav__panel a.is-active {
   background: var(--color-surface-alt);
-}
-
-.nav__panel span {
-  color: var(--color-text-secondary);
-  font-size: var(--fs-xs);
-  font-weight: 400;
-}
-
-.nav__item--open .nav__trigger app-icon {
-  transform: rotate(180deg);
 }

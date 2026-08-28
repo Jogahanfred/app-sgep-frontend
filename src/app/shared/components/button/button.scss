@@ -59,11 +59,11 @@
 
 .btn--ghost {
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-text);
 }
 
 .btn--ghost:hover:not(:disabled):not(.btn--disabled) {
-  background: rgb(11 61 56 / 6%);
+  background: rgb(0 0 0 / 4%);
 }
 
 .btn--inverse {

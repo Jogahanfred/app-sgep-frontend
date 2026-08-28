@@ -6,7 +6,13 @@ import { Container } from '../container/container';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Container],
   template: `
-    <section class="section" [class.section--alt]="tone() === 'alt'" [class.section--ink]="tone() === 'ink'" [attr.id]="sectionId() || null">
+    <section
+      class="section"
+      [class.section--muted]="tone() === 'muted'"
+      [class.section--warm]="tone() === 'warm'"
+      [class.section--center]="align() === 'center'"
+      [attr.id]="sectionId() || null"
+    >
       <app-container [wide]="wide()">
         @if (eyebrow() || title()) {
           <header class="section__header">
@@ -31,7 +37,8 @@ export class Section {
   readonly title = input<string | undefined>(undefined);
   readonly subtitle = input<string | undefined>(undefined);
   readonly eyebrow = input<string | undefined>(undefined);
-  readonly tone = input<'default' | 'alt' | 'ink'>('default');
+  readonly tone = input<'default' | 'muted' | 'warm' | 'alt' | 'ink'>('default');
+  readonly align = input<'start' | 'center'>('start');
   readonly sectionId = input<string | undefined>(undefined);
   readonly wide = input(false);
 }

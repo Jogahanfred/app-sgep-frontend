@@ -1,24 +1,26 @@
 :root {
-  --color-primary: #0b3d38;
-  --color-primary-dark: #062824;
-  --color-primary-light: #14635c;
-  --color-secondary: #c4a35a;
-  --color-secondary-dark: #8f7533;
-  --color-background: #f6f3ec;
+  --color-primary: #ec0000;
+  --color-primary-dark: #c40000;
+  --color-primary-light: #ff2a2a;
+  --color-secondary: #ec0000;
+  --color-secondary-dark: #9a0000;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-alt: #efebe3;
-  --color-text: #14201e;
-  --color-text-secondary: #3e4e4b;
-  --color-text-inverse: #f6f3ec;
-  --color-border: #d8d2c6;
-  --color-border-strong: #b7b0a2;
+  --color-surface-alt: #f5f5f5;
+  --color-surface-warm: #fcf3ed;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+  --color-text-inverse: #ffffff;
+  --color-link: #007489;
+  --color-border: #e6e6e6;
+  --color-border-strong: #c8c8c8;
   --color-success: #1f7a4d;
   --color-error: #a33b2b;
   --color-warning: #8a5a12;
-  --color-focus: #c4a35a;
-  --color-overlay: rgb(10 20 18 / 48%);
+  --color-focus: #ec0000;
+  --color-overlay: rgb(20 20 20 / 48%);
 
-  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
+  --font-display: 'Manrope', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: 'Manrope', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   --fs-xs: 0.75rem;
@@ -27,13 +29,13 @@
   --fs-lg: 1.125rem;
   --fs-xl: 1.375rem;
   --fs-2xl: 1.75rem;
-  --fs-3xl: 2.25rem;
-  --fs-4xl: clamp(2.25rem, 4vw, 3.25rem);
-  --fs-5xl: clamp(2.75rem, 6vw, 4.25rem);
+  --fs-3xl: 2.125rem;
+  --fs-4xl: clamp(2rem, 4vw, 2.75rem);
+  --fs-5xl: clamp(2.25rem, 5vw, 3.25rem);
 
   --lh-tight: 1.15;
   --lh-snug: 1.35;
-  --lh-body: 1.6;
+  --lh-body: 1.55;
 
   --spacing-2xs: 0.25rem;
   --spacing-xs: 0.5rem;
@@ -51,13 +53,13 @@
   --radius-xl: 1.75rem;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgb(20 32 30 / 6%), 0 4px 12px rgb(20 32 30 / 4%);
-  --shadow-md: 0 8px 24px rgb(20 32 30 / 8%), 0 2px 6px rgb(20 32 30 / 4%);
-  --shadow-lg: 0 16px 40px rgb(20 32 30 / 12%);
+  --shadow-sm: 0 2px 10px rgb(0 0 0 / 6%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 8%);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 12%);
 
   --container-max-width: 72rem;
   --container-wide: 80rem;
-  --header-height: 4.5rem;
+  --header-height: 4.25rem;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 150ms;

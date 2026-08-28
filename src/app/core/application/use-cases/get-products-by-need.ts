@@ -8,6 +8,7 @@ const NEED_TO_CATEGORY: Record<NeedId, Product['category']> = {
   save: 'investment',
   home: 'mortgage',
   daily: 'account',
+  insure: 'card',
 };
 
 export class GetProductsByNeed {

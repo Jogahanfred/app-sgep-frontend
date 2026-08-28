@@ -18,7 +18,7 @@ describe('Header', () => {
     expect(text).toContain('Helvia');
     expect(text).toContain('Acceso clientes');
     expect(text).toContain('Hazte cliente');
-    expect(text).toContain('Productos');
+    expect(text).toContain('Particulares');
   });
 
   it('abre el menú móvil', async () => {

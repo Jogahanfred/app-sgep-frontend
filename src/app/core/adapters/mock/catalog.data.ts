@@ -12,36 +12,12 @@ import type {
 } from '../../domain/entities';
 
 export const NEED_OPTIONS: NeedOption[] = [
-  {
-    id: 'daily',
-    label: 'Gestionar el día a día',
-    description: 'Cuentas y pagos para tu vida cotidiana.',
-    icon: 'wallet',
-  },
-  {
-    id: 'finance',
-    label: 'Financiar un proyecto',
-    description: 'Préstamos personales y movilidad.',
-    icon: 'credit',
-  },
-  {
-    id: 'home',
-    label: 'Comprar una vivienda',
-    description: 'Hipotecas y acompañamiento en la compra.',
-    icon: 'home',
-  },
-  {
-    id: 'save',
-    label: 'Ahorrar e invertir',
-    description: 'Fondos, planes y planificación.',
-    icon: 'trend',
-  },
-  {
-    id: 'protect',
-    label: 'Pagar con tarjeta',
-    description: 'Débito, crédito y control desde la app.',
-    icon: 'card',
-  },
+  { id: 'daily', label: 'Una cuenta', description: 'Cuenta para el día a día.', icon: 'wallet' },
+  { id: 'protect', label: 'Una tarjeta', description: 'Débito y crédito.', icon: 'card' },
+  { id: 'home', label: 'Simular mi hipoteca', description: 'Calcula tu cuota.', icon: 'home' },
+  { id: 'save', label: 'Productos de inversión', description: 'Fondos y ahorro.', icon: 'trend' },
+  { id: 'finance', label: 'Un préstamo', description: 'Financia tu proyecto.', icon: 'credit' },
+  { id: 'insure', label: 'Protección', description: 'Cubre lo que importa.', icon: 'shield' },
 ];
 
 export const FEATURED_PRODUCTS: Product[] = [
@@ -388,9 +364,9 @@ export const FAQS: FaqItem[] = [
 export const HELP_TOPICS: HelpTopic[] = [
   {
     id: 'oficinas',
-    title: 'Oficinas y cajeros',
+    title: 'Oficinas y cajeros automáticos',
     description: 'Red Helvia en las principales ciudades. Cita previa para evitar esperas.',
-    ctaLabel: 'Buscar oficina',
+    ctaLabel: 'Buscar',
     ctaHref: '/hazte-cliente',
     icon: 'pin',
   },
@@ -404,7 +380,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: 'cita',
-    title: 'Cita con un gestor',
+    title: 'Cita previa en tu oficina',
     description: 'Elige día y hora. Hipoteca, inversión o alta de cuenta, con tiempo reservado.',
     ctaLabel: 'Pedir cita',
     ctaHref: '/hazte-cliente',

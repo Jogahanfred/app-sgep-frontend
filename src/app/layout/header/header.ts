@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Button } from '@shared/components/button/button';
+import { Icon } from '@shared/components/icon/icon';
 import { FormInput } from '@shared/components/input/input';
 import { Modal } from '@shared/components/modal/modal';
 import { MAIN_NAV } from '../navigation/nav.data';
@@ -11,7 +12,7 @@ import { MobileMenu } from '../mobile-menu/mobile-menu';
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, NavigationMenu, MobileMenu, Modal, FormInput, ReactiveFormsModule],
+  imports: [RouterLink, Button, NavigationMenu, MobileMenu, Modal, FormInput, ReactiveFormsModule, Icon],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

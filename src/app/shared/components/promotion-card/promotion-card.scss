@@ -11,9 +11,7 @@
 }
 
 .promo[data-variant='featured'] {
-  background:
-    radial-gradient(circle at 100% 0%, rgb(196 163 90 / 28%), transparent 42%),
-    linear-gradient(145deg, #0b3d38, #0e4d46);
+  background: var(--color-primary);
   color: var(--color-text-inverse);
   border: 0;
   min-height: 16rem;
@@ -45,7 +43,7 @@
 }
 
 .promo[data-variant='featured'] .promo__eyebrow {
-  color: var(--color-secondary);
+  color: rgb(255 255 255 / 80%);
 }
 
 .promo__title {

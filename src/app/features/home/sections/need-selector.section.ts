@@ -1,99 +1,60 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { GetProductsByNeed } from '@core/application';
-import type { NeedOption, Product } from '@core/domain/entities';
-import { Alert } from '@shared/components/alert/alert';
-import { Grid } from '@shared/components/grid/grid';
-import { ProductCard } from '@shared/components/product-card/product-card';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import type { NeedId, NeedOption } from '@core/domain/entities';
+import { NeedCard } from '@shared/components/need-card/need-card';
 import { Section } from '@shared/components/section/section';
-import { Skeleton } from '@shared/components/skeleton/skeleton';
-import { Tabs, type TabItem } from '@shared/components/tabs/tabs';
+import type { IconName } from '@shared/components/icon/icon';
+
+const NEED_HREF: Record<NeedId, string> = {
+  daily: '/cuentas',
+  protect: '/tarjetas',
+  home: '/hipotecas',
+  save: '/inversion',
+  finance: '/prestamos',
+  insure: '/hazte-cliente',
+};
 
 @Component({
   selector: 'app-need-selector-section',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Section, Tabs, ProductCard, Grid, Alert, Skeleton],
+  imports: [Section, NeedCard],
   template: `
-    <app-section
-      eyebrow="Cuéntanos"
-      title="¿Qué necesitas ahora?"
-      subtitle="Elige un motivo y te mostramos el producto que encaja, sin ruido."
-      sectionId="necesitas"
-    >
-      <app-tabs [tabs]="tabItems()" [activeId]="activeNeed()" labelledBy="necesitas" (tabChange)="onNeed($event)" />
-      @if (status() === 'loading') {
-        <div class="need-sk">
-          <app-skeleton height="12rem" />
-          <app-skeleton height="12rem" />
-        </div>
-      } @else if (status() === 'error') {
-        <app-alert tone="error">No hemos podido cargar estas soluciones. Inténtalo de nuevo.</app-alert>
-      } @else if (!products().length) {
-        <app-alert>No hay productos para esta necesidad en este momento.</app-alert>
-      } @else {
-        <div class="need-grid">
-          <app-grid [columns]="2">
-            @for (product of products(); track product.id) {
-              <app-product-card [product]="product" />
-            }
-          </app-grid>
-        </div>
-      }
+    <app-section title="Cuéntanos, ¿qué necesitas?" align="center" tone="muted" sectionId="necesitas">
+      <div class="needs">
+        @for (option of options(); track option.id) {
+          <app-need-card [label]="option.label" [href]="hrefFor(option.id)" [icon]="iconFor(option.icon)" />
+        }
+      </div>
     </app-section>
   `,
   styles: `
-    app-tabs {
-      display: block;
-      margin-bottom: var(--spacing-xl);
-    }
-
-    .need-sk,
-    .need-grid {
-      margin-top: var(--spacing-lg);
-    }
-
-    .need-sk {
+    .needs {
       display: grid;
-      gap: var(--spacing-lg);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    @media (min-width: 768px) {
+      .needs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .needs {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
     }
   `,
 })
 export class NeedSelectorSection {
-  private readonly getByNeed = inject(GetProductsByNeed);
-  private readonly destroyRef = inject(DestroyRef);
   readonly options = input.required<NeedOption[]>();
-  readonly activeNeed = signal('daily');
-  readonly products = signal<Product[]>([]);
-  readonly status = signal<'loading' | 'ready' | 'error'>('loading');
 
-  constructor() {
-    this.load('daily');
+  hrefFor(id: NeedId): string {
+    return NEED_HREF[id];
   }
 
-  tabItems(): TabItem[] {
-    return this.options().map((option) => ({
-      id: option.id,
-      label: option.label,
-      description: option.description,
-    }));
-  }
-
-  onNeed(id: string): void {
-    this.activeNeed.set(id);
-    this.load(id as NeedOption['id']);
-  }
-
-  private load(id: NeedOption['id']): void {
-    this.status.set('loading');
-    this.getByNeed
-      .execute(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (items) => {
-          this.products.set(items);
-          this.status.set('ready');
-        },
-        error: () => this.status.set('error'),
-      });
+  iconFor(name: string): IconName {
+    const allowed: IconName[] = ['wallet', 'card', 'home', 'trend', 'credit', 'shield'];
+    return allowed.includes(name as IconName) ? (name as IconName) : 'wallet';
   }
 }

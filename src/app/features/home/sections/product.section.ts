@@ -9,7 +9,14 @@ import { Section } from '@shared/components/section/section';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Section, Grid, ProductCard],
   template: `
-    <app-section [eyebrow]="eyebrow()" [title]="title()" [subtitle]="subtitle()" [tone]="tone()" [sectionId]="sectionId()">
+    <app-section
+      [eyebrow]="eyebrow()"
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [tone]="tone()"
+      [align]="align()"
+      [sectionId]="sectionId()"
+    >
       <app-grid [columns]="columns()">
         @for (product of products(); track product.id) {
           <app-product-card [product]="product" [featured]="featuredId() === product.id" />
@@ -24,7 +31,8 @@ export class ProductSection {
   readonly eyebrow = input<string | undefined>(undefined);
   readonly products = input.required<Product[]>();
   readonly featuredId = input<string | undefined>(undefined);
-  readonly tone = input<'default' | 'alt' | 'ink'>('default');
+  readonly tone = input<'default' | 'muted' | 'warm' | 'alt' | 'ink'>('default');
+  readonly align = input<'start' | 'center'>('start');
   readonly sectionId = input<string | undefined>(undefined);
   readonly columns = input(3);
 }

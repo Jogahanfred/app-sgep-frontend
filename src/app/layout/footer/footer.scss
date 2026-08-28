@@ -1,5 +1,5 @@
 .footer {
-  background: var(--color-primary-dark);
+  background: #1a1a1a;
   color: var(--color-text-inverse);
   padding-block: var(--spacing-3xl) var(--spacing-xl);
   margin-top: auto;
@@ -17,13 +17,14 @@
 }
 
 .footer__brand {
-  font-family: var(--font-display);
   font-size: var(--fs-2xl);
+  font-weight: 800;
+  color: var(--color-primary);
 }
 
 .footer__tag,
 .footer a {
-  color: rgb(246 243 236 / 78%);
+  color: rgb(255 255 255 / 78%);
 }
 
 .footer a {
@@ -31,7 +32,7 @@
 }
 
 .footer a:hover {
-  color: var(--color-secondary);
+  color: #fff;
 }
 
 .footer__title {
@@ -40,7 +41,6 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-secondary);
 }
 
 .footer ul {
@@ -55,7 +55,7 @@
   gap: var(--spacing-md);
   margin-top: var(--spacing-2xl);
   padding-top: var(--spacing-lg);
-  border-top: 1px solid rgb(246 243 236 / 12%);
+  border-top: 1px solid rgb(255 255 255 / 12%);
   font-size: var(--fs-sm);
 }
 

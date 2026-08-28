@@ -29,7 +29,14 @@
             </ul>
           </div>
         } @else if (group.href) {
-          <a class="nav__link" [routerLink]="group.href" routerLinkActive="is-active">{{ group.label }}</a>
+          <a
+            class="nav__link"
+            [routerLink]="group.href"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: group.href === '/' }"
+          >
+            {{ group.label }}
+          </a>
         }
       </li>
     }

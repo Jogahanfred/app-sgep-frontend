@@ -9,9 +9,9 @@ import { Section } from '@shared/components/section/section';
   imports: [Section, Accordion],
   template: `
     <app-section
-      eyebrow="Preguntas frecuentes"
-      title="Antes de llamar, léelo aquí"
+      title="Preguntas frecuentes"
       subtitle="Respuestas cortas sobre cuentas, préstamos, hipotecas e inversión."
+      align="center"
       sectionId="preguntas-frecuentes"
     >
       <app-accordion [items]="items()" />

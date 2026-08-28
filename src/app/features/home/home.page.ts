@@ -13,6 +13,7 @@ import { HelpSection } from './sections/help.section';
 import { NeedSelectorSection } from './sections/need-selector.section';
 import { ProductSection } from './sections/product.section';
 import { PromotionSection } from './sections/promotion.section';
+import { ThemeSection } from './sections/theme.section';
 
 @Component({
   selector: 'app-home-page',
@@ -20,6 +21,7 @@ import { PromotionSection } from './sections/promotion.section';
   imports: [
     HeroBanner,
     NeedSelectorSection,
+    ThemeSection,
     ProductSection,
     PromotionSection,
     HelpSection,

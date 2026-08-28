@@ -18,4 +18,7 @@ export class HeroBanner {
   readonly secondaryLabel = input<string | undefined>(undefined);
   readonly secondaryHref = input<string | undefined>(undefined);
   readonly compact = input(false);
+  readonly image = input<string | undefined>(undefined);
+  readonly imageAlt = input(' ');
+  readonly align = input<'start' | 'end'>('start');
 }

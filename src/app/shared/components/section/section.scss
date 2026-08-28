@@ -3,12 +3,17 @@
   background-color: var(--color-background);
 }
 
+.section--muted,
 .section--alt {
-  background-color: var(--color-background);
+  background-color: var(--color-surface-alt);
+}
+
+.section--warm {
+  background-color: var(--color-surface-warm);
 }
 
 .section--ink {
-  background: var(--color-primary);
+  background: var(--color-text);
   color: var(--color-text-inverse);
 }
 
@@ -17,29 +22,28 @@
   margin-bottom: var(--spacing-xl);
 }
 
+.section--center .section__header {
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
 .section__eyebrow {
   margin-bottom: var(--spacing-xs);
-  color: var(--color-secondary-dark);
+  color: var(--color-text-secondary);
   font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.section--ink .section__eyebrow {
-  color: var(--color-secondary);
-}
-
 .section__title {
   font-size: var(--fs-3xl);
+  font-weight: 800;
 }
 
 .section__subtitle {
   margin-top: var(--spacing-sm);
   color: var(--color-text-secondary);
   font-size: var(--fs-lg);
-}
-
-.section--ink .section__subtitle {
-  color: rgb(246 243 236 / 78%);
 }

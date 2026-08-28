@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
   `,
   styles: `
     .link {
-      color: var(--color-primary);
+      color: var(--color-link);
       font-weight: 600;
       text-decoration: underline;
       text-underline-offset: 0.18em;
