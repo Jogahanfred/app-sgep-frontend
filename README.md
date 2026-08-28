@@ -190,7 +190,7 @@ Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBa
 
 Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
 
-`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`.
+`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
 
 Barrel: `src/app/shared/components/ui/index.ts`.
 
@@ -200,8 +200,8 @@ Barrel: `src/app/shared/components/ui/index.ts`.
 
 ```
 HomePage
- ├── Carga SIGA (Lottie del icono)
  ├── HeroBanner
+ ├── Carga SIGA (ui-loading del icono)
  ├── NeedSelectorSection → Tabs + ProductCard
  ├── ProductSection (destacados)
  ├── PromotionSection → PromotionCard

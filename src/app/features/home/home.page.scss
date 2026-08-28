@@ -31,10 +31,20 @@
   font-size: 0.95rem;
 }
 
+.home-loader__stage {
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  background: #ffffff;
+}
+
 .home-sk {
   display: grid;
   justify-items: center;
-  gap: var(--spacing-lg);
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  background: #ffffff;
 }
 
 .home-calc {

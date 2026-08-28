@@ -6,7 +6,7 @@ import { Button } from '@shared/components/button/button';
 import { Container } from '@shared/components/container/container';
 import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
 import { Section } from '@shared/components/section/section';
-import { UiSigaLoader } from '@shared/components/ui';
+import { UiLoading } from '@shared/components/ui';
 import { LoanCalculator } from '../loans/loan-calculator';
 import { FaqSection } from './sections/faq.section';
 import { HelpSection } from './sections/help.section';
@@ -31,7 +31,7 @@ import { ThemeSection } from './sections/theme.section';
     Container,
     Button,
     Alert,
-    UiSigaLoader,
+    UiLoading,
   ],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
