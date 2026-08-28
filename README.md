@@ -200,6 +200,7 @@ Barrel: `src/app/shared/components/ui/index.ts`.
 
 ```
 HomePage
+ ├── Carga SIGA (Lottie del icono)
  ├── HeroBanner
  ├── NeedSelectorSection → Tabs + ProductCard
  ├── ProductSection (destacados)
