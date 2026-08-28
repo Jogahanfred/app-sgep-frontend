@@ -28,30 +28,44 @@
   font-weight: 700;
 }
 
-.sm__label {
-  color: #333;
-  font-size: 0.92rem;
-  font-weight: 400;
-}
-
 .sm__trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  min-height: 3.05rem;
-  padding: 0.7rem 0.95rem;
+  height: 2.5rem;
+  padding: 0 0.85rem;
   background: #fff;
   border: 1px solid #e4e4e4;
   border-radius: 8px;
   color: #555;
   text-align: left;
-  font-size: 0.98rem;
+  font-size: 0.85rem;
 }
 
-.sm__trigger--open {
+.sm--sm .sm__trigger {
+  height: 2.15rem;
+}
+
+.sm--lg .sm__trigger {
+  height: 3rem;
+  font-size: 1rem;
+}
+
+.sm__trigger--open,
+.sm__trigger:focus-visible {
   border-color: var(--color-control);
+  outline: none;
+}
+
+.sm__trigger--invalid {
+  border-color: #e11d48;
+}
+
+.sm__trigger:disabled {
+  background: var(--color-surface-alt);
+  cursor: not-allowed;
 }
 
 .sm__value {
@@ -83,18 +97,32 @@
   transform: rotate(180deg);
 }
 
-.sm__list {
+.sm__panel {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
   z-index: 8;
-  margin: 0;
-  padding: 0.3rem 0;
-  list-style: none;
+  overflow: hidden;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 8px 22px rgb(0 0 0 / 10%);
+  box-shadow: 0 8px 22px #0000001a;
+}
+
+.sm__search {
+  width: 100%;
+  height: 2.15rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.sm__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .sm__opt {
@@ -102,12 +130,12 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.9rem 1.05rem;
+  padding: 0.7rem 0.9rem;
   border: 0;
-  background: transparent;
-  color: #1a1a1a;
+  background: #fff;
+  color: #5a5a5a;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .sm__opt--caps {
@@ -116,16 +144,25 @@
 }
 
 .sm__opt:hover {
-  background: var(--color-control-selected);
+  background: #f7f7f7;
 }
 
 .sm__opt--on {
-  background: var(--color-control-selected);
+  background: #eee;
+  color: var(--color-primary);
   font-weight: 700;
 }
 
-.sm__check {
-  width: 0.95rem;
-  height: 0.95rem;
-  color: var(--color-control);
+.sm__mark {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.sm__empty {
+  padding: 0.75rem 0.9rem;
+  color: #8a8a8a;
+  font-size: 0.82rem;
 }

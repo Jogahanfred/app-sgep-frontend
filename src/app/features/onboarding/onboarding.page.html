@@ -28,6 +28,7 @@
             icon="id-card"
             label="Tipo de documento"
             placeholder="Seleccionar documento"
+            [required]="true"
             [options]="documents"
             [value]="form.controls.documentType.value"
             (valueChange)="form.controls.documentType.setValue($event)"

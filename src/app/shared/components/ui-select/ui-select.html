@@ -1,4 +1,10 @@
-<div class="sm" appClickOutside (appClickOutside)="close()">
+<div
+  class="sm"
+  [class.sm--sm]="size() === 'sm'"
+  [class.sm--lg]="size() === 'lg'"
+  appClickOutside
+  (appClickOutside)="close()"
+>
   @if (title()) {
     <div class="sm__head">
       @if (icon(); as iconName) {
@@ -7,13 +13,17 @@
       <p class="sm__title">{{ title() }}</p>
     </div>
   }
-  <label class="sm__label" [attr.for]="id()">{{ label() }}</label>
+  <ui-field-label [label]="label()" [forId]="id()" [required]="required()" [subLabel]="subLabel()" />
   <button
     type="button"
     class="sm__trigger"
     [id]="id()"
     [class.sm__trigger--open]="open()"
+    [class.sm__trigger--invalid]="!!error()"
+    [disabled]="disabled() || loading()"
     [attr.aria-expanded]="open()"
+    [attr.aria-busy]="loading() || null"
+    [attr.aria-invalid]="error() ? true : null"
     aria-haspopup="listbox"
     (click)="toggle()"
     (keydown)="onKeydown($event)"
@@ -22,35 +32,53 @@
       @if (leadingIcon(); as lead) {
         <app-icon [name]="lead" />
       }
-      <span [class.sm__ph]="!selectedLabel()">{{ selectedLabel() || placeholder() }}</span>
+      <span [class.sm__ph]="!selectedLabel() || loading()">
+        {{ loading() ? 'Cargando...' : selectedLabel() || placeholder() }}
+      </span>
     </span>
     <svg class="sm__chev" [class.sm__chev--up]="open()" viewBox="0 0 12 8" aria-hidden="true">
       <path d="M1 1.5 6 6.5 11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   </button>
   @if (open()) {
-    <ul class="sm__list" role="listbox">
-      @for (option of options(); track option.value) {
-        <li>
-          <button
-            type="button"
-            class="sm__opt"
-            role="option"
-            [attr.aria-selected]="value() === option.value"
-            [class.sm__opt--on]="value() === option.value"
-            [class.sm__opt--caps]="uppercase()"
-            (click)="pick(option)"
-          >
-            <span>{{ option.label }}</span>
-            @if (value() === option.value) {
-              <svg class="sm__check" viewBox="0 0 16 16" aria-hidden="true">
-                <path d="M3 8.2 6.4 11.4 13 4.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            }
-          </button>
-        </li>
+    <div class="sm__panel">
+      @if (filter()) {
+        <input
+          class="sm__search"
+          type="search"
+          [value]="filterQuery()"
+          placeholder="Buscar"
+          (input)="onFilter($event)"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+        />
       }
-    </ul>
+      <ul class="sm__list" role="listbox">
+        @for (option of visibleOptions(); track option.value) {
+          <li>
+            <button
+              type="button"
+              class="sm__opt"
+              role="option"
+              [attr.aria-selected]="value() === option.value"
+              [class.sm__opt--on]="value() === option.value"
+              [class.sm__opt--caps]="uppercase()"
+              (click)="pick(option)"
+            >
+              <span>{{ option.label }}</span>
+              @if (value() === option.value) {
+                <svg class="sm__mark" viewBox="0 0 16 16" aria-hidden="true">
+                  <rect x="2" y="2" width="12" height="12" />
+                  <path d="M5.2 10.8 10.8 5.2" />
+                </svg>
+              }
+            </button>
+          </li>
+        } @empty {
+          <li class="sm__empty">{{ emptyCopy() }}</li>
+        }
+      </ul>
+    </div>
   }
   @if (error(); as message) {
     <ui-error [message]="message" />
