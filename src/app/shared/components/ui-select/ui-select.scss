@@ -38,7 +38,7 @@
   padding: 0 0.85rem;
   background: #fff;
   border: 1px solid #e4e4e4;
-  border-radius: 8px;
+  border-radius: 2px;
   color: #555;
   text-align: left;
   font-size: 0.85rem;
@@ -144,11 +144,11 @@
 }
 
 .sm__opt:hover {
-  background: #f7f7f7;
+  background: #fafafa;
 }
 
 .sm__opt.sm__opt--on {
-  background: #f3f3f3;
+  background: #f8f8f8;
   color: var(--color-primary);
   font-weight: 700;
 }
