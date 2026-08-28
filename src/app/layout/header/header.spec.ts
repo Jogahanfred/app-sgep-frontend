@@ -16,6 +16,9 @@ describe('Header', () => {
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Helvia');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.logo__sgcp')?.getAttribute('src')).toBe(
+      '/logo-sgcp.svg',
+    );
     expect(text).toContain('Acceso clientes');
     expect(text).toContain('Hazte cliente');
     expect(text).toContain('Particulares');
