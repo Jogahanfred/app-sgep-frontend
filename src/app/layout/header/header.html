@@ -1,12 +1,12 @@
-<header class="header" [class.header--stuck]="scrolled()">
+<header class="header" [class.header--stuck]="scrolled()" [class.header--mega]="!!megaLabel()">
   <div class="header__bar">
-    <a class="logo" routerLink="/" aria-label="Helvia Banca, inicio">
+    <a class="logo" routerLink="/" aria-label="Helvia Banca, inicio" (click)="closeMega()">
       <span class="logo__mark" aria-hidden="true"></span>
       <span class="logo__text">Helvia</span>
     </a>
 
     <div class="header__desktop">
-      <app-navigation-menu [groups]="groups" />
+      <app-navigation-menu [groups]="groups" [openLabel]="megaLabel()" (openLabelChange)="setMega($event)" />
     </div>
 
     <div class="header__actions">
@@ -19,7 +19,7 @@
         Acceso clientes
         <app-icon name="chevron" />
       </button>
-      <app-button href="/hazte-cliente" size="sm">Hazte cliente</app-button>
+      <app-button href="/hazte-cliente" size="sm" (click)="closeMega()">Hazte cliente</app-button>
       <button
         type="button"
         class="header__burger"
@@ -34,7 +34,17 @@
       </button>
     </div>
   </div>
+
+  @if (openGroup(); as group) {
+    <div class="header__mega" [id]="'mega-' + group.label">
+      <app-mega-menu [group]="group" (navigated)="closeMega()" />
+    </div>
+  }
 </header>
+
+@if (megaLabel()) {
+  <button type="button" class="mega-backdrop" aria-label="Cerrar menú" (click)="closeMega()"></button>
+}
 
 <div id="mobile-nav">
   <app-mobile-menu

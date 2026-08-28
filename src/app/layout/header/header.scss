@@ -1,9 +1,14 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 40;
   background: var(--color-background);
   border-bottom: 1px solid transparent;
+}
+
+.header--mega {
+  border-bottom-color: transparent;
+  box-shadow: none;
 }
 
 .header--stuck {
@@ -106,6 +111,15 @@
 
 .login__ok {
   color: var(--color-success);
+}
+
+.mega-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  border: 0;
+  padding: 0;
+  background: rgb(20 20 20 / 28%);
 }
 
 @media (min-width: 1024px) {

@@ -25,13 +25,18 @@
             <app-icon name="chevron" />
           </button>
           @if (openSection() === group.label) {
-            <ul class="drawer__children">
-              @for (child of group.children; track child.href) {
-                <li>
-                  <a [routerLink]="child.href" (click)="close()">{{ child.label }}</a>
-                </li>
+            @for (column of group.columns; track $index) {
+              @for (block of column.blocks; track block.heading) {
+                <p class="drawer__heading">{{ block.heading }}</p>
+                <ul class="drawer__children">
+                  @for (link of block.links; track link.label) {
+                    <li>
+                      <a [routerLink]="link.href" (click)="close()">{{ link.label }}</a>
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
+            }
           }
         </li>
       }

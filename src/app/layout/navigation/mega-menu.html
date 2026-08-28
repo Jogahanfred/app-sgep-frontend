@@ -1,0 +1,23 @@
+<div class="mega" role="region" [attr.aria-label]="'Menú de ' + group().label">
+  <div class="mega__inner">
+    <h2 class="mega__title">{{ group().label }}</h2>
+    <div class="mega__grid">
+      @for (column of group().columns; track $index) {
+        <div class="mega__col">
+          @for (block of column.blocks; track block.heading) {
+            <div class="mega__block">
+              <h3>{{ block.heading }}</h3>
+              <ul>
+                @for (link of block.links; track link.label) {
+                  <li>
+                    <a [routerLink]="link.href" (click)="onNavigate()">{{ link.label }}</a>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

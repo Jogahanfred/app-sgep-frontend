@@ -1,0 +1,60 @@
+.mega {
+  background: var(--color-surface);
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.mega__inner {
+  width: min(100% - 2rem, var(--container-wide));
+  margin-inline: auto;
+  padding: 1.75rem 0 2.25rem;
+}
+
+.mega__title {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.mega__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1.5rem 1.25rem;
+}
+
+.mega__block + .mega__block {
+  margin-top: 1.5rem;
+}
+
+.mega__block h3 {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 0.65rem;
+}
+
+.mega__block ul {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.mega__block a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.mega__block a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+@media (max-width: 1199px) {
+  .mega__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -28,4 +28,18 @@ describe('Header', () => {
     component.toggleMobile();
     expect(component.mobileOpen()).toBe(true);
   });
+
+  it('abre el mega menú de Particulares al activar la opción', async () => {
+    const fixture = TestBed.createComponent(Header);
+    const component = fixture.componentInstance;
+    component.setMega('Particulares');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(component.openGroup()?.label).toBe('Particulares');
+    expect(text).toContain('Cuentas');
+    expect(text).toContain('Hipotecas');
+    expect(text).toContain('Préstamos');
+  });
 });
