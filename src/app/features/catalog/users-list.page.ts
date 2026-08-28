@@ -11,12 +11,11 @@ import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
-import { UserQuickCreate } from './user-quick-create';
 
 @Component({
   selector: 'app-users-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, UiInput, UiSelect, UiTable, UserQuickCreate],
+  imports: [Alert, Button, UiInput, UiSelect, UiTable],
   templateUrl: './users-list.page.html',
   styleUrl: './users-list.page.scss',
 })
@@ -32,7 +31,6 @@ export class UsersListPage {
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
-  readonly createOpen = signal(false);
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -99,20 +97,6 @@ export class UsersListPage {
     const [year, month, day] = value.split('-');
     if (!year || !month || !day) return value;
     return `${day}/${month}/${year}`;
-  }
-
-  openCreate(): void {
-    this.createOpen.set(true);
-  }
-
-  closeCreate(): void {
-    this.createOpen.set(false);
-  }
-
-  onCreated(): void {
-    this.createOpen.set(false);
-    this.notice.set('La persona ya puede ingresar al sistema.');
-    this.reload();
   }
 
   goSelected(): void {

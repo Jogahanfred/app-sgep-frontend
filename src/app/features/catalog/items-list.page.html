@@ -40,17 +40,11 @@
       emptyTitle="No hay resultados con ese buscador o filtro de estado."
       (selectedIdChange)="selectedId.set($event)"
     >
-      <app-button type="button" icon="plus" size="sm" (click)="openCreate()">Añadir</app-button>
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
       <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goSelected()">Detalle</app-button>
       <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goSelected()">Modificar</app-button>
       <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="deactivateSelected()">Baja</app-button>
     </ui-table>
   }
 
-  <app-item-quick-create
-    [kind]="kind"
-    [open]="createOpen()"
-    (closed)="closeCreate()"
-    (created)="onCreated()"
-  />
 </div>

@@ -35,17 +35,6 @@ function configure(catalog: 'roles' | 'specialties'): Promise<void> {
 }
 
 describe('ItemsListPage', () => {
-  beforeEach(() => {
-    if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
-      HTMLDialogElement.prototype.showModal = function showModal() {
-        this.setAttribute('open', '');
-      };
-      HTMLDialogElement.prototype.close = function close() {
-        this.removeAttribute('open');
-      };
-    }
-  });
-
   afterEach(() => TestBed.resetTestingModule());
 
   it('lista los roles del catálogo', async () => {
@@ -64,18 +53,20 @@ describe('ItemsListPage', () => {
     expect(text).toContain('Baja');
     expect(text).toContain('Por página:');
     expect(root.querySelector('ui-table')).not.toBeNull();
-    expect(root.querySelector('app-item-quick-create')).not.toBeNull();
+    expect(root.querySelector('app-item-quick-create')).toBeNull();
+    expect(root.querySelector('app-modal')).toBeNull();
+    expect(root.querySelector('a[href="/catalogo/roles/nuevo"]')).not.toBeNull();
   });
 
-  it('abre el modal de alta rápida de rol', async () => {
+  it('lleva el alta de rol a una pantalla del catálogo', async () => {
     await configure('roles');
     const fixture = TestBed.createComponent(ItemsListPage);
     await waitReady(fixture);
-    fixture.componentInstance.openCreate();
-    fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Alta rápida de rol');
-    expect(text).toContain('Nombre del rol');
+    expect(fixture.componentInstance.createHref).toBe('/catalogo/roles/nuevo');
+    const add = (fixture.nativeElement as HTMLElement).querySelector(
+      'a[href="/catalogo/roles/nuevo"]',
+    ) as HTMLAnchorElement | null;
+    expect(add?.textContent).toContain('Añadir');
   });
 
   it('lista las especialidades del catálogo', async () => {

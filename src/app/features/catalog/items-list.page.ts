@@ -11,7 +11,6 @@ import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
-import { ItemQuickCreate } from './item-quick-create';
 import type { CatalogKind } from './catalog-form';
 
 export type { CatalogKind };
@@ -19,7 +18,7 @@ export type { CatalogKind };
 @Component({
   selector: 'app-items-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, UiInput, UiSelect, UiTable, ItemQuickCreate],
+  imports: [Alert, Button, UiInput, UiSelect, UiTable],
   templateUrl: './items-list.page.html',
   styleUrl: './items-list.page.scss',
 })
@@ -40,7 +39,6 @@ export class ItemsListPage {
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
-  readonly createOpen = signal(false);
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -51,6 +49,7 @@ export class ItemsListPage {
     ? 'Catálogo de roles: administrador, dirección académica, instrucción y alumnado.'
     : 'Catálogo de especialidades que se pueden asignar a cada persona.';
   readonly editBase = this.isRoles ? '/catalogo/roles' : '/catalogo/especialidades';
+  readonly createHref = `${this.editBase}/nuevo`;
 
   readonly statusOptions: ChoiceOption[] = [
     { value: 'all', label: 'Todos' },
@@ -89,20 +88,6 @@ export class ItemsListPage {
       this.query.set(value);
       this.selectedId.set(null);
     });
-    this.reload();
-  }
-
-  openCreate(): void {
-    this.createOpen.set(true);
-  }
-
-  closeCreate(): void {
-    this.createOpen.set(false);
-  }
-
-  onCreated(): void {
-    this.createOpen.set(false);
-    this.notice.set(this.isRoles ? 'Rol creado.' : 'Especialidad creada.');
     this.reload();
   }
 

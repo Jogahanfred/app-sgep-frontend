@@ -1,7 +1,7 @@
 <div class="ap">
   <p class="ap__lead">
-    Administra las personas que ingresan al sistema. El alta rápida se abre en un recuadro; roles y especialidades se
-    asignan en la ficha.
+    Administra las personas que ingresan al sistema. El alta, el detalle y la modificación se abren en una pantalla
+    de este catálogo. Los roles y especialidades se asignan en esa misma ficha.
   </p>
 
   @if (notice()) {
@@ -43,12 +43,11 @@
       emptyTitle="No hay personas que coincidan con el buscador o el filtro de estado."
       (selectedIdChange)="selectedId.set($event)"
     >
-      <app-button type="button" icon="plus" size="sm" (click)="openCreate()">Añadir</app-button>
+      <app-button href="/catalogo/usuarios/nuevo" icon="plus" size="sm">Añadir</app-button>
       <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goSelected()">Detalle</app-button>
       <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goSelected()">Modificar</app-button>
       <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="deactivateSelected()">Baja</app-button>
     </ui-table>
   }
 
-  <app-user-quick-create [open]="createOpen()" (closed)="closeCreate()" (created)="onCreated()" />
 </div>
