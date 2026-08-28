@@ -40,31 +40,39 @@ describe('UiTable', () => {
   it('pagina las filas y el control Por página cambia el tamaño de página', () => {
     const fixture = TestBed.createComponent(UiTable);
     fixture.componentRef.setInput('columns', COLUMNS);
-    fixture.componentRef.setInput('rows', rows(8));
-    fixture.componentRef.setInput('caption', 'Personas');
+    fixture.componentRef.setInput('rows', rows(32));
+    fixture.componentRef.setInput('heading', 'Resultado de valoraciones');
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.textContent).toContain('Por página');
-    expect(root.textContent).toContain('Mostrando 1-5 de 8');
+    expect(root.textContent).toContain('Resultado de valoraciones');
+    expect(root.textContent).toContain('Por página:');
+    expect(root.textContent).toContain('Mostrando 1 - 10 de 32');
     expect(root.textContent).toContain('Persona 1');
-    expect(root.textContent).toContain('Persona 5');
-    expect(root.textContent).not.toContain('Persona 6');
+    expect(root.textContent).toContain('Persona 10');
+    expect(root.textContent).not.toContain('Persona 11');
+    expect(root.querySelector('[aria-label="Primera página"]')).not.toBeNull();
+    expect(root.querySelector('[aria-label="Última página"]')).not.toBeNull();
 
     const next = root.querySelector('[aria-label="Página siguiente"]') as HTMLButtonElement;
     next.click();
     fixture.detectChanges();
-    expect(root.textContent).toContain('Persona 6');
-    expect(root.textContent).toContain('Mostrando 6-8 de 8');
-    expect(root.textContent).not.toContain('Persona 1');
+    expect(root.textContent).toContain('Persona 11');
+    expect(root.textContent).toContain('Mostrando 11 - 20 de 32');
+    expect(root.textContent).not.toContain('Persona 10');
+
+    const last = root.querySelector('[aria-label="Última página"]') as HTMLButtonElement;
+    last.click();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Mostrando 31 - 32 de 32');
 
     const select = root.querySelector('select') as HTMLSelectElement;
-    select.value = '10';
+    select.value = '20';
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(root.textContent).toContain('Mostrando 1-8 de 8');
+    expect(root.textContent).toContain('Mostrando 1 - 20 de 32');
     expect(root.textContent).toContain('Persona 1');
-    expect(root.textContent).toContain('Persona 8');
+    expect(root.textContent).toContain('Persona 20');
   });
 
   it('muestra el estado vacío y el de carga', () => {

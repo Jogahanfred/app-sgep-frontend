@@ -1,11 +1,5 @@
 <div class="ap">
-  <div class="ap__head">
-    <div>
-      <h1>{{ title }}</h1>
-      <p class="ap__lead">{{ lead }}</p>
-    </div>
-    <app-button [href]="createHref" icon="plus">{{ createLabel }}</app-button>
-  </div>
+  <p class="ap__lead">{{ lead }}</p>
 
   @if (notice()) {
     <app-alert tone="success">{{ notice() }}</app-alert>
@@ -31,6 +25,7 @@
     <app-alert tone="error">No hemos podido cargar el catálogo. Recarga la página.</app-alert>
   } @else {
     <ui-table
+      [heading]="title"
       [caption]="title"
       [columns]="columns"
       [rows]="tableRows()"
@@ -39,6 +34,8 @@
       loadingSubtitle="Un momento."
       [loadingLabel]="'Cargando ' + title"
       emptyTitle="No hay resultados con ese buscador o filtro de estado."
-    />
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">{{ createLabel }}</app-button>
+    </ui-table>
   }
 </div>

@@ -48,8 +48,9 @@ export class UiTable {
   readonly loadingLabel = input('Cargando');
   readonly emptyTitle = input('No hay resultados');
   readonly caption = input('');
-  readonly pageSizeOptions = input<readonly number[]>([5, 10, 25]);
-  readonly initialPageSize = input(5);
+  readonly heading = input('');
+  readonly pageSizeOptions = input<readonly number[]>([10, 20, 50]);
+  readonly initialPageSize = input(10);
 
   readonly pageSize = linkedSignal(() => this.initialPageSize());
   readonly page = signal(1);
@@ -67,7 +68,7 @@ export class UiTable {
   readonly rangeEnd = computed(() => Math.min(this.page() * this.pageSize(), this.total()));
   readonly rangeLabel = computed(() => {
     if (this.total() === 0) return '0 resultados';
-    return `Mostrando ${this.rangeStart()}-${this.rangeEnd()} de ${this.total()}`;
+    return `Mostrando ${this.rangeStart()} - ${this.rangeEnd()} de ${this.total()}`;
   });
   readonly pageItems = computed(() => this.buildPageItems(this.page(), this.totalPages()));
   readonly canPrev = computed(() => this.page() > 1);
@@ -113,12 +114,20 @@ export class UiTable {
     this.page.set(next);
   }
 
+  first(): void {
+    this.goToPage(1);
+  }
+
   prev(): void {
     this.goToPage(this.page() - 1);
   }
 
   next(): void {
     this.goToPage(this.page() + 1);
+  }
+
+  last(): void {
+    this.goToPage(this.totalPages());
   }
 
   private buildPageItems(current: number, total: number): (number | 'ellipsis')[] {

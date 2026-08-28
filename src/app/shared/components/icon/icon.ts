@@ -15,6 +15,10 @@ export type IconName =
   | 'help'
   | 'calendar'
   | 'chevron'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'chevron-first'
+  | 'chevron-last'
   | 'external'
   | 'shield'
   | 'arrow-up'
@@ -45,6 +49,10 @@ const PATHS: Record<IconName, string> = {
   help: 'M12 17h.01M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.8.4-1.4 1.1-1.4 2v.2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
   calendar: 'M7 4v3M17 4v3M4 9h16M6 6h12a2 2 0 0 1 2 2v11H4V8a2 2 0 0 1 2-2Z',
   chevron: 'M6 9l6 6 6-6',
+  'chevron-left': 'M15 6 9 12l6 6',
+  'chevron-right': 'M9 6l6 6-6 6',
+  'chevron-first': 'M6 5v14M18 6l-6 6 6 6',
+  'chevron-last': 'M18 5v14M6 6l6 6-6 6',
   external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14 20 4',
   shield: 'M12 3 5 6v6c0 5 3.2 8.4 7 9.5 3.8-1.1 7-4.5 7-9.5V6l-7-3Z',
   'arrow-up': 'M12 19V5M6 11l6-6 6 6',

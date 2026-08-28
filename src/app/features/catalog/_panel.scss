@@ -15,7 +15,7 @@
 }
 
 .ap__lead {
-  margin: 0;
+  margin: 0 0 1rem;
   max-width: 38rem;
   color: var(--color-text-secondary);
   font-size: var(--fs-sm);
@@ -102,6 +102,10 @@
 
 .ap :is(ui-input, ui-select, ui-date-picker) {
   display: block;
+}
+
+.ui-table__actions .btn {
+  border-radius: 0.4rem;
 }
 
 .ap-search {

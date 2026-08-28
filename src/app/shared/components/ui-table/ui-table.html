@@ -1,4 +1,13 @@
 <div class="ui-table" [class.ui-table--loading]="loading()">
+  @if (heading()) {
+    <div class="ui-table__bar">
+      <h2 class="ui-table__heading">{{ heading() }}</h2>
+      <div class="ui-table__actions">
+        <ng-content />
+      </div>
+    </div>
+  }
+
   @if (loading()) {
     <div class="ui-table__state" role="status">
       <ui-loading
@@ -48,7 +57,32 @@
 
   @if (showPager()) {
     <div class="ui-table__footer">
+      <div class="ui-table__meta">
+        <p class="ui-table__range">{{ rangeLabel() }}</p>
+        <label class="ui-table__show">
+          <span>Por página:</span>
+          <select
+            [value]="pageSize()"
+            aria-label="Filas por página"
+            (change)="onPageSizeChange($event)"
+          >
+            @for (size of pageSizeOptions(); track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
       <nav class="ui-table__pager" aria-label="Paginación">
+        <button
+          type="button"
+          class="ui-table__nav"
+          [disabled]="!canPrev()"
+          aria-label="Primera página"
+          (click)="first()"
+        >
+          <app-icon class="ui-table__nav-icon" name="chevron-first" />
+        </button>
         <button
           type="button"
           class="ui-table__nav"
@@ -56,7 +90,7 @@
           aria-label="Página anterior"
           (click)="prev()"
         >
-          <app-icon class="ui-table__nav-icon ui-table__nav-icon--prev" name="arrow-right" />
+          <app-icon class="ui-table__nav-icon" name="chevron-left" />
         </button>
         @for (item of pageItems(); track $index) {
           @if (item === 'ellipsis') {
@@ -81,25 +115,18 @@
           aria-label="Página siguiente"
           (click)="next()"
         >
-          <app-icon class="ui-table__nav-icon" name="arrow-right" />
+          <app-icon class="ui-table__nav-icon" name="chevron-right" />
+        </button>
+        <button
+          type="button"
+          class="ui-table__nav"
+          [disabled]="!canNext()"
+          aria-label="Última página"
+          (click)="last()"
+        >
+          <app-icon class="ui-table__nav-icon" name="chevron-last" />
         </button>
       </nav>
-
-      <div class="ui-table__meta">
-        <p class="ui-table__range">{{ rangeLabel() }}</p>
-        <label class="ui-table__show">
-          <span>Por página</span>
-          <select
-            [value]="pageSize()"
-            aria-label="Filas por página"
-            (change)="onPageSizeChange($event)"
-          >
-            @for (size of pageSizeOptions(); track size) {
-              <option [value]="size">{{ size }}</option>
-            }
-          </select>
-        </label>
-      </div>
     </div>
   }
 </div>

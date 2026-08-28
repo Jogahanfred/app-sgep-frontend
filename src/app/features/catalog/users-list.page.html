@@ -1,11 +1,5 @@
 <div class="ap">
-  <div class="ap__head">
-    <div>
-      <h1>Usuarios</h1>
-      <p class="ap__lead">Personas que ingresan al sistema. Alta y edición en pantalla, no en un recuadro.</p>
-    </div>
-    <app-button href="/catalogo/usuarios/nuevo" icon="plus">Nuevo usuario</app-button>
-  </div>
+  <p class="ap__lead">Personas que ingresan al sistema. Alta y edición en pantalla, no en un recuadro.</p>
 
   @if (notice()) {
     <app-alert tone="success">{{ notice() }}</app-alert>
@@ -36,6 +30,7 @@
     <app-alert tone="error">No hemos podido cargar los usuarios. Recarga la página.</app-alert>
   } @else {
     <ui-table
+      heading="Usuarios"
       caption="Usuarios del catálogo"
       [columns]="columns"
       [rows]="tableRows()"
@@ -44,6 +39,8 @@
       loadingSubtitle="Estamos trayendo el listado de personas."
       loadingLabel="Cargando usuarios"
       emptyTitle="No hay personas que coincidan con el buscador o el filtro de estado."
-    />
+    >
+      <app-button href="/catalogo/usuarios/nuevo" icon="plus" size="sm">Nuevo usuario</app-button>
+    </ui-table>
   }
 </div>
