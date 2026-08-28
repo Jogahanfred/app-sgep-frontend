@@ -206,7 +206,7 @@ tbody tr {
   border: 0;
   border-radius: 0.35rem;
   background: #fff;
-  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
+  box-shadow: 0 4px 12px #0002;
 }
 
 .ui-table__sizes li + li {
@@ -241,7 +241,6 @@ tbody tr {
 .ui-table__choice {
   width: 1.05rem;
   height: 1.05rem;
-  flex-shrink: 0;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.4;
