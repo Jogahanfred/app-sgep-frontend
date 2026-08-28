@@ -182,7 +182,7 @@ Las features se cargan con **lazy loading** (`loadComponent`).
 
 ## Design system
 
-Identidad propia: azul de cielo (`#1c74c4`), arena cálida (`#f7f1e8`) y tipografía Manrope.
+Identidad propia: blanco limpio y azul de cielo (`#1e8ae6`) como color primario. Tipografía Manrope.
 
 Tokens en `src/styles/_tokens.scss`. Breakpoints: 480 / 768 / 1024 / 1280.
 
