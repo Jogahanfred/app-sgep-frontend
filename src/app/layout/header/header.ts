@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 import type { NavGroup } from '@shared/models/nav.model';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
@@ -34,6 +36,7 @@ export class Header {
   readonly loginMessage = signal<string | null>(null);
   readonly megaLabel = signal<string | null>(null);
   readonly userMenuOpen = signal(false);
+  private pendingNext = '/perfil';
 
   readonly loginForm = new FormGroup({
     user: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] }),
@@ -77,6 +80,14 @@ export class Header {
       if (target?.closest('.usermenu')) return;
       this.closeUserMenu();
     };
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.openLoginIfNeeded());
+    this.openLoginIfNeeded();
+
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('keydown', onKey);
@@ -149,7 +160,18 @@ export class Header {
     this.session.signIn('Elena');
     this.loginForm.reset();
     this.closeLogin();
-    void this.router.navigate(['/perfil']);
+    const next = this.pendingNext || '/perfil';
+    this.pendingNext = '/perfil';
+    void this.router.navigateByUrl(next);
+  }
+
+  private openLoginIfNeeded(): void {
+    if (this.session.loggedIn()) return;
+    const tree = this.router.parseUrl(this.router.url);
+    const next = tree.queryParams['next'];
+    if (!next || this.loginOpen()) return;
+    this.pendingNext = next;
+    this.openLogin();
   }
 
   signOut(): void {

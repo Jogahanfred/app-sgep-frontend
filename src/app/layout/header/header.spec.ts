@@ -4,6 +4,7 @@ import { Header } from './header';
 
 describe('Header', () => {
   beforeEach(async () => {
+    sessionStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Header],
       providers: [provideRouter([])],
