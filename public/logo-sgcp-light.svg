@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" role="img" aria-labelledby="sigaLightTitle">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" role="img" aria-labelledby="sigaLightTitle">
   <title id="sigaLightTitle">SIGA</title>
-  <g transform="translate(4 14) scale(0.72)">
+  <g transform="translate(4 4)">
     <polygon fill="#e2186e" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="#c9a227" points="78,0 118,20 104,32 88,14"/>
     <polygon fill="#7eb6d4" points="6,34 72,22 82,36 16,48"/>
@@ -8,5 +8,5 @@
     <polygon fill="#d0122a" points="12,56 64,46 74,60 22,70"/>
     <polygon fill="#dce0e4" points="18,78 52,70 62,84 28,92"/>
   </g>
-  <text x="112" y="78" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="80" font-weight="900" letter-spacing="6" stroke="#ffffff" stroke-width="1.4" paint-order="stroke fill">SIGA</text>
+  <text x="148" y="70" fill="#ffffff" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="74" font-weight="900" letter-spacing="3" stroke="#ffffff" stroke-width="1.1" paint-order="stroke fill">SIGA</text>
 </svg>
