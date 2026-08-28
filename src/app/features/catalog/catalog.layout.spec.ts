@@ -1,12 +1,24 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { CatalogLayout } from './catalog.layout';
+
+@Component({
+  standalone: true,
+  template: '',
+})
+class BlankPage {}
 
 describe('CatalogLayout', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CatalogLayout],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([
+          { path: 'catalogo/roles', component: BlankPage },
+          { path: 'catalogo/roles/nuevo', component: BlankPage },
+        ]),
+      ],
     }).compileComponents();
   });
 
