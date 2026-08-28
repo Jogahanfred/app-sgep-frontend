@@ -4,6 +4,14 @@ import type { ChoiceOption } from '@shared/models/choice.model';
 
 export type CatalogKind = 'roles' | 'specialties';
 
+export const CATALOG_CREATE_HOLD_MS = 3000;
+
+export function holdFor(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export const entityStatusOptions: ChoiceOption[] = [
   { value: 'active', label: 'Activo' },
   { value: 'inactive', label: 'Inactivo' },

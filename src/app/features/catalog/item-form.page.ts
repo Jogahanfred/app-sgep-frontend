@@ -15,6 +15,7 @@ import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
 import type { CatalogKind } from './items-list.page';
+import { CATALOG_CREATE_HOLD_MS, holdFor } from './catalog-form';
 
 @Component({
   selector: 'app-item-form-page',
@@ -42,7 +43,9 @@ export class ItemFormPage {
   readonly isRoles = this.kind === 'roles';
   readonly loadState = signal<'loading' | 'ready' | 'error'>(this.isCreate ? 'ready' : 'loading');
   readonly saving = signal(false);
+  readonly creating = signal(false);
   readonly error = signal<string | null>(null);
+  private left = false;
   readonly listHref = this.isRoles ? '/catalogo/roles' : '/catalogo/especialidades';
   readonly nameLabel = this.isRoles ? 'Nombre del rol' : 'Nombre';
   readonly namePlaceholder = this.isRoles ? 'Jefe de Instrucción' : 'Pilotaje';
@@ -73,6 +76,9 @@ export class ItemFormPage {
   });
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.left = true;
+    });
     const id = this.editingId;
     if (!id) return;
     const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();
@@ -116,7 +122,9 @@ export class ItemFormPage {
         );
         await this.router.navigate([this.listHref]);
       } else {
-        await firstValueFrom(this.create$(payload));
+        this.creating.set(true);
+        await Promise.all([firstValueFrom(this.create$(payload)), holdFor(CATALOG_CREATE_HOLD_MS)]);
+        if (this.left) return;
         this.toast.success(
           this.isRoles ? 'Rol creado' : 'Especialidad creada',
           this.isRoles ? 'El rol ya está disponible en el catálogo.' : 'La especialidad ya está disponible en el catálogo.',
@@ -124,6 +132,7 @@ export class ItemFormPage {
         await this.router.navigate([this.listHref]);
       }
     } catch (err: unknown) {
+      this.creating.set(false);
       const message = err instanceof DomainError ? err.message : 'No hemos podido guardar los cambios.';
       this.error.set(message);
       this.toast.error('No se pudo guardar', message);

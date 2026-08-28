@@ -17,7 +17,7 @@ import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-s
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
-import { catalogPasswordValidator, entityStatusOptions, touchedError } from './catalog-form';
+import { CATALOG_CREATE_HOLD_MS, catalogPasswordValidator, entityStatusOptions, holdFor, touchedError } from './catalog-form';
 
 type UserTab = 'general' | 'roles' | 'specialties';
 
@@ -58,7 +58,9 @@ export class UserFormPage {
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly tab = signal<UserTab>('general');
   readonly saving = signal(false);
+  readonly creating = signal(false);
   readonly error = signal<string | null>(null);
+  private left = false;
   readonly selectedRoleIds = signal<string[]>([]);
   readonly selectedSpecialtyIds = signal<string[]>([]);
 
@@ -97,6 +99,9 @@ export class UserFormPage {
   });
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.left = true;
+    });
     const id = this.editingId;
     forkJoin({
       user: id ? this.getUser.execute(id) : of(null),
@@ -169,11 +174,14 @@ export class UserFormPage {
         this.toast.success('Persona actualizada', 'Hemos actualizado a la persona.');
         await this.router.navigate(['/catalogo/usuarios']);
       } else {
-        await firstValueFrom(this.createUser.execute(payload));
+        this.creating.set(true);
+        await Promise.all([firstValueFrom(this.createUser.execute(payload)), holdFor(CATALOG_CREATE_HOLD_MS)]);
+        if (this.left) return;
         this.toast.success('Persona creada', 'La persona ya puede ingresar al sistema.');
         await this.router.navigate(['/catalogo/usuarios']);
       }
     } catch (err: unknown) {
+      this.creating.set(false);
       const message = err instanceof DomainError ? err.message : 'No hemos podido guardar el usuario.';
       this.error.set(message);
       this.toast.error('No se pudo guardar', message);

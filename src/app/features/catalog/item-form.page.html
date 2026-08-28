@@ -4,12 +4,18 @@
       <h1>{{ title() }}</h1>
       <p class="ap__lead">{{ lead() }}</p>
     </div>
-    <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
   </div>
 
-  @if (loadState() === 'loading') {
+  @if (loadState() === 'loading' || creating()) {
     <div class="ap__table-wrap ap__state">
-      <ui-loading [title]="'Cargando ' + title()" subtitle="Un momento." [label]="'Cargando ' + title()" />
+      <ui-loading
+        [title]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
+        [subtitle]="creating() ? 'Estamos guardando el registro en el catálogo.' : 'Un momento.'"
+        [label]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
+      />
     </div>
   } @else if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar este registro.</app-alert>

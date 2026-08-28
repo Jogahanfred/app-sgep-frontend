@@ -1,7 +1,9 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
+import { CATALOG_CREATE_HOLD_MS } from './catalog-form';
 import { UserFormPage } from './user-form.page';
 
 vi.mock('lottie-web', () => ({
@@ -71,5 +73,50 @@ describe('UserFormPage', () => {
     expect(text).not.toContain('Contraseña');
     expect(text).toContain('04/03/2019');
     expect(root.querySelector('input:disabled')).not.toBeNull();
+  });
+
+  it('al crear sustituye el formulario por el loading y vuelve al listado con toast', async () => {
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [UserFormPage],
+      providers: [
+        provideRouter([]),
+        ...CORE_PROVIDERS,
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null }, data: {} } } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(UserFormPage);
+    await waitReady(fixture);
+    const page = fixture.componentInstance;
+    page.form.setValue({
+      firstName: 'Nuria',
+      lastName: 'Soler Vidal',
+      email: 'nuria.soler@siga.demo',
+      password: 'Helvia1!',
+      documentNumber: '99887766B',
+      entryDate: '2024-01-15',
+      indicative: 'NUR-01',
+      status: 'active',
+    });
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
+
+    vi.useFakeTimers();
+    try {
+      const pending = page.save();
+      fixture.detectChanges();
+      const root = fixture.nativeElement as HTMLElement;
+      expect(page.creating()).toBe(true);
+      expect(root.textContent).toContain('Creando usuario');
+      expect(root.querySelector('form')).toBeNull();
+      await vi.advanceTimersByTimeAsync(CATALOG_CREATE_HOLD_MS);
+      await pending;
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(success).toHaveBeenCalledWith('Persona creada', 'La persona ya puede ingresar al sistema.');
+    expect(navigate).toHaveBeenCalledWith(['/catalogo/usuarios']);
   });
 });
