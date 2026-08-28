@@ -46,6 +46,7 @@ export class Header {
   constructor() {
     let lastY = window.scrollY;
     const onScroll = () => {
+      if (document.documentElement.classList.contains('is-scroll-locked')) return;
       const y = window.scrollY;
       const atTop = y < 12;
       this.scrolled.set(y > 8);

@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import { DocumentScrollLock } from './document-scroll-lock';
 
 describe('DocumentScrollLock', () => {
@@ -6,30 +5,21 @@ describe('DocumentScrollLock', () => {
     document.documentElement.removeAttribute('style');
     document.documentElement.classList.remove('is-scroll-locked');
     document.body.removeAttribute('style');
-    vi.restoreAllMocks();
   });
 
-  it('fija el documento y no acumula el bloqueo anidado', () => {
+  it('bloquea el overflow sin cambiar la posición del documento', () => {
     const lock = new DocumentScrollLock();
     lock.lock();
     expect(document.documentElement.classList.contains('is-scroll-locked')).toBe(true);
-    expect(document.body.style.position).toBe('fixed');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.body.style.position).toBe('');
     lock.lock();
-    expect(document.body.style.position).toBe('fixed');
+    expect(document.body.style.overflow).toBe('hidden');
     lock.unlock();
-    expect(document.body.style.position).toBe('fixed');
+    expect(document.body.style.overflow).toBe('hidden');
     lock.unlock();
     expect(document.documentElement.classList.contains('is-scroll-locked')).toBe(false);
-    expect(document.body.style.position).toBe('');
-  });
-
-  it('restaura el scroll al desbloquear', () => {
-    const lock = new DocumentScrollLock();
-    vi.spyOn(window, 'scrollY', 'get').mockReturnValue(120);
-    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
-    lock.lock();
-    expect(document.body.style.top).toBe('-120px');
-    lock.unlock();
-    expect(scrollTo).toHaveBeenCalledWith(0, 120);
+    expect(document.body.style.overflow).toBe('');
   });
 });
