@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetHomeContent, type HomeContent } from '@core/application';
 import { Alert } from '@shared/components/alert/alert';
@@ -6,7 +6,7 @@ import { Button } from '@shared/components/button/button';
 import { Container } from '@shared/components/container/container';
 import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
 import { Section } from '@shared/components/section/section';
-import { Skeleton } from '@shared/components/skeleton/skeleton';
+import { UiSigaLoader } from '@shared/components/ui';
 import { LoanCalculator } from '../loans/loan-calculator';
 import { FaqSection } from './sections/faq.section';
 import { HelpSection } from './sections/help.section';
@@ -31,7 +31,7 @@ import { ThemeSection } from './sections/theme.section';
     Container,
     Button,
     Alert,
-    Skeleton,
+    UiSigaLoader,
   ],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
@@ -39,9 +39,14 @@ import { ThemeSection } from './sections/theme.section';
 export class HomePage {
   private readonly getHome = inject(GetHomeContent);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly loader = viewChild(UiSigaLoader);
 
   readonly content = signal<HomeContent | null>(null);
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
+
+  replayLoader(): void {
+    this.loader()?.replay();
+  }
 
   constructor() {
     this.getHome

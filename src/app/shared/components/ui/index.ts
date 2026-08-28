@@ -13,6 +13,7 @@ export { UiRadioCardGroup } from '../ui-radio-card-group/ui-radio-card-group';
 export { UiRangeSlider } from '../ui-range-slider/ui-range-slider';
 export { UiResultCard, type UiResultRow } from '../ui-result-card/ui-result-card';
 export { UiSegmentedControl } from '../ui-segmented-control/ui-segmented-control';
+export { UiSigaLoader } from '../ui-siga-loader/ui-siga-loader';
 export { UiSelect } from '../ui-select/ui-select';
 export { UiStepperInput } from '../ui-stepper-input/ui-stepper-input';
 export { UiSteps } from '../ui-steps/ui-steps';

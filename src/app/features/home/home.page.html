@@ -1,3 +1,15 @@
+<section class="home-loader" aria-labelledby="home-loader-title">
+  <div class="home-loader__inner">
+    <p id="home-loader-title" class="home-loader__kicker">Carga SIGA</p>
+    <h2 class="home-loader__title">El icono se dibuja al cerrar el círculo</h2>
+    <p class="home-loader__lead">
+      Parte abajo a la izquierda, recorre el círculo en sentido horario y, al completar la vuelta, delinea las cintas.
+    </p>
+    <ui-siga-loader [loop]="false" />
+    <button type="button" class="home-loader__replay" (click)="replayLoader()">Ver otra vez</button>
+  </div>
+</section>
+
 <app-hero-banner
   title="Hasta 280 €¹ en un año"
   subtitle="Suma mes a mes. Sin permanencia ni penalizaciones. Cumpliendo condiciones."
@@ -11,9 +23,7 @@
 @if (status() === 'loading') {
   <app-section title="Cargando soluciones">
     <div class="home-sk">
-      <app-skeleton height="10rem" />
-      <app-skeleton height="10rem" />
-      <app-skeleton height="10rem" />
+      <ui-siga-loader />
     </div>
   </app-section>
 } @else if (status() === 'error') {

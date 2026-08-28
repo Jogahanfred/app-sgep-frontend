@@ -1,5 +1,51 @@
+.home-loader {
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.home-loader__inner {
+  width: min(100% - 2rem, 36rem);
+  margin-inline: auto;
+  padding-block: 2.25rem 2rem;
+  text-align: center;
+}
+
+.home-loader__kicker {
+  margin: 0 0 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-loader__title {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #003553;
+}
+
+.home-loader__lead {
+  margin: 0.55rem 0 1.1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.home-loader__replay {
+  margin-top: 0.85rem;
+  border: 0;
+  background: transparent;
+  color: #003553;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
 .home-sk {
   display: grid;
+  justify-items: center;
   gap: var(--spacing-lg);
 }
 
