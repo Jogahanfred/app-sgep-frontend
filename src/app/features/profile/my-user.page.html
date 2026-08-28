@@ -1,0 +1,90 @@
+<div class="mine">
+  <div class="mine__head">
+    <h1>Usuario</h1>
+    <p class="mine__lead">Tu ficha de acceso al sistema. El catálogo de personas se gestiona en otro sitio.</p>
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="mine__load">
+      <ui-loading title="Cargando tu usuario" subtitle="Un momento." label="Cargando usuario" />
+    </div>
+  } @else if (loadState() === 'error' || !user()) {
+    <app-alert tone="error">No hemos podido cargar tu usuario. Entra de nuevo a la sesión.</app-alert>
+  } @else {
+    @if (notice()) {
+      <app-alert tone="success">{{ notice() }}</app-alert>
+    }
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <ui-form-card>
+        <div class="mine__status">
+          <span [class]="'mine__badge mine__badge--' + user()!.status">{{ statusLabel(user()!.status) }}</span>
+        </div>
+        <div class="mine__grid">
+          <ui-input
+            id="me-first"
+            label="Nombres"
+            icon="user"
+            placeholder="Tus nombres"
+            [field]="form.controls.firstName"
+            [error]="requiredError('firstName', 'Escribe tus nombres.')"
+          />
+          <ui-input
+            id="me-last"
+            label="Apellidos"
+            icon="user"
+            placeholder="Tus apellidos"
+            [field]="form.controls.lastName"
+            [error]="requiredError('lastName', 'Escribe tus apellidos.')"
+          />
+          <ui-input
+            id="me-email"
+            label="Correo electrónico"
+            type="email"
+            icon="mail"
+            placeholder="nombre@siga.demo"
+            [field]="form.controls.email"
+            [error]="requiredError('email', 'Necesitamos un correo válido.')"
+          />
+          <ui-input
+            id="me-pass"
+            label="Contraseña"
+            type="password"
+            icon="lock"
+            placeholder="Déjala vacía para no cambiarla"
+            [field]="form.controls.password"
+            info="Solo rellena si quieres cambiar la clave. Mayúscula, número y símbolo."
+          />
+          <ui-input
+            id="me-dni"
+            label="DNI / Documento"
+            icon="id-card"
+            placeholder="00000000A"
+            [field]="form.controls.documentNumber"
+            [error]="requiredError('documentNumber', 'Indica el documento.')"
+          />
+          <ui-date-picker
+            id="me-entry"
+            label="Fecha de ingreso"
+            [field]="form.controls.entryDate"
+            [error]="requiredError('entryDate', 'Indica la fecha de ingreso.')"
+          />
+          <ui-input
+            id="me-ind"
+            label="Indicativo (opcional)"
+            icon="id-card"
+            placeholder="ADM-01"
+            [field]="form.controls.indicative"
+            info="Código interno, radio o ficha. Puedes dejarlo vacío."
+          />
+        </div>
+        <div class="mine__actions">
+          <app-button type="submit" [disabled]="saving()">Guardar usuario</app-button>
+        </div>
+      </ui-form-card>
+    </form>
+  }
+</div>

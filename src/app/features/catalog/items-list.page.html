@@ -4,7 +4,7 @@
       <h1>{{ title }}</h1>
       <p class="ap__lead">{{ lead }}</p>
     </div>
-    <app-button icon="plus" (click)="openCreate()">{{ createLabel }}</app-button>
+    <app-button [href]="createHref" icon="plus">{{ createLabel }}</app-button>
   </div>
 
   @if (notice()) {
@@ -15,12 +15,7 @@
     <label class="ap-search">
       <span class="visually-hidden">Buscador global</span>
       <app-icon name="search" />
-      <input
-        type="search"
-        placeholder="Buscar por nombre o descripción"
-        [value]="query()"
-        (input)="onQuery($event)"
-      />
+      <input type="search" placeholder="Buscar por nombre o descripción" [value]="query()" (input)="onQuery($event)" />
     </label>
     <ui-select
       id="catalog-status-filter"
@@ -60,7 +55,7 @@
                 <span [class]="'ap__badge ap__badge--' + item.status">{{ statusLabel(item.status) }}</span>
               </td>
               <td>
-                <button type="button" class="ap__link" (click)="openEdit(item)">Editar</button>
+                <a class="ap__link" [routerLink]="[editBase, item.id]">Editar</a>
               </td>
             </tr>
           }
@@ -69,38 +64,3 @@
     </div>
   }
 </div>
-
-<app-modal [open]="modalOpen()" [title]="modalTitle()" (closed)="closeModal()">
-  <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
-    @if (error()) {
-      <app-alert tone="error">{{ error() }}</app-alert>
-    }
-    <ui-input
-      id="cat-name"
-      [label]="nameLabel"
-      icon="shield"
-      [placeholder]="namePlaceholder"
-      [field]="form.controls.name"
-      [error]="requiredError('name', 'Escribe el nombre.')"
-    />
-    <ui-input
-      id="cat-desc"
-      label="Descripción"
-      icon="info"
-      placeholder="Para qué sirve en el día a día"
-      [field]="form.controls.description"
-    />
-    <ui-select
-      id="cat-status"
-      label="Estado"
-      [uppercase]="false"
-      [options]="entityStatusOptions"
-      [value]="form.controls.status.value"
-      (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
-    />
-    <div class="ap__actions">
-      <app-button variant="ghost" type="button" (click)="closeModal()">Cancelar</app-button>
-      <app-button type="submit" [disabled]="saving()">{{ editingId() ? 'Guardar cambios' : 'Crear' }}</app-button>
-    </div>
-  </form>
-</app-modal>

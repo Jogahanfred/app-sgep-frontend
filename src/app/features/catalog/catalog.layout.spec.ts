@@ -1,23 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ProfileLayout } from './profile.layout';
+import { CatalogLayout } from './catalog.layout';
 
-describe('ProfileLayout', () => {
-  it('navega la cuenta de la persona logueada, no el catálogo', async () => {
+describe('CatalogLayout', () => {
+  it('separa el catálogo de la cuenta personal', async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfileLayout],
+      imports: [CatalogLayout],
       providers: [provideRouter([])],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(ProfileLayout);
+    const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Mi perfil');
-    expect(text).toContain('Usuario');
+    expect(text).toContain('Catálogo');
+    expect(text).toContain('Usuarios');
     expect(text).toContain('Roles');
     expect(text).toContain('Especialidades');
-    expect(text).toContain('Tu cuenta');
+    expect(text).toContain('Mi perfil');
     expect(text).not.toContain('Sprint');
-    expect(text).not.toContain('Catálogo');
   });
 });

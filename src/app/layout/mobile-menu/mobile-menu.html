@@ -44,6 +44,7 @@
     <div class="drawer__cta">
       @if (session.loggedIn()) {
         <app-button href="/perfil" variant="secondary" [fullWidth]="true" (click)="close()">Mi perfil</app-button>
+        <app-button href="/catalogo/usuarios" variant="ghost" [fullWidth]="true" (click)="close()">Catálogo</app-button>
         <app-button variant="ghost" [fullWidth]="true" (click)="requestLogout()">Salir</app-button>
       } @else {
         <app-button variant="secondary" [fullWidth]="true" (click)="requestLogin()">Acceso clientes</app-button>

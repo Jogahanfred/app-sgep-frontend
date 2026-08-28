@@ -1,5 +1,7 @@
 export type EntityStatus = 'active' | 'inactive';
 
+export const SESSION_DEMO_USER_ID = 'usr-elena-martin';
+
 export interface UserRoleEntity {
   id: string;
   name: string;

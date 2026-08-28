@@ -1,8 +1,8 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { beforeAll, vi } from 'vitest';
+import { vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
-import { CatalogPage } from './catalog.page';
+import { ItemsListPage } from './items-list.page';
 
 vi.mock('lottie-web', () => ({
   default: {
@@ -13,16 +13,7 @@ vi.mock('lottie-web', () => ({
   },
 }));
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.open = true;
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    this.open = false;
-  };
-});
-
-async function waitReady(fixture: ComponentFixture<CatalogPage>): Promise<void> {
+async function waitReady(fixture: ComponentFixture<ItemsListPage>): Promise<void> {
   fixture.detectChanges();
   const started = Date.now();
   while (fixture.componentInstance.loadState() === 'loading' && Date.now() - started < 2000) {
@@ -34,7 +25,7 @@ async function waitReady(fixture: ComponentFixture<CatalogPage>): Promise<void> 
 
 function configure(catalog: 'roles' | 'specialties'): Promise<void> {
   return TestBed.configureTestingModule({
-    imports: [CatalogPage],
+    imports: [ItemsListPage],
     providers: [
       provideRouter([]),
       ...CORE_PROVIDERS,
@@ -43,29 +34,28 @@ function configure(catalog: 'roles' | 'specialties'): Promise<void> {
   }).compileComponents();
 }
 
-describe('CatalogPage', () => {
+describe('ItemsListPage', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  it('lista los roles de ejemplo', async () => {
+  it('lista los roles del catálogo', async () => {
     await configure('roles');
-    const fixture = TestBed.createComponent(CatalogPage);
+    const fixture = TestBed.createComponent(ItemsListPage);
     await waitReady(fixture);
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
     expect(text).toContain('Roles de usuario');
     expect(text).toContain('Administrador');
     expect(text).toContain('Director Académico');
-    expect(text).toContain('Jefe de Instrucción');
-    expect(text).toContain('Instructor');
     expect(text).toContain('Alumno');
+    expect(root.querySelector('app-modal')).toBeNull();
   });
 
-  it('lista las especialidades', async () => {
+  it('lista las especialidades del catálogo', async () => {
     await configure('specialties');
-    const fixture = TestBed.createComponent(CatalogPage);
+    const fixture = TestBed.createComponent(ItemsListPage);
     await waitReady(fixture);
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Especialidades');
     expect(text).toContain('Pilotaje');
-    expect(text).toContain('Gestión académica');
   });
 });

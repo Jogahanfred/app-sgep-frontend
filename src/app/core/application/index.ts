@@ -1,3 +1,4 @@
+export { GetAdminUser } from './use-cases/get-admin-user';
 export { CreateAdminUser } from './use-cases/create-admin-user';
 export { CreateSpecialty } from './use-cases/create-specialty';
 export { CreateUserRole } from './use-cases/create-user-role';

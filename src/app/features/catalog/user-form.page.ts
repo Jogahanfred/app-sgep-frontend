@@ -1,17 +1,16 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, firstValueFrom } from 'rxjs';
-import { CreateAdminUser, ListAdminUsers, ListSpecialties, ListUserRoles, UpdateAdminUser } from '@core/application';
-import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CreateAdminUser, GetAdminUser, ListSpecialties, ListUserRoles, UpdateAdminUser } from '@core/application';
 import { DomainError } from '@core/domain/errors/domain-error';
-import type { EntityStatus, SpecialtyEntity, UserEntity, UserRoleEntity } from '@core/domain/entities';
+import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
+import { forkJoin, firstValueFrom, of } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Icon } from '@shared/components/icon/icon';
-import { Modal } from '@shared/components/modal/modal';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiDatePicker } from '@shared/components/ui-date-picker/ui-date-picker';
+import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
@@ -21,54 +20,45 @@ import type { ChoiceOption } from '@shared/models/choice.model';
 type UserTab = 'general' | 'roles' | 'specialties';
 
 @Component({
-  selector: 'app-users-page',
+  selector: 'app-user-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
     Alert,
     Button,
-    Icon,
-    Modal,
     UiCheckbox,
     UiDatePicker,
+    UiFormCard,
     UiInput,
     UiLoading,
     UiSegmentedControl,
     UiSelect,
   ],
-  templateUrl: './users.page.html',
-  styleUrl: './users.page.scss',
+  templateUrl: './user-form.page.html',
+  styleUrl: './user-form.page.scss',
 })
-export class UsersPage {
+export class UserFormPage {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly listUsers = inject(ListAdminUsers);
-  private readonly listRoles = inject(ListUserRoles);
-  private readonly listSpecialties = inject(ListSpecialties);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly getUser = inject(GetAdminUser);
   private readonly createUser = inject(CreateAdminUser);
   private readonly updateUser = inject(UpdateAdminUser);
+  private readonly listRoles = inject(ListUserRoles);
+  private readonly listSpecialties = inject(ListSpecialties);
 
-  readonly users = signal<UserEntity[]>([]);
+  readonly editingId = this.route.snapshot.paramMap.get('id');
+  readonly isCreate = !this.editingId;
   readonly roles = signal<UserRoleEntity[]>([]);
   readonly specialties = signal<SpecialtyEntity[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
-  readonly query = signal('');
-  readonly statusFilter = signal<'all' | EntityStatus>('all');
-  readonly modalOpen = signal(false);
-  readonly editingId = signal<string | null>(null);
   readonly tab = signal<UserTab>('general');
   readonly saving = signal(false);
-  readonly notice = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly selectedRoleIds = signal<string[]>([]);
   readonly selectedSpecialtyIds = signal<string[]>([]);
 
-  readonly statusLabel = statusLabel;
-
-  readonly statusOptions: ChoiceOption[] = [
-    { value: 'all', label: 'Todos' },
-    { value: 'active', label: 'Activos' },
-    { value: 'inactive', label: 'Inactivos' },
-  ];
+  readonly title = computed(() => (this.isCreate ? 'Nuevo usuario' : 'Editar usuario'));
 
   readonly entityStatusOptions: ChoiceOption[] = [
     { value: 'active', label: 'Activo' },
@@ -92,80 +82,42 @@ export class UsersPage {
     status: new FormControl<EntityStatus>('active', { nonNullable: true }),
   });
 
-  readonly filtered = computed(() => {
-    const needle = this.query();
-    const status = this.statusFilter();
-    return this.users().filter((user) => {
-      if (status !== 'all' && user.status !== status) return false;
-      return matchesAdminSearch(
-        [user.firstName, user.lastName, user.email, user.documentNumber, user.indicative],
-        needle,
-      );
-    });
-  });
-
-  readonly modalTitle = computed(() => (this.editingId() ? 'Editar usuario' : 'Nuevo usuario'));
-
   constructor() {
-    this.reload();
-  }
-
-  formatDate(value: string): string {
-    const [year, month, day] = value.split('-');
-    if (!year || !month || !day) return value;
-    return `${day}/${month}/${year}`;
+    const id = this.editingId;
+    forkJoin({
+      user: id ? this.getUser.execute(id) : of(null),
+      roles: this.listRoles.execute(),
+      specialties: this.listSpecialties.execute(),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ user, roles, specialties }) => {
+          this.roles.set(roles);
+          this.specialties.set(specialties);
+          if (user) {
+            this.selectedRoleIds.set([...user.roleIds]);
+            this.selectedSpecialtyIds.set([...user.specialtyIds]);
+            this.form.reset({
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              password: '',
+              documentNumber: user.documentNumber,
+              entryDate: user.entryDate,
+              indicative: user.indicative ?? '',
+              status: user.status,
+            });
+          }
+          this.loadState.set('ready');
+        },
+        error: () => this.loadState.set('error'),
+      });
   }
 
   requiredError(name: string, message: string): string | undefined {
     const control = this.form.get(name);
     if (!control || !control.touched || control.valid) return undefined;
     return message;
-  }
-
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-  }
-
-  openCreate(): void {
-    this.editingId.set(null);
-    this.tab.set('general');
-    this.error.set(null);
-    this.selectedRoleIds.set([]);
-    this.selectedSpecialtyIds.set([]);
-    this.form.reset({
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      documentNumber: '',
-      entryDate: '',
-      indicative: '',
-      status: 'active',
-    });
-    this.modalOpen.set(true);
-  }
-
-  openEdit(user: UserEntity): void {
-    this.editingId.set(user.id);
-    this.tab.set('general');
-    this.error.set(null);
-    this.selectedRoleIds.set([...user.roleIds]);
-    this.selectedSpecialtyIds.set([...user.specialtyIds]);
-    this.form.reset({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      password: '',
-      documentNumber: user.documentNumber,
-      entryDate: user.entryDate,
-      indicative: user.indicative ?? '',
-      status: user.status,
-    });
-    this.modalOpen.set(true);
-  }
-
-  closeModal(): void {
-    this.modalOpen.set(false);
   }
 
   setTab(value: string): void {
@@ -189,48 +141,27 @@ export class UsersPage {
       this.tab.set('general');
       return;
     }
-    const raw = this.form.getRawValue();
     const payload = {
-      ...raw,
+      ...this.form.getRawValue(),
       roleIds: this.selectedRoleIds(),
       specialtyIds: this.selectedSpecialtyIds(),
     };
     this.saving.set(true);
     try {
-      const id = this.editingId();
-      if (id) {
-        await firstValueFrom(this.updateUser.execute(id, payload));
-        this.notice.set('Hemos actualizado a la persona.');
+      if (this.editingId) {
+        await firstValueFrom(this.updateUser.execute(this.editingId, payload));
+        await this.router.navigate(['/catalogo/usuarios'], { state: { notice: 'Hemos actualizado a la persona.' } });
       } else {
         await firstValueFrom(this.createUser.execute(payload));
-        this.notice.set('La persona ya puede ingresar al sistema.');
+        await this.router.navigate(['/catalogo/usuarios'], {
+          state: { notice: 'La persona ya puede ingresar al sistema.' },
+        });
       }
-      this.modalOpen.set(false);
-      this.reload();
     } catch (err: unknown) {
       this.error.set(err instanceof DomainError ? err.message : 'No hemos podido guardar el usuario.');
       this.tab.set('general');
     } finally {
       this.saving.set(false);
     }
-  }
-
-  private reload(): void {
-    this.loadState.set('loading');
-    forkJoin({
-      users: this.listUsers.execute(),
-      roles: this.listRoles.execute(),
-      specialties: this.listSpecialties.execute(),
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({ users, roles, specialties }) => {
-          this.users.set(users);
-          this.roles.set(roles);
-          this.specialties.set(specialties);
-          this.loadState.set('ready');
-        },
-        error: () => this.loadState.set('error'),
-      });
   }
 }

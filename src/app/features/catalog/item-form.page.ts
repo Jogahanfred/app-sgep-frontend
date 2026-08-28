@@ -1,33 +1,31 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom, type Observable } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CreateSpecialty, CreateUserRole, ListSpecialties, ListUserRoles, UpdateSpecialty, UpdateUserRole } from '@core/application';
-import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import { DomainError } from '@core/domain/errors/domain-error';
 import type { CatalogWriteInput, EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
+import { firstValueFrom, type Observable } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Icon } from '@shared/components/icon/icon';
-import { Modal } from '@shared/components/modal/modal';
+import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
-
-export type CatalogKind = 'roles' | 'specialties';
+import type { CatalogKind } from './items-list.page';
 
 @Component({
-  selector: 'app-catalog-page',
+  selector: 'app-item-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Alert, Button, Icon, Modal, UiInput, UiLoading, UiSelect],
-  templateUrl: './catalog.page.html',
-  styleUrl: './catalog.page.scss',
+  imports: [ReactiveFormsModule, Alert, Button, UiFormCard, UiInput, UiLoading, UiSelect],
+  templateUrl: './item-form.page.html',
+  styleUrl: './item-form.page.scss',
 })
-export class CatalogPage {
+export class ItemFormPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly listRoles = inject(ListUserRoles);
   private readonly createRole = inject(CreateUserRole);
   private readonly updateRole = inject(UpdateUserRole);
@@ -36,31 +34,20 @@ export class CatalogPage {
   private readonly updateSpecialty = inject(UpdateSpecialty);
 
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
-  readonly items = signal<(UserRoleEntity | SpecialtyEntity)[]>([]);
-  readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
-  readonly query = signal('');
-  readonly statusFilter = signal<'all' | EntityStatus>('all');
-  readonly modalOpen = signal(false);
-  readonly editingId = signal<string | null>(null);
-  readonly saving = signal(false);
-  readonly notice = signal<string | null>(null);
-  readonly error = signal<string | null>(null);
-
-  readonly statusLabel = statusLabel;
+  readonly editingId = this.route.snapshot.paramMap.get('id');
+  readonly isCreate = !this.editingId;
   readonly isRoles = this.kind === 'roles';
-  readonly title = this.isRoles ? 'Roles de usuario' : 'Especialidades';
-  readonly lead = this.isRoles
-    ? 'Define quién entra como administrador, director académico, instructor o alumno.'
-    : 'Catálogo de especialidades que puedes asignar a cada persona.';
-  readonly createLabel = this.isRoles ? 'Nuevo rol' : 'Nueva especialidad';
+  readonly loadState = signal<'loading' | 'ready' | 'error'>(this.isCreate ? 'ready' : 'loading');
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly listHref = this.isRoles ? '/catalogo/roles' : '/catalogo/especialidades';
   readonly nameLabel = this.isRoles ? 'Nombre del rol' : 'Nombre';
   readonly namePlaceholder = this.isRoles ? 'Jefe de Instrucción' : 'Pilotaje';
 
-  readonly statusOptions: ChoiceOption[] = [
-    { value: 'all', label: 'Todos' },
-    { value: 'active', label: 'Activos' },
-    { value: 'inactive', label: 'Inactivos' },
-  ];
+  readonly title = computed(() => {
+    if (this.isCreate) return this.isRoles ? 'Nuevo rol' : 'Nueva especialidad';
+    return this.isRoles ? 'Editar rol' : 'Editar especialidad';
+  });
 
   readonly entityStatusOptions: ChoiceOption[] = [
     { value: 'active', label: 'Activo' },
@@ -73,50 +60,28 @@ export class CatalogPage {
     status: new FormControl<EntityStatus>('active', { nonNullable: true }),
   });
 
-  readonly filtered = computed(() => {
-    const needle = this.query();
-    const status = this.statusFilter();
-    return this.items().filter((item) => {
-      if (status !== 'all' && item.status !== status) return false;
-      return matchesAdminSearch([item.name, item.description], needle);
-    });
-  });
-
-  readonly modalTitle = computed(() => {
-    if (this.editingId()) return this.isRoles ? 'Editar rol' : 'Editar especialidad';
-    return this.isRoles ? 'Nuevo rol' : 'Nueva especialidad';
-  });
-
   constructor() {
-    this.reload();
+    const id = this.editingId;
+    if (!id) return;
+    const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();
+    stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (items) => {
+        const item = items.find((entry) => entry.id === id);
+        if (!item) {
+          this.loadState.set('error');
+          return;
+        }
+        this.form.reset({ name: item.name, description: item.description, status: item.status });
+        this.loadState.set('ready');
+      },
+      error: () => this.loadState.set('error'),
+    });
   }
 
   requiredError(name: string, message: string): string | undefined {
     const control = this.form.get(name);
     if (!control || !control.touched || control.valid) return undefined;
     return message;
-  }
-
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-  }
-
-  openCreate(): void {
-    this.editingId.set(null);
-    this.error.set(null);
-    this.form.reset({ name: '', description: '', status: 'active' });
-    this.modalOpen.set(true);
-  }
-
-  openEdit(item: UserRoleEntity | SpecialtyEntity): void {
-    this.editingId.set(item.id);
-    this.error.set(null);
-    this.form.reset({ name: item.name, description: item.description, status: item.status });
-    this.modalOpen.set(true);
-  }
-
-  closeModal(): void {
-    this.modalOpen.set(false);
   }
 
   async save(): Promise<void> {
@@ -128,16 +93,18 @@ export class CatalogPage {
     const payload: CatalogWriteInput = this.form.getRawValue();
     this.saving.set(true);
     try {
-      const id = this.editingId();
+      const id = this.editingId;
       if (id) {
         await firstValueFrom(this.update$(id, payload));
-        this.notice.set(this.isRoles ? 'Rol actualizado.' : 'Especialidad actualizada.');
+        await this.router.navigate([this.listHref], {
+          state: { notice: this.isRoles ? 'Rol actualizado.' : 'Especialidad actualizada.' },
+        });
       } else {
         await firstValueFrom(this.create$(payload));
-        this.notice.set(this.isRoles ? 'Rol creado.' : 'Especialidad creada.');
+        await this.router.navigate([this.listHref], {
+          state: { notice: this.isRoles ? 'Rol creado.' : 'Especialidad creada.' },
+        });
       }
-      this.modalOpen.set(false);
-      this.reload();
     } catch (err: unknown) {
       this.error.set(err instanceof DomainError ? err.message : 'No hemos podido guardar los cambios.');
     } finally {
@@ -151,17 +118,5 @@ export class CatalogPage {
 
   private update$(id: string, input: CatalogWriteInput): Observable<UserRoleEntity | SpecialtyEntity> {
     return this.isRoles ? this.updateRole.execute(id, input) : this.updateSpecialty.execute(id, input);
-  }
-
-  private reload(): void {
-    this.loadState.set('loading');
-    const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();
-    stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (items) => {
-        this.items.set(items);
-        this.loadState.set('ready');
-      },
-      error: () => this.loadState.set('error'),
-    });
   }
 }

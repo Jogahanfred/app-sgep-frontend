@@ -1,0 +1,79 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>Usuarios</h1>
+      <p class="ap__lead">Personas que ingresan al sistema. Alta y edición en pantalla, no en un recuadro.</p>
+    </div>
+    <app-button href="/catalogo/usuarios/nuevo" icon="plus">Nuevo usuario</app-button>
+  </div>
+
+  @if (notice()) {
+    <app-alert tone="success">{{ notice() }}</app-alert>
+  }
+
+  <div class="ap__toolbar">
+    <label class="ap-search">
+      <span class="visually-hidden">Buscador global</span>
+      <app-icon name="search" />
+      <input
+        type="search"
+        placeholder="Buscar por nombres, apellidos, correo, DNI o indicativo"
+        [value]="query()"
+        (input)="onQuery($event)"
+      />
+    </label>
+    <ui-select
+      id="user-status-filter"
+      label="Estado"
+      [uppercase]="false"
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      (valueChange)="statusFilter.set($event === 'all' ? 'all' : $event === 'inactive' ? 'inactive' : 'active')"
+    />
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="ap__table-wrap ap__state">
+      <ui-loading title="Cargando usuarios" subtitle="Estamos trayendo el listado de personas." label="Cargando usuarios" />
+    </div>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar los usuarios. Recarga la página.</app-alert>
+  } @else if (filtered().length === 0) {
+    <app-alert>No hay personas que coincidan con el buscador o el filtro de estado.</app-alert>
+  } @else {
+    <div class="ap__table-wrap">
+      <table class="ap__table">
+        <thead>
+          <tr>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Correo electrónico</th>
+            <th>DNI / Documento</th>
+            <th>Fecha de ingreso</th>
+            <th>Indicativo</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filtered(); track user.id) {
+            <tr>
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.documentNumber }}</td>
+              <td>{{ formatDate(user.entryDate) }}</td>
+              <td>{{ user.indicative || '—' }}</td>
+              <td>
+                <span [class]="'ap__badge ap__badge--' + user.status">{{ statusLabel(user.status) }}</span>
+              </td>
+              <td>
+                <a class="ap__link" [routerLink]="['/catalogo/usuarios', user.id]">Editar</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

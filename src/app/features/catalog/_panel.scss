@@ -73,10 +73,6 @@
   background: #f7fbff;
 }
 
-.ap__muted {
-  color: #7a7a7a;
-}
-
 .ap__badge {
   display: inline-flex;
   align-items: center;
@@ -98,12 +94,10 @@
 }
 
 .ap__link {
-  border: 0;
-  background: transparent;
   color: var(--color-primary);
   font-weight: 800;
   font-size: var(--fs-sm);
-  cursor: pointer;
+  text-decoration: none;
 }
 
 .ap__link:hover {
@@ -111,7 +105,14 @@
 }
 
 .ap__state {
+  position: relative;
+  min-height: 16rem;
   padding: 2rem 1rem;
+}
+
+.ap__state ui-loading {
+  position: absolute;
+  inset: 0;
 }
 
 .ap__checks {
@@ -152,6 +153,7 @@
 
 .ap__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.6rem;
   margin-top: 0.35rem;
@@ -163,4 +165,38 @@
 
 .ap :is(ui-input, ui-select, ui-date-picker) {
   display: block;
+}
+
+.ap-search {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #6a6a6a;
+}
+
+.ap-search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(30 138 230 / 16%);
+}
+
+.ap-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }

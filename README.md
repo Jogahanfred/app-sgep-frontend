@@ -109,7 +109,7 @@ MockProductRepository
 | `CalculateLoanInstallment` | Dominio (`calculateFrenchAmortization`) |
 | `CalculateMortgageInstallment` | Dominio (`calculateMortgageAmortization`) |
 | `GetCurrentUser` / `UpdateUser*` / `ChangeUserPassword` | UserProfile |
-| `ListAdminUsers` / `CreateAdminUser` / `UpdateAdminUser` | AdminCatalog (`UserEntity`) |
+| `GetAdminUser` / `ListAdminUsers` / `CreateAdminUser` / `UpdateAdminUser` | AdminCatalog (`UserEntity`) |
 | `ListUserRoles` / `CreateUserRole` / `UpdateUserRole` | AdminCatalog (`UserRoleEntity`) |
 | `ListSpecialties` / `CreateSpecialty` / `UpdateSpecialty` | AdminCatalog (`SpecialtyEntity`, `SpecialtyUserEntity`) |
 
@@ -177,10 +177,13 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/hipotecas` | Hipotecas |
 | `/inversion` | Inversión |
 | `/hazte-cliente` | Alta (formulario demo) |
-| `/perfil` | Perfil de usuario (foto, datos, correo, contraseña) |
-| `/perfil/usuarios` | Administración de personas (tabla, buscador, alta, roles y especialidades) |
-| `/perfil/roles` | Roles de usuario (`UserRoleEntity`) |
-| `/perfil/especialidades` | Especialidades (`SpecialtyEntity`) |
+| `/perfil` | Mi perfil (solo con sesión) |
+| `/perfil/usuario` | Ficha de acceso de la persona logueada |
+| `/perfil/roles` | Roles asignados a esa persona |
+| `/perfil/especialidades` | Especialidades asignadas a esa persona |
+| `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
+| `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
+| `/catalogo/especialidades` | Catálogo de especialidades (`SpecialtyEntity`) |
 
 Las features se cargan con **lazy loading** (`loadComponent`).
 
@@ -224,4 +227,4 @@ HomePage
 
 - Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`, `admin-catalog.spec.ts`
 - Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`, `create-admin-user`, `create-user-role`
-- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `UsersPage`, `CatalogPage`
+- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `MyUserPage`, `UsersListPage`

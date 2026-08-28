@@ -1,0 +1,141 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">Completa los datos generales y, si aplica, los roles y especialidades.</p>
+    </div>
+    <app-button href="/catalogo/usuarios" variant="ghost">Volver al listado</app-button>
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="ap__table-wrap ap__state">
+      <ui-loading title="Cargando usuario" subtitle="Un momento." label="Cargando usuario" />
+    </div>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este usuario.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="ap__tabs">
+          <ui-segmented-control
+            label="Secciones del usuario"
+            [wrap]="true"
+            [options]="tabOptions"
+            [value]="tab()"
+            (valueChange)="setTab($event)"
+          />
+        </div>
+
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+
+        @if (tab() === 'general') {
+          <div class="ap__grid">
+            <ui-input
+              id="usr-first"
+              label="Nombres"
+              icon="user"
+              placeholder="Nombres"
+              [field]="form.controls.firstName"
+              [error]="requiredError('firstName', 'Escribe los nombres.')"
+            />
+            <ui-input
+              id="usr-last"
+              label="Apellidos"
+              icon="user"
+              placeholder="Apellidos"
+              [field]="form.controls.lastName"
+              [error]="requiredError('lastName', 'Escribe los apellidos.')"
+            />
+            <ui-input
+              id="usr-email"
+              label="Correo electrónico"
+              type="email"
+              icon="mail"
+              placeholder="nombre@siga.demo"
+              [field]="form.controls.email"
+              [error]="requiredError('email', 'Necesitamos un correo válido.')"
+            />
+            <ui-input
+              id="usr-pass"
+              label="Contraseña"
+              type="password"
+              icon="lock"
+              [placeholder]="isCreate ? 'Mínimo 8 caracteres' : 'Déjala vacía para no cambiarla'"
+              [field]="form.controls.password"
+              [info]="isCreate ? 'Mayúscula, número y símbolo.' : 'Solo rellena si quieres cambiar la clave.'"
+            />
+            <ui-input
+              id="usr-dni"
+              label="DNI / Documento"
+              icon="id-card"
+              placeholder="00000000A"
+              [field]="form.controls.documentNumber"
+              [error]="requiredError('documentNumber', 'Indica el documento.')"
+            />
+            <ui-date-picker
+              id="usr-entry"
+              label="Fecha de ingreso"
+              [field]="form.controls.entryDate"
+              [error]="requiredError('entryDate', 'Indica la fecha de ingreso.')"
+            />
+            <ui-input
+              id="usr-ind"
+              label="Indicativo (opcional)"
+              icon="id-card"
+              placeholder="ADM-01"
+              [field]="form.controls.indicative"
+              info="Código interno, radio o ficha. Puedes dejarlo vacío."
+            />
+            <ui-select
+              id="usr-status"
+              label="Estado"
+              [uppercase]="false"
+              [options]="entityStatusOptions"
+              [value]="form.controls.status.value"
+              (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+            />
+          </div>
+        }
+
+        @if (tab() === 'roles') {
+          <div class="ap__checks">
+            @for (role of roles(); track role.id) {
+              <div class="ap__check">
+                <ui-checkbox
+                  [id]="'usr-role-' + role.id"
+                  [label]="role.name + (role.status === 'inactive' ? ' (inactivo)' : '')"
+                  [checked]="selectedRoleIds().includes(role.id)"
+                  (checkedChange)="toggleRole(role.id, $event)"
+                />
+                <p>{{ role.description }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        @if (tab() === 'specialties') {
+          <div class="ap__checks">
+            @for (specialty of specialties(); track specialty.id) {
+              <div class="ap__check">
+                <ui-checkbox
+                  [id]="'usr-spc-' + specialty.id"
+                  [label]="specialty.name + (specialty.status === 'inactive' ? ' (inactiva)' : '')"
+                  [checked]="selectedSpecialtyIds().includes(specialty.id)"
+                  (checkedChange)="toggleSpecialty(specialty.id, $event)"
+                />
+                <p>{{ specialty.description }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="ap__actions">
+          <app-button variant="ghost" href="/catalogo/usuarios">Cancelar</app-button>
+          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear usuario' : 'Guardar cambios' }}</app-button>
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

@@ -1,8 +1,8 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { beforeAll, vi } from 'vitest';
+import { vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
-import { UsersPage } from './users.page';
+import { UsersListPage } from './users-list.page';
 
 vi.mock('lottie-web', () => ({
   default: {
@@ -13,16 +13,7 @@ vi.mock('lottie-web', () => ({
   },
 }));
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.open = true;
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    this.open = false;
-  };
-});
-
-async function waitReady(fixture: ComponentFixture<UsersPage>): Promise<void> {
+async function waitReady(fixture: ComponentFixture<UsersListPage>): Promise<void> {
   fixture.detectChanges();
   const started = Date.now();
   while (fixture.componentInstance.loadState() === 'loading' && Date.now() - started < 2000) {
@@ -32,16 +23,16 @@ async function waitReady(fixture: ComponentFixture<UsersPage>): Promise<void> {
   fixture.detectChanges();
 }
 
-describe('UsersPage', () => {
+describe('UsersListPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UsersPage],
+      imports: [UsersListPage],
       providers: [provideRouter([]), ...CORE_PROVIDERS],
     }).compileComponents();
   });
 
-  it('pinta la tabla de personas y el buscador', async () => {
-    const fixture = TestBed.createComponent(UsersPage);
+  it('pinta la tabla del catálogo de personas', async () => {
+    const fixture = TestBed.createComponent(UsersListPage);
     await waitReady(fixture);
     const root = fixture.nativeElement as HTMLElement;
     const text = root.textContent ?? '';
@@ -50,10 +41,11 @@ describe('UsersPage', () => {
     expect(text).toContain('Martín Ruiz');
     expect(root.querySelector('input[type="search"]')?.getAttribute('placeholder')).toContain('nombres');
     expect(text).toContain('Nuevo usuario');
+    expect(root.querySelector('app-modal')).toBeNull();
   });
 
   it('filtra por estado inactivo', async () => {
-    const fixture = TestBed.createComponent(UsersPage);
+    const fixture = TestBed.createComponent(UsersListPage);
     await waitReady(fixture);
     fixture.componentInstance.statusFilter.set('inactive');
     fixture.detectChanges();
@@ -61,19 +53,5 @@ describe('UsersPage', () => {
     expect(text).toContain('Mario');
     expect(text).toContain('Irene');
     expect(text).not.toContain('Sofía');
-  });
-
-  it('abre el modal de alta con las tres pestañas', async () => {
-    const fixture = TestBed.createComponent(UsersPage);
-    await waitReady(fixture);
-    fixture.componentInstance.openCreate();
-    fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Nuevo usuario');
-    expect(text).toContain('Datos generales');
-    expect(text).toContain('Roles');
-    expect(text).toContain('Especialidades');
-    expect(text).toContain('Nombres');
-    expect(text).toContain('DNI / Documento');
   });
 });

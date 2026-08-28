@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './layout/auth.guard';
 
 export const routes: Routes = [
   {
@@ -74,6 +75,7 @@ export const routes: Routes = [
   },
   {
     path: 'perfil',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/profile/profile.layout').then((m) => m.ProfileLayout),
     children: [
       {
@@ -82,39 +84,143 @@ export const routes: Routes = [
         data: {
           seo: {
             title: 'Mi perfil | SIGA',
-            description: 'Foto, datos personales, correo y seguridad de tu perfil. Entorno de demostración.',
+            description: 'Foto, datos personales, correo y seguridad de tu perfil.',
           },
         },
       },
       {
-        path: 'usuarios',
-        loadComponent: () => import('./features/profile/admin/users.page').then((m) => m.UsersPage),
+        path: 'usuario',
+        loadComponent: () => import('./features/profile/my-user.page').then((m) => m.MyUserPage),
         data: {
           seo: {
-            title: 'Usuarios | SIGA',
-            description: 'Administra las personas que ingresan al sistema: alta, estado, roles y especialidades.',
+            title: 'Usuario | SIGA',
+            description: 'Tu ficha de acceso: nombres, correo, documento, ingreso e indicativo.',
           },
         },
       },
       {
         path: 'roles',
-        loadComponent: () => import('./features/profile/admin/catalog.page').then((m) => m.CatalogPage),
+        loadComponent: () => import('./features/profile/my-assignments.page').then((m) => m.MyAssignmentsPage),
         data: {
-          catalog: 'roles',
+          assignments: 'roles',
           seo: {
-            title: 'Roles de usuario | SIGA',
-            description: 'Administrador, director académico, jefe de instrucción, instructor y alumno.',
+            title: 'Mis roles | SIGA',
+            description: 'Roles asignados a tu usuario.',
           },
         },
       },
       {
         path: 'especialidades',
-        loadComponent: () => import('./features/profile/admin/catalog.page').then((m) => m.CatalogPage),
+        loadComponent: () => import('./features/profile/my-assignments.page').then((m) => m.MyAssignmentsPage),
+        data: {
+          assignments: 'specialties',
+          seo: {
+            title: 'Mis especialidades | SIGA',
+            description: 'Especialidades vinculadas a tu usuario.',
+          },
+        },
+      },
+    ],
+  },
+  {
+    path: 'catalogo',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/catalog/catalog.layout').then((m) => m.CatalogLayout),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'usuarios' },
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./features/catalog/users-list.page').then((m) => m.UsersListPage),
+        data: {
+          seo: {
+            title: 'Catálogo de usuarios | SIGA',
+            description: 'Personas que ingresan al sistema.',
+          },
+        },
+      },
+      {
+        path: 'usuarios/nuevo',
+        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        data: {
+          seo: {
+            title: 'Nuevo usuario | SIGA',
+            description: 'Alta de una persona en el sistema.',
+          },
+        },
+      },
+      {
+        path: 'usuarios/:id',
+        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        data: {
+          seo: {
+            title: 'Editar usuario | SIGA',
+            description: 'Datos generales, roles y especialidades de una persona.',
+          },
+        },
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./features/catalog/items-list.page').then((m) => m.ItemsListPage),
+        data: {
+          catalog: 'roles',
+          seo: {
+            title: 'Catálogo de roles | SIGA',
+            description: 'Roles de usuario del sistema.',
+          },
+        },
+      },
+      {
+        path: 'roles/nuevo',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'roles',
+          seo: {
+            title: 'Nuevo rol | SIGA',
+            description: 'Alta de un rol de usuario.',
+          },
+        },
+      },
+      {
+        path: 'roles/:id',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'roles',
+          seo: {
+            title: 'Editar rol | SIGA',
+            description: 'Nombre, descripción y estado del rol.',
+          },
+        },
+      },
+      {
+        path: 'especialidades',
+        loadComponent: () => import('./features/catalog/items-list.page').then((m) => m.ItemsListPage),
         data: {
           catalog: 'specialties',
           seo: {
-            title: 'Especialidades | SIGA',
-            description: 'Catálogo de especialidades y su asignación a las personas del sistema.',
+            title: 'Catálogo de especialidades | SIGA',
+            description: 'Especialidades del sistema.',
+          },
+        },
+      },
+      {
+        path: 'especialidades/nuevo',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'specialties',
+          seo: {
+            title: 'Nueva especialidad | SIGA',
+            description: 'Alta de una especialidad.',
+          },
+        },
+      },
+      {
+        path: 'especialidades/:id',
+        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        data: {
+          catalog: 'specialties',
+          seo: {
+            title: 'Editar especialidad | SIGA',
+            description: 'Nombre, descripción y estado de la especialidad.',
           },
         },
       },

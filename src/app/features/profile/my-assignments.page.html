@@ -1,0 +1,28 @@
+<div class="asg">
+  <div class="asg__head">
+    <h1>{{ title }}</h1>
+    <p class="asg__lead">{{ lead }}</p>
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="asg__load">
+      <ui-loading [title]="'Cargando ' + title.toLowerCase()" subtitle="Un momento." [label]="'Cargando ' + title" />
+    </div>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar tus {{ title.toLowerCase() }}. Entra de nuevo a la sesión.</app-alert>
+  } @else if (items().length === 0) {
+    <app-alert>{{ empty }}</app-alert>
+  } @else {
+    <ul class="asg__list">
+      @for (item of items(); track item.id) {
+        <li class="asg__card">
+          <div class="asg__top">
+            <h2>{{ item.name }}</h2>
+            <span [class]="'asg__badge asg__badge--' + item.status">{{ statusLabel(item.status) }}</span>
+          </div>
+          <p>{{ item.description || 'Sin descripción.' }}</p>
+        </li>
+      }
+    </ul>
+  }
+</div>

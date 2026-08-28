@@ -1,0 +1,72 @@
+.mine__head {
+  margin-bottom: 1.15rem;
+}
+
+.mine__head h1 {
+  margin: 0 0 0.35rem;
+  color: var(--color-text);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.mine__lead {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.mine__load {
+  position: relative;
+  min-height: 16rem;
+}
+
+.mine__load ui-loading {
+  position: absolute;
+  inset: 0;
+}
+
+.mine__status {
+  margin-bottom: 1.1rem;
+}
+
+.mine__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.mine__badge--active {
+  background: #e7f6ee;
+  color: var(--color-success);
+}
+
+.mine__badge--inactive {
+  background: #f3f3f3;
+  color: #666;
+}
+
+.mine__grid {
+  display: grid;
+  gap: 1.15rem;
+}
+
+@media (min-width: 640px) {
+  .mine__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.mine__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.mine :is(ui-input, ui-date-picker) {
+  display: block;
+}

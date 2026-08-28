@@ -7,6 +7,7 @@ export type {
   UserRoleEntity,
   UserWriteInput,
 } from './admin-catalog';
+export { SESSION_DEMO_USER_ID } from './admin-catalog';
 export type { Account } from './account';
 export type { BankCard, CardKind } from './bank-card';
 export type { FaqItem } from './faq-item';

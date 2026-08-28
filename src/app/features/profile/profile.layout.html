@@ -1,17 +1,15 @@
 <app-container [wide]="true">
   <div class="adm">
     <header class="adm__intro">
-      <p class="adm__kicker">Sprint 1 · Seguridad y administración</p>
-      <p class="adm__lead">
-        Gestiona tus datos y las personas que ingresan al sistema: usuarios, roles y especialidades.
-      </p>
+      <p class="adm__kicker">Tu cuenta</p>
+      <p class="adm__lead">Estos datos son los tuyos: ficha, usuario, roles y especialidades.</p>
     </header>
 
-    <nav class="adm__nav" aria-label="Administración">
+    <nav class="adm__nav" aria-label="Tu cuenta">
       <a routerLink="/perfil" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: true }">
         Mi perfil
       </a>
-      <a routerLink="/perfil/usuarios" routerLinkActive="adm__link--on">Usuarios</a>
+      <a routerLink="/perfil/usuario" routerLinkActive="adm__link--on">Usuario</a>
       <a routerLink="/perfil/roles" routerLinkActive="adm__link--on">Roles</a>
       <a routerLink="/perfil/especialidades" routerLinkActive="adm__link--on">Especialidades</a>
     </nav>

@@ -4,6 +4,7 @@ import {
   CalculateMortgageInstallment,
   ChangeUserPassword,
   CreateAdminUser,
+  GetAdminUser,
   CreateSpecialty,
   CreateUserRole,
   GetAccounts,
@@ -158,6 +159,11 @@ export const CORE_PROVIDERS: Provider[] = [
     provide: ChangeUserPassword,
     useFactory: (repo: UserProfileRepository) => new ChangeUserPassword(repo),
     deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: GetAdminUser,
+    useFactory: (repo: AdminCatalogRepository) => new GetAdminUser(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {
     provide: ListAdminUsers,

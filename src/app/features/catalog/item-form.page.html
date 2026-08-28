@@ -1,0 +1,52 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ isRoles ? 'Nombre, descripción y estado del rol.' : 'Nombre, descripción y estado de la especialidad.' }}</p>
+    </div>
+    <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="ap__table-wrap ap__state">
+      <ui-loading [title]="'Cargando ' + title()" subtitle="Un momento." [label]="'Cargando ' + title()" />
+    </div>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este registro.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <ui-input
+          id="cat-name"
+          [label]="nameLabel"
+          icon="shield"
+          [placeholder]="namePlaceholder"
+          [field]="form.controls.name"
+          [error]="requiredError('name', 'Escribe el nombre.')"
+        />
+        <ui-input
+          id="cat-desc"
+          label="Descripción"
+          icon="info"
+          placeholder="Para qué sirve en el día a día"
+          [field]="form.controls.description"
+        />
+        <ui-select
+          id="cat-status"
+          label="Estado"
+          [uppercase]="false"
+          [options]="entityStatusOptions"
+          [value]="form.controls.status.value"
+          (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">Cancelar</app-button>
+          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>
