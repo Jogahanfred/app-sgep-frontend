@@ -18,7 +18,7 @@
     </div>
   } @else {
     <div class="ui-table__scroll">
-      <table>
+      <table [class.ui-table__grid--empty]="total() === 0">
         @if (caption()) {
           <caption class="visually-hidden">{{ caption() }}</caption>
         }

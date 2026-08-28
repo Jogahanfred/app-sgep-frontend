@@ -88,9 +88,14 @@ describe('UiTable', () => {
     fixture.componentRef.setInput('rows', []);
     fixture.componentRef.setInput('emptyTitle', 'No hay personas que coincidan.');
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('No hay personas que coincidan.');
-    expect((fixture.nativeElement as HTMLElement).querySelector('thead')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.ui-table__empty-icon')).not.toBeNull();
+    const emptyRoot = fixture.nativeElement as HTMLElement;
+    expect(emptyRoot.textContent).toContain('No hay personas que coincidan.');
+    expect(emptyRoot.textContent).toContain('Nombre');
+    expect(emptyRoot.textContent).toContain('Estado');
+    expect(emptyRoot.querySelector('thead')).not.toBeNull();
+    expect(emptyRoot.querySelector('.ui-table__grid--empty')).not.toBeNull();
+    expect(emptyRoot.querySelector('.ui-table__empty-row')).not.toBeNull();
+    expect(emptyRoot.querySelector('.ui-table__empty-icon')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label="Filas por página"]')).toBeNull();
 
     fixture.componentRef.setInput('loading', true);
