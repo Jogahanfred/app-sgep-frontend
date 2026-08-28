@@ -16,6 +16,7 @@ import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import type { ChoiceOption } from '@shared/models/choice.model';
+import { catalogPasswordValidator, entityStatusOptions, touchedError } from './catalog-form';
 
 type UserTab = 'general' | 'roles' | 'specialties';
 
@@ -60,10 +61,7 @@ export class UserFormPage {
 
   readonly title = computed(() => (this.isCreate ? 'Nuevo usuario' : 'Editar usuario'));
 
-  readonly entityStatusOptions: ChoiceOption[] = [
-    { value: 'active', label: 'Activo' },
-    { value: 'inactive', label: 'Inactivo' },
-  ];
+  readonly entityStatusOptions: ChoiceOption[] = entityStatusOptions;
 
   readonly tabOptions: ChoiceOption[] = [
     { value: 'general', label: 'Datos generales' },
@@ -75,7 +73,12 @@ export class UserFormPage {
     firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    password: new FormControl('', { nonNullable: true }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: this.isCreate
+        ? [Validators.required, catalogPasswordValidator(true)]
+        : [catalogPasswordValidator(false)],
+    }),
     documentNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     entryDate: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     indicative: new FormControl('', { nonNullable: true }),
@@ -115,9 +118,7 @@ export class UserFormPage {
   }
 
   requiredError(name: string, message: string): string | undefined {
-    const control = this.form.get(name);
-    if (!control || !control.touched || control.valid) return undefined;
-    return message;
+    return touchedError(this.form.get(name), message);
   }
 
   setTab(value: string): void {

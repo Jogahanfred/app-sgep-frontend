@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidAdminCatalogError } from '../errors/domain-error';
-import { assertCatalogWrite, assertUserWrite, matchesAdminSearch } from './admin-catalog';
+import { assertCatalogWrite, assertUserWrite, matchesAdminSearch, passwordStrengthError } from './admin-catalog';
 
 const validUser = {
   firstName: 'Ana',
@@ -24,6 +24,11 @@ describe('admin-catalog domain', () => {
     expect(result.email).toBe('ana.gil@siga.demo');
     expect(result.documentNumber).toBe('12345678Z');
     expect(result.indicative).toBe('ALU-01');
+  });
+
+  it('describe el error de contraseña sin lanzar si no es alta', () => {
+    expect(passwordStrengthError('', false)).toBeUndefined();
+    expect(passwordStrengthError('corta', true)).toMatch(/8 caracteres/);
   });
 
   it('exige contraseña en el alta', () => {

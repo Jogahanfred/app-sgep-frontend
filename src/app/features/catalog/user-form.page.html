@@ -64,6 +64,7 @@
               icon="lock"
               [placeholder]="isCreate ? 'Mínimo 8 caracteres' : 'Déjala vacía para no cambiarla'"
               [field]="form.controls.password"
+              [error]="requiredError('password', 'La contraseña es obligatoria.')"
               [info]="isCreate ? 'Mayúscula, número y símbolo.' : 'Solo rellena si quieres cambiar la clave.'"
             />
             <ui-input

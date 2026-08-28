@@ -25,6 +25,14 @@ async function waitReady(fixture: ComponentFixture<UsersListPage>): Promise<void
 
 describe('UsersListPage', () => {
   beforeEach(async () => {
+    if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+      HTMLDialogElement.prototype.showModal = function showModal() {
+        this.setAttribute('open', '');
+      };
+      HTMLDialogElement.prototype.close = function close() {
+        this.removeAttribute('open');
+      };
+    }
     await TestBed.configureTestingModule({
       imports: [UsersListPage],
       providers: [provideRouter([]), ...CORE_PROVIDERS],
@@ -48,7 +56,18 @@ describe('UsersListPage', () => {
     expect(text).toContain('Mostrando 1 - 10 de 32');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('[aria-label="Primera página"]')).not.toBeNull();
-    expect(root.querySelector('app-modal')).toBeNull();
+    expect(root.querySelector('app-user-quick-create')).not.toBeNull();
+  });
+
+  it('abre el modal de alta rápida', async () => {
+    const fixture = TestBed.createComponent(UsersListPage);
+    await waitReady(fixture);
+    fixture.componentInstance.openCreate();
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Alta rápida de usuario');
+    expect(text).toContain('Contraseña');
+    expect(text).toContain('DNI / Documento');
   });
 
   it('filtra por estado inactivo', async () => {

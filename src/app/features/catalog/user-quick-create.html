@@ -1,0 +1,84 @@
+<app-modal title="Alta rápida de usuario" size="lg" [open]="open()" (closed)="close()">
+  <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <p class="ap__lead">
+      Da de alta a la persona con los datos generales. Roles y especialidades se asignan después en la ficha.
+    </p>
+
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+
+    <div class="ap__grid">
+      <ui-input
+        id="qc-first"
+        label="Nombres"
+        icon="user"
+        placeholder="Nombres"
+        [field]="form.controls.firstName"
+        [error]="fieldError('firstName', 'Escribe los nombres.')"
+      />
+      <ui-input
+        id="qc-last"
+        label="Apellidos"
+        icon="user"
+        placeholder="Apellidos"
+        [field]="form.controls.lastName"
+        [error]="fieldError('lastName', 'Escribe los apellidos.')"
+      />
+      <ui-input
+        id="qc-email"
+        label="Correo electrónico"
+        type="email"
+        icon="mail"
+        placeholder="nombre@siga.demo"
+        [field]="form.controls.email"
+        [error]="fieldError('email', 'Necesitamos un correo válido.')"
+      />
+      <ui-input
+        id="qc-pass"
+        label="Contraseña"
+        type="password"
+        icon="lock"
+        placeholder="Mínimo 8 caracteres"
+        [field]="form.controls.password"
+        [error]="fieldError('password', 'La contraseña es obligatoria.')"
+        info="Mayúscula, número y símbolo."
+      />
+      <ui-input
+        id="qc-dni"
+        label="DNI / Documento"
+        icon="id-card"
+        placeholder="00000000A"
+        [field]="form.controls.documentNumber"
+        [error]="fieldError('documentNumber', 'Indica el documento.')"
+      />
+      <ui-date-picker
+        id="qc-entry"
+        label="Fecha de ingreso"
+        [field]="form.controls.entryDate"
+        [error]="fieldError('entryDate', 'Indica la fecha de ingreso.')"
+      />
+      <ui-input
+        id="qc-ind"
+        label="Indicativo (opcional)"
+        icon="id-card"
+        placeholder="ADM-01"
+        [field]="form.controls.indicative"
+        info="Código interno, radio o ficha. Puedes dejarlo vacío."
+      />
+      <ui-select
+        id="qc-status"
+        label="Estado"
+        [uppercase]="false"
+        [options]="entityStatusOptions"
+        [value]="form.controls.status.value"
+        (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+      />
+    </div>
+
+    <div class="ap__actions">
+      <app-button variant="ghost" type="button" [disabled]="saving()" (click)="close()">Cancelar</app-button>
+      <app-button type="submit" [disabled]="saving()">Crear usuario</app-button>
+    </div>
+  </form>
+</app-modal>

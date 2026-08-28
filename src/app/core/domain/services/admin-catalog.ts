@@ -21,6 +21,16 @@ function assertStatus(status: EntityStatus): EntityStatus {
   return status;
 }
 
+export function passwordStrengthError(password: string, requiredPassword: boolean): string | undefined {
+  if (!requiredPassword && !password.trim()) return undefined;
+  try {
+    assertPasswordStrength(password, 'La contraseña es obligatoria.');
+    return undefined;
+  } catch (err) {
+    return err instanceof Error ? err.message : 'Contraseña inválida.';
+  }
+}
+
 export function assertPasswordStrength(password: string, requiredMessage: string): string {
   const value = required(password, requiredMessage);
   if (value.length < 8) {
