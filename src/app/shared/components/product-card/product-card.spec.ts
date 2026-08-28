@@ -25,6 +25,7 @@ describe('ProductCard', () => {
   it('renderiza título, descripción y CTA', async () => {
     const fixture = TestBed.createComponent(ProductCard);
     fixture.componentRef.setInput('product', product);
+    fixture.detectChanges();
     await fixture.whenStable();
 
     const el = fixture.nativeElement as HTMLElement;

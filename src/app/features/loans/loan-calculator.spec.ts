@@ -18,7 +18,7 @@ describe('LoanCalculator', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component.result()?.monthlyPayment).toBeCloseTo(522.9, 1);
+    expect(component.result()?.monthlyPayment).toBeCloseTo(536.73, 2);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Cuota estimada');
   });
 

@@ -1,4 +1,4 @@
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import type { NeedId, Product } from '../../domain/entities';
 import type { ProductRepository } from '../../ports';
 

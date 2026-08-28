@@ -1,5 +1,5 @@
 <div class="drawer" [class.drawer--open]="open()" [attr.hidden]="open() ? null : true">
-  <div class="drawer__backdrop" (click)="close()"></div>
+  <button type="button" class="drawer__backdrop" aria-label="Cerrar menú" (click)="close()"></button>
   <div
     class="drawer__panel"
     role="dialog"

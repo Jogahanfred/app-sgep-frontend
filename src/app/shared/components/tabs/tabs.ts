@@ -26,16 +26,29 @@ export class Tabs {
     const tabs = this.tabs();
     if (!tabs.length) return;
 
-    let next = index;
-    if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-    else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
-    else if (event.key === 'Home') next = 0;
-    else if (event.key === 'End') next = tabs.length - 1;
-    else return;
+    const last = tabs.length - 1;
+    const nextIndex =
+      event.key === 'ArrowRight'
+        ? (index + 1) % tabs.length
+        : event.key === 'ArrowLeft'
+          ? (index - 1 + tabs.length) % tabs.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? last
+              : null;
+
+    if (nextIndex === null) return;
 
     event.preventDefault();
-    this.select(tabs[next].id);
-    const buttons = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
-    buttons?.[next]?.focus();
+    const next = tabs[nextIndex];
+    if (!next) return;
+    this.select(next.id);
+    const root = (event.currentTarget as HTMLElement).parentElement;
+    const buttons = root?.querySelectorAll('[role="tab"]');
+    const target = buttons?.item(nextIndex);
+    if (target instanceof HTMLButtonElement) {
+      target.focus();
+    }
   }
 }

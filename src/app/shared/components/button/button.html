@@ -1,3 +1,7 @@
+<ng-template #label>
+  <ng-content />
+</ng-template>
+
 @if (href(); as link) {
   <a
     class="btn"
@@ -10,7 +14,7 @@
     [attr.aria-label]="ariaLabel()"
     [attr.tabindex]="disabled() || loading() ? -1 : null"
   >
-    <span class="btn__label"><ng-content /></span>
+    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
     @if (icon(); as iconName) {
       <app-icon [name]="iconName" />
     }
@@ -26,7 +30,7 @@
     [attr.aria-busy]="loading() || null"
     [attr.aria-label]="ariaLabel()"
   >
-    <span class="btn__label"><ng-content /></span>
+    <span class="btn__label"><ng-container *ngTemplateOutlet="label" /></span>
     @if (icon(); as iconName) {
       <app-icon [name]="iconName" />
     }

@@ -1,6 +1,6 @@
 import { firstValueFrom, of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
-import type { NeedOption, Product, ProductCategory } from '../../domain/entities';
+import type { NeedOption, Product } from '../../domain/entities';
 import type { ProductRepository } from '../../ports';
 import { GetFeaturedProducts } from './get-featured-products';
 
@@ -11,7 +11,7 @@ class FakeProductRepository implements ProductRepository {
     return of(this.featured);
   }
 
-  getProductsByCategory(_category: ProductCategory) {
+  getProductsByCategory() {
     return of([]);
   }
 
