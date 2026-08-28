@@ -1,60 +1,80 @@
 .mega {
-  background: var(--color-surface);
-  border-bottom-left-radius: 1.25rem;
-  border-bottom-right-radius: 1.25rem;
-  box-shadow: var(--shadow-md);
+  background: #ffffff;
+  border: 0;
+  border-bottom-left-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+  box-shadow: 0 22px 48px rgb(0 0 0 / 12%), 0 2px 8px rgb(0 0 0 / 4%);
 }
 
 .mega__inner {
-  width: min(100% - 2rem, var(--container-wide));
+  width: min(100% - 2.5rem, var(--container-wide));
   margin-inline: auto;
-  padding: 1.75rem 0 2.25rem;
+  padding: 1.35rem 0 2.75rem;
 }
 
 .mega__title {
-  font-size: var(--fs-3xl);
-  font-weight: 800;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.75rem;
+  color: #2c2c2c;
+  font-family: var(--font-body);
+  font-size: clamp(1.85rem, 3vw, 2.35rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .mega__grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1.5rem 1.25rem;
+  grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr));
+  column-gap: 1.75rem;
+  row-gap: 1.75rem;
+  align-items: start;
 }
 
 .mega__block + .mega__block {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
 }
 
 .mega__block h3 {
+  margin: 0 0 0.85rem;
+  color: #333333;
   font-family: var(--font-body);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
-  margin-bottom: 0.65rem;
+  line-height: 1.3;
 }
 
 .mega__block ul {
   list-style: none;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.7rem;
 }
 
 .mega__block a {
-  color: var(--color-text);
+  display: inline-block;
+  color: #555555;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.45;
   text-decoration: none;
-  font-size: 0.92rem;
 }
 
 .mega__block a:hover {
-  color: var(--color-primary);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  color: #1a1a1a;
+}
+
+.mega__col--split {
+  padding-left: 1.5rem;
+  border-left: 1px solid #e6e6e6;
 }
 
 @media (max-width: 1199px) {
   .mega__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mega__col--split {
+    padding-left: 0;
+    border-left: 0;
   }
 }

@@ -1,9 +1,9 @@
 <div class="mega" role="region" [attr.aria-label]="'Menú de ' + group().label">
   <div class="mega__inner">
     <h2 class="mega__title">{{ group().label }}</h2>
-    <div class="mega__grid">
-      @for (column of group().columns; track $index) {
-        <div class="mega__col">
+    <div class="mega__grid" [style.--cols]="group().columns.length">
+      @for (column of group().columns; track $index; let last = $last) {
+        <div class="mega__col" [class.mega__col--split]="last && group().columns.length > 1">
           @for (block of column.blocks; track block.heading) {
             <div class="mega__block">
               <h3>{{ block.heading }}</h3>
