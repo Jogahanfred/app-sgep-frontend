@@ -38,7 +38,7 @@
   padding: 0 0.85rem;
   background: #fff;
   border: 1px solid #e4e4e4;
-  border-radius: 2px;
+  border-radius: 8px;
   color: #555;
   text-align: left;
   font-size: 0.85rem;
@@ -148,7 +148,7 @@
 }
 
 .sm__opt.sm__opt--on {
-  background: #f4f4f4 radial-gradient(#e4e4e4 1px, #0000 1px) 0 0 / 3px 3px;
+  background: #f4f4f4 radial-gradient(#d4d4d4 1px, #0000 1px) 0 0 / 3px 3px;
   color: var(--color-primary);
   font-weight: 700;
 }
