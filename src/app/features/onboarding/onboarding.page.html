@@ -1,37 +1,95 @@
 <app-container>
   <div class="onb">
     <app-breadcrumb [crumbs]="[{ label: 'Hazte cliente' }]" />
+    <p class="onb__kicker">Alta digital</p>
     <h1>Hazte cliente de Helvia</h1>
     <p class="onb__lead">
-      Formulario de demostración. No se envían datos a ningún servidor. En un banco real, aquí iría la verificación de
-      identidad.
+      Formulario de demostración. No se envían datos a ningún servidor. El diseño replica el patrón de un alta en banca
+      online: identificación, cuenta y verificación.
     </p>
+
+    <div class="onb__progress" aria-hidden="true">
+      <span class="onb__bar"><span style="width: 25%"></span></span>
+      <p>Paso {{ currentStep }} de 4</p>
+    </div>
 
     @if (sent()) {
       <app-alert tone="success">Hemos registrado tu interés. Un gestor ficticio te escribiría en 24 horas.</app-alert>
     }
 
-    <form class="onb__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <app-input id="ob-name" label="Nombre y apellidos" [field]="form.controls.name" [error]="fieldError('name')" autocomplete="name" />
-      <app-input
-        id="ob-email"
-        label="Correo electrónico"
-        type="email"
-        [field]="form.controls.email"
-        [error]="fieldError('email')"
-        autocomplete="email"
-      />
-      <app-input
-        id="ob-phone"
-        label="Teléfono"
-        type="tel"
-        [field]="form.controls.phone"
-        [error]="fieldError('phone')"
-        autocomplete="tel"
-        hint="Nueve dígitos, sin espacios"
-      />
-      <app-select id="ob-product" label="Producto de interés" [field]="form.controls.product" [options]="products" />
-      <app-button type="submit">Enviar solicitud</app-button>
-    </form>
+    <div class="onb__layout">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <app-form-card>
+          <h2 class="onb__section">1. Identificación del cliente</h2>
+
+          <app-select-menu
+            id="ob-doc"
+            title="Documento de identidad"
+            icon="id-card"
+            label="Tipo de documento"
+            placeholder="Seleccionar documento"
+            [options]="documents"
+            [value]="form.controls.documentType.value"
+            (valueChange)="form.controls.documentType.setValue($event)"
+          />
+
+          <app-input
+            id="ob-doc-number"
+            label="Número de documento"
+            [field]="form.controls.documentNumber"
+            [error]="fieldError('documentNumber')"
+            placeholder="00000000A"
+          />
+
+          <div class="onb__phone">
+            <app-select-menu
+              id="ob-prefix"
+              label="Prefijo"
+              [uppercase]="false"
+              [options]="prefixes"
+              [value]="form.controls.prefix.value"
+              (valueChange)="form.controls.prefix.setValue($event)"
+            />
+            <app-input
+              id="ob-phone"
+              label="Teléfono móvil"
+              type="tel"
+              [field]="form.controls.phone"
+              [error]="fieldError('phone')"
+              autocomplete="tel"
+              placeholder="000 000 000"
+            />
+          </div>
+
+          <app-input
+            id="ob-phone-repeat"
+            label="Repite tu teléfono"
+            type="tel"
+            [field]="form.controls.phoneRepeat"
+            [error]="phoneRepeatError()"
+            placeholder="000 000 000"
+          />
+
+          <app-check-field
+            id="ob-nocard"
+            label="No tengo tarjeta"
+            [checked]="form.controls.noCard.value"
+            (checkedChange)="form.controls.noCard.setValue($event)"
+          />
+
+          <div class="onb__actions">
+            <app-button type="submit" [disabled]="!canContinue()">Continuar</app-button>
+          </div>
+        </app-form-card>
+      </form>
+
+      <aside class="onb__side">
+        <app-step-rail [steps]="steps" [current]="currentStep" />
+        <app-help-aside
+          body="De lunes a viernes, de 8:00 a 22:00. Sábados de 9:00 a 15:00. Número ilustrativo de Helvia."
+          phone="915 123 123"
+        />
+      </aside>
+    </div>
   </div>
 </app-container>

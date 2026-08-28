@@ -9,11 +9,16 @@ export type {
   LoanInstallment,
 } from './loan-installment';
 export {
+  DEFAULT_MORTGAGE_RATE,
   DEFAULT_PERSONAL_LOAN_RATE,
   LOAN_AMOUNT_MAX,
   LOAN_AMOUNT_MIN,
   LOAN_TERM_MAX,
   LOAN_TERM_MIN,
+  MORTGAGE_AMOUNT_MAX,
+  MORTGAGE_AMOUNT_MIN,
+  MORTGAGE_TERM_MAX,
+  MORTGAGE_TERM_MIN,
 } from './loan-installment';
 export type { Mortgage, MortgageRateType } from './mortgage';
 export type { NeedId, NeedOption } from './need-option';

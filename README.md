@@ -107,6 +107,7 @@ MockProductRepository
 | `GetInvestmentProducts` | Investment |
 | `GetFaqs` / `GetHelpTopics` | Faq |
 | `CalculateLoanInstallment` | Dominio (`calculateFrenchAmortization`) |
+| `CalculateMortgageInstallment` | Dominio (`calculateMortgageAmortization`) |
 
 Los casos de uso son clases TypeScript planas. Angular solo aparece en `core/di` para registrar factories.
 
@@ -179,11 +180,11 @@ Las features se cargan con **lazy loading** (`loadComponent`).
 
 ## Design system
 
-Identidad propia: verde bosque y oro cálido, tipografía Fraunces + Manrope, fondo marfil.
+Identidad propia: rojo de marca (`#ec0000`), teal de controles (`#0b5c5e`) y tipografía Manrope.
 
 Tokens en `src/styles/_tokens.scss`. Breakpoints: 480 / 768 / 1024 / 1280.
 
-Componentes: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBanner`, `Section`, `Container`, `Grid`, `Badge`, `Icon`, `Accordion`, `Tabs`, `Input`, `Select`, `Modal`, `Breadcrumb`, `Alert`, `Skeleton`, menús de navegación.
+Componentes: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBanner`, `Section`, `Container`, `Grid`, `Badge`, `Icon`, `Accordion`, `Tabs`, `Input`, `SelectMenu`, `ChoiceGroup`, `AmountField`, `RangeSlider`, `SegmentedPills`, `ToggleSwitch`, `CheckField`, `ErrorHint`, `QuoteCard`, `HelpAside`, `StepRail`, `FormCard`, `CalcPanel`, `Modal`, `Breadcrumb`, `Alert`, `Skeleton`, menús de navegación.
 
 ---
 

@@ -4,23 +4,28 @@ import { map } from 'rxjs';
 import { GetMortgages, mapMortgageToProduct } from '@core/application';
 import type { Product } from '@core/domain/entities';
 import { ProductCatalog } from '@shared/components/product-catalog/product-catalog';
+import { MortgageCalculator } from './mortgage-calculator';
 
 @Component({
   selector: 'app-mortgages-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ProductCatalog],
+  imports: [ProductCatalog, MortgageCalculator],
   template: `
     <app-product-catalog
       crumb="Hipotecas"
       eyebrow="Vivienda"
       title="Fija, variable o mixta. Tú eliges el ritmo."
       subtitle="Hasta el 80% de financiación y un gestor que te acompaña desde la nota simple hasta la firma."
-      primaryLabel="Hablar con un gestor"
-      primaryHref="/hazte-cliente"
+      primaryLabel="Calcular cuota"
+      primaryHref="/hipotecas#simulador"
       listTitle="Hipotecas Helvia"
       [products]="products()"
       [status]="status()"
-    />
+    >
+      <div id="simulador">
+        <app-mortgage-calculator />
+      </div>
+    </app-product-catalog>
   `,
 })
 export class MortgagesPage {

@@ -1,48 +1,71 @@
-<form class="calc" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-  <div class="calc__intro">
-    <p class="calc__eyebrow">Simulador</p>
-    <h3>¿Cuánto necesitas?</h3>
-    <p>Cuota orientativa a un TIN del 6,90% (ejemplo ficticio, sistema francés). No es una oferta vinculante.</p>
-  </div>
+<app-calc-panel>
+  <form class="calc" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="calc__grid">
+      <div class="calc__fields">
+        <app-input
+          id="loan-amount"
+          label="¿Cuánto dinero necesitas?"
+          type="number"
+          appearance="amount"
+          [field]="form.controls.amount"
+          [min]="amountMin"
+          [max]="amountMax"
+          [step]="500"
+          suffix="€"
+          [error]="amountError()"
+          info="Importe bruto del préstamo. Ejemplo ilustrativo, no es una oferta."
+        />
+        <app-range-slider
+          id="loan-amount-slider"
+          ariaLabel="Importe del préstamo"
+          [value]="form.controls.amount.value"
+          [min]="amountMin"
+          [max]="amountMax"
+          [step]="500"
+          [minLabel]="amountMinLabel"
+          [maxLabel]="amountMaxLabel"
+          (valueChange)="setAmount($event)"
+        />
 
-  <app-input
-    id="loan-amount"
-    label="Importe"
-    type="number"
-    [field]="form.controls.amount"
-    [min]="amountMin"
-    [max]="amountMax"
-    [step]="500"
-    suffix="€"
-    [error]="amountError()"
-    hint="Entre 1.000 y 75.000 €"
-  />
-  <app-input
-    id="loan-term"
-    label="Plazo"
-    type="number"
-    [field]="form.controls.termMonths"
-    [min]="termMin"
-    [max]="termMax"
-    [step]="6"
-    suffix="meses"
-    [error]="termError()"
-    hint="Entre 12 y 96 meses"
-  />
+        <app-input
+          id="loan-term"
+          label="¿En cuántos meses quieres devolverlo?"
+          type="number"
+          appearance="amount"
+          [field]="form.controls.termMonths"
+          [min]="termMin"
+          [max]="termMax"
+          [step]="6"
+          suffix="Meses"
+          [error]="termError()"
+        />
+        <app-range-slider
+          id="loan-term-slider"
+          ariaLabel="Plazo del préstamo"
+          [value]="form.controls.termMonths.value"
+          [min]="termMin"
+          [max]="termMax"
+          [step]="6"
+          minLabel="Mín. 12 meses"
+          maxLabel="Máx. 96 meses"
+          (valueChange)="setTerm($event)"
+        />
 
-  @if (error()) {
-    <app-alert tone="error">{{ error() }}</app-alert>
-  }
+        <app-toggle-switch
+          id="loan-sustainable"
+          label="¿Es un préstamo sostenible?"
+          [checked]="sustainable()"
+          info="Marca si el destino es eficiencia energética o movilidad baja en emisiones. No cambia el cálculo de ejemplo."
+          (checkedChange)="sustainable.set($event)"
+        />
+      </div>
 
-  @if (result(); as installment) {
-    <div class="calc__result" role="status" aria-live="polite">
-      <p class="calc__label">Cuota estimada</p>
-      <p class="calc__amount">{{ installment.monthlyPayment | eur }}<span>/mes</span></p>
-      <p class="calc__meta">
-        Total a devolver {{ installment.totalCost | eur }} · Intereses {{ installment.totalInterest | eur }}
-      </p>
+      <app-quote-card [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
     </div>
-  }
 
-  <app-button type="submit" [fullWidth]="true">Calcular</app-button>
-</form>
+    <div class="calc__cta">
+      <h3>¿Me aprobarán el préstamo?</h3>
+      <app-button href="/hazte-cliente" size="lg">Comienza aquí</app-button>
+    </div>
+  </form>
+</app-calc-panel>

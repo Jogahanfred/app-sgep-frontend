@@ -18,7 +18,7 @@ describe('CalculateLoanInstallment', () => {
   it('propaga errores de validación del dominio', () => {
     expect(() =>
       useCase.execute({
-        amount: 80_000,
+        amount: 90_000,
         termMonths: 12,
         annualInterestRate: 5,
       }),

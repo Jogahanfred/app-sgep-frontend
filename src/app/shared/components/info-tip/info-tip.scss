@@ -1,0 +1,59 @@
+.tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tip__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-control);
+  color: #fff;
+  cursor: help;
+}
+
+.tip__mark {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.tip__bubble {
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: max-content;
+  max-width: 16rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.tip:hover .tip__bubble,
+.tip:focus-within .tip__bubble {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .tip__bubble {
+    left: 50%;
+    top: calc(100% + 0.4rem);
+    transform: translateX(-50%);
+  }
+}

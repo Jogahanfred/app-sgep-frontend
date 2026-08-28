@@ -1,4 +1,6 @@
 export { CalculateLoanInstallment } from './use-cases/calculate-loan-installment';
+export { CalculateMortgageInstallment } from './use-cases/calculate-mortgage-installment';
+export { annualNominalToTae } from '../domain/services/loan-calculator';
 export { GetAccounts } from './use-cases/get-accounts';
 export { GetCards } from './use-cases/get-cards';
 export { GetFaqs } from './use-cases/get-faqs';

@@ -1,6 +1,7 @@
 import { Provider } from '@angular/core';
 import {
   CalculateLoanInstallment,
+  CalculateMortgageInstallment,
   GetAccounts,
   GetCards,
   GetFaqs,
@@ -48,6 +49,7 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: INVESTMENT_REPOSITORY, useClass: MockInvestmentRepository },
   { provide: FAQ_REPOSITORY, useClass: MockFaqRepository },
   { provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() },
+  { provide: CalculateMortgageInstallment, useFactory: () => new CalculateMortgageInstallment() },
   {
     provide: GetFeaturedProducts,
     useFactory: (repo: ProductRepository) => new GetFeaturedProducts(repo),

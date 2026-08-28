@@ -1,58 +1,36 @@
 .calc {
   display: grid;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  gap: 1.6rem;
 }
 
-.calc__eyebrow {
-  color: var(--color-secondary-dark);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.calc__grid {
+  display: grid;
+  gap: 1.5rem;
 }
 
-.calc__intro h3 {
-  font-size: var(--fs-2xl);
-  margin: 0.2rem 0 0.5rem;
+@media (min-width: 900px) {
+  .calc__grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr);
+    align-items: start;
+    gap: 2rem;
+  }
 }
 
-.calc__intro p {
-  color: var(--color-text-secondary);
-  font-size: var(--fs-sm);
+.calc__fields {
+  display: grid;
+  gap: 1.15rem;
 }
 
-.calc__result {
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-alt);
+.calc__cta {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  padding-top: 0.4rem;
+  text-align: center;
 }
 
-.calc__label {
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.calc__amount {
-  font-family: var(--font-display);
-  font-size: var(--fs-3xl);
-}
-
-.calc__amount span {
-  font-family: var(--font-body);
-  font-size: var(--fs-md);
-  color: var(--color-text-secondary);
-  margin-left: 0.25rem;
-}
-
-.calc__meta {
-  font-size: var(--fs-sm);
-  color: var(--color-text-secondary);
+.calc__cta h3 {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 800;
 }

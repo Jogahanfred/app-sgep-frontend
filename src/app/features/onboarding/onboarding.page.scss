@@ -1,22 +1,105 @@
 .onb {
   padding-block: var(--spacing-xl) var(--spacing-3xl);
-  max-width: 36rem;
+}
+
+.onb__kicker {
+  margin: 0 0 0.35rem;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
 }
 
 .onb h1 {
   font-size: var(--fs-4xl);
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .onb__lead {
-  margin: var(--spacing-md) 0 var(--spacing-xl);
+  margin: var(--spacing-md) 0 var(--spacing-lg);
+  max-width: 40rem;
   color: var(--color-text-secondary);
 }
 
-.onb__form {
+.onb__progress {
+  max-width: 22rem;
+  margin-bottom: var(--spacing-xl);
+}
+
+.onb__bar {
+  display: block;
+  height: 3px;
+  background: #e6e6e6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.onb__bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+.onb__progress p {
+  margin: 0.4rem 0 0;
+  font-size: var(--fs-xs);
+  color: #555;
+}
+
+.onb__layout {
   display: grid;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  gap: 1.25rem;
+}
+
+@media (min-width: 960px) {
+  .onb__layout {
+    grid-template-columns: minmax(0, 1fr) 16.5rem;
+    align-items: start;
+    gap: 1.75rem;
+  }
+}
+
+.onb__section {
+  margin: 0 0 1.15rem;
+  color: #333;
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+
+.onb form app-form-card {
+  display: block;
+}
+
+.onb form {
+  display: grid;
+  gap: 1rem;
+}
+
+.onb :is(app-select-menu, app-input, app-check-field) {
+  display: block;
+  margin-top: 1rem;
+}
+
+.onb__phone {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .onb__phone {
+    grid-template-columns: 7.5rem 1fr;
+    align-items: end;
+  }
+}
+
+.onb__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.4rem;
+}
+
+.onb__side {
+  display: grid;
+  gap: 1rem;
 }

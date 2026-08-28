@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidLoanInputError } from '../errors/domain-error';
-import { calculateFrenchAmortization } from './loan-calculator';
+import { annualNominalToTae, calculateFrenchAmortization, calculateMortgageAmortization } from './loan-calculator';
 
 describe('calculateFrenchAmortization', () => {
   it('calcula la cuota francesa de un préstamo con interés', () => {
@@ -35,6 +35,21 @@ describe('calculateFrenchAmortization', () => {
         annualInterestRate: 5,
       }),
     ).toThrow(InvalidLoanInputError);
+  });
+
+  it('convierte TIN a TAE sin comisiones', () => {
+    expect(annualNominalToTae(6.9)).toBeCloseTo(7.12, 2);
+  });
+
+  it('calcula una hipoteca fuera del rango de préstamo personal', () => {
+    const result = calculateMortgageAmortization({
+      amount: 250_000,
+      termMonths: 300,
+      annualInterestRate: 2.75,
+    });
+
+    expect(result.monthlyPayment).toBeGreaterThan(1000);
+    expect(result.totalCost).toBeGreaterThan(250_000);
   });
 
   it('rechaza un plazo no entero', () => {

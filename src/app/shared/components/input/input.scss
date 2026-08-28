@@ -1,11 +1,6 @@
 .field {
   display: grid;
-  gap: 0.35rem;
-}
-
-.field__label {
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  gap: 0;
 }
 
 .field__wrap {
@@ -16,13 +11,31 @@
   width: 100%;
   min-height: 3rem;
   padding: 0.7rem 0.9rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.55rem;
+  background: #fff;
+  color: #111;
+}
+
+.field--amount .field__control {
+  min-height: 3.4rem;
+  padding-right: 2.6rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.field--amount .field__control::-webkit-inner-spin-button,
+.field--amount .field__control::-webkit-outer-spin-button {
+  appearance: none;
 }
 
 .field__control:hover:not(:disabled) {
-  border-color: var(--color-primary-light);
+  border-color: #d1d1d1;
+}
+
+.field__control:focus {
+  border-color: var(--color-control);
+  outline: none;
 }
 
 .field__control:disabled {
@@ -30,28 +43,17 @@
   cursor: not-allowed;
 }
 
-.field--error .field__control {
-  border-color: var(--color-error);
-}
-
 .field__suffix {
   position: absolute;
-  right: 0.85rem;
+  right: 0.95rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  font-weight: 600;
-}
-
-.field__hint,
-.field__error {
-  font-size: var(--fs-xs);
+  color: #8a8a8a;
+  font-weight: 500;
 }
 
 .field__hint {
+  margin: 0.35rem 0 0;
+  font-size: var(--fs-xs);
   color: var(--color-text-secondary);
-}
-
-.field__error {
-  color: var(--color-error);
 }

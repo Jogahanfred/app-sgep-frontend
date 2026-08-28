@@ -1,0 +1,60 @@
+<section class="mc">
+  <h2>Calcula la cuota de tu nueva hipoteca</h2>
+
+  <app-choice-group
+    id="house-status"
+    question="¿Has encontrado ya la casa que quieres?"
+    [options]="houseOptions"
+    [value]="form.controls.houseStatus.value"
+    (valueChange)="form.controls.houseStatus.setValue($event)"
+  />
+
+  <app-amount-field
+    id="home-price"
+    question="¿Cuánto cuesta tu nueva vivienda?"
+    info="Precio de compraventa, sin gastos de notaría ni impuestos."
+    [value]="form.controls.amount.value"
+    [min]="amountMin"
+    [max]="amountMax"
+    [step]="10000"
+    (valueChange)="setAmount($event)"
+  />
+
+  <app-choice-group
+    id="home-kind"
+    question="¿Qué tipo de vivienda has elegido?"
+    layout="horizontal"
+    [options]="kindOptions"
+    [value]="form.controls.homeKind.value"
+    (valueChange)="form.controls.homeKind.setValue($event)"
+  />
+
+  <div>
+    <app-field-question label="¿Desde cuándo tienes ingresos recurrentes?" />
+    <app-segmented-pills
+      label="Antigüedad de ingresos"
+      [options]="tenureOptions"
+      [value]="form.controls.tenure.value"
+      (valueChange)="form.controls.tenure.setValue($event)"
+    />
+  </div>
+
+  <app-amount-field
+    id="mortgage-term"
+    question="¿En cuántos meses quieres pagarla?"
+    layout="stack"
+    suffix="meses"
+    [value]="form.controls.termMonths.value"
+    [min]="termMin"
+    [max]="termMax"
+    [step]="12"
+    minLabel="Mín. 5 años"
+    maxLabel="Máx. 30 años"
+    (valueChange)="setTerm($event)"
+  />
+
+  <div class="mc__result">
+    <app-quote-card title="Cuota mensual" [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
+    <app-button href="/hazte-cliente" size="lg">Comienza aquí</app-button>
+  </div>
+</section>

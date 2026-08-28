@@ -4,6 +4,10 @@ import {
   LOAN_AMOUNT_MIN,
   LOAN_TERM_MAX,
   LOAN_TERM_MIN,
+  MORTGAGE_AMOUNT_MAX,
+  MORTGAGE_AMOUNT_MIN,
+  MORTGAGE_TERM_MAX,
+  MORTGAGE_TERM_MIN,
   type LoanCalculationInput,
   type LoanInstallment,
 } from '../entities/loan-installment';
@@ -14,21 +18,13 @@ function roundCurrency(value: number): number {
   return Math.round(value * CENTS) / CENTS;
 }
 
-function assertValidInput(input: LoanCalculationInput): void {
-  if (!Number.isFinite(input.amount) || input.amount < LOAN_AMOUNT_MIN || input.amount > LOAN_AMOUNT_MAX) {
-    throw new InvalidLoanInputError(
-      `El importe debe estar entre ${LOAN_AMOUNT_MIN} y ${LOAN_AMOUNT_MAX} euros.`,
-    );
+function assertBaseInput(input: LoanCalculationInput): void {
+  if (!Number.isFinite(input.amount) || input.amount <= 0) {
+    throw new InvalidLoanInputError('El importe debe ser un número positivo.');
   }
 
-  if (
-    !Number.isInteger(input.termMonths) ||
-    input.termMonths < LOAN_TERM_MIN ||
-    input.termMonths > LOAN_TERM_MAX
-  ) {
-    throw new InvalidLoanInputError(
-      `El plazo debe ser un número entero de meses entre ${LOAN_TERM_MIN} y ${LOAN_TERM_MAX}.`,
-    );
+  if (!Number.isInteger(input.termMonths) || input.termMonths < 1) {
+    throw new InvalidLoanInputError('El plazo debe ser un número entero de meses.');
   }
 
   if (!Number.isFinite(input.annualInterestRate) || input.annualInterestRate < 0 || input.annualInterestRate > 30) {
@@ -36,8 +32,24 @@ function assertValidInput(input: LoanCalculationInput): void {
   }
 }
 
-export function calculateFrenchAmortization(input: LoanCalculationInput): LoanInstallment {
-  assertValidInput(input);
+function assertRange(
+  value: number,
+  min: number,
+  max: number,
+  message: string,
+): void {
+  if (value < min || value > max) {
+    throw new InvalidLoanInputError(message);
+  }
+}
+
+export function annualNominalToTae(annualPercent: number): number {
+  const monthly = annualPercent / 100 / 12;
+  return roundCurrency(((1 + monthly) ** 12 - 1) * 100);
+}
+
+export function calculateFrenchSchedule(input: LoanCalculationInput): LoanInstallment {
+  assertBaseInput(input);
 
   const { amount, termMonths, annualInterestRate } = input;
   const monthlyRate = annualInterestRate / 12 / 100;
@@ -60,4 +72,36 @@ export function calculateFrenchAmortization(input: LoanCalculationInput): LoanIn
     totalCost,
     totalInterest,
   };
+}
+
+export function calculateFrenchAmortization(input: LoanCalculationInput): LoanInstallment {
+  assertRange(
+    input.amount,
+    LOAN_AMOUNT_MIN,
+    LOAN_AMOUNT_MAX,
+    `El importe debe estar entre ${LOAN_AMOUNT_MIN} y ${LOAN_AMOUNT_MAX} euros.`,
+  );
+  if (!Number.isInteger(input.termMonths) || input.termMonths < LOAN_TERM_MIN || input.termMonths > LOAN_TERM_MAX) {
+    throw new InvalidLoanInputError(
+      `El plazo debe ser un número entero de meses entre ${LOAN_TERM_MIN} y ${LOAN_TERM_MAX}.`,
+    );
+  }
+  return calculateFrenchSchedule(input);
+}
+
+export function calculateMortgageAmortization(input: LoanCalculationInput): LoanInstallment {
+  assertRange(
+    input.amount,
+    MORTGAGE_AMOUNT_MIN,
+    MORTGAGE_AMOUNT_MAX,
+    `El importe debe estar entre ${MORTGAGE_AMOUNT_MIN} y ${MORTGAGE_AMOUNT_MAX} euros.`,
+  );
+  if (
+    !Number.isInteger(input.termMonths) ||
+    input.termMonths < MORTGAGE_TERM_MIN ||
+    input.termMonths > MORTGAGE_TERM_MAX
+  ) {
+    throw new InvalidLoanInputError('El plazo de la hipoteca debe estar entre 5 y 30 años.');
+  }
+  return calculateFrenchSchedule(input);
 }

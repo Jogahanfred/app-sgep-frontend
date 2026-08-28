@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ErrorHint } from '../error-hint/error-hint';
+import { FieldQuestion } from '../field-question/field-question';
 
 @Component({
   selector: 'app-input',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ErrorHint, FieldQuestion],
   templateUrl: './input.html',
   styleUrl: './input.scss',
 })
@@ -15,9 +17,12 @@ export class FormInput {
   readonly field = input.required<FormControl<string> | FormControl<number>>();
   readonly hint = input<string | undefined>(undefined);
   readonly error = input<string | undefined>(undefined);
+  readonly info = input<string | undefined>(undefined);
   readonly min = input<number | undefined>(undefined);
   readonly max = input<number | undefined>(undefined);
   readonly step = input<number | undefined>(undefined);
   readonly autocomplete = input<string | undefined>(undefined);
   readonly suffix = input<string | undefined>(undefined);
+  readonly placeholder = input<string | undefined>(undefined);
+  readonly appearance = input<'default' | 'amount'>('default');
 }

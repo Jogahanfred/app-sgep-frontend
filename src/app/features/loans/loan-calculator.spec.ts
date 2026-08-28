@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CalculateLoanInstallment } from '@core/application';
 import { LoanCalculator } from './loan-calculator';
 
@@ -6,7 +7,10 @@ describe('LoanCalculator', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoanCalculator],
-      providers: [{ provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() }],
+      providers: [
+        provideRouter([]),
+        { provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() },
+      ],
     }).compileComponents();
   });
 
@@ -19,7 +23,7 @@ describe('LoanCalculator', () => {
     fixture.detectChanges();
 
     expect(component.result()?.monthlyPayment).toBeCloseTo(536.73, 2);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Cuota estimada');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Cuota mensual');
   });
 
   it('no calcula si el formulario es inválido', async () => {

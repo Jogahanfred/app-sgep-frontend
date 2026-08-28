@@ -81,9 +81,26 @@
 
 .btn:disabled,
 .btn--disabled {
-  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.btn--primary:disabled,
+.btn--primary.btn--disabled {
+  background: #e8e8e8;
+  color: #c4c4c4;
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn--secondary:disabled,
+.btn--ghost:disabled,
+.btn--inverse:disabled,
+.btn--secondary.btn--disabled,
+.btn--ghost.btn--disabled,
+.btn--inverse.btn--disabled {
+  opacity: 0.5;
 }
 
 .btn--loading {

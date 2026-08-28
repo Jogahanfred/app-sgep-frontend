@@ -17,7 +17,14 @@ export type IconName =
   | 'chevron'
   | 'external'
   | 'shield'
-  | 'arrow-up';
+  | 'arrow-up'
+  | 'plus'
+  | 'minus'
+  | 'info'
+  | 'warning'
+  | 'id-card'
+  | 'phone'
+  | 'cross';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -37,6 +44,13 @@ const PATHS: Record<IconName, string> = {
   external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14 20 4',
   shield: 'M12 3 5 6v6c0 5 3.2 8.4 7 9.5 3.8-1.1 7-4.5 7-9.5V6l-7-3Z',
   'arrow-up': 'M12 19V5M6 11l6-6 6 6',
+  plus: 'M12 5v14M5 12h14',
+  minus: 'M5 12h14',
+  info: 'M12 8h.01M11 12h1v5h1M12 21a9 9 0 1 0 0-18 9 9 0 1 0 0 18Z',
+  warning: 'M12 9v5M12 17h.01M10.3 4.7 2.4 18.2A2 2 0 0 0 4.1 21h15.8a2 2 0 0 0 1.7-2.8L13.7 4.7a2 2 0 0 0-3.4 0Z',
+  'id-card': 'M4 7h16v11H4zM8 11h.01M12 11h5M12 14h5',
+  phone: 'M7 4h3l1 4-2 1a12 12 0 0 0 6 6l1-2 4 1v3a2 2 0 0 1-2 2A16 16 0 0 1 5 6a2 2 0 0 1 2-2Z',
+  cross: 'M8 8l8 8M16 8l-8 8',
 };
 
 @Component({
