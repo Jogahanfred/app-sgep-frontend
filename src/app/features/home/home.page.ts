@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetHomeContent, type HomeContent } from '@core/application';
 import { Alert } from '@shared/components/alert/alert';
@@ -39,14 +39,9 @@ import { ThemeSection } from './sections/theme.section';
 export class HomePage {
   private readonly getHome = inject(GetHomeContent);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly loader = viewChild(UiSigaLoader);
 
   readonly content = signal<HomeContent | null>(null);
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
-
-  replayLoader(): void {
-    this.loader()?.replay();
-  }
 
   constructor() {
     this.getHome

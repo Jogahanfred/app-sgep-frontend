@@ -3,10 +3,9 @@
     <p id="home-loader-title" class="home-loader__kicker">Carga SIGA</p>
     <h2 class="home-loader__title">El icono se dibuja al cerrar el círculo</h2>
     <p class="home-loader__lead">
-      Parte abajo a la izquierda, recorre el círculo en sentido horario y, al completar la vuelta, delinea las cintas.
+      Parte abajo a la izquierda, recorre el círculo en sentido horario y, al delinear las cintas, el círculo se cierra. El ciclo se repite sin parar.
     </p>
-    <ui-siga-loader [loop]="false" />
-    <button type="button" class="home-loader__replay" (click)="replayLoader()">Ver otra vez</button>
+    <ui-siga-loader />
   </div>
 </section>
 
