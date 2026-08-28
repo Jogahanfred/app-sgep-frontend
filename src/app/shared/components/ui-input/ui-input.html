@@ -1,8 +1,12 @@
 <div class="field" [class.field--error]="!!error()" [class.field--amount]="appearance() === 'amount'">
   <ui-field-label [label]="label()" [info]="info()" [forId]="id()" />
   <div class="field__wrap">
+    @if (icon(); as iconName) {
+      <app-icon class="field__icon" [name]="iconName" />
+    }
     <input
       class="field__control"
+      [class.field__control--icon]="!!icon()"
       [id]="id()"
       [attr.type]="type()"
       [formControl]="field()"

@@ -1,33 +1,27 @@
 <app-container>
   <div class="pf">
-    <app-breadcrumb [crumbs]="[{ label: 'Mi perfil' }]" />
-    <p class="pf__kicker">Área cliente</p>
-    <h1>Mi perfil</h1>
-    <p class="pf__lead">
-      Foto, datos, correo y seguridad. Es un entorno de demostración: los cambios viven en memoria y no se envían a
-      ningún servidor.
-    </p>
-
     @if (status() === 'loading') {
       <app-alert>Cargando tu perfil…</app-alert>
     } @else if (status() === 'error') {
       <app-alert tone="error">No hemos podido cargar el perfil. Recarga la página.</app-alert>
     } @else if (profile(); as user) {
-      <div class="pf__who">
-        <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="md" />
-        <div>
-          <p class="pf__name">{{ fullName() }}</p>
-          <p class="pf__mail">{{ user.email }}</p>
+      <section class="pf__hero">
+        <div class="pf__who">
+          <ui-avatar [name]="fullName()" [src]="user.photoUrl" size="lg" />
+          <div>
+            <h1>{{ fullName() }}</h1>
+            <p class="pf__mail">{{ user.email }}</p>
+          </div>
         </div>
-      </div>
-
-      <ui-segmented-control
-        label="Secciones del perfil"
-        [wrap]="true"
-        [options]="sectionOptions"
-        [value]="section()"
-        (valueChange)="select($event)"
-      />
+        <ui-segmented-control
+          label="Secciones del perfil"
+          variant="outline"
+          [wrap]="true"
+          [options]="sectionOptions"
+          [value]="section()"
+          (valueChange)="select($event)"
+        />
+      </section>
 
       <div class="pf__main">
         @if (notice()) {
@@ -64,6 +58,8 @@
                 <ui-input
                   id="pf-name"
                   label="Nombre"
+                  icon="user"
+                  placeholder="Tu nombre"
                   [field]="dataForm.controls.firstName"
                   [error]="requiredError(dataForm, 'firstName', 'Escribe tu nombre.')"
                   autocomplete="given-name"
@@ -71,14 +67,24 @@
                 <ui-input
                   id="pf-last"
                   label="Primer apellido"
+                  icon="user"
+                  placeholder="Primer apellido"
                   [field]="dataForm.controls.lastName"
                   [error]="requiredError(dataForm, 'lastName', 'Escribe tu primer apellido.')"
                   autocomplete="family-name"
                 />
-                <ui-input id="pf-last2" label="Segundo apellido" [field]="dataForm.controls.secondLastName" />
+                <ui-input
+                  id="pf-last2"
+                  label="Segundo apellido"
+                  icon="user"
+                  placeholder="Segundo apellido"
+                  [field]="dataForm.controls.secondLastName"
+                />
                 <ui-select
                   id="pf-doc"
                   label="Tipo de documento"
+                  leadingIcon="id-card"
+                  placeholder="Elige el documento"
                   [options]="documents"
                   [value]="dataForm.controls.documentType.value"
                   (valueChange)="dataForm.controls.documentType.setValue($event)"
@@ -86,6 +92,8 @@
                 <ui-input
                   id="pf-docn"
                   label="Número de documento"
+                  icon="id-card"
+                  placeholder="00000000A"
                   [field]="dataForm.controls.documentNumber"
                   [error]="requiredError(dataForm, 'documentNumber', 'Indica el número.')"
                 />
@@ -98,10 +106,18 @@
                 <ui-input
                   id="pf-nat"
                   label="Nacionalidad"
+                  icon="pin"
+                  placeholder="España"
                   [field]="dataForm.controls.nationality"
                   [error]="requiredError(dataForm, 'nationality', 'Indica la nacionalidad.')"
                 />
-                <ui-input id="pf-job" label="Ocupación" [field]="dataForm.controls.occupation" />
+                <ui-input
+                  id="pf-job"
+                  label="Ocupación"
+                  icon="id-card"
+                  placeholder="Tu ocupación"
+                  [field]="dataForm.controls.occupation"
+                />
               </div>
               <div class="pf__actions">
                 <app-button type="submit" [disabled]="saving()">Guardar datos</app-button>
@@ -118,6 +134,8 @@
                 id="pf-email"
                 label="Correo electrónico"
                 type="email"
+                icon="mail"
+                placeholder="nombre@correo.com"
                 [field]="contactForm.controls.email"
                 [error]="requiredError(contactForm, 'email', 'Necesitamos un correo válido.')"
                 autocomplete="email"
@@ -127,6 +145,7 @@
                 <ui-select
                   id="pf-prefix"
                   label="Prefijo"
+                  leadingIcon="phone"
                   [uppercase]="false"
                   [options]="prefixes"
                   [value]="contactForm.controls.phonePrefix.value"
@@ -136,6 +155,8 @@
                   id="pf-phone"
                   label="Teléfono móvil"
                   type="tel"
+                  icon="phone"
+                  placeholder="600 000 000"
                   [field]="contactForm.controls.phone"
                   [error]="requiredError(contactForm, 'phone', 'Introduce 9 dígitos.')"
                   autocomplete="tel"
@@ -155,6 +176,8 @@
               <ui-input
                 id="pf-addr"
                 label="Dirección"
+                icon="pin"
+                placeholder="Calle, número y piso"
                 [field]="addressForm.controls.address"
                 [error]="requiredError(addressForm, 'address', 'Indica la dirección.')"
                 autocomplete="street-address"
@@ -163,18 +186,24 @@
                 <ui-input
                   id="pf-city"
                   label="Localidad"
+                  icon="pin"
+                  placeholder="Localidad"
                   [field]="addressForm.controls.city"
                   [error]="requiredError(addressForm, 'city', 'Indica la localidad.')"
                 />
                 <ui-input
                   id="pf-zip"
                   label="Código postal"
+                  icon="pin"
+                  placeholder="00000"
                   [field]="addressForm.controls.postalCode"
                   [error]="requiredError(addressForm, 'postalCode', 'Cinco dígitos.')"
                 />
                 <ui-input
                   id="pf-prov"
                   label="Provincia"
+                  icon="pin"
+                  placeholder="Provincia"
                   [field]="addressForm.controls.province"
                   [error]="requiredError(addressForm, 'province', 'Indica la provincia.')"
                 />
@@ -198,6 +227,8 @@
                 id="pf-cur"
                 label="Contraseña actual"
                 type="password"
+                icon="lock"
+                placeholder="Contraseña actual"
                 [field]="passwordForm.controls.currentPassword"
                 [error]="requiredError(passwordForm, 'currentPassword', 'Escribe la contraseña actual.')"
                 autocomplete="current-password"
@@ -206,6 +237,8 @@
                 id="pf-new"
                 label="Nueva contraseña"
                 type="password"
+                icon="lock"
+                placeholder="Nueva contraseña"
                 [field]="passwordForm.controls.newPassword"
                 [error]="requiredError(passwordForm, 'newPassword', 'Mínimo 8 caracteres.')"
                 autocomplete="new-password"
@@ -214,6 +247,8 @@
                 id="pf-rep"
                 label="Repite la nueva contraseña"
                 type="password"
+                icon="lock"
+                placeholder="Repite la contraseña"
                 [field]="passwordForm.controls.confirmPassword"
                 [error]="requiredError(passwordForm, 'confirmPassword', 'Repite la contraseña.')"
                 autocomplete="new-password"
@@ -233,6 +268,8 @@
               <ui-select
                 id="pf-lang"
                 label="Idioma de la banca online"
+                leadingIcon="user"
+                placeholder="Elige un idioma"
                 [uppercase]="false"
                 [options]="languages"
                 [value]="prefsForm.controls.language.value"

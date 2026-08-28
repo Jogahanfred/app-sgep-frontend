@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
     .fc {
       overflow: visible;
-      padding: 1.5rem 1.4rem 1.6rem;
+      padding: 1.7rem 1.5rem 1.7rem;
       background: #fff;
       border: 1px solid var(--color-border-subtle);
       border-radius: 0.75rem;

@@ -18,6 +18,7 @@ export class UiSelect {
   readonly value = input('');
   readonly title = input<string | undefined>(undefined);
   readonly icon = input<IconName | undefined>(undefined);
+  readonly leadingIcon = input<IconName | undefined>(undefined);
   readonly placeholder = input('Seleccionar');
   readonly uppercase = input(true);
   readonly error = input<string | undefined>(undefined);

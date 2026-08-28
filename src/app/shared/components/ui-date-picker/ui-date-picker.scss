@@ -32,11 +32,17 @@
   border-color: var(--color-error);
 }
 
-.dp__ph {
-  color: #8a8a8a;
+.dp__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
-.dp__trigger app-icon {
+.dp__ph {
+  color: #9a9a9a;
+}
+
+.dp__value app-icon {
   color: var(--color-control);
   width: 1.15rem;
   height: 1.15rem;

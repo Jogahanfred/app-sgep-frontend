@@ -11,8 +11,10 @@
     (click)="toggle()"
     (keydown)="onKeydown($event)"
   >
-    <span [class.dp__ph]="!displayValue()">{{ displayValue() || 'Elige una fecha' }}</span>
-    <app-icon name="calendar" />
+    <span class="dp__value">
+      <app-icon name="calendar" />
+      <span [class.dp__ph]="!displayValue()">{{ displayValue() || 'dd/mm/aaaa' }}</span>
+    </span>
   </button>
 
   @if (open()) {

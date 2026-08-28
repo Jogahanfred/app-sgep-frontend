@@ -31,9 +31,23 @@ describe('ProfilePage', () => {
     expect(text).toContain('Datos');
     expect(text).toContain('Correo y teléfono');
     expect(text).toContain('Contraseña');
+    expect(text).not.toContain('Área cliente');
     expect(text).not.toContain('¿Dudas con tu perfil?');
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-breadcrumb')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-help')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-segmented-control')).not.toBeNull();
+  });
+
+  it('muestra placeholders con icono en datos personales', async () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    await waitReady(fixture);
+    fixture.componentInstance.select('data');
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('#pf-name')?.getAttribute('placeholder')).toBe('Tu nombre');
+    expect(root.querySelector('ui-input app-icon')).not.toBeNull();
+    expect(root.querySelector('input[type="date"]')).toBeNull();
   });
 
   it('cambia a la sección de correo', async () => {
@@ -42,6 +56,9 @@ describe('ProfilePage', () => {
     fixture.componentInstance.select('contact');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Correo electrónico');
+    expect((fixture.nativeElement as HTMLElement).querySelector('#pf-email')?.getAttribute('placeholder')).toBe(
+      'nombre@correo.com',
+    );
   });
 
   it('guarda un correo válido desde el formulario', async () => {

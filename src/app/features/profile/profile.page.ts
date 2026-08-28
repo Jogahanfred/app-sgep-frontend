@@ -14,7 +14,6 @@ import {
 import { DEMO_PASSWORD, type UserProfile } from '@core/domain/entities';
 import { DomainError } from '@core/domain/errors/domain-error';
 import { Alert } from '@shared/components/alert/alert';
-import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Button } from '@shared/components/button/button';
 import { Container } from '@shared/components/container/container';
 import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
@@ -36,7 +35,6 @@ export type ProfileSection = 'photo' | 'data' | 'contact' | 'address' | 'securit
   imports: [
     ReactiveFormsModule,
     Container,
-    Breadcrumb,
     Button,
     Alert,
     UiAvatar,

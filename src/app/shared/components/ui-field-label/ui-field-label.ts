@@ -22,14 +22,14 @@ import { UiInfo } from '../ui-info/ui-info';
       display: flex;
       align-items: center;
       gap: 0.45rem;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.4rem;
     }
 
     .q__text {
       margin: 0;
       color: #333;
-      font-size: var(--fs-md);
-      font-weight: 500;
+      font-size: 0.92rem;
+      font-weight: 400;
     }
   `,
 })
