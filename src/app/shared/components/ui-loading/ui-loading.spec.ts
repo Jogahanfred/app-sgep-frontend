@@ -30,4 +30,16 @@ describe('UiLoading', () => {
     expect(host.querySelector('ui-siga-loader')).not.toBeNull();
     expect(host.querySelector('.ui-loading')?.getAttribute('aria-label')).toBe('Cargando SIGA');
   });
+
+  it('muestra título y subtítulo cuando se informan', async () => {
+    const fixture = TestBed.createComponent(UiLoading);
+    fixture.componentRef.setInput('title', 'Guardando');
+    fixture.componentRef.setInput('subtitle', 'Estamos actualizando tus datos personales.');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Guardando');
+    expect(text).toContain('Estamos actualizando tus datos personales.');
+  });
 });

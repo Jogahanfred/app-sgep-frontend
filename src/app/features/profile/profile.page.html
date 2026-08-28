@@ -51,6 +51,7 @@
 
         @if (section() === 'data') {
           <form [formGroup]="dataForm" (ngSubmit)="saveData()" novalidate>
+            <div class="pf__card">
             <ui-form-card>
               <h2>Datos personales</h2>
               <div class="pf__grid">
@@ -122,6 +123,14 @@
                 <app-button type="submit" [disabled]="saving()">Guardar datos</app-button>
               </div>
             </ui-form-card>
+            @if (saving()) {
+              <ui-loading
+                title="Guardando"
+                subtitle="Estamos actualizando tus datos personales. Un momento."
+                label="Guardando datos personales"
+              />
+            }
+            </div>
           </form>
         }
 

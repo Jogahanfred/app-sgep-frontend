@@ -18,14 +18,45 @@
   background: #ffffff;
 }
 
-.ui-loading ui-siga-loader {
-  display: block;
+.ui-loading--copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 1.25rem 1.35rem;
+  text-align: center;
+}
+
+.ui-loading__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #003553;
+}
+
+.ui-loading__lead {
+  margin: 0.55rem 0 1.1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  max-width: 28rem;
+}
+
+.ui-loading__stage {
   width: min(100cqw, 100cqh);
   height: min(100cqw, 100cqh);
 }
 
+.ui-loading--copy .ui-loading__stage {
+  width: min(68%, 11rem);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.ui-loading :deep(ui-siga-loader),
 .ui-loading :deep(.siga-loader),
 .ui-loading :deep(.siga-loader__stage) {
+  display: block;
   width: 100%;
   height: 100%;
   max-width: none;

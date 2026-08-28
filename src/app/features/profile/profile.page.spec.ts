@@ -1,7 +1,17 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
 import { ProfilePage } from './profile.page';
+
+vi.mock('lottie-web', () => ({
+  default: {
+    loadAnimation: () => ({
+      destroy: () => undefined,
+      goToAndPlay: () => undefined,
+    }),
+  },
+}));
 
 async function waitReady(fixture: ComponentFixture<ProfilePage>): Promise<void> {
   fixture.detectChanges();
@@ -75,5 +85,18 @@ describe('ProfilePage', () => {
 
     expect(fixture.componentInstance.profile()?.email).toBe('elena.nueva@helvia.demo');
     expect(fixture.componentInstance.notice()).toContain('Correo y teléfono');
+  });
+
+  it('muestra el loading encima de la tarjeta al guardar datos', async () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    await waitReady(fixture);
+    fixture.componentInstance.select('data');
+    fixture.componentInstance.saving.set(true);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.pf__card ui-loading')).not.toBeNull();
+    expect(root.textContent).toContain('Guardando');
+    expect(root.textContent).toContain('datos personales');
   });
 });

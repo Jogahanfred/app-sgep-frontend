@@ -11,4 +11,6 @@ import { UiSigaLoader } from '../ui-siga-loader/ui-siga-loader';
 export class UiLoading {
   readonly loop = input(true);
   readonly label = input('Cargando SIGA');
+  readonly title = input('');
+  readonly subtitle = input('');
 }

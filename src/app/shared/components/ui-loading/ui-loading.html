@@ -1,3 +1,17 @@
-<div class="ui-loading" role="status" [attr.aria-label]="label()">
-  <ui-siga-loader [loop]="loop()" [label]="label()" />
+<div
+  class="ui-loading"
+  [class.ui-loading--copy]="!!title()"
+  role="status"
+  [attr.aria-label]="label()"
+  [attr.aria-busy]="true"
+>
+  @if (title()) {
+    <p class="ui-loading__title">{{ title() }}</p>
+  }
+  @if (subtitle()) {
+    <p class="ui-loading__lead">{{ subtitle() }}</p>
+  }
+  <div class="ui-loading__stage">
+    <ui-siga-loader [loop]="loop()" [label]="label()" />
+  </div>
 </div>

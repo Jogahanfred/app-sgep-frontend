@@ -23,6 +23,7 @@ import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiToggle } from '@shared/components/ui-toggle/ui-toggle';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { ClientSession } from '../../layout/client-session.service';
@@ -45,6 +46,7 @@ export type ProfileSection = 'photo' | 'data' | 'contact' | 'address' | 'securit
     UiSelect,
     UiCheckbox,
     UiToggle,
+    UiLoading,
   ],
   templateUrl: './profile.page.html',
   styleUrl: './profile.page.scss',
@@ -169,6 +171,8 @@ export class ProfilePage {
       this.dataForm,
       this.updateProfile.execute(this.dataForm.getRawValue()),
       'Hemos actualizado tus datos personales.',
+      undefined,
+      2000,
     );
   }
 
@@ -233,6 +237,7 @@ export class ProfilePage {
     stream: Observable<UserProfile>,
     success: string,
     after?: () => void,
+    holdMs = 0,
   ): Promise<void> {
     this.notice.set(null);
     this.error.set(null);
@@ -241,8 +246,13 @@ export class ProfilePage {
       return;
     }
     this.saving.set(true);
+    const started = Date.now();
     try {
       const user = await firstValueFrom(stream);
+      const wait = holdMs - (Date.now() - started);
+      if (wait > 0) {
+        await new Promise((resolve) => setTimeout(resolve, wait));
+      }
       this.applyUser(user);
       this.notice.set(success);
       after?.();

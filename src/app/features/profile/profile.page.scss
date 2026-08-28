@@ -36,6 +36,18 @@
   gap: 1rem;
 }
 
+.pf__card {
+  position: relative;
+}
+
+.pf__card ui-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
 .pf__main h2 {
   margin: 0 0 0.7rem;
   color: #2b2b2b;
