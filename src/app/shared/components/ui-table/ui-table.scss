@@ -204,7 +204,7 @@ tbody tr {
   min-width: 3.8rem;
   overflow: hidden;
   border: 0;
-  border-radius: 0.35rem;
+  border-radius: 2px;
   background: #fff;
   box-shadow: 0 4px 12px #0002;
 }
@@ -233,7 +233,7 @@ tbody tr {
 }
 
 .ui-table__sizes [aria-selected='true'] {
-  background: #e8e8e8;
+  background: #f3f3f3;
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -243,7 +243,7 @@ tbody tr {
   height: 1.05rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.1;
 }
 
 .ui-table__range {
