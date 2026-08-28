@@ -29,7 +29,7 @@ export interface SelectOption {
       }
     </div>
   `,
-  styleUrl: '../input/input.scss',
+  styleUrl: '../ui-input/ui-input.scss',
 })
 export class FormSelect {
   readonly id = input.required<string>();

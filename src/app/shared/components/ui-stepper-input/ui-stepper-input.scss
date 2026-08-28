@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.as {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr 2.6rem;
+  align-items: center;
+  min-height: 3.35rem;
+  padding: 0 0.2rem;
+  background: #fff;
+  border: 1px solid var(--color-control);
+  border-radius: 8px;
+}
+
+.as__btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-control);
+  font-size: 1.55rem;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.as__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.as__value {
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}

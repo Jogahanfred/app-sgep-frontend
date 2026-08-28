@@ -1,0 +1,50 @@
+:host {
+  display: inline-flex;
+}
+
+.ck {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.ck__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ck__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.ck:has(.ck__native:checked) .ck__box {
+  background: #006666;
+  border-color: #006666;
+}
+
+.ck:has(.ck__native:focus-visible) .ck__box {
+  outline: 2px solid var(--color-control);
+  outline-offset: 2px;
+}
+
+.ck__box svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.ck__label {
+  font-size: var(--fs-md);
+  font-weight: 400;
+}

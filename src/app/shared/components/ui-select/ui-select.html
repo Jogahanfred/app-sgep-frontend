@@ -1,0 +1,53 @@
+<div class="sm" appClickOutside (appClickOutside)="close()">
+  @if (title()) {
+    <div class="sm__head">
+      @if (icon(); as iconName) {
+        <app-icon class="sm__icon" [name]="iconName" />
+      }
+      <p class="sm__title">{{ title() }}</p>
+    </div>
+  }
+  <label class="sm__label" [attr.for]="id()">{{ label() }}</label>
+  <button
+    type="button"
+    class="sm__trigger"
+    [id]="id()"
+    [class.sm__trigger--open]="open()"
+    [attr.aria-expanded]="open()"
+    aria-haspopup="listbox"
+    (click)="toggle()"
+    (keydown)="onKeydown($event)"
+  >
+    <span [class.sm__ph]="!selectedLabel()">{{ selectedLabel() || placeholder() }}</span>
+    <svg class="sm__chev" [class.sm__chev--up]="open()" viewBox="0 0 12 8" aria-hidden="true">
+      <path d="M1 1.5 6 6.5 11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  @if (open()) {
+    <ul class="sm__list" role="listbox">
+      @for (option of options(); track option.value) {
+        <li>
+          <button
+            type="button"
+            class="sm__opt"
+            role="option"
+            [attr.aria-selected]="value() === option.value"
+            [class.sm__opt--on]="value() === option.value"
+            [class.sm__opt--caps]="uppercase()"
+            (click)="pick(option)"
+          >
+            <span>{{ option.label }}</span>
+            @if (value() === option.value) {
+              <svg class="sm__check" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 8.2 6.4 11.4 13 4.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+  @if (error(); as message) {
+    <ui-error [message]="message" />
+  }
+</div>

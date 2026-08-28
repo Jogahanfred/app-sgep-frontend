@@ -11,13 +11,13 @@ import {
 import { Alert } from '@shared/components/alert/alert';
 import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Button } from '@shared/components/button/button';
-import { CheckField } from '@shared/components/check-field/check-field';
+import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { Container } from '@shared/components/container/container';
-import { FormCard } from '@shared/components/form-card/form-card';
-import { HelpAside } from '@shared/components/help-aside/help-aside';
-import { FormInput } from '@shared/components/input/input';
-import { SelectMenu } from '@shared/components/select-menu/select-menu';
-import { StepRail } from '@shared/components/step-rail/step-rail';
+import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
+import { UiHelp } from '@shared/components/ui-help/ui-help';
+import { UiInput } from '@shared/components/ui-input/ui-input';
+import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiSteps } from '@shared/components/ui-steps/ui-steps';
 import type { ChoiceOption } from '@shared/models/choice.model';
 
 function phonesMatch(group: AbstractControl): ValidationErrors | null {
@@ -34,14 +34,14 @@ function phonesMatch(group: AbstractControl): ValidationErrors | null {
     ReactiveFormsModule,
     Container,
     Breadcrumb,
-    FormInput,
-    SelectMenu,
-    CheckField,
+    UiInput,
+    UiSelect,
+    UiCheckbox,
     Button,
     Alert,
-    FormCard,
-    HelpAside,
-    StepRail,
+    UiFormCard,
+    UiHelp,
+    UiSteps,
   ],
   templateUrl: './onboarding.page.html',
   styleUrl: './onboarding.page.scss',

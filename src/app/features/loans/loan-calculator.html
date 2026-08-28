@@ -1,8 +1,8 @@
-<app-calc-panel>
+<ui-calc-panel>
   <form class="calc" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="calc__grid">
       <div class="calc__fields">
-        <app-input
+        <ui-input
           id="loan-amount"
           label="¿Cuánto dinero necesitas?"
           type="number"
@@ -15,7 +15,7 @@
           [error]="amountError()"
           info="Importe bruto del préstamo. Ejemplo ilustrativo, no es una oferta."
         />
-        <app-range-slider
+        <ui-range-slider
           id="loan-amount-slider"
           ariaLabel="Importe del préstamo"
           [value]="form.controls.amount.value"
@@ -27,7 +27,7 @@
           (valueChange)="setAmount($event)"
         />
 
-        <app-input
+        <ui-input
           id="loan-term"
           label="¿En cuántos meses quieres devolverlo?"
           type="number"
@@ -38,8 +38,10 @@
           [step]="6"
           suffix="Meses"
           [error]="termError()"
+          [hint]="termYearsHint()"
+          info="Plazo total de devolución. Ejemplo ilustrativo."
         />
-        <app-range-slider
+        <ui-range-slider
           id="loan-term-slider"
           ariaLabel="Plazo del préstamo"
           [value]="form.controls.termMonths.value"
@@ -51,7 +53,7 @@
           (valueChange)="setTerm($event)"
         />
 
-        <app-toggle-switch
+        <ui-toggle
           id="loan-sustainable"
           label="¿Es un préstamo sostenible?"
           [checked]="sustainable()"
@@ -60,7 +62,7 @@
         />
       </div>
 
-      <app-quote-card [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
+      <ui-result-card [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
     </div>
 
     <div class="calc__cta">
@@ -68,4 +70,4 @@
       <app-button href="/hazte-cliente" size="lg">Comienza aquí</app-button>
     </div>
   </form>
-</app-calc-panel>
+</ui-calc-panel>

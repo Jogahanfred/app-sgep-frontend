@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import type { NavGroup } from '@shared/models/nav.model';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
-import { FormInput } from '@shared/components/input/input';
+import { UiInput } from '@shared/components/ui-input/ui-input';
 import { Modal } from '@shared/components/modal/modal';
 import { MAIN_NAV } from '../navigation/nav.data';
 import { MegaMenu } from '../navigation/mega-menu';
@@ -15,7 +15,7 @@ import { ScrollChrome } from '../scroll-chrome.service';
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, Modal, FormInput, ReactiveFormsModule, Icon],
+  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, Modal, UiInput, ReactiveFormsModule, Icon],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

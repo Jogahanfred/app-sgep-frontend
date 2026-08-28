@@ -1,7 +1,7 @@
 <section class="mc">
   <h2>Calcula la cuota de tu nueva hipoteca</h2>
 
-  <app-choice-group
+  <ui-radio-card-group
     id="house-status"
     question="¿Has encontrado ya la casa que quieres?"
     [options]="houseOptions"
@@ -9,7 +9,7 @@
     (valueChange)="form.controls.houseStatus.setValue($event)"
   />
 
-  <app-amount-field
+  <ui-amount-field
     id="home-price"
     question="¿Cuánto cuesta tu nueva vivienda?"
     info="Precio de compraventa, sin gastos de notaría ni impuestos."
@@ -20,7 +20,7 @@
     (valueChange)="setAmount($event)"
   />
 
-  <app-choice-group
+  <ui-radio-card-group
     id="home-kind"
     question="¿Qué tipo de vivienda has elegido?"
     layout="horizontal"
@@ -30,8 +30,8 @@
   />
 
   <div>
-    <app-field-question label="¿Desde cuándo tienes ingresos recurrentes?" />
-    <app-segmented-pills
+    <ui-field-label label="¿Desde cuándo tienes ingresos recurrentes?" />
+    <ui-segmented-control
       label="Antigüedad de ingresos"
       [options]="tenureOptions"
       [value]="form.controls.tenure.value"
@@ -39,7 +39,7 @@
     />
   </div>
 
-  <app-amount-field
+  <ui-amount-field
     id="mortgage-term"
     question="¿En cuántos meses quieres pagarla?"
     layout="stack"
@@ -54,7 +54,7 @@
   />
 
   <div class="mc__result">
-    <app-quote-card title="Cuota mensual" [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
+    <ui-result-card title="Cuota mensual" [amount]="result()?.monthlyPayment ?? null" [rows]="quoteRows()" />
     <app-button href="/hazte-cliente" size="lg">Comienza aquí</app-button>
   </div>
 </section>

@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+.field {
+  display: grid;
+  gap: 0;
+}
+
+.field__label {
+  margin-bottom: 0.4rem;
+  color: #333;
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+
+.field__wrap {
+  position: relative;
+}
+
+.field__control {
+  width: 100%;
+  min-height: 3.05rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+}
+
+.field--amount .field__control {
+  min-height: 3.45rem;
+  padding-right: 2.7rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.field--amount .field__control::-webkit-inner-spin-button,
+.field--amount .field__control::-webkit-outer-spin-button {
+  appearance: none;
+}
+
+.field__control:hover:not(:disabled) {
+  border-color: #d4d4d4;
+}
+
+.field__control:focus {
+  border-color: var(--color-control);
+  outline: none;
+}
+
+.field__control:disabled {
+  background: var(--color-surface-alt);
+  cursor: not-allowed;
+}
+
+.field__suffix {
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8a8a8a;
+  font-weight: 500;
+}
+
+.field__hint,
+.field__error {
+  margin: 0.35rem 0 0;
+  font-size: var(--fs-xs);
+}
+
+.field__hint {
+  color: var(--color-text-secondary);
+}
+
+.field__error {
+  color: #b30000;
+}

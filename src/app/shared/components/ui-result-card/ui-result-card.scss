@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.qc {
+  padding: 1.35rem 1.45rem 1.5rem;
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 6%);
+}
+
+.qc__kicker {
+  margin: 0;
+  color: #444;
+  font-size: 0.98rem;
+}
+
+.qc__amount {
+  margin: 0.1rem 0 0.95rem;
+  color: #111;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.qc__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.32rem;
+  color: #222;
+  font-size: 0.86rem;
+}
+
+.qc__rows li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.qc__rows li:has(span:empty) {
+  display: block;
+}
+
+.qc__row--strong {
+  font-weight: 700;
+}
+
+.qc__empty {
+  margin: 0.4rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}

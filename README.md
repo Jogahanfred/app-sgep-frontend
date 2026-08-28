@@ -152,8 +152,8 @@ No hace falta editar `HomePage` para listar un préstamo o un fondo nuevo.
 
 ## Cómo crear un componente reutilizable
 
-1. Colócalo en `src/app/shared/components/<nombre>/`.
-2. Standalone, `OnPush`, `input()` / `output()`.
+1. Colócalo en `src/app/shared/components/ui-<nombre>/` si es un control de UI reutilizable.
+2. Selector `ui-<nombre>`, standalone, `OnPush`, `input()` / `output()`.
 3. Usa las variables de `src/styles/_tokens.scss` (`--color-primary`, `--spacing-md`, `--radius-lg`…).
 4. Cubre estados: default, hover, focus, disabled, loading, error o empty si aplica.
 5. Si es un patrón de negocio (no UI tonta), el componente **pinta**; el caso de uso **decide**.
@@ -184,7 +184,13 @@ Identidad propia: rojo de marca (`#ec0000`), teal de controles (`#0b5c5e`) y tip
 
 Tokens en `src/styles/_tokens.scss`. Breakpoints: 480 / 768 / 1024 / 1280.
 
-Componentes: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBanner`, `Section`, `Container`, `Grid`, `Badge`, `Icon`, `Accordion`, `Tabs`, `Input`, `SelectMenu`, `ChoiceGroup`, `AmountField`, `RangeSlider`, `SegmentedPills`, `ToggleSwitch`, `CheckField`, `ErrorHint`, `QuoteCard`, `HelpAside`, `StepRail`, `FormCard`, `CalcPanel`, `Modal`, `Breadcrumb`, `Alert`, `Skeleton`, menús de navegación.
+Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBanner`, `Section`, `Container`, `Grid`, `Badge`, `Icon`, `Accordion`, `Tabs`, `Modal`, `Breadcrumb`, `Alert`, `Skeleton`.
+
+Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
+
+`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-checkbox`, `ui-input`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`.
+
+Barrel: `src/app/shared/components/ui/index.ts`.
 
 ---
 

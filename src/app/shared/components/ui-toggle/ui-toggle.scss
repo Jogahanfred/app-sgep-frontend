@@ -1,0 +1,72 @@
+:host {
+  display: block;
+}
+
+.tg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tg__q {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tg__label {
+  margin: 0;
+  color: #333;
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+
+.tg__sw {
+  position: relative;
+  width: 3.05rem;
+  height: 1.65rem;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: #b7b7b7;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.tg__sw--on {
+  background: var(--color-control-track);
+}
+
+.tg__thumb {
+  position: absolute;
+  top: 0.16rem;
+  left: 0.16rem;
+  width: 1.32rem;
+  height: 1.32rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 16%);
+  transition: transform var(--duration-med) var(--ease-out);
+  z-index: 1;
+}
+
+.tg__sw--on .tg__thumb {
+  transform: translateX(1.4rem);
+}
+
+.tg__mark {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.tg__sw--on .tg__mark {
+  right: auto;
+  left: 0.4rem;
+}

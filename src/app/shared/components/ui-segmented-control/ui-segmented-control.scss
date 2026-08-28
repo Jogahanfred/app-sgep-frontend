@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.sp {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.3rem;
+  background: #f4f4f4;
+  border: 1px solid rgb(0 0 0 / 3%);
+  border-radius: var(--radius-pill);
+}
+
+.sp__btn {
+  flex: 1 1 0;
+  min-height: 2.5rem;
+  padding: 0.45rem 1rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    font-weight var(--duration-fast) var(--ease-out);
+}
+
+.sp__btn:hover:not(.sp__btn--on) {
+  background: #fff;
+}
+
+.sp__btn--on {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}

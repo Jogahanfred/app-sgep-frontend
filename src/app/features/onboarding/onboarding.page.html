@@ -19,10 +19,10 @@
 
     <div class="onb__layout">
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        <app-form-card>
+        <ui-form-card>
           <h2 class="onb__section">1. Identificación del cliente</h2>
 
-          <app-select-menu
+          <ui-select
             id="ob-doc"
             title="Documento de identidad"
             icon="id-card"
@@ -33,7 +33,7 @@
             (valueChange)="form.controls.documentType.setValue($event)"
           />
 
-          <app-input
+          <ui-input
             id="ob-doc-number"
             label="Número de documento"
             [field]="form.controls.documentNumber"
@@ -42,7 +42,7 @@
           />
 
           <div class="onb__phone">
-            <app-select-menu
+            <ui-select
               id="ob-prefix"
               label="Prefijo"
               [uppercase]="false"
@@ -50,7 +50,7 @@
               [value]="form.controls.prefix.value"
               (valueChange)="form.controls.prefix.setValue($event)"
             />
-            <app-input
+            <ui-input
               id="ob-phone"
               label="Teléfono móvil"
               type="tel"
@@ -61,7 +61,7 @@
             />
           </div>
 
-          <app-input
+          <ui-input
             id="ob-phone-repeat"
             label="Repite tu teléfono"
             type="tel"
@@ -70,7 +70,7 @@
             placeholder="000 000 000"
           />
 
-          <app-check-field
+          <ui-checkbox
             id="ob-nocard"
             label="No tengo tarjeta"
             [checked]="form.controls.noCard.value"
@@ -80,12 +80,12 @@
           <div class="onb__actions">
             <app-button type="submit" [disabled]="!canContinue()">Continuar</app-button>
           </div>
-        </app-form-card>
+        </ui-form-card>
       </form>
 
       <aside class="onb__side">
-        <app-step-rail [steps]="steps" [current]="currentStep" />
-        <app-help-aside
+        <ui-steps [steps]="steps" [current]="currentStep" />
+        <ui-help
           body="De lunes a viernes, de 8:00 a 22:00. Sábados de 9:00 a 15:00. Número ilustrativo de Helvia."
           phone="915 123 123"
         />

@@ -64,8 +64,8 @@
 <app-modal [open]="loginOpen()" title="Acceso clientes" (closed)="closeLogin()">
   <form class="login" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
     <p class="login__lead">Entorno de demostración. No introduces credenciales reales.</p>
-    <app-input id="login-user" label="Identificador" [field]="loginForm.controls.user" [error]="userError()" autocomplete="username" />
-    <app-input
+    <ui-input id="login-user" label="Identificador" [field]="loginForm.controls.user" [error]="userError()" autocomplete="username" />
+    <ui-input
       id="login-pass"
       label="Contraseña"
       type="password"

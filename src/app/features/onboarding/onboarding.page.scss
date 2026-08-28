@@ -66,7 +66,7 @@
   font-weight: 600;
 }
 
-.onb form app-form-card {
+.onb form ui-form-card {
   display: block;
 }
 
@@ -75,7 +75,7 @@
   gap: 1rem;
 }
 
-.onb :is(app-select-menu, app-input, app-check-field) {
+.onb :is(ui-select, ui-input, ui-checkbox) {
   display: block;
   margin-top: 1rem;
 }

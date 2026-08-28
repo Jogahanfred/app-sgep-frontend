@@ -11,17 +11,17 @@ import {
   type LoanInstallment,
 } from '@core/domain/entities';
 import { Button } from '@shared/components/button/button';
-import { CalcPanel } from '@shared/components/calc-panel/calc-panel';
-import { FormInput } from '@shared/components/input/input';
-import { QuoteCard, type QuoteRow } from '@shared/components/quote-card/quote-card';
-import { RangeSlider } from '@shared/components/range-slider/range-slider';
-import { ToggleSwitch } from '@shared/components/toggle-switch/toggle-switch';
+import { UiCalcPanel } from '@shared/components/ui-calc-panel/ui-calc-panel';
+import { UiInput } from '@shared/components/ui-input/ui-input';
+import { UiResultCard, type UiResultRow } from '@shared/components/ui-result-card/ui-result-card';
+import { UiRangeSlider } from '@shared/components/ui-range-slider/ui-range-slider';
+import { UiToggle } from '@shared/components/ui-toggle/ui-toggle';
 import { formatCompactEur, formatPercent } from '@shared/utils/format-eur';
 
 @Component({
   selector: 'app-loan-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, FormInput, RangeSlider, ToggleSwitch, QuoteCard, Button, CalcPanel],
+  imports: [ReactiveFormsModule, UiInput, UiRangeSlider, UiToggle, UiResultCard, Button, UiCalcPanel],
   templateUrl: './loan-calculator.html',
   styleUrl: './loan-calculator.scss',
 })
@@ -47,7 +47,7 @@ export class LoanCalculator {
   });
 
   readonly result = signal<LoanInstallment | null>(null);
-  readonly quoteRows = signal<QuoteRow[]>([]);
+  readonly quoteRows = signal<UiResultRow[]>([]);
   readonly sustainable = signal(false);
   readonly submitted = signal(false);
 
@@ -62,6 +62,14 @@ export class LoanCalculator {
 
   setTerm(value: number): void {
     this.form.controls.termMonths.setValue(Math.round(value));
+  }
+
+  termYearsHint(): string {
+    const years = this.form.controls.termMonths.value / 12;
+    const formatted = Number.isInteger(years)
+      ? String(years)
+      : years.toLocaleString('es-ES', { maximumFractionDigits: 1 });
+    return `${formatted} ${years === 1 ? 'año' : 'años'}`;
   }
 
   amountError(): string | undefined {
@@ -102,9 +110,11 @@ export class LoanCalculator {
         annualInterestRate: DEFAULT_PERSONAL_LOAN_RATE,
       });
       this.result.set(installment);
+      const tin = formatPercent(installment.annualInterestRate);
+      const tae = formatPercent(annualNominalToTae(installment.annualInterestRate));
       this.quoteRows.set([
-        { label: 'TIN', value: formatPercent(installment.annualInterestRate) },
-        { label: 'TAE', value: formatPercent(annualNominalToTae(installment.annualInterestRate)) },
+        { label: `TIN fijo desde ${tin} (TAE ${tae})¹`, value: '' },
+        { label: 'Comisión apertura', value: '0,00%' },
         { label: 'Importe total a devolver', value: formatCompactEur(installment.totalCost), strong: true },
       ]);
     } catch {

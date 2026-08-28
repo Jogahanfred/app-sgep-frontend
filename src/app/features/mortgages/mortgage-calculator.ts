@@ -10,19 +10,19 @@ import {
   MORTGAGE_TERM_MIN,
   type LoanInstallment,
 } from '@core/domain/entities';
-import { AmountField } from '@shared/components/amount-field/amount-field';
+import { UiAmountField } from '@shared/components/ui-amount-field/ui-amount-field';
 import { Button } from '@shared/components/button/button';
-import { ChoiceGroup } from '@shared/components/choice-group/choice-group';
-import { FieldQuestion } from '@shared/components/field-question/field-question';
-import { QuoteCard, type QuoteRow } from '@shared/components/quote-card/quote-card';
-import { SegmentedPills } from '@shared/components/segmented-pills/segmented-pills';
+import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
+import { UiFieldLabel } from '@shared/components/ui-field-label/ui-field-label';
+import { UiResultCard, type UiResultRow } from '@shared/components/ui-result-card/ui-result-card';
+import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { formatCompactEur, formatPercent } from '@shared/utils/format-eur';
 
 @Component({
   selector: 'app-mortgage-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChoiceGroup, AmountField, SegmentedPills, FieldQuestion, QuoteCard, Button],
+  imports: [UiRadioCardGroup, UiAmountField, UiSegmentedControl, UiFieldLabel, UiResultCard, Button],
   templateUrl: './mortgage-calculator.html',
   styleUrl: './mortgage-calculator.scss',
 })
@@ -66,7 +66,7 @@ export class MortgageCalculator {
   });
 
   readonly result = signal<LoanInstallment | null>(null);
-  readonly quoteRows = signal<QuoteRow[]>([]);
+  readonly quoteRows = signal<UiResultRow[]>([]);
 
   constructor() {
     this.refresh();
