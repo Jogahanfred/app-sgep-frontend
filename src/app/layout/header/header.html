@@ -1,0 +1,57 @@
+<header class="header" [class.header--stuck]="scrolled()">
+  <div class="header__bar">
+    <a class="logo" routerLink="/" aria-label="Helvia Banca, inicio">
+      <span class="logo__mark" aria-hidden="true">H</span>
+      <span class="logo__text">Helvia</span>
+    </a>
+
+    <div class="header__desktop">
+      <app-navigation-menu [groups]="groups" />
+    </div>
+
+    <div class="header__actions">
+      <app-button variant="ghost" size="sm" class="header__login" (click)="openLogin()">Acceso clientes</app-button>
+      <app-button href="/hazte-cliente" size="sm">Hazte cliente</app-button>
+      <button
+        type="button"
+        class="header__burger"
+        [attr.aria-expanded]="mobileOpen()"
+        aria-controls="mobile-nav"
+        aria-label="Abrir menú"
+        (click)="toggleMobile()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile-nav">
+  <app-mobile-menu
+    [groups]="groups"
+    [open]="mobileOpen()"
+    (closed)="closeMobile()"
+    (loginRequested)="openLogin()"
+  />
+</div>
+
+<app-modal [open]="loginOpen()" title="Acceso clientes" (closed)="closeLogin()">
+  <form class="login" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+    <p class="login__lead">Entorno de demostración. No introduces credenciales reales.</p>
+    <app-input id="login-user" label="Identificador" [field]="loginForm.controls.user" [error]="userError()" autocomplete="username" />
+    <app-input
+      id="login-pass"
+      label="Contraseña"
+      type="password"
+      [field]="loginForm.controls.password"
+      [error]="passwordError()"
+      autocomplete="current-password"
+    />
+    @if (loginMessage()) {
+      <p class="login__ok" role="status">{{ loginMessage() }}</p>
+    }
+    <app-button type="submit" [fullWidth]="true">Entrar</app-button>
+  </form>
+</app-modal>

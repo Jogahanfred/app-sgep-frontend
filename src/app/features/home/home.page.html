@@ -1,0 +1,91 @@
+<app-hero-banner
+  eyebrow="Banca para particulares"
+  title="Tu banco, más sencillo."
+  subtitle="Soluciones financieras pensadas para acompañarte en cada momento de tu vida. Cuentas, tarjetas, financiación e inversión con las condiciones por escrito."
+  primaryLabel="Descubre nuestras soluciones"
+  primaryHref="/cuentas"
+  secondaryLabel="Más información"
+  secondaryHref="/hazte-cliente"
+/>
+
+@if (status() === 'loading') {
+  <app-section title="Cargando soluciones">
+    <div class="home-sk">
+      <app-skeleton height="10rem" />
+      <app-skeleton height="10rem" />
+      <app-skeleton height="10rem" />
+    </div>
+  </app-section>
+} @else if (status() === 'error') {
+  <app-section>
+    <app-alert tone="error">No hemos podido cargar la página. Recarga o vuelve en unos minutos.</app-alert>
+  </app-section>
+} @else if (content(); as home) {
+  <app-need-selector-section [options]="home.needOptions" />
+
+  <app-product-section
+    eyebrow="Productos destacados"
+    title="Cinco puertas de entrada, un mismo criterio"
+    subtitle="Cuenta, tarjeta, préstamo, hipoteca e inversión. Cada ficha se construye con el mismo componente."
+    [products]="home.featuredProducts"
+    featuredId="cuenta-clara"
+    sectionId="productos"
+    [columns]="3"
+  />
+
+  <app-promotion-section [promotions]="home.promotions" />
+
+  <app-product-section
+    eyebrow="Financiación"
+    title="Préstamos e hipotecas, con la cuota por delante"
+    subtitle="Añadir un producto nuevo no exige tocar esta sección: solo el catálogo del adaptador."
+    [products]="home.financingProducts"
+    tone="alt"
+    sectionId="financiacion"
+    [columns]="3"
+  />
+
+  <app-section
+    eyebrow="Simulador"
+    title="Calcula tu cuota en un minuto"
+    subtitle="La fórmula vive en el dominio. Este componente solo pinta el formulario y el resultado."
+    sectionId="calculadora"
+  >
+    <div class="home-calc">
+      <app-loan-calculator />
+      <div class="home-calc__aside">
+        <h3>Antes de firmar</h3>
+        <p>
+          Esta cuota es una estimación con un TIN de ejemplo. La TAE, comisiones y vinculaciones se detallan en la
+          oferta personalizada. Un préstamo es una deuda: pide solo lo que puedes devolver.
+        </p>
+        <app-button href="/prestamos" variant="secondary">Ver préstamos</app-button>
+      </div>
+    </div>
+  </app-section>
+
+  <app-product-section
+    eyebrow="Inversión y ahorro"
+    title="Del colchón al largo plazo"
+    subtitle="Fondos, huchas, jubilación y una primera conversación con un asesor."
+    [products]="home.investmentProducts"
+    sectionId="inversion"
+    [columns]="4"
+  />
+
+  <app-help-section [topics]="home.helpTopics" />
+  <app-faq-section [items]="home.faqs" />
+
+  <section class="home-cta">
+    <app-container>
+      <div class="home-cta__box">
+        <h2>Si primero están las personas, estamos de acuerdo.</h2>
+        <p>Abre la Cuenta Clara en digital o pide cita. Helvia es una marca ficticia; el flujo es el de un banco real.</p>
+        <div class="home-cta__actions">
+          <app-button href="/hazte-cliente" variant="inverse" size="lg">Hazte cliente</app-button>
+          <app-button href="/cuentas" variant="secondary" size="lg">Ver cuentas</app-button>
+        </div>
+      </div>
+    </app-container>
+  </section>
+}

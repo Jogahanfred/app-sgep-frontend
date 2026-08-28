@@ -1,0 +1,17 @@
+<article class="promo" [attr.data-variant]="resolvedVariant()">
+  @if (promotion().eyebrow) {
+    <p class="promo__eyebrow">{{ promotion().eyebrow }}</p>
+  }
+  <h3 class="promo__title">{{ promotion().title }}</h3>
+  <p class="promo__desc">{{ promotion().description }}</p>
+  <app-button
+    [href]="promotion().ctaHref"
+    [variant]="resolvedVariant() === 'featured' ? 'inverse' : 'primary'"
+    size="sm"
+  >
+    {{ promotion().ctaLabel }}
+  </app-button>
+  @if (promotion().footnote) {
+    <p class="promo__note">{{ promotion().footnote }}</p>
+  }
+</article>

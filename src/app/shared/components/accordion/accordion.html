@@ -1,0 +1,29 @@
+<div class="acc">
+  @for (item of items(); track item.id) {
+    <div class="acc__item" [class.acc__item--open]="isOpen(item.id)">
+      <h3 class="acc__heading">
+        <button
+          type="button"
+          class="acc__trigger"
+          [id]="'acc-btn-' + item.id"
+          [attr.aria-expanded]="isOpen(item.id)"
+          [attr.aria-controls]="'acc-panel-' + item.id"
+          (click)="toggle(item.id)"
+          (keydown)="onKeydown($event, item.id)"
+        >
+          <span>{{ item.question }}</span>
+          <app-icon name="chevron" />
+        </button>
+      </h3>
+      <div
+        class="acc__panel"
+        [id]="'acc-panel-' + item.id"
+        role="region"
+        [attr.aria-labelledby]="'acc-btn-' + item.id"
+        [hidden]="!isOpen(item.id)"
+      >
+        <p>{{ item.answer }}</p>
+      </div>
+    </div>
+  }
+</div>

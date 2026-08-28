@@ -1,0 +1,57 @@
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.field__wrap {
+  position: relative;
+}
+
+.field__control {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.field__control:hover:not(:disabled) {
+  border-color: var(--color-primary-light);
+}
+
+.field__control:disabled {
+  background: var(--color-surface-alt);
+  cursor: not-allowed;
+}
+
+.field--error .field__control {
+  border-color: var(--color-error);
+}
+
+.field__suffix {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.field__hint,
+.field__error {
+  font-size: var(--fs-xs);
+}
+
+.field__hint {
+  color: var(--color-text-secondary);
+}
+
+.field__error {
+  color: var(--color-error);
+}

@@ -1,0 +1,44 @@
+.section {
+  padding-block: var(--spacing-3xl);
+}
+
+.section--alt {
+  background: var(--color-surface-alt);
+}
+
+.section--ink {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.section__header {
+  max-width: 40rem;
+  margin-bottom: var(--spacing-xl);
+}
+
+.section__eyebrow {
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-secondary-dark);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section--ink .section__eyebrow {
+  color: var(--color-secondary);
+}
+
+.section__title {
+  font-size: var(--fs-3xl);
+}
+
+.section__subtitle {
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-lg);
+}
+
+.section--ink .section__subtitle {
+  color: rgb(246 243 236 / 78%);
+}

@@ -1,0 +1,44 @@
+<footer class="footer">
+  <app-container [wide]="true">
+    <div class="footer__grid">
+      <div>
+        <p class="footer__brand">Helvia</p>
+        <p class="footer__tag">Banca clara para particulares. Entidad ficticia con fines demostrativos.</p>
+      </div>
+      <nav aria-label="Productos">
+        <p class="footer__title">Productos</p>
+        <ul>
+          <li><a routerLink="/cuentas">Cuentas</a></li>
+          <li><a routerLink="/tarjetas">Tarjetas</a></li>
+          <li><a routerLink="/prestamos">Préstamos</a></li>
+          <li><a routerLink="/hipotecas">Hipotecas</a></li>
+          <li><a routerLink="/inversion">Inversión</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Ayuda">
+        <p class="footer__title">Ayuda</p>
+        <ul>
+          <li><a routerLink="/hazte-cliente">Hazte cliente</a></li>
+          <li><a routerLink="/" fragment="preguntas-frecuentes">Preguntas frecuentes</a></li>
+          <li><a routerLink="/" fragment="ayuda">Oficinas y contacto</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Legal">
+        <p class="footer__title">Legal</p>
+        <ul>
+          <li><a href="#legal">Aviso legal</a></li>
+          <li><a href="#privacidad">Privacidad</a></li>
+          <li><a href="#cookies">Cookies</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer__bottom">
+      <p>© {{ year }} Helvia Banca, S.A. Puerto Alba. Todos los derechos reservados.</p>
+      <ul class="footer__social" aria-label="Redes sociales">
+        <li><a href="https://www.linkedin.com" rel="noopener noreferrer" target="_blank">LinkedIn</a></li>
+        <li><a href="https://www.instagram.com" rel="noopener noreferrer" target="_blank">Instagram</a></li>
+        <li><a href="https://x.com" rel="noopener noreferrer" target="_blank">X</a></li>
+      </ul>
+    </div>
+  </app-container>
+</footer>

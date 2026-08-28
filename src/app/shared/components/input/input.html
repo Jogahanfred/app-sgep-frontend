@@ -1,0 +1,26 @@
+<div class="field" [class.field--error]="!!error()">
+  <label class="field__label" [attr.for]="id()">{{ label() }}</label>
+  <div class="field__wrap">
+    <input
+      class="field__control"
+      [id]="id()"
+      [attr.type]="type()"
+      [formControl]="field()"
+      [attr.min]="min()"
+      [attr.max]="max()"
+      [attr.step]="step()"
+      [attr.autocomplete]="autocomplete()"
+      [attr.aria-invalid]="error() ? true : null"
+      [attr.aria-describedby]="error() ? id() + '-error' : hint() ? id() + '-hint' : null"
+    />
+    @if (suffix()) {
+      <span class="field__suffix">{{ suffix() }}</span>
+    }
+  </div>
+  @if (hint() && !error()) {
+    <p class="field__hint" [id]="id() + '-hint'">{{ hint() }}</p>
+  }
+  @if (error()) {
+    <p class="field__error" [id]="id() + '-error'" role="alert">{{ error() }}</p>
+  }
+</div>

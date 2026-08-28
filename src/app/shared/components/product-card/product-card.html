@@ -1,0 +1,27 @@
+<app-card [interactive]="true">
+  <div class="pc" [class.pc--featured]="featured()" [attr.data-category]="product().category">
+    <div class="pc__visual" [attr.data-image]="product().image || product().category" aria-hidden="true">
+      <app-icon [name]="iconFor(product().category)" />
+    </div>
+    <div class="pc__body">
+      @if (product().badge) {
+        <app-badge [accent]="featured()">{{ product().badge }}</app-badge>
+      }
+      <h3 class="pc__title">{{ product().title }}</h3>
+      <p class="pc__desc">{{ product().description }}</p>
+      @if (product().features?.length) {
+        <ul class="pc__features">
+          @for (feature of product().features; track feature) {
+            <li>
+              <app-icon name="check" />
+              <span>{{ feature }}</span>
+            </li>
+          }
+        </ul>
+      }
+      <app-button [href]="product().ctaHref" variant="secondary" size="sm" (click)="onAction()">
+        {{ product().ctaLabel }}
+      </app-button>
+    </div>
+  </div>
+</app-card>

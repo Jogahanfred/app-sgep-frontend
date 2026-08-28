@@ -1,0 +1,48 @@
+<form class="calc" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="calc__intro">
+    <p class="calc__eyebrow">Simulador</p>
+    <h3>¿Cuánto necesitas?</h3>
+    <p>Cuota orientativa a un TIN del 6,90% (ejemplo ficticio, sistema francés). No es una oferta vinculante.</p>
+  </div>
+
+  <app-input
+    id="loan-amount"
+    label="Importe"
+    type="number"
+    [field]="form.controls.amount"
+    [min]="amountMin"
+    [max]="amountMax"
+    [step]="500"
+    suffix="€"
+    [error]="amountError()"
+    hint="Entre 1.000 y 75.000 €"
+  />
+  <app-input
+    id="loan-term"
+    label="Plazo"
+    type="number"
+    [field]="form.controls.termMonths"
+    [min]="termMin"
+    [max]="termMax"
+    [step]="6"
+    suffix="meses"
+    [error]="termError()"
+    hint="Entre 12 y 96 meses"
+  />
+
+  @if (error()) {
+    <app-alert tone="error">{{ error() }}</app-alert>
+  }
+
+  @if (result(); as installment) {
+    <div class="calc__result" role="status" aria-live="polite">
+      <p class="calc__label">Cuota estimada</p>
+      <p class="calc__amount">{{ installment.monthlyPayment | eur }}<span>/mes</span></p>
+      <p class="calc__meta">
+        Total a devolver {{ installment.totalCost | eur }} · Intereses {{ installment.totalInterest | eur }}
+      </p>
+    </div>
+  }
+
+  <app-button type="submit" [fullWidth]="true">Calcular</app-button>
+</form>

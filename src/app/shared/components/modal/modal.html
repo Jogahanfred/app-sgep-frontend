@@ -1,0 +1,13 @@
+<dialog #dialog class="modal" (cancel)="onCancel($event)" [attr.aria-labelledby]="'modal-title'">
+  <div class="modal__card">
+    <header class="modal__head">
+      <h2 [id]="'modal-title'">{{ title() }}</h2>
+      <button type="button" class="modal__close" data-close aria-label="Cerrar" (click)="close()">
+        <app-icon name="close" />
+      </button>
+    </header>
+    <div class="modal__body">
+      <ng-content />
+    </div>
+  </div>
+</dialog>

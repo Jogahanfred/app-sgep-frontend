@@ -1,0 +1,71 @@
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.drawer[hidden] {
+  display: none;
+}
+
+.drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
+}
+
+.drawer__panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(100%, 22rem);
+  background: var(--color-surface);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  overflow: auto;
+}
+
+.drawer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+
+.drawer__close {
+  border: 0;
+  background: transparent;
+  padding: 0.4rem;
+}
+
+.drawer__list,
+.drawer__children {
+  list-style: none;
+}
+
+.drawer__section {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0.4rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  font-weight: 700;
+}
+
+.drawer__children a {
+  display: block;
+  padding: 0.75rem 0.25rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.drawer__cta {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}

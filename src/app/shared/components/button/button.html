@@ -1,0 +1,34 @@
+@if (href(); as link) {
+  <a
+    class="btn"
+    [class]="'btn--' + variant() + ' btn--' + size()"
+    [class.btn--block]="fullWidth()"
+    [class.btn--loading]="loading()"
+    [class.btn--disabled]="disabled()"
+    [routerLink]="disabled() || loading() ? null : link"
+    [attr.aria-disabled]="disabled() || loading() ? true : null"
+    [attr.aria-label]="ariaLabel()"
+    [attr.tabindex]="disabled() || loading() ? -1 : null"
+  >
+    <span class="btn__label"><ng-content /></span>
+    @if (icon(); as iconName) {
+      <app-icon [name]="iconName" />
+    }
+  </a>
+} @else {
+  <button
+    class="btn"
+    [class]="'btn--' + variant() + ' btn--' + size()"
+    [class.btn--block]="fullWidth()"
+    [class.btn--loading]="loading()"
+    [attr.type]="type()"
+    [disabled]="disabled() || loading()"
+    [attr.aria-busy]="loading() || null"
+    [attr.aria-label]="ariaLabel()"
+  >
+    <span class="btn__label"><ng-content /></span>
+    @if (icon(); as iconName) {
+      <app-icon [name]="iconName" />
+    }
+  </button>
+}

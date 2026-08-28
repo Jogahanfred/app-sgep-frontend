@@ -1,0 +1,37 @@
+<section class="hero" [class.hero--compact]="compact()" aria-labelledby="hero-title">
+  <app-container>
+    <div class="hero__grid">
+      <div class="hero__copy">
+        @if (eyebrow()) {
+          <p class="hero__eyebrow">{{ eyebrow() }}</p>
+        }
+        <h1 id="hero-title">{{ title() }}</h1>
+        <p class="hero__sub">{{ subtitle() }}</p>
+        <div class="hero__actions">
+          <app-button [href]="primaryHref()" size="lg" icon="arrow-right">{{ primaryLabel() }}</app-button>
+          @if (secondaryLabel() && secondaryHref()) {
+            <app-button [href]="secondaryHref()!" variant="secondary" size="lg">{{ secondaryLabel() }}</app-button>
+          }
+        </div>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <svg viewBox="0 0 480 420" role="presentation">
+          <defs>
+            <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#c4a35a" />
+              <stop offset="100%" stop-color="#14635c" />
+            </linearGradient>
+          </defs>
+          <rect x="40" y="48" width="280" height="320" rx="28" fill="#0b3d38" />
+          <rect x="72" y="80" width="216" height="36" rx="10" fill="#14635c" />
+          <rect x="72" y="132" width="160" height="16" rx="8" fill="#c4a35a" opacity="0.7" />
+          <rect x="72" y="164" width="200" height="10" rx="5" fill="#efebe3" opacity="0.18" />
+          <rect x="72" y="186" width="176" height="10" rx="5" fill="#efebe3" opacity="0.12" />
+          <circle cx="360" cy="120" r="72" fill="url(#hg)" opacity="0.9" />
+          <circle cx="400" cy="280" r="46" fill="#c4a35a" opacity="0.55" />
+          <path d="M80 280c40-40 90-20 130 8s90 20 130-24" fill="none" stroke="#c4a35a" stroke-width="3" />
+        </svg>
+      </div>
+    </div>
+  </app-container>
+</section>

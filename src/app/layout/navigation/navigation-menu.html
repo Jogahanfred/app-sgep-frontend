@@ -1,0 +1,37 @@
+<nav class="nav" aria-label="Principal" appClickOutside (appClickOutside)="close()">
+  <ul class="nav__list">
+    @for (group of groups(); track group.label) {
+      <li class="nav__item" [class.nav__item--open]="openGroup() === group.label">
+        @if (group.children.length) {
+          <button
+            type="button"
+            class="nav__trigger"
+            [attr.aria-expanded]="openGroup() === group.label"
+            [attr.aria-controls]="'submenu-' + group.label"
+            (click)="toggle(group.label)"
+            (keydown)="onTriggerKey($event, group.label)"
+          >
+            {{ group.label }}
+            <app-icon name="chevron" />
+          </button>
+          <div class="nav__panel" [id]="'submenu-' + group.label" [hidden]="openGroup() !== group.label">
+            <ul>
+              @for (child of group.children; track child.href) {
+                <li>
+                  <a [routerLink]="child.href" routerLinkActive="is-active" (click)="close()">
+                    <strong>{{ child.label }}</strong>
+                    @if (child.description) {
+                      <span>{{ child.description }}</span>
+                    }
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else if (group.href) {
+          <a class="nav__link" [routerLink]="group.href" routerLinkActive="is-active">{{ group.label }}</a>
+        }
+      </li>
+    }
+  </ul>
+</nav>

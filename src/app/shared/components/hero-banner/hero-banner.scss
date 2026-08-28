@@ -1,0 +1,72 @@
+.hero {
+  padding-block: var(--spacing-3xl) var(--spacing-2xl);
+  background:
+    radial-gradient(circle at 90% 10%, rgb(196 163 90 / 16%), transparent 34%),
+    linear-gradient(180deg, #efebe3 0%, var(--color-background) 100%);
+}
+
+.hero--compact {
+  padding-block: var(--spacing-2xl);
+}
+
+.hero__grid {
+  display: grid;
+  gap: var(--spacing-xl);
+  align-items: center;
+}
+
+.hero__copy h1 {
+  font-size: var(--fs-5xl);
+  max-width: 16ch;
+}
+
+.hero__eyebrow {
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-secondary-dark);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero__sub {
+  margin-top: var(--spacing-lg);
+  max-width: 36rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-lg);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
+}
+
+.hero__art {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .hero__grid {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+
+  .hero__art {
+    display: block;
+  }
+}
+
+.hero__actions app-button {
+  min-width: min(100%, 12rem);
+}
+
+@media (max-width: 479px) {
+  .hero__actions {
+    flex-direction: column;
+  }
+
+  .hero__actions app-button {
+    width: 100%;
+  }
+}

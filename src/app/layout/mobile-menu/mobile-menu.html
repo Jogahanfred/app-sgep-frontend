@@ -1,0 +1,44 @@
+<div class="drawer" [class.drawer--open]="open()" [attr.hidden]="open() ? null : true">
+  <div class="drawer__backdrop" (click)="close()"></div>
+  <div
+    class="drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Menú de navegación"
+  >
+    <div class="drawer__top">
+      <p>Menú</p>
+      <button type="button" class="drawer__close" aria-label="Cerrar menú" (click)="close()">
+        <app-icon name="close" />
+      </button>
+    </div>
+    <ul class="drawer__list">
+      @for (group of groups(); track group.label) {
+        <li>
+          <button
+            type="button"
+            class="drawer__section"
+            [attr.aria-expanded]="openSection() === group.label"
+            (click)="toggle(group.label)"
+          >
+            {{ group.label }}
+            <app-icon name="chevron" />
+          </button>
+          @if (openSection() === group.label) {
+            <ul class="drawer__children">
+              @for (child of group.children; track child.href) {
+                <li>
+                  <a [routerLink]="child.href" (click)="close()">{{ child.label }}</a>
+                </li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
+    <div class="drawer__cta">
+      <app-button variant="secondary" [fullWidth]="true" (click)="requestLogin()">Acceso clientes</app-button>
+      <app-button href="/hazte-cliente" [fullWidth]="true" (click)="close()">Hazte cliente</app-button>
+    </div>
+  </div>
+</div>

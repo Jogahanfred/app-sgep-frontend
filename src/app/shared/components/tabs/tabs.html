@@ -1,0 +1,20 @@
+<div class="tabs" role="tablist" [attr.aria-labelledby]="labelledBy()">
+  @for (tab of tabs(); track tab.id; let i = $index) {
+    <button
+      type="button"
+      role="tab"
+      class="tabs__tab"
+      [id]="'tab-' + tab.id"
+      [attr.aria-selected]="tab.id === activeId()"
+      [attr.tabindex]="tab.id === activeId() ? 0 : -1"
+      [class.tabs__tab--active]="tab.id === activeId()"
+      (click)="select(tab.id)"
+      (keydown)="onKeydown($event, i)"
+    >
+      <span class="tabs__label">{{ tab.label }}</span>
+      @if (tab.description) {
+        <span class="tabs__hint">{{ tab.description }}</span>
+      }
+    </button>
+  }
+</div>
