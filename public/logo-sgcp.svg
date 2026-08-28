@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" role="img" aria-labelledby="title desc">
   <title id="title">SIGA</title>
-  <desc id="desc">Cintas y SIGA alineada abajo, a la altura de la tercera linea.</desc>
+  <desc id="desc">SIGA alineada abajo, de alto hasta la cinta azul.</desc>
   <g transform="translate(4 4)">
     <polygon fill="#e2186e" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="#c9a227" points="78,0 118,20 104,32 88,14"/>
@@ -9,5 +9,5 @@
     <polygon fill="#d0122a" points="12,56 64,46 74,60 22,70"/>
     <polygon fill="#dce0e4" points="18,78 52,70 62,84 28,92"/>
   </g>
-  <text x="142" y="96" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="20" font-weight="900" letter-spacing="1.2">SIGA</text>
+  <text x="142" y="96" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="74" font-weight="900" letter-spacing="2">SIGA</text>
 </svg>
