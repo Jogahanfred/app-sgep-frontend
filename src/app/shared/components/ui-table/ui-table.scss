@@ -180,8 +180,8 @@ tbody tr {
 .ui-table__page {
   display: inline-grid;
   place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.1rem;
+  height: 2.1rem;
   padding: 0;
   border: 0;
   border-radius: 2px;
@@ -189,14 +189,14 @@ tbody tr {
   color: var(--color-secondary);
   font: inherit;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 400;
   cursor: pointer;
 }
 
 .ui-table__page--on {
   background: var(--color-primary);
   color: #fff;
-  font-weight: 800;
+  font-weight: 400;
 }
 
 .ui-table__nav:disabled {
