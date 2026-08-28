@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" role="img" aria-labelledby="title desc">
-  <title id="title">SGCP Rumbo Acad&#233;mico</title>
-  <desc id="desc">Cinta en vuelo de SGCP y wordmark en diagonal.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" role="img" aria-labelledby="title desc">
+  <title id="title">ALZAR Rumbo Acad&#233;mico</title>
+  <desc id="desc">Cinta en vuelo de ALZAR y wordmark en diagonal.</desc>
   <g transform="translate(8 12)">
     <polygon fill="#e2186e" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="#c9a227" points="78,0 118,20 104,32 88,14"/>
@@ -10,12 +10,12 @@
     <polygon fill="#dce0e4" points="18,78 52,70 62,84 28,92"/>
   </g>
   <g transform="translate(154 10) skewX(-10)">
-    <text x="0" y="52" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="58" font-weight="900" letter-spacing="-3" stroke="#003553" stroke-width="2" paint-order="stroke fill">SGCP</text>
-    <rect x="2" y="60" width="36" height="5" fill="#e2186e"/>
-    <rect x="38" y="60" width="28" height="5" fill="#c9a227"/>
-    <rect x="66" y="60" width="28" height="5" fill="#003553"/>
-    <rect x="94" y="60" width="22" height="5" fill="#dce0e4"/>
-    <rect x="116" y="60" width="22" height="5" fill="#d0122a"/>
+    <text x="0" y="52" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="56" font-weight="900" letter-spacing="-2" stroke="#003553" stroke-width="2" paint-order="stroke fill">ALZAR</text>
+    <rect x="2" y="60" width="42" height="5" fill="#e2186e"/>
+    <rect x="44" y="60" width="36" height="5" fill="#c9a227"/>
+    <rect x="80" y="60" width="36" height="5" fill="#003553"/>
+    <rect x="116" y="60" width="28" height="5" fill="#dce0e4"/>
+    <rect x="144" y="60" width="32" height="5" fill="#d0122a"/>
     <text x="2" y="86" fill="#e2186e" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="15" font-weight="900" letter-spacing="3.4">RUMBO ACAD&#201;MICO</text>
   </g>
 </svg>
