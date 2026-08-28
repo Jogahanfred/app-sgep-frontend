@@ -3,6 +3,9 @@ import {
   CalculateLoanInstallment,
   CalculateMortgageInstallment,
   ChangeUserPassword,
+  CreateAdminUser,
+  CreateSpecialty,
+  CreateUserRole,
   GetAccounts,
   GetCurrentUser,
   GetCards,
@@ -15,13 +18,20 @@ import {
   GetMortgages,
   GetProductsByNeed,
   GetPromotions,
+  ListAdminUsers,
+  ListSpecialties,
+  ListUserRoles,
+  UpdateAdminUser,
+  UpdateSpecialty,
   UpdateUserAddress,
   UpdateUserContact,
   UpdateUserPhoto,
   UpdateUserPreferences,
   UpdateUserProfile,
+  UpdateUserRole,
 } from '../application';
 import { MockAccountRepository } from '../adapters/mock/mock-account.repository';
+import { MockAdminCatalogRepository } from '../adapters/mock/mock-admin-catalog.repository';
 import { MockCardRepository } from '../adapters/mock/mock-card.repository';
 import { MockFaqRepository } from '../adapters/mock/mock-faq.repository';
 import { MockInvestmentRepository } from '../adapters/mock/mock-investment.repository';
@@ -31,6 +41,7 @@ import { MockPromotionRepository } from '../adapters/mock/mock-promotion.reposit
 import { MockUserProfileRepository } from '../adapters/mock/mock-user.repository';
 import type {
   AccountRepository,
+  AdminCatalogRepository,
   CardRepository,
   FaqRepository,
   InvestmentRepository,
@@ -41,6 +52,7 @@ import type {
 } from '../ports';
 import {
   ACCOUNT_REPOSITORY,
+  ADMIN_CATALOG_REPOSITORY,
   CARD_REPOSITORY,
   FAQ_REPOSITORY,
   INVESTMENT_REPOSITORY,
@@ -59,6 +71,7 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: INVESTMENT_REPOSITORY, useClass: MockInvestmentRepository },
   { provide: FAQ_REPOSITORY, useClass: MockFaqRepository },
   { provide: USER_PROFILE_REPOSITORY, useClass: MockUserProfileRepository },
+  { provide: ADMIN_CATALOG_REPOSITORY, useClass: MockAdminCatalogRepository },
   { provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() },
   { provide: CalculateMortgageInstallment, useFactory: () => new CalculateMortgageInstallment() },
   {
@@ -145,6 +158,51 @@ export const CORE_PROVIDERS: Provider[] = [
     provide: ChangeUserPassword,
     useFactory: (repo: UserProfileRepository) => new ChangeUserPassword(repo),
     deps: [USER_PROFILE_REPOSITORY],
+  },
+  {
+    provide: ListAdminUsers,
+    useFactory: (repo: AdminCatalogRepository) => new ListAdminUsers(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateAdminUser,
+    useFactory: (repo: AdminCatalogRepository) => new CreateAdminUser(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateAdminUser,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateAdminUser(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListUserRoles,
+    useFactory: (repo: AdminCatalogRepository) => new ListUserRoles(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateUserRole,
+    useFactory: (repo: AdminCatalogRepository) => new CreateUserRole(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateUserRole,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateUserRole(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListSpecialties,
+    useFactory: (repo: AdminCatalogRepository) => new ListSpecialties(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateSpecialty,
+    useFactory: (repo: AdminCatalogRepository) => new CreateSpecialty(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateSpecialty,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateSpecialty(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {
     provide: GetHomeContent,

@@ -1,0 +1,58 @@
+.adm {
+  padding-block: var(--spacing-2xl) var(--spacing-3xl);
+}
+
+.adm__intro {
+  padding-bottom: 1.25rem;
+}
+
+.adm__kicker {
+  margin: 0 0 0.4rem;
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.adm__lead {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.adm__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.adm__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: #3a3a3a;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adm__nav a:hover {
+  border-color: #c5dcf3;
+  background: var(--color-surface-warm);
+  color: var(--color-primary-dark);
+}
+
+.adm__nav a.adm__link--on {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}

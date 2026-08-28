@@ -12,6 +12,7 @@ export class Modal {
   private readonly host = inject(ElementRef<HTMLElement>);
   readonly open = input(false);
   readonly title = input.required<string>();
+  readonly size = input<'md' | 'lg'>('md');
   readonly closed = output<void>();
   readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 

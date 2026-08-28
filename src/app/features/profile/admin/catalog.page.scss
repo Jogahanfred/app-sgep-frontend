@@ -1,0 +1,45 @@
+@use './admin-panel';
+
+.ap-search {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #6a6a6a;
+}
+
+.ap-search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(30 138 230 / 16%);
+}
+
+.ap-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ap__state {
+  position: relative;
+  min-height: 16rem;
+}
+
+.ap__state ui-loading {
+  position: absolute;
+  inset: 0;
+}

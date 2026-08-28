@@ -15,7 +15,6 @@ import { DEMO_PASSWORD, type UserProfile } from '@core/domain/entities';
 import { DomainError } from '@core/domain/errors/domain-error';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Container } from '@shared/components/container/container';
 import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiDatePicker } from '@shared/components/ui-date-picker/ui-date-picker';
@@ -35,7 +34,6 @@ export type ProfileSection = 'photo' | 'data' | 'contact' | 'address' | 'securit
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    Container,
     Button,
     Alert,
     UiAvatar,

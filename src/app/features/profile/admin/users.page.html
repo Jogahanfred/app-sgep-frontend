@@ -1,0 +1,197 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>Usuarios</h1>
+      <p class="ap__lead">Administra las personas que ingresarán al sistema. Alta rápida, roles y especialidades.</p>
+    </div>
+    <app-button icon="plus" (click)="openCreate()">Nuevo usuario</app-button>
+  </div>
+
+  @if (notice()) {
+    <app-alert tone="success">{{ notice() }}</app-alert>
+  }
+
+  <div class="ap__toolbar">
+    <label class="ap-search">
+      <span class="visually-hidden">Buscador global</span>
+      <app-icon name="search" />
+      <input
+        type="search"
+        placeholder="Buscar por nombres, apellidos, correo, DNI o indicativo"
+        [value]="query()"
+        (input)="onQuery($event)"
+      />
+    </label>
+    <ui-select
+      id="user-status-filter"
+      label="Estado"
+      [uppercase]="false"
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      (valueChange)="statusFilter.set($event === 'all' ? 'all' : $event === 'inactive' ? 'inactive' : 'active')"
+    />
+  </div>
+
+  @if (loadState() === 'loading') {
+    <div class="ap__table-wrap ap__state">
+      <ui-loading title="Cargando usuarios" subtitle="Estamos trayendo el listado de personas." label="Cargando usuarios" />
+    </div>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar los usuarios. Recarga la página.</app-alert>
+  } @else if (filtered().length === 0) {
+    <app-alert>No hay personas que coincidan con el buscador o el filtro de estado.</app-alert>
+  } @else {
+    <div class="ap__table-wrap">
+      <table class="ap__table">
+        <thead>
+          <tr>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Correo electrónico</th>
+            <th>DNI / Documento</th>
+            <th>Fecha de ingreso</th>
+            <th>Indicativo</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filtered(); track user.id) {
+            <tr>
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.documentNumber }}</td>
+              <td>{{ formatDate(user.entryDate) }}</td>
+              <td>{{ user.indicative || '—' }}</td>
+              <td>
+                <span class="ap__badge" [class]="'ap__badge ap__badge--' + user.status">{{ statusLabel(user.status) }}</span>
+              </td>
+              <td>
+                <button type="button" class="ap__link" (click)="openEdit(user)">Editar</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<app-modal [open]="modalOpen()" [title]="modalTitle()" size="lg" (closed)="closeModal()">
+  <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="ap__tabs">
+      <ui-segmented-control label="Secciones del usuario" [wrap]="true" [options]="tabOptions" [value]="tab()" (valueChange)="setTab($event)" />
+    </div>
+
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+
+    @if (tab() === 'general') {
+      <div class="ap__grid">
+        <ui-input
+          id="usr-first"
+          label="Nombres"
+          icon="user"
+          placeholder="Nombres"
+          [field]="form.controls.firstName"
+          [error]="requiredError('firstName', 'Escribe los nombres.')"
+        />
+        <ui-input
+          id="usr-last"
+          label="Apellidos"
+          icon="user"
+          placeholder="Apellidos"
+          [field]="form.controls.lastName"
+          [error]="requiredError('lastName', 'Escribe los apellidos.')"
+        />
+        <ui-input
+          id="usr-email"
+          label="Correo electrónico"
+          type="email"
+          icon="mail"
+          placeholder="nombre@siga.demo"
+          [field]="form.controls.email"
+          [error]="requiredError('email', 'Necesitamos un correo válido.')"
+        />
+        <ui-input
+          id="usr-pass"
+          label="Contraseña"
+          type="password"
+          icon="lock"
+          [placeholder]="editingId() ? 'Déjala vacía para no cambiarla' : 'Mínimo 8 caracteres'"
+          [field]="form.controls.password"
+          [info]="editingId() ? 'Solo rellena si quieres cambiar la clave.' : 'Mayúscula, número y símbolo.'"
+        />
+        <ui-input
+          id="usr-dni"
+          label="DNI / Documento"
+          icon="id-card"
+          placeholder="00000000A"
+          [field]="form.controls.documentNumber"
+          [error]="requiredError('documentNumber', 'Indica el documento.')"
+        />
+        <ui-date-picker
+          id="usr-entry"
+          label="Fecha de ingreso"
+          [field]="form.controls.entryDate"
+          [error]="requiredError('entryDate', 'Indica la fecha de ingreso.')"
+        />
+        <ui-input
+          id="usr-ind"
+          label="Indicativo (opcional)"
+          icon="id-card"
+          placeholder="ADM-01"
+          [field]="form.controls.indicative"
+          info="Código interno, radio o ficha. Puedes dejarlo vacío."
+        />
+        <ui-select
+          id="usr-status"
+          label="Estado"
+          [uppercase]="false"
+          [options]="entityStatusOptions"
+          [value]="form.controls.status.value"
+          (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+        />
+      </div>
+    }
+
+    @if (tab() === 'roles') {
+      <div class="ap__checks">
+        @for (role of roles(); track role.id) {
+          <div class="ap__check">
+            <ui-checkbox
+              [id]="'usr-role-' + role.id"
+              [label]="role.name + (role.status === 'inactive' ? ' (inactivo)' : '')"
+              [checked]="selectedRoleIds().includes(role.id)"
+              (checkedChange)="toggleRole(role.id, $event)"
+            />
+            <p>{{ role.description }}</p>
+          </div>
+        }
+      </div>
+    }
+
+    @if (tab() === 'specialties') {
+      <div class="ap__checks">
+        @for (specialty of specialties(); track specialty.id) {
+          <div class="ap__check">
+            <ui-checkbox
+              [id]="'usr-spc-' + specialty.id"
+              [label]="specialty.name + (specialty.status === 'inactive' ? ' (inactiva)' : '')"
+              [checked]="selectedSpecialtyIds().includes(specialty.id)"
+              (checkedChange)="toggleSpecialty(specialty.id, $event)"
+            />
+            <p>{{ specialty.description }}</p>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="ap__actions">
+      <app-button variant="ghost" type="button" (click)="closeModal()">Cancelar</app-button>
+      <app-button type="submit" [disabled]="saving()">{{ editingId() ? 'Guardar cambios' : 'Crear usuario' }}</app-button>
+    </div>
+  </form>
+</app-modal>

@@ -21,3 +21,10 @@ export class InvalidUserProfileError extends DomainError {
     this.name = 'InvalidUserProfileError';
   }
 }
+
+export class InvalidAdminCatalogError extends DomainError {
+  constructor(message: string) {
+    super(message, 'INVALID_ADMIN_CATALOG');
+    this.name = 'InvalidAdminCatalogError';
+  }
+}

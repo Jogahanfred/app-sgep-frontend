@@ -27,7 +27,8 @@ export type IconName =
   | 'cross'
   | 'camera'
   | 'lock'
-  | 'mail';
+  | 'mail'
+  | 'search';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -57,6 +58,7 @@ const PATHS: Record<IconName, string> = {
   camera: 'M4 8h3l2-2h6l2 2h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z',
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v10H6z',
   mail: 'M4 7h16v11H4zM4 7l8 6 8-6',
+  search: 'M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16ZM21 21l-4.35-4.35',
 }
 
 @Component({

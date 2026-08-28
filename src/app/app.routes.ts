@@ -74,13 +74,51 @@ export const routes: Routes = [
   },
   {
     path: 'perfil',
-    loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
-    data: {
-      seo: {
-        title: 'Mi perfil | Helvia Banca',
-        description: 'Foto, datos personales, correo y seguridad de tu perfil Helvia. Entorno de demostración.',
+    loadComponent: () => import('./features/profile/profile.layout').then((m) => m.ProfileLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+        data: {
+          seo: {
+            title: 'Mi perfil | SIGA',
+            description: 'Foto, datos personales, correo y seguridad de tu perfil. Entorno de demostración.',
+          },
+        },
       },
-    },
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./features/profile/admin/users.page').then((m) => m.UsersPage),
+        data: {
+          seo: {
+            title: 'Usuarios | SIGA',
+            description: 'Administra las personas que ingresan al sistema: alta, estado, roles y especialidades.',
+          },
+        },
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./features/profile/admin/catalog.page').then((m) => m.CatalogPage),
+        data: {
+          catalog: 'roles',
+          seo: {
+            title: 'Roles de usuario | SIGA',
+            description: 'Administrador, director académico, jefe de instrucción, instructor y alumno.',
+          },
+        },
+      },
+      {
+        path: 'especialidades',
+        loadComponent: () => import('./features/profile/admin/catalog.page').then((m) => m.CatalogPage),
+        data: {
+          catalog: 'specialties',
+          seo: {
+            title: 'Especialidades | SIGA',
+            description: 'Catálogo de especialidades y su asignación a las personas del sistema.',
+          },
+        },
+      },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];

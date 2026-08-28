@@ -1,3 +1,12 @@
+export type {
+  CatalogWriteInput,
+  EntityStatus,
+  SpecialtyEntity,
+  SpecialtyUserEntity,
+  UserEntity,
+  UserRoleEntity,
+  UserWriteInput,
+} from './admin-catalog';
 export type { Account } from './account';
 export type { BankCard, CardKind } from './bank-card';
 export type { FaqItem } from './faq-item';

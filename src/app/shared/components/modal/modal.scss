@@ -6,6 +6,10 @@
   background: transparent;
 }
 
+.modal.modal--lg {
+  width: min(100% - 2rem, 46rem);
+}
+
 .modal::backdrop {
   background: var(--color-overlay);
 }

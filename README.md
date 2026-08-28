@@ -62,7 +62,7 @@ src/app/
 │   ├── ports/           Interfaces de repositorio
 │   ├── adapters/        Mock (activo) y HTTP (ejemplo)
 │   └── di/              Tokens y factories
-├── features/            Páginas (home, cuentas, tarjetas, préstamos, hipotecas, inversión)
+├── features/            Páginas (home, productos, perfil + administración)
 ├── shared/              Design system y utilidades
 └── layout/              Header, navegación, menú móvil, footer
 ```
@@ -109,6 +109,9 @@ MockProductRepository
 | `CalculateLoanInstallment` | Dominio (`calculateFrenchAmortization`) |
 | `CalculateMortgageInstallment` | Dominio (`calculateMortgageAmortization`) |
 | `GetCurrentUser` / `UpdateUser*` / `ChangeUserPassword` | UserProfile |
+| `ListAdminUsers` / `CreateAdminUser` / `UpdateAdminUser` | AdminCatalog (`UserEntity`) |
+| `ListUserRoles` / `CreateUserRole` / `UpdateUserRole` | AdminCatalog (`UserRoleEntity`) |
+| `ListSpecialties` / `CreateSpecialty` / `UpdateSpecialty` | AdminCatalog (`SpecialtyEntity`, `SpecialtyUserEntity`) |
 
 Los casos de uso son clases TypeScript planas. Angular solo aparece en `core/di` para registrar factories.
 
@@ -175,6 +178,9 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/inversion` | Inversión |
 | `/hazte-cliente` | Alta (formulario demo) |
 | `/perfil` | Perfil de usuario (foto, datos, correo, contraseña) |
+| `/perfil/usuarios` | Administración de personas (tabla, buscador, alta, roles y especialidades) |
+| `/perfil/roles` | Roles de usuario (`UserRoleEntity`) |
+| `/perfil/especialidades` | Especialidades (`SpecialtyEntity`) |
 
 Las features se cargan con **lazy loading** (`loadComponent`).
 
@@ -216,6 +222,6 @@ HomePage
 
 ## Tests mínimos
 
-- Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`
-- Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`
-- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`
+- Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`, `admin-catalog.spec.ts`
+- Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`, `create-admin-user`, `create-user-role`
+- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `UsersPage`, `CatalogPage`

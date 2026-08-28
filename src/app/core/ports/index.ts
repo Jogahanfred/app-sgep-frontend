@@ -1,3 +1,4 @@
+export type { AdminCatalogRepository } from './admin-catalog.repository';
 export type { AccountRepository } from './account.repository';
 export type { CardRepository } from './card.repository';
 export type { FaqRepository } from './faq.repository';

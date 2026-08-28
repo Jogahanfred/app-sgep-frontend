@@ -38,6 +38,7 @@ describe('Header', () => {
     fixture.componentInstance.toggleUserMenu();
     fixture.detectChanges();
     expect(root.textContent).toContain('Mi perfil');
+    expect(root.textContent).toContain('Usuarios');
     expect(root.textContent).toContain('Cerrar sesión');
   });
 

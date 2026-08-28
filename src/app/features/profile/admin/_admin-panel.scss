@@ -1,0 +1,166 @@
+.ap__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.ap__head h1 {
+  margin: 0 0 0.35rem;
+  color: var(--color-text);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.ap__lead {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ap__toolbar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .ap__toolbar {
+    grid-template-columns: minmax(0, 1fr) 12.5rem;
+    align-items: end;
+  }
+}
+
+.ap__table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.ap__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 44rem;
+}
+
+.ap__table th,
+.ap__table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: var(--fs-sm);
+  vertical-align: middle;
+}
+
+.ap__table th {
+  color: #5a5a5a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #f8fafc;
+}
+
+.ap__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ap__table tbody tr:hover {
+  background: #f7fbff;
+}
+
+.ap__muted {
+  color: #7a7a7a;
+}
+
+.ap__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.ap__badge--active {
+  background: #e7f6ee;
+  color: var(--color-success);
+}
+
+.ap__badge--inactive {
+  background: #f3f3f3;
+  color: #666;
+}
+
+.ap__link {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 800;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.ap__link:hover {
+  text-decoration: underline;
+}
+
+.ap__state {
+  padding: 2rem 1rem;
+}
+
+.ap__checks {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ap__check {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.65rem;
+}
+
+.ap__check p {
+  margin: 0 0 0 1.8rem;
+  color: #6a6a6a;
+  font-size: 0.78rem;
+}
+
+.ap__form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.ap__grid {
+  display: grid;
+  gap: 1.15rem;
+}
+
+@media (min-width: 640px) {
+  .ap__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ap__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.ap__tabs {
+  margin-bottom: 1rem;
+}
+
+.ap :is(ui-input, ui-select, ui-date-picker) {
+  display: block;
+}

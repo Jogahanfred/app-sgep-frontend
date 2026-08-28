@@ -1,3 +1,12 @@
+export { CreateAdminUser } from './use-cases/create-admin-user';
+export { CreateSpecialty } from './use-cases/create-specialty';
+export { CreateUserRole } from './use-cases/create-user-role';
+export { ListAdminUsers } from './use-cases/list-admin-users';
+export { ListSpecialties } from './use-cases/list-specialties';
+export { ListUserRoles } from './use-cases/list-user-roles';
+export { UpdateAdminUser } from './use-cases/update-admin-user';
+export { UpdateSpecialty } from './use-cases/update-specialty';
+export { UpdateUserRole } from './use-cases/update-user-role';
 export { ChangeUserPassword } from './use-cases/change-user-password';
 export { GetCurrentUser } from './use-cases/get-current-user';
 export { UpdateUserAddress } from './use-cases/update-user-address';
