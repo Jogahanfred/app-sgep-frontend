@@ -23,6 +23,8 @@ npm start
 
 La aplicación queda en [http://localhost:43141](http://localhost:43141).
 
+Para un enlace público (túnel), primero `npm run build` y luego `npm run start:public`. Eso sirve el build estático en el puerto 43142, sin Vite, para que los clics y las rutas funcionen detrás de Cloudflare.
+
 ## Tests
 
 ```bash
