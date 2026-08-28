@@ -89,6 +89,7 @@ describe('UiTable', () => {
     fixture.componentRef.setInput('emptyTitle', 'No hay personas que coincidan.');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('No hay personas que coincidan.');
+    expect((fixture.nativeElement as HTMLElement).querySelector('thead')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.ui-table__empty-icon')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label="Filas por página"]')).toBeNull();
 

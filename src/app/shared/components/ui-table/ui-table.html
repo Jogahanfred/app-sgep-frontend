@@ -16,11 +16,6 @@
         [label]="loadingLabel()"
       />
     </div>
-  } @else if (total() === 0) {
-    <div class="ui-table__empty" role="status">
-      <app-icon class="ui-table__empty-icon" name="inbox" />
-      <p>{{ emptyTitle() }}</p>
-    </div>
   } @else {
     <div class="ui-table__scroll">
       <table>
@@ -35,25 +30,36 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of pagedRows(); track row.id) {
-            <tr
-              [class.ui-table__row--on]="selectedId() === row.id"
-              [style.--i]="$index"
-              (click)="selectRow(row)"
-            >
-              @for (column of columns(); track column.id) {
-                @let item = cell(row, column.id);
-                <td [class]="alignClass(column.align)">
-                  @if (item.badge) {
-                    <span [class]="'ui-table__badge ui-table__badge--' + item.badge">{{ item.text }}</span>
-                  } @else if (item.href) {
-                    <a class="ui-table__link" [routerLink]="item.href" (click)="$event.stopPropagation()">{{ item.text }}</a>
-                  } @else {
-                    {{ item.text }}
-                  }
-                </td>
-              }
+          @if (total() === 0) {
+            <tr class="ui-table__empty-row">
+              <td [attr.colspan]="columns().length">
+                <div class="ui-table__empty" role="status">
+                  <app-icon class="ui-table__empty-icon" name="inbox" />
+                  <p>{{ emptyTitle() }}</p>
+                </div>
+              </td>
             </tr>
+          } @else {
+            @for (row of pagedRows(); track row.id) {
+              <tr
+                [class.ui-table__row--on]="selectedId() === row.id"
+                [style.--i]="$index"
+                (click)="selectRow(row)"
+              >
+                @for (column of columns(); track column.id) {
+                  @let item = cell(row, column.id);
+                  <td [class]="alignClass(column.align)">
+                    @if (item.badge) {
+                      <span [class]="'ui-table__badge ui-table__badge--' + item.badge">{{ item.text }}</span>
+                    } @else if (item.href) {
+                      <a class="ui-table__link" [routerLink]="item.href" (click)="$event.stopPropagation()">{{ item.text }}</a>
+                    } @else {
+                      {{ item.text }}
+                    }
+                  </td>
+                }
+              </tr>
+            }
           }
         </tbody>
       </table>
