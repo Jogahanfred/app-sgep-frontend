@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
-  <title id="title">SGCP Gesti&#243;n Acad&#233;mica</title>
-  <desc id="desc">Cinta en vuelo de SGCP. Paleta rosa, oro, azul, plomo claro y rojo.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" role="img" aria-labelledby="title desc">
+  <title id="title">SGCP Rumbo Acad&#233;mico</title>
+  <desc id="desc">Cinta en vuelo de SGCP y wordmark en diagonal.</desc>
   <g transform="translate(8 12)">
     <polygon fill="#e2186e" points="0,12 78,0 88,14 10,26"/>
     <polygon fill="#c9a227" points="78,0 118,20 104,32 88,14"/>
@@ -9,6 +9,13 @@
     <polygon fill="#d0122a" points="12,56 64,46 74,60 22,70"/>
     <polygon fill="#dce0e4" points="18,78 52,70 62,84 28,92"/>
   </g>
-  <text x="154" y="62" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="48" font-weight="900" letter-spacing="-1.5" stroke="#003553" stroke-width="1.4" paint-order="stroke fill">SGCP</text>
-  <text x="156" y="88" fill="#5a6570" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="0.6">Gesti&#243;n Acad&#233;mica</text>
+  <g transform="translate(154 10) skewX(-10)">
+    <text x="0" y="52" fill="#003553" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="58" font-weight="900" letter-spacing="-3" stroke="#003553" stroke-width="2" paint-order="stroke fill">SGCP</text>
+    <rect x="2" y="60" width="36" height="5" fill="#e2186e"/>
+    <rect x="38" y="60" width="28" height="5" fill="#c9a227"/>
+    <rect x="66" y="60" width="28" height="5" fill="#003553"/>
+    <rect x="94" y="60" width="22" height="5" fill="#dce0e4"/>
+    <rect x="116" y="60" width="22" height="5" fill="#d0122a"/>
+    <text x="2" y="86" fill="#e2186e" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="15" font-weight="900" letter-spacing="3.4">RUMBO ACAD&#201;MICO</text>
+  </g>
 </svg>
