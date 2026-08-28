@@ -46,31 +46,37 @@ table {
 
 th,
 td {
-  padding: 0.65rem 0.7rem;
-  border-bottom: 1px solid #eee;
+  padding: 0.7rem 0.65rem;
   text-align: center;
   vertical-align: middle;
   font-size: var(--fs-sm);
 }
 
 th {
-  color: #555;
-  background: #f3f4f6;
+  color: #5a5a5a;
+  background: #f2f2f2;
+  border-top: 1px solid #e4e4e4;
+  border-bottom: 1px solid #e4e4e4;
+  border-right: 1px solid #ececec;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+th:last-child {
+  border-right: 0;
+}
+
+td {
+  background: #fff;
+  border-bottom: 1px solid #eee;
 }
 
 tbody tr {
   cursor: pointer;
 }
 
-tbody tr:nth-child(even) {
-  background: #fafafa;
-}
-
-tbody tr:hover,
-.ui-table__row--on {
-  background: var(--color-surface-warm);
+.ui-table__row--on td {
+  box-shadow: inset 0 0 0 1px var(--color-primary);
 }
 
 .ui-table__cell--left {
