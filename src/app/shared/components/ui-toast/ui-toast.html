@@ -1,4 +1,4 @@
-<div class="toast" aria-live="polite" aria-relevant="additions text">
+<div class="toast" aria-live="polite">
   @for (item of toast.messages(); track item.id) {
     <div class="toast__item" [class]="'toast__item--' + item.tone" role="status">
       <app-icon class="toast__icon" [name]="iconOf(item.tone)" />
