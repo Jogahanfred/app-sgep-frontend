@@ -40,7 +40,7 @@ export class UiSigaLoader implements OnDestroy {
       renderer: 'svg',
       loop: this.loop(),
       autoplay: true,
-      path: '/lottie/siga-loader.json?v=5',
+      path: '/lottie/siga-loader.json?v=6',
     });
   }
 }
