@@ -6,15 +6,17 @@
   }
 
   <div class="ap__toolbar">
-    <label class="ap-search">
-      <span class="visually-hidden">Buscador global</span>
-      <app-icon name="search" />
-      <input type="search" placeholder="Buscar por nombre o descripción" [value]="query()" (input)="onQuery($event)" />
-    </label>
+    <ui-input
+      id="catalog-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por nombre o descripción"
+      [field]="search"
+    />
     <ui-select
       id="catalog-status-filter"
       label="Estado"
-      size="sm"
       [uppercase]="false"
       [options]="statusOptions"
       [value]="statusFilter()"

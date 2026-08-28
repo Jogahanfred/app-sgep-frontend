@@ -9,20 +9,17 @@
   }
 
   <div class="ap__toolbar">
-    <label class="ap-search">
-      <span class="visually-hidden">Buscador global</span>
-      <app-icon name="search" />
-      <input
-        type="search"
-        placeholder="Buscar por nombres, apellidos, correo, DNI o indicativo"
-        [value]="query()"
-        (input)="onQuery($event)"
-      />
-    </label>
+    <ui-input
+      id="user-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por nombres, apellidos, correo, DNI o indicativo"
+      [field]="search"
+    />
     <ui-select
       id="user-status-filter"
       label="Estado"
-      size="sm"
       [uppercase]="false"
       [options]="statusOptions"
       [value]="statusFilter()"

@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ListAdminUsers, UpdateAdminUser } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, UserEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Icon } from '@shared/components/icon/icon';
+import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
@@ -15,7 +16,7 @@ import { UserQuickCreate } from './user-quick-create';
 @Component({
   selector: 'app-users-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Icon, UiSelect, UiTable, UserQuickCreate],
+  imports: [Alert, Button, UiInput, UiSelect, UiTable, UserQuickCreate],
   templateUrl: './users-list.page.html',
   styleUrl: './users-list.page.scss',
 })
@@ -27,6 +28,7 @@ export class UsersListPage {
 
   readonly users = signal<UserEntity[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
+  readonly search = new FormControl('', { nonNullable: true });
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
@@ -86,6 +88,10 @@ export class UsersListPage {
   });
 
   constructor() {
+    this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.query.set(value);
+      this.selectedId.set(null);
+    });
     this.reload();
   }
 
@@ -93,11 +99,6 @@ export class UsersListPage {
     const [year, month, day] = value.split('-');
     if (!year || !month || !day) return value;
     return `${day}/${month}/${year}`;
-  }
-
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-    this.selectedId.set(null);
   }
 
   openCreate(): void {

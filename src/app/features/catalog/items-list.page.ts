@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListSpecialties, ListUserRoles, UpdateSpecialty, UpdateUserRole } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
-import { Icon } from '@shared/components/icon/icon';
+import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import type { ChoiceOption } from '@shared/models/choice.model';
@@ -18,7 +19,7 @@ export type { CatalogKind };
 @Component({
   selector: 'app-items-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Icon, UiSelect, UiTable, ItemQuickCreate],
+  imports: [Alert, Button, UiInput, UiSelect, UiTable, ItemQuickCreate],
   templateUrl: './items-list.page.html',
   styleUrl: './items-list.page.scss',
 })
@@ -35,6 +36,7 @@ export class ItemsListPage {
   readonly isRoles = this.kind === 'roles';
   readonly items = signal<(UserRoleEntity | SpecialtyEntity)[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
+  readonly search = new FormControl('', { nonNullable: true });
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
   readonly selectedId = signal<string | null>(null);
@@ -83,12 +85,11 @@ export class ItemsListPage {
   );
 
   constructor() {
+    this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.query.set(value);
+      this.selectedId.set(null);
+    });
     this.reload();
-  }
-
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-    this.selectedId.set(null);
   }
 
   openCreate(): void {
