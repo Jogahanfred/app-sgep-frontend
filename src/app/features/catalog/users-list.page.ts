@@ -147,11 +147,11 @@ export class UsersListPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toast.success('La persona ha pasado a baja.');
+          this.toast.success('Baja realizada', 'La persona ha pasado a baja.');
           this.selectedId.set(null);
           this.reload();
         },
-        error: () => this.toast.error('No hemos podido dar de baja a la persona.'),
+        error: () => this.toast.error('No se pudo dar de baja', 'No hemos podido dar de baja a la persona.'),
       });
   }
 

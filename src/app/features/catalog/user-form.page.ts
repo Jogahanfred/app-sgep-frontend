@@ -166,17 +166,17 @@ export class UserFormPage {
     try {
       if (this.editingId) {
         await firstValueFrom(this.updateUser.execute(this.editingId, payload));
-        this.toast.success('Hemos actualizado a la persona.');
+        this.toast.success('Persona actualizada', 'Hemos actualizado a la persona.');
         await this.router.navigate(['/catalogo/usuarios']);
       } else {
         await firstValueFrom(this.createUser.execute(payload));
-        this.toast.success('La persona ya puede ingresar al sistema.');
+        this.toast.success('Persona creada', 'La persona ya puede ingresar al sistema.');
         await this.router.navigate(['/catalogo/usuarios']);
       }
     } catch (err: unknown) {
       const message = err instanceof DomainError ? err.message : 'No hemos podido guardar el usuario.';
       this.error.set(message);
-      this.toast.error(message);
+      this.toast.error('No se pudo guardar', message);
       this.tab.set('general');
     } finally {
       this.saving.set(false);

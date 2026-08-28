@@ -110,17 +110,23 @@ export class ItemFormPage {
       const id = this.editingId;
       if (id) {
         await firstValueFrom(this.update$(id, payload));
-        this.toast.success(this.isRoles ? 'Rol actualizado.' : 'Especialidad actualizada.');
+        this.toast.success(
+          this.isRoles ? 'Rol actualizado' : 'Especialidad actualizada',
+          this.isRoles ? 'Los cambios del rol ya están guardados.' : 'Los cambios de la especialidad ya están guardados.',
+        );
         await this.router.navigate([this.listHref]);
       } else {
         await firstValueFrom(this.create$(payload));
-        this.toast.success(this.isRoles ? 'Rol creado.' : 'Especialidad creada.');
+        this.toast.success(
+          this.isRoles ? 'Rol creado' : 'Especialidad creada',
+          this.isRoles ? 'El rol ya está disponible en el catálogo.' : 'La especialidad ya está disponible en el catálogo.',
+        );
         await this.router.navigate([this.listHref]);
       }
     } catch (err: unknown) {
       const message = err instanceof DomainError ? err.message : 'No hemos podido guardar los cambios.';
       this.error.set(message);
-      this.toast.error(message);
+      this.toast.error('No se pudo guardar', message);
     } finally {
       this.saving.set(false);
     }

@@ -5,7 +5,8 @@ export type ToastTone = 'success' | 'error' | 'info';
 export interface ToastMessage {
   id: number;
   tone: ToastTone;
-  text: string;
+  title: string;
+  description: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,21 +16,21 @@ export class ToastService {
 
   readonly messages = signal<readonly ToastMessage[]>([]);
 
-  success(text: string, ms = 4200): void {
-    this.show(text, 'success', ms);
+  success(title: string, description = '', ms = 4200): void {
+    this.show(title, description, 'success', ms);
   }
 
-  error(text: string, ms = 5200): void {
-    this.show(text, 'error', ms);
+  error(title: string, description = '', ms = 5200): void {
+    this.show(title, description, 'error', ms);
   }
 
-  info(text: string, ms = 4200): void {
-    this.show(text, 'info', ms);
+  info(title: string, description = '', ms = 4200): void {
+    this.show(title, description, 'info', ms);
   }
 
-  show(text: string, tone: ToastTone = 'success', ms = 4200): void {
+  show(title: string, description = '', tone: ToastTone = 'success', ms = 4200): void {
     const id = this.nextId++;
-    this.messages.update((current) => [...current, { id, tone, text }]);
+    this.messages.update((current) => [...current, { id, tone, title, description }]);
     if (ms > 0) {
       this.timers.set(
         id,

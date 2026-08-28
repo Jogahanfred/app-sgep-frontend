@@ -129,11 +129,11 @@ export class ItemsListPage {
       : this.updateSpecialty.execute(item.id, { name: item.name, description: item.description, status: 'inactive' });
     stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.toast.success('El registro ha pasado a baja.');
+        this.toast.success('Baja realizada', 'El registro ha pasado a baja.');
         this.selectedId.set(null);
         this.reload();
       },
-      error: () => this.toast.error('No hemos podido dar de baja el registro.'),
+      error: () => this.toast.error('No se pudo dar de baja', 'No hemos podido dar de baja el registro.'),
     });
   }
 

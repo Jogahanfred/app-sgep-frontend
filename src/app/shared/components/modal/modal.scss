@@ -1,9 +1,15 @@
+:host {
+  display: contents;
+}
+
 .modal {
   width: min(100% - 2rem, 28rem);
+  max-height: min(90vh, 40rem);
   padding: 0;
   border: 0;
   border-radius: var(--radius-lg);
   background: transparent;
+  overflow: auto;
 }
 
 .modal.modal--lg {

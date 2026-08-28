@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
+import { DocumentScrollLock } from '@shared/utils/document-scroll-lock';
 import { Icon } from '../icon/icon';
 
 @Component({
@@ -10,6 +11,8 @@ import { Icon } from '../icon/icon';
 })
 export class Modal {
   private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly scrollLock = inject(DocumentScrollLock);
+  private locked = false;
   readonly open = input(false);
   readonly title = input.required<string>();
   readonly size = input<'md' | 'lg'>('md');
@@ -17,19 +20,38 @@ export class Modal {
   readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.releaseScroll());
     effect(() => {
       const el = this.dialog()?.nativeElement;
       if (!el) return;
-      if (this.open() && !el.open) {
-        el.showModal();
+      if (this.open()) {
+        this.holdScroll();
+        if (!el.open) {
+          el.showModal();
+        }
         const closeBtn = this.host.nativeElement.querySelector('[data-close]');
         if (closeBtn instanceof HTMLElement) {
           closeBtn.focus();
         }
-      } else if (!this.open() && el.open) {
-        el.close();
+      } else {
+        if (el.open) {
+          el.close();
+        }
+        this.releaseScroll();
       }
     });
+  }
+
+  private holdScroll(): void {
+    if (this.locked) return;
+    this.scrollLock.lock();
+    this.locked = true;
+  }
+
+  private releaseScroll(): void {
+    if (!this.locked) return;
+    this.scrollLock.unlock();
+    this.locked = false;
   }
 
   close(): void {

@@ -21,7 +21,7 @@ import { animateScrollToTop } from '../../utils/scroll-to';
   styles: `
     .top {
       position: fixed;
-      right: 1.25rem;
+      right: calc(1.25rem + var(--scroll-lock-gap, 0px));
       bottom: 1.25rem;
       z-index: 45;
       display: grid;

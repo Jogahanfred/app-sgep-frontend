@@ -2,7 +2,12 @@
   @for (item of toast.messages(); track item.id) {
     <div class="toast__item" [class]="'toast__item--' + item.tone" role="status">
       <app-icon class="toast__icon" [name]="iconOf(item.tone)" />
-      <p class="toast__text">{{ item.text }}</p>
+      <div class="toast__copy">
+        <p class="toast__title">{{ item.title }}</p>
+        @if (item.description) {
+          <p class="toast__desc">{{ item.description }}</p>
+        }
+      </div>
       <button type="button" class="toast__close" aria-label="Cerrar aviso" (click)="toast.dismiss(item.id)">
         <app-icon name="close" />
       </button>
