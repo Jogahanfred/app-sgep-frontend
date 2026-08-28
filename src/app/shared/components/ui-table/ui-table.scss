@@ -67,6 +67,20 @@ td {
 
 tbody tr {
   cursor: pointer;
+  animation: fade-row 0.38s both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes fade-row {
+  from {
+    opacity: 0;
+    transform: translateY(-0.4rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .ui-table__row--on td {
@@ -210,6 +224,12 @@ tbody tr {
   height: 1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  tbody tr {
+    animation: none;
+  }
 }
 
 @media (max-width: 767px) {

@@ -37,6 +37,7 @@
           @for (row of pagedRows(); track row.id) {
             <tr
               [class.ui-table__row--on]="selectedId() === row.id"
+              [style.--i]="$index"
               (click)="selectRow(row)"
             >
               @for (column of columns(); track column.id) {
