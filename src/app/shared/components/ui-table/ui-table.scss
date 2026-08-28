@@ -136,9 +136,17 @@ tbody tr {
 .ui-table__empty {
   display: grid;
   place-items: center;
+  justify-items: center;
+  gap: 0.85rem;
   color: var(--color-text-secondary);
   font-size: var(--fs-sm);
   text-align: center;
+}
+
+.ui-table__empty-icon {
+  width: 4.75rem;
+  height: 4.75rem;
+  color: #c8c8c8;
 }
 
 .ui-table__footer {
