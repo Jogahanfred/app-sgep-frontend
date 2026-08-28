@@ -66,9 +66,13 @@ describe('UiTable', () => {
     fixture.detectChanges();
     expect(root.textContent).toContain('Mostrando 31 - 32 de 32');
 
-    const select = root.querySelector('select') as HTMLSelectElement;
-    select.value = '20';
-    select.dispatchEvent(new Event('change'));
+    const size = root.querySelector('[aria-label="Filas por página"]') as HTMLButtonElement;
+    size.click();
+    fixture.detectChanges();
+    const option = Array.from(root.querySelectorAll('[role="option"]')).find((node) =>
+      (node.textContent ?? '').includes('20'),
+    ) as HTMLButtonElement;
+    option.click();
     fixture.detectChanges();
     expect(root.textContent).toContain('Mostrando 1 - 20 de 32');
     expect(root.textContent).toContain('Persona 1');
@@ -82,7 +86,7 @@ describe('UiTable', () => {
     fixture.componentRef.setInput('emptyTitle', 'No hay personas que coincidan.');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('No hay personas que coincidan.');
-    expect((fixture.nativeElement as HTMLElement).querySelector('select')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[aria-label="Filas por página"]')).toBeNull();
 
     fixture.componentRef.setInput('loading', true);
     fixture.componentRef.setInput('loadingTitle', 'Cargando usuarios');

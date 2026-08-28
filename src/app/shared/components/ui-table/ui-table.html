@@ -29,20 +29,23 @@
         <thead>
           <tr>
             @for (column of columns(); track column.id) {
-              <th [class.ui-table__cell--right]="column.align === 'right'">{{ column.header }}</th>
+              <th [class]="alignClass(column.align)">{{ column.header }}</th>
             }
           </tr>
         </thead>
         <tbody>
           @for (row of pagedRows(); track row.id) {
-            <tr>
+            <tr
+              [class.ui-table__row--on]="selectedId() === row.id"
+              (click)="selectRow(row)"
+            >
               @for (column of columns(); track column.id) {
                 @let item = cell(row, column.id);
-                <td [class.ui-table__cell--right]="column.align === 'right'">
+                <td [class]="alignClass(column.align)">
                   @if (item.badge) {
                     <span [class]="'ui-table__badge ui-table__badge--' + item.badge">{{ item.text }}</span>
                   } @else if (item.href) {
-                    <a class="ui-table__link" [routerLink]="item.href">{{ item.text }}</a>
+                    <a class="ui-table__link" [routerLink]="item.href" (click)="$event.stopPropagation()">{{ item.text }}</a>
                   } @else {
                     {{ item.text }}
                   }
@@ -59,37 +62,47 @@
     <div class="ui-table__footer">
       <div class="ui-table__meta">
         <p class="ui-table__range">{{ rangeLabel() }}</p>
-        <label class="ui-table__show">
+        <div class="ui-table__show" appClickOutside (appClickOutside)="closeSize()">
           <span>Por página:</span>
-          <select
-            [value]="pageSize()"
+          <button
+            type="button"
+            class="ui-table__size"
+            [class.ui-table__size--open]="sizeOpen()"
+            [attr.aria-expanded]="sizeOpen()"
+            aria-haspopup="listbox"
             aria-label="Filas por página"
-            (change)="onPageSizeChange($event)"
+            (click)="toggleSize()"
           >
-            @for (size of pageSizeOptions(); track size) {
-              <option [value]="size">{{ size }}</option>
-            }
-          </select>
-        </label>
+            {{ pageSize() }}
+            <app-icon name="chevron" />
+          </button>
+          @if (sizeOpen()) {
+            <ul class="ui-table__sizes" role="listbox">
+              @for (size of pageSizeOptions(); track size) {
+                <li>
+                  <button
+                    type="button"
+                    role="option"
+                    [attr.aria-selected]="pageSize() === size"
+                    (click)="pickPageSize(size)"
+                  >
+                    {{ size }}
+                    @if (pageSize() === size) {
+                      <app-icon name="check" />
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
       </div>
 
       <nav class="ui-table__pager" aria-label="Paginación">
-        <button
-          type="button"
-          class="ui-table__nav"
-          [disabled]="!canPrev()"
-          aria-label="Primera página"
-          (click)="first()"
-        >
+        <button type="button" class="ui-table__nav" [disabled]="!canPrev()" aria-label="Primera página" (click)="first()">
           <app-icon class="ui-table__nav-icon" name="chevron-first" />
         </button>
-        <button
-          type="button"
-          class="ui-table__nav"
-          [disabled]="!canPrev()"
-          aria-label="Página anterior"
-          (click)="prev()"
-        >
+        <button type="button" class="ui-table__nav" [disabled]="!canPrev()" aria-label="Página anterior" (click)="prev()">
           <app-icon class="ui-table__nav-icon" name="chevron-left" />
         </button>
         @for (item of pageItems(); track $index) {
@@ -108,22 +121,10 @@
             </button>
           }
         }
-        <button
-          type="button"
-          class="ui-table__nav"
-          [disabled]="!canNext()"
-          aria-label="Página siguiente"
-          (click)="next()"
-        >
+        <button type="button" class="ui-table__nav" [disabled]="!canNext()" aria-label="Página siguiente" (click)="next()">
           <app-icon class="ui-table__nav-icon" name="chevron-right" />
         </button>
-        <button
-          type="button"
-          class="ui-table__nav"
-          [disabled]="!canNext()"
-          aria-label="Última página"
-          (click)="last()"
-        >
+        <button type="button" class="ui-table__nav" [disabled]="!canNext()" aria-label="Última página" (click)="last()">
           <app-icon class="ui-table__nav-icon" name="chevron-last" />
         </button>
       </nav>

@@ -5,15 +5,17 @@ import {
   effect,
   input,
   linkedSignal,
+  output,
   signal,
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ClickOutsideDirective } from '@shared/directives/click-outside.directive';
 import { Icon } from '../icon/icon';
 import { UiLoading } from '../ui-loading/ui-loading';
 
 export type UiTableBadgeTone = 'active' | 'inactive';
-export type UiTableAlign = 'left' | 'right';
+export type UiTableAlign = 'left' | 'center' | 'right';
 
 export interface UiTableColumn {
   id: string;
@@ -35,7 +37,7 @@ export interface UiTableRow {
 @Component({
   selector: 'ui-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, UiLoading],
+  imports: [RouterLink, ClickOutsideDirective, Icon, UiLoading],
   templateUrl: './ui-table.html',
   styleUrl: './ui-table.scss',
 })
@@ -49,8 +51,11 @@ export class UiTable {
   readonly emptyTitle = input('No hay resultados');
   readonly caption = input('');
   readonly heading = input('');
+  readonly selectedId = input<string | null>(null);
+  readonly selectedIdChange = output<string | null>();
   readonly pageSizeOptions = input<readonly number[]>([10, 20, 50]);
   readonly initialPageSize = input(10);
+  readonly sizeOpen = signal(false);
 
   readonly pageSize = linkedSignal(() => this.initialPageSize());
   readonly page = signal(1);
@@ -105,8 +110,27 @@ export class UiTable {
     this.page.set(1);
   }
 
-  onPageSizeChange(event: Event): void {
-    this.setPageSize(Number((event.target as HTMLSelectElement).value));
+  pickPageSize(size: number): void {
+    this.setPageSize(size);
+    this.sizeOpen.set(false);
+  }
+
+  toggleSize(): void {
+    this.sizeOpen.update((open) => !open);
+  }
+
+  closeSize(): void {
+    this.sizeOpen.set(false);
+  }
+
+  selectRow(row: UiTableRow): void {
+    this.selectedIdChange.emit(this.selectedId() === row.id ? null : row.id);
+  }
+
+  alignClass(align: UiTableAlign | undefined): string {
+    if (align === 'left') return 'ui-table__cell--left';
+    if (align === 'right') return 'ui-table__cell--right';
+    return '';
   }
 
   goToPage(page: number): void {

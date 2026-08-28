@@ -32,7 +32,10 @@ export type IconName =
   | 'camera'
   | 'lock'
   | 'mail'
-  | 'search';
+  | 'search'
+  | 'eye'
+  | 'pencil'
+  | 'trash';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -67,6 +70,9 @@ const PATHS: Record<IconName, string> = {
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v10H6z',
   mail: 'M4 7h16v11H4zM4 7l8 6 8-6',
   search: 'M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16ZM21 21l-4.35-4.35',
+  eye: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
+  pencil: 'M4 20h4L18 10l-4-4L4 16v4ZM13.5 6.5l4 4',
+  trash: 'M5 7h14M10 7V5h4v2M8 7l1 13h6l1-13',
 }
 
 @Component({

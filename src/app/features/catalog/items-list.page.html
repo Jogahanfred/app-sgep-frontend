@@ -29,13 +29,18 @@
       [caption]="title"
       [columns]="columns"
       [rows]="tableRows()"
+      [selectedId]="selectedId()"
       [loading]="loadState() === 'loading'"
       [loadingTitle]="'Cargando ' + title.toLowerCase()"
       loadingSubtitle="Un momento."
       [loadingLabel]="'Cargando ' + title"
       emptyTitle="No hay resultados con ese buscador o filtro de estado."
+      (selectedIdChange)="selectedId.set($event)"
     >
-      <app-button [href]="createHref" icon="plus" size="sm">{{ createLabel }}</app-button>
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goSelected()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goSelected()">Modificar</app-button>
+      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="deactivateSelected()">Baja</app-button>
     </ui-table>
   }
 </div>

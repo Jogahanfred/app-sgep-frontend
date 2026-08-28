@@ -77,6 +77,53 @@ export const SEED_SPECIALTIES: SpecialtyEntity[] = [
   },
 ];
 
+const EXTRA_PEOPLE: [string, string][] = [
+  ['Alba', 'Ferrer Sol'],
+  ['Hugo', 'Pardo León'],
+  ['Nuria', 'Beltrán Cid'],
+  ['Óscar', 'Méndez Rivas'],
+  ['Teresa', 'Gil Pascual'],
+  ['Iván', 'Rubio Nadal'],
+  ['Marta', 'Cos Varela'],
+  ['Raúl', 'Vega Pinto'],
+  ['Pilar', 'Nieto Calvo'],
+  ['Jaime', 'Ortiz Luna'],
+  ['Beatriz', 'Cano Riera'],
+  ['Andrés', 'Lobo Sanz'],
+  ['Silvia', 'Rueda Paz'],
+  ['Tomás', 'Prieto Marín'],
+  ['Natalia', 'Rey Cubero'],
+  ['Félix', 'Mora Quintana'],
+  ['Olga', 'Sáez Llorente'],
+  ['Vicente', 'Lago Puig'],
+  ['Inés', 'Prado Senra'],
+  ['César', 'Duque Arias'],
+  ['Ainhoa', 'Paz Romero'],
+  ['Bruno', 'Sanz Coll'],
+  ['Elisa', 'Montes Vidal'],
+  ['Gonzalo', 'Vila Serra'],
+];
+
+const EXTRA_USERS: UserEntity[] = EXTRA_PEOPLE.map(([firstName, lastName], index) => {
+  const slug = `${firstName}-${lastName}`
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z]+/g, '-');
+  return {
+    id: `usr-${slug}`,
+    firstName,
+    lastName,
+    email: `${slug.replace(/-/g, '.')}@alumno.siga.demo`,
+    documentNumber: `${50000000 + index}X`,
+    entryDate: `2024-${String((index % 12) + 1).padStart(2, '0')}-12`,
+    indicative: `ALU-${300 + index}`,
+    status: 'active',
+    roleIds: ['role-student'],
+    specialtyIds: ['spc-pilot'],
+  };
+});
+
 export const SEED_USERS: UserEntity[] = [
   {
     id: 'usr-elena-martin',
@@ -174,6 +221,7 @@ export const SEED_USERS: UserEntity[] = [
     roleIds: ['role-instructor'],
     specialtyIds: ['spc-flight-inst'],
   },
+  ...EXTRA_USERS,
 ];
 
 export const SEED_PASSWORDS: Record<string, string> = Object.fromEntries(

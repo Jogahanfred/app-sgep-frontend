@@ -40,9 +40,12 @@ describe('UsersListPage', () => {
     expect(text).toContain('Elena');
     expect(text).toContain('Martín Ruiz');
     expect(root.querySelector('input[type="search"]')?.getAttribute('placeholder')).toContain('nombres');
-    expect(text).toContain('Nuevo usuario');
+    expect(text).toContain('Añadir');
+    expect(text).toContain('Detalle');
+    expect(text).toContain('Modificar');
+    expect(text).toContain('Baja');
     expect(text).toContain('Por página:');
-    expect(text).toContain('Mostrando 1 - 8 de 8');
+    expect(text).toContain('Mostrando 1 - 10 de 32');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('[aria-label="Primera página"]')).not.toBeNull();
     expect(root.querySelector('app-modal')).toBeNull();

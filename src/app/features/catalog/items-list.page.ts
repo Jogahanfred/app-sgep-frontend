@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ListSpecialties, ListUserRoles } from '@core/application';
+import { ListSpecialties, ListUserRoles, UpdateSpecialty, UpdateUserRole } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
@@ -26,6 +26,8 @@ export class ItemsListPage {
   private readonly router = inject(Router);
   private readonly listRoles = inject(ListUserRoles);
   private readonly listSpecialties = inject(ListSpecialties);
+  private readonly updateRole = inject(UpdateUserRole);
+  private readonly updateSpecialty = inject(UpdateSpecialty);
 
   readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
   readonly isRoles = this.kind === 'roles';
@@ -33,6 +35,7 @@ export class ItemsListPage {
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
+  readonly selectedId = signal<string | null>(null);
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -42,8 +45,6 @@ export class ItemsListPage {
   readonly lead = this.isRoles
     ? 'Catálogo de roles: administrador, dirección académica, instrucción y alumnado.'
     : 'Catálogo de especialidades que se pueden asignar a cada persona.';
-  readonly createLabel = this.isRoles ? 'Nuevo rol' : 'Nueva especialidad';
-  readonly nameLabel = this.isRoles ? 'Nombre del rol' : 'Nombre';
   readonly createHref = this.isRoles ? '/catalogo/roles/nuevo' : '/catalogo/especialidades/nuevo';
   readonly editBase = this.isRoles ? '/catalogo/roles' : '/catalogo/especialidades';
 
@@ -54,10 +55,9 @@ export class ItemsListPage {
   ];
 
   readonly columns: UiTableColumn[] = [
-    { id: 'name', header: this.nameLabel },
+    { id: 'name', header: this.isRoles ? 'Nombre del rol' : 'Nombre' },
     { id: 'description', header: 'Descripción' },
     { id: 'status', header: 'Estado' },
-    { id: 'action', header: '', align: 'right' },
   ];
 
   readonly filtered = computed(() => {
@@ -76,12 +76,40 @@ export class ItemsListPage {
         name: item.name,
         description: item.description || '—',
         status: { text: statusLabel(item.status), badge: item.status },
-        action: { text: 'Editar', href: `${this.editBase}/${item.id}` },
       },
     })),
   );
 
   constructor() {
+    this.reload();
+  }
+
+  onQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+    this.selectedId.set(null);
+  }
+
+  goSelected(): void {
+    const id = this.selectedId();
+    if (id) void this.router.navigate([this.editBase, id]);
+  }
+
+  deactivateSelected(): void {
+    const item = this.items().find((entry) => entry.id === this.selectedId());
+    if (!item) return;
+    const stream = this.isRoles
+      ? this.updateRole.execute(item.id, { name: item.name, description: item.description, status: 'inactive' })
+      : this.updateSpecialty.execute(item.id, { name: item.name, description: item.description, status: 'inactive' });
+    stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.notice.set('El registro ha pasado a baja.');
+        this.selectedId.set(null);
+        this.reload();
+      },
+    });
+  }
+
+  private reload(): void {
     const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();
     stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (items) => {
@@ -90,9 +118,5 @@ export class ItemsListPage {
       },
       error: () => this.loadState.set('error'),
     });
-  }
-
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
   }
 }

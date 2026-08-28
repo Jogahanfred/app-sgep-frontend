@@ -47,6 +47,10 @@ describe('ItemsListPage', () => {
     expect(text).toContain('Administrador');
     expect(text).toContain('Director Académico');
     expect(text).toContain('Alumno');
+    expect(text).toContain('Añadir');
+    expect(text).toContain('Detalle');
+    expect(text).toContain('Modificar');
+    expect(text).toContain('Baja');
     expect(text).toContain('Por página:');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('app-modal')).toBeNull();

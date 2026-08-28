@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { ListAdminUsers } from '@core/application';
+import { ListAdminUsers, UpdateAdminUser } from '@core/application';
 import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
 import type { EntityStatus, UserEntity } from '@core/domain/entities';
 import { Alert } from '@shared/components/alert/alert';
@@ -21,12 +21,14 @@ import type { ChoiceOption } from '@shared/models/choice.model';
 export class UsersListPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly listUsers = inject(ListAdminUsers);
+  private readonly updateUser = inject(UpdateAdminUser);
   private readonly router = inject(Router);
 
   readonly users = signal<UserEntity[]>([]);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly query = signal('');
   readonly statusFilter = signal<'all' | EntityStatus>('all');
+  readonly selectedId = signal<string | null>(null);
   readonly notice = signal<string | null>(
     (this.router.currentNavigation()?.extras.state?.['notice'] as string | undefined) ??
       (history.state?.['notice'] as string | undefined) ??
@@ -47,7 +49,6 @@ export class UsersListPage {
     { id: 'entryDate', header: 'Fecha de ingreso' },
     { id: 'indicative', header: 'Indicativo' },
     { id: 'status', header: 'Estado' },
-    { id: 'action', header: '', align: 'right' },
   ];
 
   readonly filtered = computed(() => {
@@ -73,22 +74,17 @@ export class UsersListPage {
         entryDate: this.formatDate(user.entryDate),
         indicative: user.indicative || '—',
         status: { text: statusLabel(user.status), badge: user.status },
-        action: { text: 'Editar', href: `/catalogo/usuarios/${user.id}` },
       },
     })),
   );
 
+  readonly selectedHref = computed(() => {
+    const id = this.selectedId();
+    return id ? `/catalogo/usuarios/${id}` : undefined;
+  });
+
   constructor() {
-    this.listUsers
-      .execute()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (users) => {
-          this.users.set(users);
-          this.loadState.set('ready');
-        },
-        error: () => this.loadState.set('error'),
-      });
+    this.reload();
   }
 
   formatDate(value: string): string {
@@ -99,5 +95,49 @@ export class UsersListPage {
 
   onQuery(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
+    this.selectedId.set(null);
+  }
+
+  goSelected(): void {
+    const href = this.selectedHref();
+    if (href) void this.router.navigateByUrl(href);
+  }
+
+  deactivateSelected(): void {
+    const user = this.users().find((item) => item.id === this.selectedId());
+    if (!user) return;
+    this.updateUser
+      .execute(user.id, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        documentNumber: user.documentNumber,
+        entryDate: user.entryDate,
+        indicative: user.indicative ?? '',
+        status: 'inactive',
+        roleIds: user.roleIds,
+        specialtyIds: user.specialtyIds,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notice.set('La persona ha pasado a baja.');
+          this.selectedId.set(null);
+          this.reload();
+        },
+      });
+  }
+
+  private reload(): void {
+    this.listUsers
+      .execute()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (users) => {
+          this.users.set(users);
+          this.loadState.set('ready');
+        },
+        error: () => this.loadState.set('error'),
+      });
   }
 }
