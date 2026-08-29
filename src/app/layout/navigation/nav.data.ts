@@ -238,6 +238,11 @@ const configuracion: NavColumn[] = [
           { label: 'Usuarios', href: '/catalogo/usuarios' },
           { label: 'Roles', href: '/catalogo/roles' },
           { label: 'Especialidades', href: '/catalogo/especialidades' },
+          { label: 'Operaciones', href: '/catalogo/operaciones' },
+          { label: 'Tipo de misión', href: '/catalogo/tipos-de-mision' },
+          { label: 'Maniobras', href: '/catalogo/maniobras' },
+          { label: 'Estándares', href: '/catalogo/estandares' },
+          { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
         ],
       },
     ],
@@ -250,53 +255,6 @@ const configuracion: NavColumn[] = [
           { label: 'Unidades', href: '/catalogo/unidades' },
           { label: 'Escuadrones', href: '/catalogo/escuadrones' },
           { label: 'Comisiones temporales', href: '/catalogo/comisiones-temporales' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Operaciones',
-        links: [
-          { label: 'Ver operaciones', href: '/catalogo/operaciones' },
-          { label: 'Nueva operación', href: '/catalogo/operaciones/nuevo' },
-        ],
-      },
-      {
-        heading: 'Tipo de misión',
-        links: [
-          { label: 'Ver tipos de misión', href: '/catalogo/tipos-de-mision' },
-          { label: 'Nuevo tipo de misión', href: '/catalogo/tipos-de-mision/nuevo' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Maniobras',
-        links: [
-          { label: 'Ver maniobras', href: '/catalogo/maniobras' },
-          { label: 'Nueva maniobra', href: '/catalogo/maniobras/nuevo' },
-        ],
-      },
-      {
-        heading: 'Estándares',
-        links: [
-          { label: 'Ver estándares', href: '/catalogo/estandares' },
-          { label: 'Nuevo estándar', href: '/catalogo/estandares/nuevo' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Ponderaciones',
-        links: [
-          { label: 'Ver ponderaciones', href: '/catalogo/ponderaciones' },
-          { label: 'Nueva ponderación', href: '/catalogo/ponderaciones/nuevo' },
         ],
       },
     ],
