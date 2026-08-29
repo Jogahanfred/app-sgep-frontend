@@ -1,0 +1,71 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando unidad' : 'Cargando unidad'"
+      [subtitle]="creating() ? 'Estamos guardando la unidad en la estructura operativa.' : 'Un momento.'"
+      [label]="creating() ? 'Creando unidad' : 'Cargando unidad'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar esta unidad.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <div class="ap__grid">
+          <ui-input
+            id="unit-code"
+            label="Código"
+            icon="id-card"
+            placeholder="U-NORTE"
+            [field]="form.controls.code"
+            [error]="requiredError('code', 'Escribe el código.')"
+          />
+          <ui-input
+            id="unit-abbr"
+            label="Abreviatura"
+            icon="id-card"
+            placeholder="BN"
+            [field]="form.controls.abbreviation"
+            [error]="requiredError('abbreviation', 'Escribe la abreviatura.')"
+          />
+        </div>
+        <ui-input
+          id="unit-name"
+          label="Nombre"
+          icon="shield"
+          placeholder="Base Norte"
+          [field]="form.controls.name"
+          [error]="requiredError('name', 'Escribe el nombre.')"
+        />
+        <ui-select
+          id="unit-status"
+          label="Estado"
+          [uppercase]="false"
+          [options]="entityStatusOptions"
+          [value]="form.controls.status.value"
+          [disabled]="isView"
+          (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

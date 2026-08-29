@@ -1,0 +1,79 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando escuadrón' : 'Cargando escuadrón'"
+      [subtitle]="creating() ? 'Estamos asignando el escuadrón a su unidad.' : 'Un momento.'"
+      [label]="creating() ? 'Creando escuadrón' : 'Cargando escuadrón'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este escuadrón.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <ui-select
+          id="sq-unit"
+          label="Unidad"
+          [uppercase]="false"
+          [options]="unitOptions()"
+          [value]="form.controls.unitId.value"
+          [disabled]="isView"
+          (valueChange)="form.controls.unitId.setValue($event)"
+        />
+        <div class="ap__grid">
+          <ui-input
+            id="sq-code"
+            label="Código"
+            icon="id-card"
+            placeholder="ESC-A"
+            [field]="form.controls.code"
+            [error]="requiredError('code', 'Escribe el código.')"
+          />
+          <ui-input
+            id="sq-name"
+            label="Nombre"
+            icon="shield"
+            placeholder="Escuadrón Alfa"
+            [field]="form.controls.name"
+            [error]="requiredError('name', 'Escribe el nombre.')"
+          />
+        </div>
+        <ui-input
+          id="sq-desc"
+          label="Descripción"
+          icon="info"
+          placeholder="Para qué opera este escuadrón"
+          [field]="form.controls.description"
+        />
+        <ui-select
+          id="sq-status"
+          label="Estado"
+          [uppercase]="false"
+          [options]="entityStatusOptions"
+          [value]="form.controls.status.value"
+          [disabled]="isView"
+          (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

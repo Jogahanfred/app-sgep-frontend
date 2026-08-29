@@ -50,6 +50,16 @@
   font-weight: 700;
 }
 
+.sr__item--done .sr__num {
+  background: #dceaf8;
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.sr__item--done .sr__name {
+  color: #3a3a3a;
+}
+
 .sr__name {
   font-size: var(--fs-sm);
 }

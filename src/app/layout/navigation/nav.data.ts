@@ -240,6 +240,14 @@ const configuracion: NavColumn[] = [
           { label: 'Especialidades', href: '/catalogo/especialidades' },
         ],
       },
+      {
+        heading: 'Estructura operativa',
+        links: [
+          { label: 'Unidades', href: '/catalogo/unidades' },
+          { label: 'Escuadrones', href: '/catalogo/escuadrones' },
+          { label: 'Comisiones temporales', href: '/catalogo/comisiones-temporales' },
+        ],
+      },
     ],
   },
 ];

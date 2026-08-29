@@ -24,5 +24,5 @@ export class CatalogLayout {
 }
 
 function isRecordUrl(url: string): boolean {
-  return /\/catalogo\/(usuarios|roles|especialidades)\/[^/?#]+/.test(url);
+  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales)\/[^/?#]+/.test(url);
 }

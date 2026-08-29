@@ -183,11 +183,14 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración** → **Catálogos** (usuarios, roles y especialidades).
+El header incluye **Configuración** → **Catálogos** y **Estructura operativa**.
 
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
 | `/catalogo/especialidades` | Catálogo de especialidades (`SpecialtyEntity`) |
+| `/catalogo/unidades` | Unidades donde opera el personal (`UnitEntity`) |
+| `/catalogo/escuadrones` | Escuadrones ligados a una unidad (`SquadronEntity`) |
+| `/catalogo/comisiones-temporales` | Comisiones temporales (`TemporaryCommissionEntity`) con timeline Registrado → Aprobado → Activo → Finalizado |
 
 Las features se cargan con **lazy loading** (`loadComponent`).
 

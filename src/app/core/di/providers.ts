@@ -19,8 +19,14 @@ import {
   GetMortgages,
   GetProductsByNeed,
   GetPromotions,
+  CreateSquadron,
+  CreateTemporaryCommission,
+  CreateUnit,
   ListAdminUsers,
+  ListSquadrons,
   ListSpecialties,
+  ListTemporaryCommissions,
+  ListUnits,
   ListUserRoles,
   UpdateAdminUser,
   UpdateSpecialty,
@@ -29,6 +35,9 @@ import {
   UpdateUserPhoto,
   UpdateUserPreferences,
   UpdateUserProfile,
+  UpdateSquadron,
+  UpdateTemporaryCommission,
+  UpdateUnit,
   UpdateUserRole,
 } from '../application';
 import { MockAccountRepository } from '../adapters/mock/mock-account.repository';
@@ -208,6 +217,51 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: UpdateSpecialty,
     useFactory: (repo: AdminCatalogRepository) => new UpdateSpecialty(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListUnits,
+    useFactory: (repo: AdminCatalogRepository) => new ListUnits(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateUnit,
+    useFactory: (repo: AdminCatalogRepository) => new CreateUnit(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateUnit,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateUnit(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListSquadrons,
+    useFactory: (repo: AdminCatalogRepository) => new ListSquadrons(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateSquadron,
+    useFactory: (repo: AdminCatalogRepository) => new CreateSquadron(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateSquadron,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateSquadron(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListTemporaryCommissions,
+    useFactory: (repo: AdminCatalogRepository) => new ListTemporaryCommissions(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateTemporaryCommission,
+    useFactory: (repo: AdminCatalogRepository) => new CreateTemporaryCommission(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateTemporaryCommission,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateTemporaryCommission(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

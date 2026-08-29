@@ -1,0 +1,100 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Registrando comisión' : 'Cargando comisión'"
+      [subtitle]="creating() ? 'Estamos dejando la comisión en Registrado.' : 'Un momento.'"
+      [label]="creating() ? 'Registrando comisión' : 'Cargando comisión'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar esta comisión.</app-alert>
+  } @else {
+    <div class="com">
+      <aside class="com__timeline">
+        <p class="com__kicker">Timeline</p>
+        <h2>Estado operativo</h2>
+        <ui-steps [steps]="steps" [current]="currentStep()" label="Estado de la comisión temporal" />
+        @if (!isCreate && nextLabel()) {
+          <app-button type="button" [disabled]="saving() || advancing()" (click)="advance()">
+            Pasar a {{ nextLabel() }}
+          </app-button>
+        }
+      </aside>
+
+      <ui-form-card>
+        <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          @if (error()) {
+            <app-alert tone="error">{{ error() }}</app-alert>
+          }
+          <ui-select
+            id="com-user"
+            label="Usuario"
+            [uppercase]="false"
+            [options]="userOptions()"
+            [value]="form.controls.userId.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.userId.setValue($event)"
+          />
+          <div class="ap__grid">
+            <ui-select
+              id="com-origin"
+              label="Unidad origen"
+              [uppercase]="false"
+              [options]="unitOptions()"
+              [value]="form.controls.originUnitId.value"
+              [disabled]="isView"
+              (valueChange)="form.controls.originUnitId.setValue($event)"
+            />
+            <ui-select
+              id="com-dest"
+              label="Unidad destino"
+              [uppercase]="false"
+              [options]="unitOptions()"
+              [value]="form.controls.destinationUnitId.value"
+              [disabled]="isView"
+              (valueChange)="form.controls.destinationUnitId.setValue($event)"
+            />
+          </div>
+          <div class="ap__grid">
+            <ui-date-picker
+              id="com-start"
+              label="Fecha inicio"
+              [field]="form.controls.startDate"
+              [error]="requiredError('startDate', 'Indica la fecha de inicio.')"
+            />
+            <ui-date-picker
+              id="com-end"
+              label="Fecha fin"
+              [field]="form.controls.endDate"
+              [error]="requiredError('endDate', 'Indica la fecha de fin.')"
+            />
+          </div>
+          <ui-input
+            id="com-reason"
+            label="Motivo"
+            icon="info"
+            placeholder="Por qué se desplaza a la unidad de destino"
+            [field]="form.controls.reason"
+            [error]="requiredError('reason', 'Escribe el motivo.')"
+          />
+          <div class="ap__actions">
+            <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+            @if (!isView) {
+              <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Registrar' : 'Guardar cambios' }}</app-button>
+            }
+          </div>
+        </form>
+      </ui-form-card>
+    </div>
+  }
+</div>

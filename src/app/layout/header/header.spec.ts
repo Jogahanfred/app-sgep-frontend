@@ -78,5 +78,7 @@ describe('Header', () => {
     expect(text).toContain('Usuarios');
     expect(text).toContain('Roles');
     expect(text).toContain('Especialidades');
+    expect(text).toContain('Estructura operativa');
+    expect(text).toContain('Unidades');
   });
 });

@@ -1,5 +1,14 @@
 import { InvalidAdminCatalogError } from '../errors/domain-error';
-import type { CatalogWriteInput, EntityStatus, UserWriteInput } from '../entities/admin-catalog';
+import type {
+  CatalogWriteInput,
+  CommissionWorkflowStatus,
+  EntityStatus,
+  SquadronWriteInput,
+  TemporaryCommissionWriteInput,
+  UnitWriteInput,
+  UserWriteInput,
+} from '../entities/admin-catalog';
+import { COMMISSION_WORKFLOW } from '../entities/admin-catalog';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -91,6 +100,84 @@ export function assertCatalogWrite(input: CatalogWriteInput, nameLabel: string):
     description: input.description.trim(),
     status: assertStatus(input.status),
   };
+}
+
+function assertCode(value: string, label: string): string {
+  const code = required(value, `El código ${label} es obligatorio.`).toUpperCase();
+  if (!/^[A-Z0-9-]{2,16}$/.test(code)) {
+    throw new InvalidAdminCatalogError(`El código ${label} solo admite letras, números y guiones (2 a 16).`);
+  }
+  return code;
+}
+
+export function assertUnitWrite(input: UnitWriteInput): UnitWriteInput {
+  const abbreviation = required(input.abbreviation, 'La abreviatura es obligatoria.').toUpperCase();
+  if (!/^[A-Z0-9-]{1,8}$/.test(abbreviation)) {
+    throw new InvalidAdminCatalogError('La abreviatura solo admite letras, números y guiones (1 a 8).');
+  }
+  return {
+    code: assertCode(input.code, 'de la unidad'),
+    name: required(input.name, 'El nombre de la unidad es obligatorio.'),
+    abbreviation,
+    status: assertStatus(input.status),
+  };
+}
+
+export function assertSquadronWrite(input: SquadronWriteInput): SquadronWriteInput {
+  return {
+    unitId: required(input.unitId, 'La unidad es obligatoria.'),
+    code: assertCode(input.code, 'del escuadrón'),
+    name: required(input.name, 'El nombre del escuadrón es obligatorio.'),
+    description: input.description.trim(),
+    status: assertStatus(input.status),
+  };
+}
+
+function assertWorkflow(status: CommissionWorkflowStatus): CommissionWorkflowStatus {
+  if (!COMMISSION_WORKFLOW.includes(status)) {
+    throw new InvalidAdminCatalogError('El estado de la comisión no es válido.');
+  }
+  return status;
+}
+
+export function assertCommissionWrite(input: TemporaryCommissionWriteInput): TemporaryCommissionWriteInput {
+  const originUnitId = required(input.originUnitId, 'La unidad de origen es obligatoria.');
+  const destinationUnitId = required(input.destinationUnitId, 'La unidad de destino es obligatoria.');
+  if (originUnitId === destinationUnitId) {
+    throw new InvalidAdminCatalogError('La unidad de destino debe ser distinta a la de origen.');
+  }
+  const startDate = required(input.startDate, 'La fecha de inicio es obligatoria.');
+  const endDate = required(input.endDate, 'La fecha de fin es obligatoria.');
+  if (!ISO_DATE.test(startDate) || !ISO_DATE.test(endDate)) {
+    throw new InvalidAdminCatalogError('Indica fechas de comisión válidas.');
+  }
+  if (endDate < startDate) {
+    throw new InvalidAdminCatalogError('La fecha de fin no puede ser anterior al inicio.');
+  }
+  return {
+    userId: required(input.userId, 'El usuario es obligatorio.'),
+    originUnitId,
+    destinationUnitId,
+    startDate,
+    endDate,
+    reason: required(input.reason, 'El motivo es obligatorio.'),
+    status: assertWorkflow(input.status),
+  };
+}
+
+export function commissionStatusLabel(status: CommissionWorkflowStatus): string {
+  const labels: Record<CommissionWorkflowStatus, string> = {
+    registered: 'Registrado',
+    approved: 'Aprobado',
+    active: 'Activo',
+    finished: 'Finalizado',
+  };
+  return labels[status];
+}
+
+export function nextCommissionStatus(status: CommissionWorkflowStatus): CommissionWorkflowStatus | null {
+  const index = COMMISSION_WORKFLOW.indexOf(status);
+  return index >= 0 && index < COMMISSION_WORKFLOW.length - 1 ? COMMISSION_WORKFLOW[index + 1] : null;
 }
 
 function fold(value: string): string {

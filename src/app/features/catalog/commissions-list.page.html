@@ -1,0 +1,54 @@
+<div class="ap">
+  <p class="ap__lead">Comisiones temporales del personal entre unidades. El estado sigue Registrado → Aprobado → Activo → Finalizado.</p>
+
+  <div class="ap__toolbar">
+    <ui-input
+      id="com-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por persona, unidad o motivo"
+      [field]="search"
+    />
+    <ui-select
+      id="com-status-filter"
+      label="Estado"
+      [uppercase]="false"
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      (valueChange)="onStatusFilter($event)"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar las comisiones. Recarga la página.</app-alert>
+  } @else {
+    <ui-table
+      heading="Comisiones temporales"
+      caption="Comisiones temporales"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando comisiones"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando comisiones"
+      emptyTitle="No hay resultados con ese buscador o filtro de estado."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!canFinish()" (click)="askFinish()">Finalizar</app-button>
+    </ui-table>
+  }
+
+  <ui-confirm-dialog
+    title="Finalizar comisión"
+    confirmLabel="Finalizar"
+    [open]="confirmOpen()"
+    [message]="confirmMessage()"
+    (closed)="closeConfirm()"
+    (confirmed)="confirmFinish()"
+  />
+</div>

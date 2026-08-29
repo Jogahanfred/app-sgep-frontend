@@ -53,3 +53,65 @@ export interface CatalogWriteInput {
   description: string;
   status: EntityStatus;
 }
+
+export interface UnitEntity {
+  id: string;
+  code: string;
+  name: string;
+  abbreviation: string;
+  status: EntityStatus;
+}
+
+export interface UnitWriteInput {
+  code: string;
+  name: string;
+  abbreviation: string;
+  status: EntityStatus;
+}
+
+export interface SquadronEntity {
+  id: string;
+  unitId: string;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface SquadronWriteInput {
+  unitId: string;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export type CommissionWorkflowStatus = 'registered' | 'approved' | 'active' | 'finished';
+
+export const COMMISSION_WORKFLOW: CommissionWorkflowStatus[] = [
+  'registered',
+  'approved',
+  'active',
+  'finished',
+];
+
+export interface TemporaryCommissionEntity {
+  id: string;
+  userId: string;
+  originUnitId: string;
+  destinationUnitId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: CommissionWorkflowStatus;
+}
+
+export interface TemporaryCommissionWriteInput {
+  userId: string;
+  originUnitId: string;
+  destinationUnitId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: CommissionWorkflowStatus;
+}

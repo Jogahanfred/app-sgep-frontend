@@ -119,6 +119,21 @@ tbody tr:not(.ui-table__empty-row):hover td {
   color: var(--color-warning);
 }
 
+.ui-table__badge--registered {
+  background: #eef2f6;
+  color: #4a5560;
+}
+
+.ui-table__badge--approved {
+  background: #e8f1fb;
+  color: var(--color-primary-dark);
+}
+
+.ui-table__badge--finished {
+  background: #f3f3f3;
+  color: #666;
+}
+
 .ui-table__link {
   color: var(--color-primary);
   font-weight: 800;

@@ -2,7 +2,7 @@
   <div class="adm">
     <header class="adm__intro">
       <p class="adm__kicker">Catálogo</p>
-      <p class="adm__lead">Personas, roles y especialidades del sistema. Tu ficha personal está en Mi perfil.</p>
+      <p class="adm__lead">Personas, roles, especialidades y la estructura operativa. Tu ficha personal está en Mi perfil.</p>
     </header>
 
     @if (showDomainNav()) {
@@ -10,6 +10,12 @@
         <a routerLink="/catalogo/usuarios" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Usuarios</a>
         <a routerLink="/catalogo/roles" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Roles</a>
         <a routerLink="/catalogo/especialidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Especialidades</a>
+      </nav>
+      <nav class="adm__nav" aria-label="Estructura operativa">
+        <span class="adm__nav-label">Estructura operativa</span>
+        <a routerLink="/catalogo/unidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Unidades</a>
+        <a routerLink="/catalogo/escuadrones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Escuadrones</a>
+        <a routerLink="/catalogo/comisiones-temporales" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Comisiones temporales</a>
       </nav>
     }
 

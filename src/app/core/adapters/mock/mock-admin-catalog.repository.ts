@@ -2,8 +2,14 @@ import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import type {
   CatalogWriteInput,
+  SquadronEntity,
+  SquadronWriteInput,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  TemporaryCommissionEntity,
+  TemporaryCommissionWriteInput,
+  UnitEntity,
+  UnitWriteInput,
   UserEntity,
   UserRoleEntity,
   UserWriteInput,
@@ -12,9 +18,12 @@ import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
 import type { AdminCatalogRepository } from '../../ports/admin-catalog.repository';
 import {
   buildSpecialtyUsers,
+  SEED_COMMISSIONS,
   SEED_PASSWORDS,
   SEED_ROLES,
   SEED_SPECIALTIES,
+  SEED_SQUADRONS,
+  SEED_UNITS,
   SEED_USERS,
 } from './admin.data';
 
@@ -25,6 +34,9 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private roles: UserRoleEntity[] = structuredClone(SEED_ROLES);
   private specialties: SpecialtyEntity[] = structuredClone(SEED_SPECIALTIES);
   private specialtyUsers: SpecialtyUserEntity[] = buildSpecialtyUsers(this.users);
+  private units: UnitEntity[] = structuredClone(SEED_UNITS);
+  private squadrons: SquadronEntity[] = structuredClone(SEED_SQUADRONS);
+  private commissions: TemporaryCommissionEntity[] = structuredClone(SEED_COMMISSIONS);
   private passwords = new Map(Object.entries(SEED_PASSWORDS));
   private seq = 1;
 
@@ -133,6 +145,126 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       return of({ ...specialty }).pipe(delay(LATENCY));
     } catch (error) {
       return throwError(() => error);
+    }
+  }
+
+  listUnits(): Observable<UnitEntity[]> {
+    return of(this.units.map((unit) => ({ ...unit }))).pipe(delay(LATENCY));
+  }
+
+  createUnit(input: UnitWriteInput): Observable<UnitEntity> {
+    try {
+      this.assertUniqueCode(this.units, input.code, 'Ya existe una unidad con ese código.');
+      const unit: UnitEntity = { id: `unit-${this.seq++}`, ...input };
+      this.units = [unit, ...this.units];
+      return of({ ...unit }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateUnit(id: string, input: UnitWriteInput): Observable<UnitEntity> {
+    const index = this.units.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa unidad.'));
+    }
+    try {
+      this.assertUniqueCode(this.units, input.code, 'Ya existe una unidad con ese código.', id);
+      const unit: UnitEntity = { id, ...input };
+      this.units[index] = unit;
+      return of({ ...unit }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listSquadrons(): Observable<SquadronEntity[]> {
+    return of(this.squadrons.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createSquadron(input: SquadronWriteInput): Observable<SquadronEntity> {
+    try {
+      this.assertUnitExists(input.unitId);
+      this.assertUniqueCode(this.squadrons, input.code, 'Ya existe un escuadrón con ese código.');
+      const squadron: SquadronEntity = { id: `sq-${this.seq++}`, ...input };
+      this.squadrons = [squadron, ...this.squadrons];
+      return of({ ...squadron }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateSquadron(id: string, input: SquadronWriteInput): Observable<SquadronEntity> {
+    const index = this.squadrons.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese escuadrón.'));
+    }
+    try {
+      this.assertUnitExists(input.unitId);
+      this.assertUniqueCode(this.squadrons, input.code, 'Ya existe un escuadrón con ese código.', id);
+      const squadron: SquadronEntity = { id, ...input };
+      this.squadrons[index] = squadron;
+      return of({ ...squadron }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listTemporaryCommissions(): Observable<TemporaryCommissionEntity[]> {
+    return of(this.commissions.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createTemporaryCommission(input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity> {
+    try {
+      this.assertCommissionRefs(input);
+      const commission: TemporaryCommissionEntity = { id: `com-${this.seq++}`, ...input };
+      this.commissions = [commission, ...this.commissions];
+      return of({ ...commission }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateTemporaryCommission(id: string, input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity> {
+    const index = this.commissions.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa comisión.'));
+    }
+    try {
+      this.assertCommissionRefs(input);
+      const commission: TemporaryCommissionEntity = { id, ...input };
+      this.commissions[index] = commission;
+      return of({ ...commission }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  private assertUnitExists(unitId: string): void {
+    if (!this.units.some((unit) => unit.id === unitId)) {
+      throw new InvalidAdminCatalogError('La unidad indicada no existe.');
+    }
+  }
+
+  private assertCommissionRefs(input: TemporaryCommissionWriteInput): void {
+    if (!this.users.some((user) => user.id === input.userId)) {
+      throw new InvalidAdminCatalogError('El usuario indicado no existe.');
+    }
+    this.assertUnitExists(input.originUnitId);
+    this.assertUnitExists(input.destinationUnitId);
+  }
+
+  private assertUniqueCode(
+    items: { id: string; code: string }[],
+    code: string,
+    message: string,
+    ignoreId?: string,
+  ): void {
+    const clash = items.find(
+      (item) => item.id !== ignoreId && item.code.trim().toLowerCase() === code.trim().toLowerCase(),
+    );
+    if (clash) {
+      throw new InvalidAdminCatalogError(message);
     }
   }
 

@@ -1,8 +1,14 @@
 import { Observable } from 'rxjs';
 import type {
   CatalogWriteInput,
+  SquadronEntity,
+  SquadronWriteInput,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  TemporaryCommissionEntity,
+  TemporaryCommissionWriteInput,
+  UnitEntity,
+  UnitWriteInput,
   UserEntity,
   UserRoleEntity,
   UserWriteInput,
@@ -22,4 +28,16 @@ export interface AdminCatalogRepository {
   listSpecialtyUsers(): Observable<SpecialtyUserEntity[]>;
   createSpecialty(input: CatalogWriteInput): Observable<SpecialtyEntity>;
   updateSpecialty(id: string, input: CatalogWriteInput): Observable<SpecialtyEntity>;
+
+  listUnits(): Observable<UnitEntity[]>;
+  createUnit(input: UnitWriteInput): Observable<UnitEntity>;
+  updateUnit(id: string, input: UnitWriteInput): Observable<UnitEntity>;
+
+  listSquadrons(): Observable<SquadronEntity[]>;
+  createSquadron(input: SquadronWriteInput): Observable<SquadronEntity>;
+  updateSquadron(id: string, input: SquadronWriteInput): Observable<SquadronEntity>;
+
+  listTemporaryCommissions(): Observable<TemporaryCommissionEntity[]>;
+  createTemporaryCommission(input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity>;
+  updateTemporaryCommission(id: string, input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity>;
 }

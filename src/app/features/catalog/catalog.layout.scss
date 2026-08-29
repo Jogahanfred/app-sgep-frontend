@@ -25,10 +25,20 @@
 .adm__nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.45rem;
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.15rem;
   margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.adm__nav-label {
+  margin-right: 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .adm__nav a {

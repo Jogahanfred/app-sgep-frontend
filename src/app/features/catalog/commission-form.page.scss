@@ -1,0 +1,41 @@
+@use './panel';
+
+.com {
+  display: grid;
+  gap: 1.15rem;
+}
+
+@media (min-width: 900px) {
+  .com {
+    grid-template-columns: 16.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.com__timeline {
+  padding: 1.15rem 1.1rem 1.25rem;
+  background: #fff;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.com__kicker {
+  margin: 0 0 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.com__timeline h2 {
+  margin: 0 0 1rem;
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.com__timeline app-button {
+  display: block;
+  margin-top: 0.35rem;
+}

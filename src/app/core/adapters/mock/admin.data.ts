@@ -1,6 +1,9 @@
 import type {
+  SquadronEntity,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  TemporaryCommissionEntity,
+  UnitEntity,
   UserEntity,
   UserRoleEntity,
 } from '../../domain/entities/admin-catalog';
@@ -227,6 +230,115 @@ export const SEED_USERS: UserEntity[] = [
 export const SEED_PASSWORDS: Record<string, string> = Object.fromEntries(
   SEED_USERS.map((user) => [user.id, 'Helvia.2026']),
 );
+
+export const SEED_UNITS: UnitEntity[] = [
+  {
+    id: 'unit-norte',
+    code: 'U-NORTE',
+    name: 'Base Norte',
+    abbreviation: 'BN',
+    status: 'active',
+  },
+  {
+    id: 'unit-sur',
+    code: 'U-SUR',
+    name: 'Base Sur',
+    abbreviation: 'BS',
+    status: 'active',
+  },
+  {
+    id: 'unit-academia',
+    code: 'U-ACA',
+    name: 'Academia Central',
+    abbreviation: 'AC',
+    status: 'active',
+  },
+  {
+    id: 'unit-plataforma',
+    code: 'U-PLT',
+    name: 'Plataforma',
+    abbreviation: 'PL',
+    status: 'inactive',
+  },
+];
+
+export const SEED_SQUADRONS: SquadronEntity[] = [
+  {
+    id: 'sq-alfa',
+    unitId: 'unit-norte',
+    code: 'ESC-A',
+    name: 'Escuadrón Alfa',
+    description: 'Operación diurna y relevos de la Base Norte.',
+    status: 'active',
+  },
+  {
+    id: 'sq-bravo',
+    unitId: 'unit-norte',
+    code: 'ESC-B',
+    name: 'Escuadrón Bravo',
+    description: 'Turno nocturno y cobertura de emergencias.',
+    status: 'active',
+  },
+  {
+    id: 'sq-sur',
+    unitId: 'unit-sur',
+    code: 'ESC-S',
+    name: 'Escuadrón Sur',
+    description: 'Despliegue y apoyo en la Base Sur.',
+    status: 'active',
+  },
+  {
+    id: 'sq-formacion',
+    unitId: 'unit-academia',
+    code: 'ESC-F',
+    name: 'Escuadrón de Formación',
+    description: 'Instrucción, briefing y evaluación de alumnado.',
+    status: 'active',
+  },
+];
+
+export const SEED_COMMISSIONS: TemporaryCommissionEntity[] = [
+  {
+    id: 'com-elena-norte',
+    userId: 'usr-elena-martin',
+    originUnitId: 'unit-academia',
+    destinationUnitId: 'unit-norte',
+    startDate: '2026-09-01',
+    endDate: '2026-10-15',
+    reason: 'Apoyo a la coordinación académica durante el relevo de Base Norte.',
+    status: 'registered',
+  },
+  {
+    id: 'com-carmen-sur',
+    userId: 'usr-carmen-lopez',
+    originUnitId: 'unit-norte',
+    destinationUnitId: 'unit-sur',
+    startDate: '2026-08-18',
+    endDate: '2026-09-30',
+    reason: 'Supervisión de instrucción en el despliegue de Base Sur.',
+    status: 'approved',
+  },
+  {
+    id: 'com-pablo-academia',
+    userId: 'usr-pablo-nunez',
+    originUnitId: 'unit-norte',
+    destinationUnitId: 'unit-academia',
+    startDate: '2026-08-01',
+    endDate: '2026-11-30',
+    reason: 'Comisión de instructor para el curso de pilotaje.',
+    status: 'active',
+  },
+  {
+    id: 'com-lucia-norte',
+    userId: 'usr-lucia-ramos',
+    originUnitId: 'unit-academia',
+    destinationUnitId: 'unit-norte',
+    startDate: '2026-03-01',
+    endDate: '2026-06-30',
+    reason: 'Apoyo de mantenimiento en la línea de Base Norte.',
+    status: 'finished',
+  },
+];
 
 export function buildSpecialtyUsers(users: UserEntity[]): SpecialtyUserEntity[] {
   return users.flatMap((user) =>

@@ -262,6 +262,132 @@ export const routes: Routes = [
           },
         },
       },
+      {
+        path: 'unidades',
+        loadComponent: () => import('./features/catalog/units-list.page').then((m) => m.UnitsListPage),
+        data: {
+          seo: {
+            title: 'Unidades | SIGA',
+            description: 'Unidades donde opera el personal.',
+          },
+        },
+      },
+      {
+        path: 'unidades/nuevo',
+        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        data: {
+          seo: {
+            title: 'Nueva unidad | SIGA',
+            description: 'Alta de una unidad operativa.',
+          },
+        },
+      },
+      {
+        path: 'unidades/:id/editar',
+        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        data: {
+          mode: 'edit',
+          seo: {
+            title: 'Editar unidad | SIGA',
+            description: 'Código, nombre, abreviatura y estado de la unidad.',
+          },
+        },
+      },
+      {
+        path: 'unidades/:id',
+        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Detalle de unidad | SIGA',
+            description: 'Consulta la unidad, sin modificar.',
+          },
+        },
+      },
+      {
+        path: 'escuadrones',
+        loadComponent: () => import('./features/catalog/squadrons-list.page').then((m) => m.SquadronsListPage),
+        data: {
+          seo: {
+            title: 'Escuadrones | SIGA',
+            description: 'Escuadrones adscritos a cada unidad.',
+          },
+        },
+      },
+      {
+        path: 'escuadrones/nuevo',
+        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        data: {
+          seo: {
+            title: 'Nuevo escuadrón | SIGA',
+            description: 'Alta de un escuadrón operativo.',
+          },
+        },
+      },
+      {
+        path: 'escuadrones/:id/editar',
+        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        data: {
+          mode: 'edit',
+          seo: {
+            title: 'Editar escuadrón | SIGA',
+            description: 'Unidad, código, nombre y estado del escuadrón.',
+          },
+        },
+      },
+      {
+        path: 'escuadrones/:id',
+        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Detalle de escuadrón | SIGA',
+            description: 'Consulta el escuadrón, sin modificar.',
+          },
+        },
+      },
+      {
+        path: 'comisiones-temporales',
+        loadComponent: () => import('./features/catalog/commissions-list.page').then((m) => m.CommissionsListPage),
+        data: {
+          seo: {
+            title: 'Comisiones temporales | SIGA',
+            description: 'Desplazamientos temporales del personal entre unidades.',
+          },
+        },
+      },
+      {
+        path: 'comisiones-temporales/nuevo',
+        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        data: {
+          seo: {
+            title: 'Nueva comisión temporal | SIGA',
+            description: 'Alta de una comisión temporal.',
+          },
+        },
+      },
+      {
+        path: 'comisiones-temporales/:id/editar',
+        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        data: {
+          mode: 'edit',
+          seo: {
+            title: 'Editar comisión temporal | SIGA',
+            description: 'Usuario, unidades, fechas, motivo y estado de la comisión.',
+          },
+        },
+      },
+      {
+        path: 'comisiones-temporales/:id',
+        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Detalle de comisión | SIGA',
+            description: 'Consulta la comisión y su timeline.',
+          },
+        },
+      },
     ],
   },
   { path: '**', redirectTo: '' },

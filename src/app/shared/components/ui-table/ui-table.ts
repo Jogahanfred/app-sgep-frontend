@@ -14,7 +14,7 @@ import { Icon } from '../icon/icon';
 import { UiLoading } from '../ui-loading/ui-loading';
 import { UiSelect } from '../ui-select/ui-select';
 
-export type UiTableBadgeTone = 'active' | 'inactive';
+export type UiTableBadgeTone = 'active' | 'inactive' | 'registered' | 'approved' | 'finished';
 export type UiTableAlign = 'left' | 'center' | 'right';
 
 export interface UiTableColumn {
