@@ -17,12 +17,14 @@ describe('CatalogLayout', () => {
         provideRouter([
           { path: 'catalogo/roles', component: BlankPage },
           { path: 'catalogo/roles/nuevo', component: BlankPage },
+          { path: 'catalogo/unidades', component: BlankPage },
+          { path: 'catalogo/comisiones-temporales', component: BlankPage },
         ]),
       ],
     }).compileComponents();
   });
 
-  it('separa el catálogo de la cuenta personal', () => {
+  it('muestra solo Catálogo en usuarios, roles y especialidades', () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
@@ -31,15 +33,29 @@ describe('CatalogLayout', () => {
     expect(text).toContain('Usuarios');
     expect(text).toContain('Roles');
     expect(text).toContain('Especialidades');
+    expect(text).toContain('Mi perfil');
+    expect(text).not.toContain('Estructura operativa');
+    expect(text).not.toContain('Unidades');
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+    expect(text).not.toContain('Sprint');
+  });
+
+  it('muestra solo Estructura operativa en unidades, escuadrones y comisiones', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/comisiones-temporales');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
     expect(text).toContain('Estructura operativa');
     expect(text).toContain('Unidades');
     expect(text).toContain('Escuadrones');
     expect(text).toContain('Comisiones temporales');
-    expect(text).toContain('Mi perfil');
     expect(text).toContain('dónde opera el personal');
-    expect(root.querySelector('nav[aria-label="Estructura operativa"] .adm__nav-label')).toBeNull();
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(2);
-    expect(text).not.toContain('Sprint');
+    expect(text).not.toContain('Catálogo');
+    expect(text).not.toContain('Usuarios');
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
   });
 
   it('oculta el cambio de dominio mientras se crea un registro', async () => {
@@ -50,6 +66,8 @@ describe('CatalogLayout', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('nav[aria-label="Catálogo"]')).toBeNull();
+    expect(root.querySelector('nav[aria-label="Estructura operativa"]')).toBeNull();
     expect(root.textContent).toContain('Catálogo');
+    expect(root.textContent).not.toContain('Estructura operativa');
   });
 });

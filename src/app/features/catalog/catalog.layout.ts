@@ -14,6 +14,14 @@ import { Container } from '@shared/components/container/container';
 export class CatalogLayout {
   private readonly router = inject(Router);
 
+  readonly domain = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => catalogDomain(event.urlAfterRedirects)),
+    ),
+    { initialValue: catalogDomain(this.router.url) },
+  );
+
   readonly showDomainNav = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -21,6 +29,10 @@ export class CatalogLayout {
     ),
     { initialValue: !isRecordUrl(this.router.url) },
   );
+}
+
+function catalogDomain(url: string): 'catalog' | 'ops' {
+  return /\/catalogo\/(unidades|escuadrones|comisiones-temporales)/.test(url) ? 'ops' : 'catalog';
 }
 
 function isRecordUrl(url: string): boolean {
