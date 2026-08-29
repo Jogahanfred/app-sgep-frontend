@@ -290,7 +290,7 @@
 
       <app-modal [open]="missionPickerOpen()" size="xl" title="Misiones" (closed)="closeMissionPicker()">
         <div class="lessons">
-          <p class="lesson__meta">Lista de misiones generadas en esta subfase. Las maniobras las añadiremos después.</p>
+          <p class="lesson__meta">Registra las misiones una a una o genera una serie automática.</p>
           <ui-table
             heading="Misiones generadas"
             caption="Misiones de la subfase"
@@ -311,34 +311,12 @@
           }
 
           @if (missionAdding()) {
-            <ui-input
-              id="pick-mision-buscar"
-              label="Buscar en el catálogo"
-              type="search"
-              icon="search"
-              placeholder="Código, nombre o descripción"
-              [field]="missionBankSearch"
-            />
-            <ui-table
-              heading="Catálogo"
-              caption="Misiones disponibles"
-              [columns]="catalogAddColumns"
-              [rows]="missionPickerRows()"
-              [selectedId]="missionPickerSelectedId()"
-              [initialPageSize]="4"
-              [pageSizeOptions]="missionPickerPageSizes"
-              emptyTitle="No hay más misiones en el catálogo."
-              (selectedIdChange)="selectCatalogMission($event)"
-            />
             <div class="station__tools">
-              <app-button type="button" size="sm" [disabled]="!canAddCatalogMission()" (click)="addSelectedCatalogMission()">
-                Añadir del catálogo
-              </app-button>
               <app-button type="button" variant="secondary" size="sm" (click)="createMissionsManual()">
-                Crear en manual
+                Manual
               </app-button>
               <app-button type="button" variant="secondary" size="sm" (click)="createMissionsAutomatic()">
-                Crear en automático
+                Automático
               </app-button>
             </div>
             @if (currentPickerSub(); as sub) {
@@ -346,19 +324,18 @@
                 <div class="missions__custom">
                   <ui-input
                     [id]="'mission-name-' + sub.key"
-                    label="Nombre propio"
+                    label="Nombre de la misión"
                     placeholder="Circuito corto"
                     [maxlength]="40"
                     [field]="nameField(sub.key, draftMissionName()[sub.key] || '')"
                   />
                   <app-button
                     type="button"
-                    variant="secondary"
                     size="sm"
                     icon="plus"
                     (click)="addCustomMission(currentMissionPhaseKey(), sub.key)"
                   >
-                    Añadir nombre
+                    Añadir misión
                   </app-button>
                 </div>
               } @else {

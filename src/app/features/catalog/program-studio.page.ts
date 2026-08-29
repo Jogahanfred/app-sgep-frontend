@@ -143,21 +143,13 @@ export class ProgramStudioPage {
     { id: 'use', header: 'Uso' },
   ];
   readonly missionPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
-  readonly missionBankSearch = new FormControl('', { nonNullable: true });
-  readonly missionBankQuery = signal('');
-  readonly missionPickerSelectedId = signal<string | null>(null);
   readonly generatedSelectedId = signal<string | null>(null);
   readonly missionCreateMode = signal<MissionAssignMode>('manual');
   readonly missionAdding = signal(false);
   readonly missionPickerPageSizes = [4] as const;
   readonly generatedMissionColumns: UiTableColumn[] = [
     { id: 'mission', header: 'Misión' },
-    { id: 'origin', header: 'Origen' },
-  ];
-  readonly catalogAddColumns: UiTableColumn[] = [
-    { id: 'code', header: 'Código' },
-    { id: 'name', header: 'Nombre' },
-    { id: 'description', header: 'Descripción' },
+    { id: 'origin', header: 'Modo' },
   ];
 
   readonly form = new FormGroup({
@@ -252,29 +244,6 @@ export class ProgramStudioPage {
     })),
   );
 
-  readonly pickerMissions = computed(() => {
-    const taken = new Set(this.currentPickerSub()?.missionTypeIds ?? []);
-    return this.missions()
-      .filter((item) => !taken.has(item.id))
-      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.missionBankQuery()));
-  });
-
-  readonly missionPickerRows = computed<UiTableRow[]>(() =>
-    this.pickerMissions().map((item) => ({
-      id: item.id,
-      cells: {
-        code: item.code,
-        name: item.name,
-        description: item.description || '—',
-      },
-    })),
-  );
-
-  readonly canAddCatalogMission = computed(() => {
-    const id = this.missionPickerSelectedId();
-    return !!id && this.pickerMissions().some((item) => item.id === id);
-  });
-
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
     this.subphaseBanks()
       .filter((item) => item.status === 'active')
@@ -287,9 +256,6 @@ export class ProgramStudioPage {
     });
     this.phaseBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.phaseBankQuery.set(value);
-    });
-    this.missionBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      this.missionBankQuery.set(value);
     });
     forkJoin({
       programs: this.listPrograms.execute(),
@@ -402,10 +368,7 @@ export class ProgramStudioPage {
       .find((item) => item.key === phaseKey)
       ?.subphases.find((item) => item.key === subKey);
     if (!sub) return;
-    this.missionBankSearch.setValue('');
-    this.missionBankQuery.set('');
     this.missionPickerTarget.set({ phaseKey, subKey });
-    this.missionPickerSelectedId.set(null);
     this.generatedSelectedId.set(null);
     this.missionCreateMode.set(sub.missionMode === 'automatic' ? 'automatic' : 'manual');
     this.missionAdding.set(this.buildGeneratedMissions(sub).length === 0);
@@ -413,7 +376,6 @@ export class ProgramStudioPage {
 
   closeMissionPicker(): void {
     this.missionPickerTarget.set(null);
-    this.missionPickerSelectedId.set(null);
     this.generatedSelectedId.set(null);
     this.missionAdding.set(false);
   }
@@ -421,26 +383,6 @@ export class ProgramStudioPage {
   startAddingMissions(): void {
     this.missionAdding.set(true);
     this.missionCreateMode.set('manual');
-    this.missionPickerSelectedId.set(null);
-  }
-
-  selectCatalogMission(missionId: string | null): void {
-    this.missionPickerSelectedId.set(missionId);
-  }
-
-  addSelectedCatalogMission(): void {
-    const target = this.missionPickerTarget();
-    const id = this.missionPickerSelectedId();
-    const sub = this.currentPickerSub();
-    if (!target || !id || !sub || sub.missionTypeIds.includes(id)) return;
-    this.promoteSeriesToCustom(target.phaseKey, target.subKey);
-    const current = this.currentPickerSub();
-    this.patchSubphase(target.phaseKey, target.subKey, {
-      missionMode: 'manual',
-      missionTypeIds: [...(current?.missionTypeIds ?? sub.missionTypeIds), id],
-    });
-    this.missionPickerSelectedId.set(null);
-    this.missionAdding.set(false);
   }
 
   createMissionsManual(): void {
@@ -771,7 +713,7 @@ export class ProgramStudioPage {
         key: `series:${label}`,
         label,
         kind: 'series',
-        origin: 'Serie',
+        origin: 'Automático',
         value: label,
       }));
     }
@@ -781,7 +723,7 @@ export class ProgramStudioPage {
         key: `catalog:${id}`,
         label: mission ? `${mission.code} · ${mission.name}` : id,
         kind: 'catalog' as const,
-        origin: 'Catálogo',
+        origin: 'Manual',
         value: id,
       };
     });
@@ -789,7 +731,7 @@ export class ProgramStudioPage {
       key: `custom:${name}`,
       label: name,
       kind: 'custom' as const,
-      origin: 'Nombre propio',
+      origin: 'Manual',
       value: name,
     }));
     return [...catalog, ...custom];
