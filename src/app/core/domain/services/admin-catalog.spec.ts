@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InvalidAdminCatalogError } from '../errors/domain-error';
 import {
   assertCatalogWrite,
+  expandAutoMissions,
   assertProgramWrite,
   assertUserWrite,
   matchesAdminSearch,
@@ -74,5 +75,13 @@ describe('admin-catalog domain', () => {
     expect(result.description).toBe('');
     expect(result.imageUrl).toBe('/programs/ppl.jpg');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
+  });
+
+  it('genera la serie automática C1 a C17 desde CER y 17', () => {
+    const items = expandAutoMissions('CER', 17);
+    expect(items[0]).toBe('C1');
+    expect(items[1]).toBe('C2');
+    expect(items[16]).toBe('C17');
+    expect(items).toHaveLength(17);
   });
 });

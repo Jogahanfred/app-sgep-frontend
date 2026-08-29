@@ -212,13 +212,71 @@
   border: 0;
 }
 
-.picks legend {
+.picks legend,
+.missions__label {
   padding: 0 0 0.35rem;
   color: #4b6074;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.missions,
+.missions__custom,
+.missions__auto {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.missions__label {
+  margin: 0;
+}
+
+@media (min-width: 720px) {
+  .missions__custom {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.missions__auto {
+  grid-template-columns: minmax(0, 1fr) 7rem;
+}
+
+.missions__preview {
+  margin: 0;
+  color: #4b6074;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: #35506a;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.chips button {
+  border: 0;
+  background: transparent;
+  color: #35506a;
+  font: inherit;
+  cursor: pointer;
 }
 
 .station__add,

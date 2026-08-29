@@ -8,6 +8,7 @@ import type {
   FleetWriteInput,
   InstructionProgram,
   ManeuverBankWriteInput,
+  MissionAssignMode,
   MissionTypeWriteInput,
   PhaseDraftInput,
   ProgramCurriculumWriteInput,
@@ -21,7 +22,13 @@ import type {
   UnitWriteInput,
   UserWriteInput,
 } from '../entities/admin-catalog';
-import { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS, PROGRAM_TYPES } from '../entities/admin-catalog';
+import {
+  COMMISSION_WORKFLOW,
+  FLEET_TYPES,
+  INSTRUCTION_PROGRAMS,
+  MISSION_ASSIGN_MODES,
+  PROGRAM_TYPES,
+} from '../entities/admin-catalog';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -272,6 +279,13 @@ export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput 
   };
 }
 
+export function expandAutoMissions(code: string, count: number): string[] {
+  const raw = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const letter = raw.match(/[A-Z]/)?.[0];
+  if (!letter || !Number.isInteger(count) || count < 1) return [];
+  return Array.from({ length: count }, (_, index) => `${letter}${index + 1}`);
+}
+
 export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInput {
   const hours = Number(input.hours);
   if (!Number.isFinite(hours) || hours < 0.5 || hours > 200) {
@@ -281,10 +295,40 @@ export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInp
   if (!Number.isInteger(sortOrder) || sortOrder < 1) {
     throw new InvalidAdminCatalogError('El orden de la subfase debe ser un entero a partir de 1.');
   }
+  const missionMode = (input.missionMode || 'manual') as MissionAssignMode;
+  if (!MISSION_ASSIGN_MODES.includes(missionMode)) {
+    throw new InvalidAdminCatalogError('Las misiones se crean en modo manual o automático.');
+  }
+  const customMissionNames = [
+    ...new Set((input.customMissionNames ?? []).map((name) => name.trim()).filter(Boolean)),
+  ];
+  if (customMissionNames.some((name) => name.length > 40)) {
+    throw new InvalidAdminCatalogError('El nombre de cada misión no puede superar 40 caracteres.');
+  }
+  let autoMissionCode = '';
+  let autoMissionCount = 0;
+  let missionTypeIds = [...new Set((input.missionTypeIds ?? []).filter(Boolean))];
+  if (missionMode === 'automatic') {
+    autoMissionCode = required(input.autoMissionCode, 'El código de la serie de misiones es obligatorio.')
+      .toUpperCase()
+      .replace(/[^A-Z0-9-]/g, '');
+    if (!/[A-Z]/.test(autoMissionCode)) {
+      throw new InvalidAdminCatalogError('El código automático debe incluir al menos una letra. Ejemplo: CER.');
+    }
+    autoMissionCount = Number(input.autoMissionCount);
+    if (!Number.isInteger(autoMissionCount) || autoMissionCount < 1 || autoMissionCount > 80) {
+      throw new InvalidAdminCatalogError('La cantidad automática debe ser un entero entre 1 y 80.');
+    }
+    missionTypeIds = [];
+  }
   return {
     subphaseBankId: required(input.subphaseBankId, 'El banco de subfase es obligatorio.'),
     hours: Math.round(hours * 10) / 10,
-    missionTypeIds: [...new Set(input.missionTypeIds.filter(Boolean))],
+    missionMode,
+    missionTypeIds,
+    customMissionNames: missionMode === 'manual' ? customMissionNames : [],
+    autoMissionCode: missionMode === 'automatic' ? autoMissionCode : '',
+    autoMissionCount: missionMode === 'automatic' ? autoMissionCount : 0,
     maneuverIds: [...new Set(input.maneuverIds.filter(Boolean))],
     sortOrder,
   };

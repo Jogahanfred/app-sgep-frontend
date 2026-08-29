@@ -274,12 +274,19 @@ export interface PhaseEntity {
   sortOrder: number;
 }
 
+export const MISSION_ASSIGN_MODES = ['manual', 'automatic'] as const;
+export type MissionAssignMode = (typeof MISSION_ASSIGN_MODES)[number];
+
 export interface SubphaseEntity {
   id: string;
   phaseId: string;
   subphaseBankId: string;
   hours: number;
+  missionMode: MissionAssignMode;
   missionTypeIds: string[];
+  customMissionNames: string[];
+  autoMissionCode: string;
+  autoMissionCount: number;
   maneuverIds: string[];
   sortOrder: number;
 }
@@ -287,7 +294,11 @@ export interface SubphaseEntity {
 export interface SubphaseDraftInput {
   subphaseBankId: string;
   hours: number;
+  missionMode: MissionAssignMode;
   missionTypeIds: string[];
+  customMissionNames: string[];
+  autoMissionCode: string;
+  autoMissionCount: number;
   maneuverIds: string[];
   sortOrder: number;
 }

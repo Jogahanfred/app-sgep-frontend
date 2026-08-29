@@ -155,17 +155,78 @@
                               />
                             </label>
                           </div>
-                          <fieldset class="picks">
-                            <legend>Misiones</legend>
-                            @for (mission of missions(); track mission.id) {
-                              <ui-checkbox
-                                [id]="'ms-' + sub.key + '-' + mission.id"
-                                [label]="mission.code + ' · ' + mission.name"
-                                [checked]="sub.missionTypeIds.includes(mission.id)"
-                                (checkedChange)="toggleMission(phase.key, sub.key, mission.id, $event)"
-                              />
+                          <section class="missions" [attr.aria-label]="'Misiones de ' + subphaseName(sub.subphaseBankId)">
+                            <p class="missions__label">Misiones</p>
+                            <ui-segmented-control
+                              [label]="'Modo de misiones ' + sub.key"
+                              [options]="missionModeOptions"
+                              [value]="sub.missionMode"
+                              (valueChange)="setMissionMode(phase.key, sub.key, $event)"
+                            />
+                            @if (sub.missionMode === 'manual') {
+                              <fieldset class="picks">
+                                <legend>Del catálogo</legend>
+                                @for (mission of missions(); track mission.id) {
+                                  <ui-checkbox
+                                    [id]="'ms-' + sub.key + '-' + mission.id"
+                                    [label]="mission.code + ' · ' + mission.name"
+                                    [checked]="sub.missionTypeIds.includes(mission.id)"
+                                    (checkedChange)="toggleMission(phase.key, sub.key, mission.id, $event)"
+                                  />
+                                }
+                              </fieldset>
+                              <div class="missions__custom">
+                                <label class="lesson__hours">
+                                  <span>Nombre propio</span>
+                                  <input
+                                    type="text"
+                                    maxlength="40"
+                                    placeholder="Circuito corto"
+                                    [value]="draftMissionName()[sub.key] || ''"
+                                    (input)="setDraftMissionName(sub.key, $event)"
+                                  />
+                                </label>
+                                <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addCustomMission(phase.key, sub.key)">
+                                  Añadir nombre
+                                </app-button>
+                              </div>
+                              @if (sub.customMissionNames.length) {
+                                <ul class="chips">
+                                  @for (name of sub.customMissionNames; track name) {
+                                    <li>
+                                      <span>{{ name }}</span>
+                                      <button type="button" (click)="removeCustomMission(phase.key, sub.key, name)">Quitar</button>
+                                    </li>
+                                  }
+                                </ul>
+                              }
+                            } @else {
+                              <div class="missions__auto">
+                                <label class="lesson__hours">
+                                  <span>Código</span>
+                                  <input
+                                    type="text"
+                                    maxlength="8"
+                                    placeholder="CER"
+                                    [value]="sub.autoMissionCode"
+                                    (input)="setAutoCode(phase.key, sub.key, $event)"
+                                  />
+                                </label>
+                                <label class="lesson__hours">
+                                  <span>Cantidad</span>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="80"
+                                    step="1"
+                                    [value]="sub.autoMissionCount || ''"
+                                    (input)="setAutoCount(phase.key, sub.key, $event)"
+                                  />
+                                </label>
+                              </div>
+                              <p class="missions__preview">{{ autoPreview(sub) }}</p>
                             }
-                          </fieldset>
+                          </section>
                           <fieldset class="picks">
                             <legend>Maniobras</legend>
                             @for (maneuver of maneuvers(); track maneuver.id) {
@@ -182,13 +243,13 @@
                           </app-button>
                         } @else {
                           <p class="lesson__meta">
-                            @if (sub.missionTypeIds.length) {
-                              Misiones: {{ sub.missionTypeIds.length }}.
+                            @if (missionLabels(sub).length) {
+                              Misiones: {{ missionLabels(sub).join(', ') }}.
                             }
                             @if (sub.maneuverIds.length) {
                               Maniobras: {{ sub.maneuverIds.length }}.
                             }
-                            @if (!sub.missionTypeIds.length && !sub.maneuverIds.length) {
+                            @if (!missionLabels(sub).length && !sub.maneuverIds.length) {
                               Sin misiones ni maniobras asignadas.
                             }
                           </p>

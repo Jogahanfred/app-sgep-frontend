@@ -42,7 +42,11 @@ describe('formación académica', () => {
               {
                 subphaseBankId: 'sb-aula',
                 hours: 12,
+                missionMode: 'automatic',
                 missionTypeIds: [],
+                customMissionNames: [],
+                autoMissionCode: 'CER',
+                autoMissionCount: 17,
                 maneuverIds: [],
                 sortOrder: 1,
               },
@@ -54,6 +58,15 @@ describe('formación académica', () => {
     expect(created.code).toBe('FI-01');
     expect(created.programType).toBe('FI');
     expect(created.imageUrl).toBe('/programs/fi.jpg');
+    const createdPhases = (await firstValueFrom(new ListPhases(repo).execute())).filter(
+      (item) => item.programId === created.id,
+    );
+    const createdSubs = (await firstValueFrom(new ListSubphases(repo).execute())).filter((item) =>
+      createdPhases.some((phase) => phase.id === item.phaseId),
+    );
+    expect(createdSubs[0].missionMode).toBe('automatic');
+    expect(createdSubs[0].autoMissionCode).toBe('CER');
+    expect(createdSubs[0].autoMissionCount).toBe(17);
 
     await expect(
       firstValueFrom(
@@ -69,7 +82,19 @@ describe('formación académica', () => {
             {
               phaseBankId: banks[0].id,
               sortOrder: 1,
-              subphases: [{ subphaseBankId: 'sb-aula', hours: 0, missionTypeIds: [], maneuverIds: [], sortOrder: 1 }],
+              subphases: [
+                {
+                  subphaseBankId: 'sb-aula',
+                  hours: 0,
+                  missionMode: 'manual',
+                  missionTypeIds: [],
+                  customMissionNames: [],
+                  autoMissionCode: '',
+                  autoMissionCount: 0,
+                  maneuverIds: [],
+                  sortOrder: 1,
+                },
+              ],
             },
           ],
         }),

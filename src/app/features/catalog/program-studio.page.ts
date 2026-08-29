@@ -18,11 +18,12 @@ import type {
   ManeuverBankEntity,
   MissionTypeEntity,
   PhaseBankEntity,
+  MissionAssignMode,
   PhaseDraftInput,
   ProgramType,
   SubphaseBankEntity,
 } from '@core/domain/entities';
-import { curriculumHours } from '@core/domain/services/admin-catalog';
+import { curriculumHours, expandAutoMissions } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -31,6 +32,7 @@ import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
+import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
@@ -39,6 +41,7 @@ import {
   CATALOG_CREATE_HOLD_MS,
   academicProgramTypeOptions,
   entityStatusOptions,
+  missionAssignModeOptions,
   holdFor,
   touchedError,
 } from './catalog-form';
@@ -47,7 +50,11 @@ interface StudioSubphase {
   key: string;
   subphaseBankId: string;
   hours: number;
+  missionMode: MissionAssignMode;
   missionTypeIds: string[];
+  customMissionNames: string[];
+  autoMissionCode: string;
+  autoMissionCount: number;
   maneuverIds: string[];
 }
 
@@ -69,6 +76,7 @@ interface StudioPhase {
     UiInput,
     UiLoading,
     UiRadioCardGroup,
+    UiSegmentedControl,
     UiSelect,
     UiTextarea,
   ],
@@ -101,6 +109,8 @@ export class ProgramStudioPage {
   readonly listHref = '/catalogo/programas';
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
+  readonly missionModeOptions = missionAssignModeOptions;
+  readonly draftMissionName = signal<Record<string, string>>({});
   readonly phaseBanks = signal<PhaseBankEntity[]>([]);
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
   readonly missions = signal<MissionTypeEntity[]>([]);
@@ -192,7 +202,11 @@ export class ProgramStudioPage {
                     key: item.id,
                     subphaseBankId: item.subphaseBankId,
                     hours: item.hours,
+                    missionMode: item.missionMode,
                     missionTypeIds: [...item.missionTypeIds],
+                    customMissionNames: [...item.customMissionNames],
+                    autoMissionCode: item.autoMissionCode,
+                    autoMissionCount: item.autoMissionCount,
                     maneuverIds: [...item.maneuverIds],
                   })),
               })),
@@ -246,7 +260,11 @@ export class ProgramStudioPage {
                 key: `draft-sp-${this.draftSeq++}`,
                 subphaseBankId: defaultSub,
                 hours: 2,
+                missionMode: 'manual',
                 missionTypeIds: [],
+                customMissionNames: [],
+                autoMissionCode: '',
+                autoMissionCount: 0,
                 maneuverIds: [],
               },
             ]
@@ -298,7 +316,11 @@ export class ProgramStudioPage {
                   key: `draft-sp-${this.draftSeq++}`,
                   subphaseBankId: bankId,
                   hours: 2,
+                  missionMode: 'manual',
                   missionTypeIds: [],
+                  customMissionNames: [],
+                  autoMissionCode: '',
+                  autoMissionCount: 0,
                   maneuverIds: [],
                 },
               ],
@@ -326,6 +348,71 @@ export class ProgramStudioPage {
   setHours(phaseKey: string, subKey: string, event: Event): void {
     const hours = Number((event.target as HTMLInputElement).value);
     this.patchSubphase(phaseKey, subKey, { hours: Number.isFinite(hours) ? hours : 0 });
+  }
+
+  setMissionMode(phaseKey: string, subKey: string, value: string): void {
+    if (value !== 'manual' && value !== 'automatic') return;
+    this.patchSubphase(phaseKey, subKey, { missionMode: value });
+  }
+
+  setAutoCode(phaseKey: string, subKey: string, event: Event): void {
+    this.patchSubphase(phaseKey, subKey, { autoMissionCode: (event.target as HTMLInputElement).value });
+  }
+
+  setAutoCount(phaseKey: string, subKey: string, event: Event): void {
+    const count = Number((event.target as HTMLInputElement).value);
+    this.patchSubphase(phaseKey, subKey, { autoMissionCount: Number.isFinite(count) ? count : 0 });
+  }
+
+  setDraftMissionName(subKey: string, event: Event): void {
+    this.draftMissionName.update((map) => ({ ...map, [subKey]: (event.target as HTMLInputElement).value }));
+  }
+
+  addCustomMission(phaseKey: string, subKey: string): void {
+    const name = (this.draftMissionName()[subKey] ?? '').trim();
+    if (!name || this.isView) return;
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) =>
+                sub.key !== subKey || sub.customMissionNames.some((item) => item.toLowerCase() === name.toLowerCase())
+                  ? sub
+                  : { ...sub, customMissionNames: [...sub.customMissionNames, name] },
+              ),
+            },
+      ),
+    );
+    this.draftMissionName.update((map) => ({ ...map, [subKey]: '' }));
+  }
+
+  removeCustomMission(phaseKey: string, subKey: string, name: string): void {
+    this.patchSubphase(phaseKey, subKey, {
+      customMissionNames: this.phases()
+        .flatMap((phase) => phase.subphases)
+        .find((sub) => sub.key === subKey)
+        ?.customMissionNames.filter((item) => item !== name) ?? [],
+    });
+  }
+
+  autoPreview(sub: StudioSubphase): string {
+    const items = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    if (!items.length) return 'Ejemplo: CER y 17 generan C1, C2, C3 … C17.';
+    if (items.length <= 8) return items.join(', ');
+    return `${items.slice(0, 4).join(', ')} … ${items[items.length - 1]}`;
+  }
+
+  missionLabels(sub: StudioSubphase): string[] {
+    if (sub.missionMode === 'automatic') {
+      return expandAutoMissions(sub.autoMissionCode, sub.autoMissionCount);
+    }
+    const fromCatalog = sub.missionTypeIds.map((id) => {
+      const mission = this.missions().find((item) => item.id === id);
+      return mission ? `${mission.code} · ${mission.name}` : id;
+    });
+    return [...fromCatalog, ...sub.customMissionNames];
   }
 
   toggleMission(phaseKey: string, subKey: string, missionId: string, checked: boolean): void {
@@ -401,7 +488,11 @@ export class ProgramStudioPage {
       subphases: phase.subphases.map((sub, subIndex) => ({
         subphaseBankId: sub.subphaseBankId,
         hours: sub.hours,
+        missionMode: sub.missionMode,
         missionTypeIds: sub.missionTypeIds,
+        customMissionNames: sub.customMissionNames,
+        autoMissionCode: sub.autoMissionCode,
+        autoMissionCount: sub.autoMissionCount,
         maneuverIds: sub.maneuverIds,
         sortOrder: subIndex + 1,
       })),

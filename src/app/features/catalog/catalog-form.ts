@@ -24,6 +24,11 @@ export const instructionProgramOptions: ChoiceOption[] = [
   { value: 'IR', label: 'IR' },
 ];
 
+export const missionAssignModeOptions: ChoiceOption[] = [
+  { value: 'manual', label: 'Manual' },
+  { value: 'automatic', label: 'Automático' },
+];
+
 export const academicProgramTypeOptions: ChoiceOption[] = [
   { value: 'PPL', label: 'PPL' },
   { value: 'CPL', label: 'CPL' },

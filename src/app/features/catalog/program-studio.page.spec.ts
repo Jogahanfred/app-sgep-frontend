@@ -48,6 +48,10 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Vuelo básico');
     expect(text).toContain('Aula');
     expect(text).toContain('Dual');
+    expect(text).toContain('Manual');
+    expect(text).toContain('Automático');
+    expect(text).toContain('C1');
+    expect(text).toContain('C17');
     expect(text).toContain('Añadir fase al itinerario');
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-table')).toBeNull();
   });

@@ -510,6 +510,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       this.subphases.map((item) => ({
         ...item,
         missionTypeIds: [...item.missionTypeIds],
+        customMissionNames: [...item.customMissionNames],
         maneuverIds: [...item.maneuverIds],
       })),
     ).pipe(delay(LATENCY));
@@ -552,7 +553,11 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
             phaseId,
             subphaseBankId: subDraft.subphaseBankId,
             hours: subDraft.hours,
+            missionMode: subDraft.missionMode,
             missionTypeIds: [...subDraft.missionTypeIds],
+            customMissionNames: [...subDraft.customMissionNames],
+            autoMissionCode: subDraft.autoMissionCode,
+            autoMissionCount: subDraft.autoMissionCount,
             maneuverIds: [...subDraft.maneuverIds],
             sortOrder: subIndex + 1,
           });
@@ -582,9 +587,11 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         if (!this.subphaseBanks.some((item) => item.id === sub.subphaseBankId)) {
           throw new InvalidAdminCatalogError('El banco de subfase indicado no existe.');
         }
-        for (const missionId of sub.missionTypeIds) {
-          if (!this.missionTypes.some((item) => item.id === missionId)) {
-            throw new InvalidAdminCatalogError('Una de las misiones indicadas no existe.');
+        if (sub.missionMode === 'manual') {
+          for (const missionId of sub.missionTypeIds) {
+            if (!this.missionTypes.some((item) => item.id === missionId)) {
+              throw new InvalidAdminCatalogError('Una de las misiones indicadas no existe.');
+            }
           }
         }
         for (const maneuverId of sub.maneuverIds) {
