@@ -25,7 +25,8 @@ describe('CatalogLayout', () => {
   it('separa el catálogo de la cuenta personal', () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
     expect(text).toContain('Catálogo');
     expect(text).toContain('Usuarios');
     expect(text).toContain('Roles');
@@ -35,6 +36,9 @@ describe('CatalogLayout', () => {
     expect(text).toContain('Escuadrones');
     expect(text).toContain('Comisiones temporales');
     expect(text).toContain('Mi perfil');
+    expect(text).toContain('dónde opera el personal');
+    expect(root.querySelector('nav[aria-label="Estructura operativa"] .adm__nav-label')).toBeNull();
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(2);
     expect(text).not.toContain('Sprint');
   });
 
