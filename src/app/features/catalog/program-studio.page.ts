@@ -35,7 +35,6 @@ import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
-import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
@@ -45,7 +44,6 @@ import {
   CATALOG_CREATE_HOLD_MS,
   academicProgramTypeOptions,
   entityStatusOptions,
-  missionAssignModeOptions,
   holdFor,
   touchedError,
 } from './catalog-form';
@@ -83,7 +81,6 @@ interface StudioPhase {
     UiInput,
     UiLoading,
     UiRadioCardGroup,
-    UiSegmentedControl,
     UiSelect,
     UiTable,
     UiTextarea,
@@ -118,7 +115,6 @@ export class ProgramStudioPage {
   readonly listHref = '/catalogo/programas';
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
-  readonly missionModeOptions = missionAssignModeOptions;
   readonly draftMissionName = signal<Record<string, string>>({});
   readonly phaseBanks = signal<PhaseBankEntity[]>([]);
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
@@ -133,6 +129,19 @@ export class ProgramStudioPage {
   readonly pickerSelectedId = signal<string | null>(null);
   readonly phasePickerPageSizes = [4] as const;
   readonly phasePickerColumns: UiTableColumn[] = [
+    { id: 'code', header: 'Código' },
+    { id: 'name', header: 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'use', header: 'Uso' },
+  ];
+  readonly missionPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
+  readonly missionBankSearch = new FormControl('', { nonNullable: true });
+  readonly missionBankQuery = signal('');
+  readonly missionDraftIds = signal<string[]>([]);
+  readonly missionPickerSelectedId = signal<string | null>(null);
+  readonly missionCreateMode = signal<MissionAssignMode>('manual');
+  readonly missionPickerPageSizes = [4] as const;
+  readonly missionPickerColumns: UiTableColumn[] = [
     { id: 'code', header: 'Código' },
     { id: 'name', header: 'Nombre' },
     { id: 'description', header: 'Descripción' },
@@ -212,6 +221,35 @@ export class ProgramStudioPage {
 
   readonly phaseBankOpen = computed(() => this.phaseBankPickerKey() !== null);
 
+  readonly missionPickerOpen = computed(() => this.missionPickerTarget() !== null);
+  readonly currentMissionPhaseKey = computed(() => this.missionPickerTarget()?.phaseKey ?? '');
+
+  readonly currentPickerSub = computed(() => {
+    const target = this.missionPickerTarget();
+    if (!target) return null;
+    const phase = this.phases().find((item) => item.key === target.phaseKey);
+    return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
+  });
+
+  readonly pickerMissions = computed(() =>
+    this.missions().filter((item) =>
+      matchesAdminSearch([item.code, item.name, item.description], this.missionBankQuery()),
+    ),
+  );
+
+  readonly missionPickerRows = computed<UiTableRow[]>(() => {
+    const chosen = new Set(this.missionDraftIds());
+    return this.pickerMissions().map((item) => ({
+      id: item.id,
+      cells: {
+        code: item.code,
+        name: item.name,
+        description: item.description || '—',
+        use: chosen.has(item.id) ? 'En esta subfase' : 'Disponible',
+      },
+    }));
+  });
+
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
     this.subphaseBanks()
       .filter((item) => item.status === 'active')
@@ -224,6 +262,9 @@ export class ProgramStudioPage {
     });
     this.phaseBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.phaseBankQuery.set(value);
+    });
+    this.missionBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.missionBankQuery.set(value);
     });
     forkJoin({
       programs: this.listPrograms.execute(),
@@ -328,6 +369,61 @@ export class ProgramStudioPage {
   applyPickerPhase(): void {
     const id = this.pickerSelectedId();
     if (id) this.pickPhaseBank(id);
+  }
+
+  openMissionPicker(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub) return;
+    this.missionBankSearch.setValue('');
+    this.missionBankQuery.set('');
+    this.missionPickerTarget.set({ phaseKey, subKey });
+    this.missionDraftIds.set([...sub.missionTypeIds]);
+    this.missionPickerSelectedId.set(sub.missionTypeIds[0] ?? null);
+    this.missionCreateMode.set(sub.missionMode);
+  }
+
+  closeMissionPicker(): void {
+    this.missionPickerTarget.set(null);
+    this.missionDraftIds.set([]);
+    this.missionPickerSelectedId.set(null);
+  }
+
+  togglePickerMission(missionId: string | null): void {
+    const id = missionId ?? this.missionPickerSelectedId();
+    if (!id) return;
+    this.missionPickerSelectedId.set(missionId);
+    this.missionDraftIds.update((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]));
+  }
+
+  createMissionsManual(): void {
+    const target = this.missionPickerTarget();
+    if (!target) return;
+    this.missionCreateMode.set('manual');
+    this.setMissionMode(target.phaseKey, target.subKey, 'manual');
+  }
+
+  createMissionsAutomatic(): void {
+    const target = this.missionPickerTarget();
+    if (!target) return;
+    this.missionCreateMode.set('automatic');
+    this.setMissionMode(target.phaseKey, target.subKey, 'automatic');
+  }
+
+  applyMissionPicker(): void {
+    const target = this.missionPickerTarget();
+    if (!target) return;
+    if (this.missionCreateMode() === 'automatic') {
+      this.patchSubphase(target.phaseKey, target.subKey, { missionMode: 'automatic' });
+    } else {
+      this.patchSubphase(target.phaseKey, target.subKey, {
+        missionMode: 'manual',
+        missionTypeIds: [...this.missionDraftIds()],
+      });
+    }
+    this.closeMissionPicker();
   }
 
   pickPhaseBank(phaseBankId: string): void {

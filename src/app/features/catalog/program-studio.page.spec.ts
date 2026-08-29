@@ -64,10 +64,10 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Las sesiones que vuela o practica el alumno');
     expect(text).toContain('Los ejercicios que se trabajan o evalúan');
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('ui-assign-block').length).toBeGreaterThan(1);
-    expect(text).toContain('Manual');
-    expect(text).toContain('Automático');
+    expect(text).toContain('Del catálogo');
     expect(text).toContain('C1');
     expect(text).toContain('C17');
+    expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
     expect(text).toContain('Añadir fase al itinerario');
     expect(text).toContain('Editar fase');
     expect(text).not.toContain('Banco de fases');
@@ -131,5 +131,41 @@ describe('ProgramStudioPage', () => {
     expect(fixture.componentInstance.phases()[0].phaseBankId).toBe('pb-ifr');
     expect(fixture.componentInstance.phaseBankOpen()).toBe(false);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('IFR · Instrumental');
+  });
+
+  it('abre el catálogo de misiones y permite crearlas en manual o automático', async () => {
+    stubDialog();
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot('prg-ppl', 'edit') }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const firstSub = fixture.componentInstance.phases()[0].subphases[0];
+    fixture.componentInstance.openMissionPicker(fixture.componentInstance.phases()[0].key, firstSub.key);
+    fixture.detectChanges();
+    const modal =
+      (fixture.nativeElement as HTMLElement).querySelector('dialog[open]') ??
+      [...(fixture.nativeElement as HTMLElement).querySelectorAll('app-modal')].find((item) =>
+        (item.textContent ?? '').includes('Misiones del catálogo'),
+      );
+    const modalText = modal?.textContent ?? '';
+    expect(modal?.querySelector('ui-table')).not.toBeNull();
+    expect(modalText).toContain('Misiones del catálogo');
+    expect(modalText).toContain('LOC');
+    expect(modalText).toContain('Misión local');
+    expect(modalText).toContain('NAV');
+    expect(modalText).toContain('IFR');
+    expect(modalText).toContain('Mostrando 1 - 3 de 3');
+    expect(modalText).toContain('Crear en manual');
+    expect(modalText).toContain('Crear en automático');
+    fixture.componentInstance.togglePickerMission('mt-local');
+    fixture.componentInstance.createMissionsManual();
+    fixture.componentInstance.applyMissionPicker();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.phases()[0].subphases[0].missionTypeIds).toContain('mt-local');
+    expect(fixture.componentInstance.missionPickerOpen()).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('LOC · Misión local');
   });
 });
