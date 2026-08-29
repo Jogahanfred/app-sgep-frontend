@@ -20,7 +20,10 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/unidades', component: BlankPage },
           { path: 'catalogo/comisiones-temporales', component: BlankPage },
           { path: 'catalogo/operaciones', component: BlankPage },
+          { path: 'catalogo/ponderaciones/nuevo', component: BlankPage },
+          { path: 'catalogo/ponderaciones/:id/editar', component: BlankPage },
           { path: 'catalogo/aeronaves', component: BlankPage },
+          { path: 'catalogo/aeronaves/nuevo', component: BlankPage },
         ]),
       ],
     }).compileComponents();
@@ -69,8 +72,29 @@ describe('CatalogLayout', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('nav[aria-label="Catálogo"]')).toBeNull();
     expect(root.querySelector('nav[aria-label="Estructura operativa"]')).toBeNull();
-    expect(root.textContent).toContain('Catálogo');
+    expect(root.querySelector('.adm__kicker')).toBeNull();
+    expect(root.textContent).not.toContain('Catálogo');
     expect(root.textContent).not.toContain('Estructura operativa');
+  });
+
+  it('oculta el título del padre al crear o editar instrucción', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/ponderaciones/nuevo');
+    fixture.detectChanges();
+    const createText = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(createText).not.toContain('Catálogos de instrucción');
+    expect(createText).not.toContain('catálogos maestros');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.adm__kicker')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('nav[aria-label="Catálogos de instrucción"]')).toBeNull();
+
+    await router.navigateByUrl('/catalogo/ponderaciones/wgt-1/editar');
+    fixture.detectChanges();
+    const editText = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(editText).not.toContain('Catálogos de instrucción');
+    expect(editText).not.toContain('catálogos maestros');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.adm__kicker')).toBeNull();
   });
 
   it('muestra solo Catálogos de instrucción en operaciones y maestros', async () => {

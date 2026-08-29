@@ -1,11 +1,11 @@
 <app-container [wide]="true">
   <div class="adm">
     @if (domain() === 'ops') {
-      <header class="adm__intro">
-        <p class="adm__kicker">Estructura operativa</p>
-        <p class="adm__lead">Unidades, escuadrones y comisiones temporales. Aquí se configura dónde opera el personal.</p>
-      </header>
       @if (showDomainNav()) {
+        <header class="adm__intro">
+          <p class="adm__kicker">Estructura operativa</p>
+          <p class="adm__lead">Unidades, escuadrones y comisiones temporales. Aquí se configura dónde opera el personal.</p>
+        </header>
         <nav class="adm__nav" aria-label="Estructura operativa">
           <a routerLink="/catalogo/unidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Unidades</a>
           <a routerLink="/catalogo/escuadrones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Escuadrones</a>
@@ -13,22 +13,22 @@
         </nav>
       }
     } @else if (domain() === 'air') {
-      <header class="adm__intro">
-        <p class="adm__kicker">Gestión de material aéreo</p>
-        <p class="adm__lead">Flotas y aeronaves. Aquí se registran las matrículas, su unidad y si están operativas.</p>
-      </header>
       @if (showDomainNav()) {
+        <header class="adm__intro">
+          <p class="adm__kicker">Gestión de material aéreo</p>
+          <p class="adm__lead">Flotas y aeronaves. Aquí se registran las matrículas, su unidad y si están operativas.</p>
+        </header>
         <nav class="adm__nav" aria-label="Gestión de material aéreo">
           <a routerLink="/catalogo/flotas" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Flotas</a>
           <a routerLink="/catalogo/aeronaves" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Aeronaves</a>
         </nav>
       }
     } @else if (domain() === 'instruction') {
-      <header class="adm__intro">
-        <p class="adm__kicker">Catálogos de instrucción</p>
-        <p class="adm__lead">Operaciones, tipos de misión, maniobras, estándares y ponderaciones. Aquí se configuran los catálogos maestros.</p>
-      </header>
       @if (showDomainNav()) {
+        <header class="adm__intro">
+          <p class="adm__kicker">Catálogos de instrucción</p>
+          <p class="adm__lead">Operaciones, tipos de misión, maniobras, estándares y ponderaciones. Aquí se configuran los catálogos maestros.</p>
+        </header>
         <nav class="adm__nav" aria-label="Catálogos de instrucción">
           <a routerLink="/catalogo/operaciones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Operaciones</a>
           <a routerLink="/catalogo/tipos-de-mision" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Tipo de misión</a>
@@ -38,11 +38,11 @@
         </nav>
       }
     } @else {
-      <header class="adm__intro">
-        <p class="adm__kicker">Catálogo</p>
-        <p class="adm__lead">Personas, roles y especialidades. Tu ficha personal está en Mi perfil.</p>
-      </header>
       @if (showDomainNav()) {
+        <header class="adm__intro">
+          <p class="adm__kicker">Catálogo</p>
+          <p class="adm__lead">Personas, roles y especialidades. Tu ficha personal está en Mi perfil.</p>
+        </header>
         <nav class="adm__nav" aria-label="Catálogo">
           <a routerLink="/catalogo/usuarios" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Usuarios</a>
           <a routerLink="/catalogo/roles" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Roles</a>
