@@ -72,7 +72,7 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.path ui-table')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-input[id^="hours-"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-input input[id^="hours-"]')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('label.lesson__hours')).toBeNull();
   });
 
