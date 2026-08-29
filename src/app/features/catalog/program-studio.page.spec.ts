@@ -64,7 +64,7 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Las sesiones que vuela o practica el alumno');
     expect(text).toContain('Los ejercicios que se trabajan o evalúan');
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('ui-assign-block').length).toBeGreaterThan(1);
-    expect(text).toContain('Del catálogo');
+    expect(text).toContain('Añadir');
     expect(text).toContain('C1');
     expect(text).toContain('C17');
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
@@ -133,7 +133,7 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('IFR · Instrumental');
   });
 
-  it('abre el catálogo de misiones y permite crearlas en manual o automático', async () => {
+  it('abre las misiones con la lista generada y un botón añadir', async () => {
     stubDialog();
     await TestBed.configureTestingModule({
       imports: [ProgramStudioPage],
@@ -142,30 +142,33 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    const firstSub = fixture.componentInstance.phases()[0].subphases[0];
-    fixture.componentInstance.openMissionPicker(fixture.componentInstance.phases()[0].key, firstSub.key);
+    const dual = fixture.componentInstance.phases()[1].subphases[1];
+    fixture.componentInstance.openMissionPicker(fixture.componentInstance.phases()[1].key, dual.key);
     fixture.detectChanges();
     const modal =
       (fixture.nativeElement as HTMLElement).querySelector('dialog[open]') ??
       [...(fixture.nativeElement as HTMLElement).querySelectorAll('app-modal')].find((item) =>
-        (item.textContent ?? '').includes('Misiones del catálogo'),
+        (item.textContent ?? '').includes('Misiones generadas'),
       );
-    const modalText = modal?.textContent ?? '';
+    let modalText = modal?.textContent ?? '';
     expect(modal?.querySelector('ui-table')).not.toBeNull();
-    expect(modalText).toContain('Misiones del catálogo');
-    expect(modalText).toContain('LOC');
-    expect(modalText).toContain('Misión local');
-    expect(modalText).toContain('NAV');
-    expect(modalText).toContain('IFR');
-    expect(modalText).toContain('Mostrando 1 - 3 de 3');
+    expect(modalText).toContain('Misiones generadas');
+    expect(modalText).toContain('LOC · Misión local');
+    expect(modalText).toContain('Circuito corto');
+    expect(modalText).toContain('Catálogo');
+    expect(modalText).toContain('Añadir');
+    expect(modalText).not.toContain('Crear en automático');
+    fixture.componentInstance.startAddingMissions();
+    fixture.detectChanges();
+    modalText = modal?.textContent ?? '';
     expect(modalText).toContain('Crear en manual');
     expect(modalText).toContain('Crear en automático');
-    fixture.componentInstance.togglePickerMission('mt-local');
-    fixture.componentInstance.createMissionsManual();
-    fixture.componentInstance.applyMissionPicker();
+    expect(modalText).toContain('NAV');
+    fixture.componentInstance.selectCatalogMission('mt-nav');
+    fixture.componentInstance.addSelectedCatalogMission();
     fixture.detectChanges();
-    expect(fixture.componentInstance.phases()[0].subphases[0].missionTypeIds).toContain('mt-local');
-    expect(fixture.componentInstance.missionPickerOpen()).toBe(false);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('LOC · Misión local');
+    expect(fixture.componentInstance.phases()[1].subphases[1].missionTypeIds).toContain('mt-nav');
+    expect(fixture.componentInstance.generatedMissions().some((item) => item.label.includes('Navegación'))).toBe(true);
+    expect(fixture.componentInstance.missionAdding()).toBe(false);
   });
 });

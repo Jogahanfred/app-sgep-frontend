@@ -66,6 +66,14 @@ interface StudioPhase {
   subphases: StudioSubphase[];
 }
 
+interface GeneratedMission {
+  key: string;
+  label: string;
+  kind: 'catalog' | 'custom' | 'series';
+  origin: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-program-studio-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -137,15 +145,19 @@ export class ProgramStudioPage {
   readonly missionPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
   readonly missionBankSearch = new FormControl('', { nonNullable: true });
   readonly missionBankQuery = signal('');
-  readonly missionDraftIds = signal<string[]>([]);
   readonly missionPickerSelectedId = signal<string | null>(null);
+  readonly generatedSelectedId = signal<string | null>(null);
   readonly missionCreateMode = signal<MissionAssignMode>('manual');
+  readonly missionAdding = signal(false);
   readonly missionPickerPageSizes = [4] as const;
-  readonly missionPickerColumns: UiTableColumn[] = [
+  readonly generatedMissionColumns: UiTableColumn[] = [
+    { id: 'mission', header: 'Misión' },
+    { id: 'origin', header: 'Origen' },
+  ];
+  readonly catalogAddColumns: UiTableColumn[] = [
     { id: 'code', header: 'Código' },
     { id: 'name', header: 'Nombre' },
     { id: 'description', header: 'Descripción' },
-    { id: 'use', header: 'Uso' },
   ];
 
   readonly form = new FormGroup({
@@ -231,23 +243,36 @@ export class ProgramStudioPage {
     return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
   });
 
-  readonly pickerMissions = computed(() =>
-    this.missions().filter((item) =>
-      matchesAdminSearch([item.code, item.name, item.description], this.missionBankQuery()),
-    ),
+  readonly generatedMissions = computed(() => this.buildGeneratedMissions(this.currentPickerSub()));
+
+  readonly generatedMissionRows = computed<UiTableRow[]>(() =>
+    this.generatedMissions().map((item) => ({
+      id: item.key,
+      cells: { mission: item.label, origin: item.origin },
+    })),
   );
 
-  readonly missionPickerRows = computed<UiTableRow[]>(() => {
-    const chosen = new Set(this.missionDraftIds());
-    return this.pickerMissions().map((item) => ({
+  readonly pickerMissions = computed(() => {
+    const taken = new Set(this.currentPickerSub()?.missionTypeIds ?? []);
+    return this.missions()
+      .filter((item) => !taken.has(item.id))
+      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.missionBankQuery()));
+  });
+
+  readonly missionPickerRows = computed<UiTableRow[]>(() =>
+    this.pickerMissions().map((item) => ({
       id: item.id,
       cells: {
         code: item.code,
         name: item.name,
         description: item.description || '—',
-        use: chosen.has(item.id) ? 'En esta subfase' : 'Disponible',
       },
-    }));
+    })),
+  );
+
+  readonly canAddCatalogMission = computed(() => {
+    const id = this.missionPickerSelectedId();
+    return !!id && this.pickerMissions().some((item) => item.id === id);
   });
 
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
@@ -380,28 +405,49 @@ export class ProgramStudioPage {
     this.missionBankSearch.setValue('');
     this.missionBankQuery.set('');
     this.missionPickerTarget.set({ phaseKey, subKey });
-    this.missionDraftIds.set([...sub.missionTypeIds]);
-    this.missionPickerSelectedId.set(sub.missionTypeIds[0] ?? null);
-    this.missionCreateMode.set(sub.missionMode);
+    this.missionPickerSelectedId.set(null);
+    this.generatedSelectedId.set(null);
+    this.missionCreateMode.set(sub.missionMode === 'automatic' ? 'automatic' : 'manual');
+    this.missionAdding.set(this.buildGeneratedMissions(sub).length === 0);
   }
 
   closeMissionPicker(): void {
     this.missionPickerTarget.set(null);
-    this.missionDraftIds.set([]);
+    this.missionPickerSelectedId.set(null);
+    this.generatedSelectedId.set(null);
+    this.missionAdding.set(false);
+  }
+
+  startAddingMissions(): void {
+    this.missionAdding.set(true);
+    this.missionCreateMode.set('manual');
     this.missionPickerSelectedId.set(null);
   }
 
-  togglePickerMission(missionId: string | null): void {
-    const id = missionId ?? this.missionPickerSelectedId();
-    if (!id) return;
+  selectCatalogMission(missionId: string | null): void {
     this.missionPickerSelectedId.set(missionId);
-    this.missionDraftIds.update((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]));
+  }
+
+  addSelectedCatalogMission(): void {
+    const target = this.missionPickerTarget();
+    const id = this.missionPickerSelectedId();
+    const sub = this.currentPickerSub();
+    if (!target || !id || !sub || sub.missionTypeIds.includes(id)) return;
+    this.promoteSeriesToCustom(target.phaseKey, target.subKey);
+    const current = this.currentPickerSub();
+    this.patchSubphase(target.phaseKey, target.subKey, {
+      missionMode: 'manual',
+      missionTypeIds: [...(current?.missionTypeIds ?? sub.missionTypeIds), id],
+    });
+    this.missionPickerSelectedId.set(null);
+    this.missionAdding.set(false);
   }
 
   createMissionsManual(): void {
     const target = this.missionPickerTarget();
     if (!target) return;
     this.missionCreateMode.set('manual');
+    this.promoteSeriesToCustom(target.phaseKey, target.subKey);
     this.setMissionMode(target.phaseKey, target.subKey, 'manual');
   }
 
@@ -409,21 +455,44 @@ export class ProgramStudioPage {
     const target = this.missionPickerTarget();
     if (!target) return;
     this.missionCreateMode.set('automatic');
-    this.setMissionMode(target.phaseKey, target.subKey, 'automatic');
   }
 
-  applyMissionPicker(): void {
+  addAutomaticSeries(): void {
     const target = this.missionPickerTarget();
-    if (!target) return;
-    if (this.missionCreateMode() === 'automatic') {
-      this.patchSubphase(target.phaseKey, target.subKey, { missionMode: 'automatic' });
+    const sub = this.currentPickerSub();
+    if (!target || !sub) return;
+    const generated = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    if (!generated.length) return;
+    this.patchSubphase(target.phaseKey, target.subKey, {
+      missionMode: 'automatic',
+      missionTypeIds: [],
+      customMissionNames: [],
+    });
+    this.missionAdding.set(false);
+  }
+
+  removeGeneratedMission(): void {
+    const target = this.missionPickerTarget();
+    const key = this.generatedSelectedId();
+    const item = this.generatedMissions().find((row) => row.key === key);
+    if (!target || !item) return;
+    if (item.kind === 'catalog') {
+      const ids = (this.currentPickerSub()?.missionTypeIds ?? []).filter((id) => id !== item.value);
+      this.patchSubphase(target.phaseKey, target.subKey, { missionTypeIds: ids });
+    } else if (item.kind === 'custom') {
+      this.removeCustomMission(target.phaseKey, target.subKey, item.value);
     } else {
+      const remaining = this.generatedMissions()
+        .filter((row) => row.kind === 'series' && row.value !== item.value)
+        .map((row) => row.label);
       this.patchSubphase(target.phaseKey, target.subKey, {
         missionMode: 'manual',
-        missionTypeIds: [...this.missionDraftIds()],
+        customMissionNames: remaining,
+        autoMissionCode: '',
+        autoMissionCount: 0,
       });
     }
-    this.closeMissionPicker();
+    this.generatedSelectedId.set(null);
   }
 
   pickPhaseBank(phaseBankId: string): void {
@@ -558,6 +627,8 @@ export class ProgramStudioPage {
   addCustomMission(phaseKey: string, subKey: string): void {
     const name = (this.draftMissionName()[subKey] ?? '').trim();
     if (!name || this.isView) return;
+    this.promoteSeriesToCustom(phaseKey, subKey);
+    this.setMissionMode(phaseKey, subKey, 'manual');
     this.phases.update((items) =>
       items.map((phase) =>
         phase.key !== phaseKey
@@ -574,6 +645,7 @@ export class ProgramStudioPage {
     );
     this.draftMissionName.update((map) => ({ ...map, [subKey]: '' }));
     this.nameField(subKey, '');
+    this.missionAdding.set(false);
   }
 
   removeCustomMission(phaseKey: string, subKey: string, name: string): void {
@@ -690,6 +762,55 @@ export class ProgramStudioPage {
     control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((next) => apply(Number(next)));
     this.fieldControls.set(key, control);
     return control;
+  }
+
+  private buildGeneratedMissions(sub: StudioSubphase | null): GeneratedMission[] {
+    if (!sub) return [];
+    if (sub.missionMode === 'automatic') {
+      return expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0).map((label) => ({
+        key: `series:${label}`,
+        label,
+        kind: 'series',
+        origin: 'Serie',
+        value: label,
+      }));
+    }
+    const catalog = sub.missionTypeIds.map((id) => {
+      const mission = this.missions().find((item) => item.id === id);
+      return {
+        key: `catalog:${id}`,
+        label: mission ? `${mission.code} · ${mission.name}` : id,
+        kind: 'catalog' as const,
+        origin: 'Catálogo',
+        value: id,
+      };
+    });
+    const custom = sub.customMissionNames.map((name) => ({
+      key: `custom:${name}`,
+      label: name,
+      kind: 'custom' as const,
+      origin: 'Nombre propio',
+      value: name,
+    }));
+    return [...catalog, ...custom];
+  }
+
+  private promoteSeriesToCustom(phaseKey: string, subKey: string): void {
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub || sub.missionMode !== 'automatic') return;
+    const series = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    const names = [...sub.customMissionNames];
+    for (const label of series) {
+      if (!names.some((item) => item.toLowerCase() === label.toLowerCase())) names.push(label);
+    }
+    this.patchSubphase(phaseKey, subKey, {
+      missionMode: 'manual',
+      customMissionNames: names,
+      autoMissionCode: '',
+      autoMissionCount: 0,
+    });
   }
 
   private patchSubphase(phaseKey: string, subKey: string, patch: Partial<StudioSubphase>): void {
