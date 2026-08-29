@@ -64,10 +64,11 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('C1');
     expect(text).toContain('C17');
     expect(text).toContain('Añadir fase al itinerario');
-    expect(text).toContain('Banco de fases');
-    expect(text).toContain('Banco de subfases');
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases"]')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).not.toBeNull();
+    expect(text).toContain('Editar fase');
+    expect(text).not.toContain('Banco de fases');
+    expect(text).not.toContain('Banco de subfases');
+    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-table')).toBeNull();
@@ -88,7 +89,7 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Fase 1');
   });
 
-  it('abre el banco de fase y solo ofrece etapas activas que el programa aún no usa', async () => {
+  it('permite editar la fase del programa y cambiarla por otra que aún no usa', async () => {
     stubDialog();
     await TestBed.configureTestingModule({
       imports: [ProgramStudioPage],
@@ -102,9 +103,10 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     const modal = (fixture.nativeElement as HTMLElement).querySelector('dialog, app-modal');
     const modalText = modal?.textContent ?? '';
-    expect(modalText).toContain('Banco de fase');
+    expect(modalText).toContain('Editar fase');
+    expect(modalText).toContain('TEO · Teoría en aula');
+    expect(modalText).toContain('En el programa');
     expect(modalText).toContain('IFR · Instrumental');
-    expect(modalText).not.toContain('TEO · Teoría en aula');
     expect(modalText).not.toContain('BAS · Vuelo básico');
     fixture.componentInstance.pickPhaseBank('pb-ifr');
     fixture.detectChanges();

@@ -109,8 +109,6 @@ export class ProgramStudioPage {
   readonly creating = signal(false);
   readonly error = signal<string | null>(null);
   readonly listHref = '/catalogo/programas';
-  readonly phaseBankHref = '/catalogo/banco-fases';
-  readonly subphaseBankHref = '/catalogo/banco-subfases';
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
   readonly missionModeOptions = missionAssignModeOptions;
@@ -142,8 +140,8 @@ export class ProgramStudioPage {
 
   readonly lead = computed(() =>
     this.isView
-      ? 'Consulta el itinerario del programa. El banco de fases y de subfases se edita fuera de esta estructura.'
-      : 'El itinerario solo muestra las fases y lecciones del programa. Para crear o editar el banco, sal de esta pantalla.',
+      ? 'Consulta el itinerario del programa: fases, lecciones, horas y misiones.'
+      : 'Elige o cambia la fase de cada etapa. Horas, misiones y maniobras son de este programa.',
   );
 
   readonly totalHours = computed(() => curriculumHours(this.phases()));
@@ -159,11 +157,17 @@ export class ProgramStudioPage {
     this.unusedPhaseBanks().map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
   );
 
-  readonly availablePhaseBanks = computed(() =>
-    this.unusedPhaseBanks().filter((item) =>
-      matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery()),
-    ),
-  );
+  readonly currentPickerBankId = computed(() => {
+    const key = this.phaseBankPickerKey();
+    return this.phases().find((item) => item.key === key)?.phaseBankId ?? '';
+  });
+
+  readonly pickerPhaseBanks = computed(() => {
+    const currentId = this.currentPickerBankId();
+    const current = this.phaseBanks().find((item) => item.id === currentId);
+    const items = current ? [current, ...this.unusedPhaseBanks()] : this.unusedPhaseBanks();
+    return items.filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery()));
+  });
 
   readonly nextAvailablePhaseBankId = computed(() => {
     const chosen = this.nextPhaseBankId();
@@ -288,7 +292,8 @@ export class ProgramStudioPage {
   pickPhaseBank(phaseBankId: string): void {
     const key = this.phaseBankPickerKey();
     if (!key || this.isView) return;
-    if (this.usedPhaseBankIds().has(phaseBankId)) return;
+    const currentId = this.currentPickerBankId();
+    if (phaseBankId !== currentId && this.usedPhaseBankIds().has(phaseBankId)) return;
     this.phases.update((items) => items.map((item) => (item.key === key ? { ...item, phaseBankId } : item)));
     this.closePhaseBankPicker();
   }

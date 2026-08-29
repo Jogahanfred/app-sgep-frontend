@@ -4,13 +4,9 @@
       <h1>{{ title() }}</h1>
       <p class="ap__lead">{{ lead() }}</p>
     </div>
-    <div class="station__tools">
-      <app-button [href]="phaseBankHref" variant="secondary">Banco de fases</app-button>
-      <app-button [href]="subphaseBankHref" variant="secondary">Banco de subfases</app-button>
-      @if (!creating()) {
-        <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
-      }
-    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+    }
   </div>
 
   @if (loadState() === 'loading' || creating()) {
@@ -107,7 +103,7 @@
                     @if (!isView) {
                       <div class="station__tools">
                         <app-button type="button" variant="secondary" size="sm" (click)="openPhaseBankPicker(phase.key)">
-                          Banco de fase
+                          Editar fase
                         </app-button>
                         <app-button type="button" variant="secondary" size="sm" (click)="movePhase(phase.key, -1)">
                           Subir
@@ -254,12 +250,9 @@
                         [value]="nextSubphaseBankId()[phase.key] || subphaseBankOptions()[0]?.value || ''"
                         (valueChange)="setNextSubphase(phase.key, $event)"
                       />
-                      <div class="station__tools">
-                        <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
-                          Añadir subfase
-                        </app-button>
-                        <app-button [href]="subphaseBankHref" variant="ghost" size="sm">Banco de subfases</app-button>
-                      </div>
+                      <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
+                        Añadir subfase
+                      </app-button>
                     </div>
                   }
                 </article>
@@ -278,10 +271,7 @@
               [value]="nextAvailablePhaseBankId()"
               (valueChange)="nextPhaseBankId.set($event)"
             />
-            <div class="station__tools">
-              <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
-              <app-button [href]="phaseBankHref" variant="secondary">Banco de fases</app-button>
-            </div>
+            <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
           </div>
         }
       </section>
@@ -295,9 +285,9 @@
     </form>
 
     @if (!isView) {
-      <app-modal [open]="phaseBankOpen()" title="Banco de fase" (closed)="closePhaseBankPicker()">
+      <app-modal [open]="phaseBankOpen()" title="Editar fase" (closed)="closePhaseBankPicker()">
         <div class="lessons">
-          <p class="lesson__meta">Fases activas del banco que todavía no están en este programa.</p>
+          <p class="lesson__meta">La fase de esta etapa y las activas que el programa aún no usa.</p>
           <ui-input
             id="pick-fase-buscar"
             label="Buscar"
@@ -306,21 +296,20 @@
             placeholder="Código, nombre o descripción"
             [field]="phaseBankSearch"
           />
-          @if (availablePhaseBanks().length === 0) {
+          @if (pickerPhaseBanks().length === 0) {
             <div class="path__empty">
-              <p>
-                @if (unusedPhaseBanks().length === 0) {
-                  No quedan fases activas sin usar en este programa.
-                } @else {
-                  No hay resultados con ese buscador.
-                }
-              </p>
+              <p>No hay resultados con ese buscador.</p>
             </div>
           } @else {
             <div class="lessons">
-              @for (bank of availablePhaseBanks(); track bank.id) {
-                <app-button type="button" variant="secondary" [fullWidth]="true" (click)="pickPhaseBank(bank.id)">
-                  {{ bank.code }} · {{ bank.name }}
+              @for (bank of pickerPhaseBanks(); track bank.id) {
+                <app-button
+                  type="button"
+                  [variant]="bank.id === currentPickerBankId() ? 'primary' : 'secondary'"
+                  [fullWidth]="true"
+                  (click)="pickPhaseBank(bank.id)"
+                >
+                  {{ bank.code }} · {{ bank.name }}{{ bank.id === currentPickerBankId() ? ' · En el programa' : '' }}
                 </app-button>
               }
             </div>
