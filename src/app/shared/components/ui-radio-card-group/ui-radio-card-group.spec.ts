@@ -26,4 +26,17 @@ describe('UiRadioCardGroup', () => {
     buttons[0].dispatchEvent(new Event('click'));
     expect(emitted).toEqual(['searching']);
   });
+
+  it('usa el mismo alto que ui-input', () => {
+    const fixture = TestBed.createComponent(UiRadioCardGroup);
+    fixture.componentRef.setInput('id', 'prg-type');
+    fixture.componentRef.setInput('question', 'Tipo');
+    fixture.componentRef.setInput('options', [{ value: 'PPL', label: 'PPL' }]);
+    fixture.componentRef.setInput('value', 'PPL');
+    fixture.detectChanges();
+
+    const option = (fixture.nativeElement as HTMLElement).querySelector('.cg__opt') as HTMLElement;
+    expect(getComputedStyle(option).height).toBe('2.5rem');
+    expect(getComputedStyle(option).minHeight).toBe('2.5rem');
+  });
 });
