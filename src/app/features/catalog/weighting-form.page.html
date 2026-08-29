@@ -1,0 +1,101 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando ponderación' : 'Cargando ponderación'"
+      [subtitle]="creating() ? 'Estamos guardando la ponderación y su vigencia.' : 'Un momento.'"
+      [label]="creating() ? 'Creando ponderación' : 'Cargando ponderación'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar esta ponderación.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <ui-select
+          id="w-standard"
+          label="Estándar"
+          [uppercase]="false"
+          [options]="standardOptions()"
+          [value]="form.controls.standardId.value"
+          [disabled]="isView"
+          (valueChange)="form.controls.standardId.setValue($event)"
+        />
+        <div class="ap__grid">
+          <ui-select
+            id="w-unit"
+            label="Unidad"
+            [uppercase]="false"
+            [options]="unitOptions()"
+            [value]="form.controls.unitId.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.unitId.setValue($event)"
+          />
+          <ui-select
+            id="w-squadron"
+            label="Escuadrón"
+            [uppercase]="false"
+            [options]="squadronOptions()"
+            [value]="form.controls.squadronId.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.squadronId.setValue($event)"
+          />
+        </div>
+        <div class="ap__grid">
+          <ui-select
+            id="w-program"
+            label="Programa"
+            [uppercase]="false"
+            [options]="instructionProgramOptions"
+            [value]="form.controls.program.value"
+            [disabled]="isView"
+            (valueChange)="onProgram($event)"
+          />
+          <ui-input
+            id="w-value"
+            label="Valor ponderado"
+            type="number"
+            icon="info"
+            [min]="0"
+            [max]="100"
+            [step]="0.1"
+            [field]="form.controls.weightedValue"
+            [error]="requiredError('weightedValue', 'Indica el valor ponderado.')"
+          />
+        </div>
+        <div class="ap__grid">
+          <ui-date-picker
+            id="w-from"
+            label="Vigencia desde"
+            [field]="form.controls.validFrom"
+            [error]="requiredError('validFrom', 'Indica el inicio de vigencia.')"
+          />
+          <ui-date-picker
+            id="w-to"
+            label="Vigencia hasta"
+            [field]="form.controls.validTo"
+            [error]="requiredError('validTo', 'Indica el fin de vigencia.')"
+          />
+        </div>
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

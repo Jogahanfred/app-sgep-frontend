@@ -3,12 +3,17 @@ import type {
   CatalogWriteInput,
   CommissionWorkflowStatus,
   EntityStatus,
+  InstructionProgram,
+  ManeuverBankWriteInput,
+  MissionTypeWriteInput,
   SquadronWriteInput,
+  StandardWeightingWriteInput,
+  StandardWriteInput,
   TemporaryCommissionWriteInput,
   UnitWriteInput,
   UserWriteInput,
 } from '../entities/admin-catalog';
-import { COMMISSION_WORKFLOW } from '../entities/admin-catalog';
+import { COMMISSION_WORKFLOW, INSTRUCTION_PROGRAMS } from '../entities/admin-catalog';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -163,6 +168,68 @@ export function assertCommissionWrite(input: TemporaryCommissionWriteInput): Tem
     reason: required(input.reason, 'El motivo es obligatorio.'),
     status: assertWorkflow(input.status),
   };
+}
+
+export function assertMissionTypeWrite(input: MissionTypeWriteInput): MissionTypeWriteInput {
+  return {
+    code: assertCode(input.code, 'del tipo de misión'),
+    name: required(input.name, 'El nombre del tipo de misión es obligatorio.'),
+    description: input.description.trim(),
+  };
+}
+
+export function assertManeuverWrite(input: ManeuverBankWriteInput): ManeuverBankWriteInput {
+  return {
+    operationId: required(input.operationId, 'La operación es obligatoria.'),
+    code: assertCode(input.code, 'de la maniobra'),
+    name: required(input.name, 'El nombre de la maniobra es obligatorio.'),
+    description: input.description.trim(),
+  };
+}
+
+export function assertStandardWrite(input: StandardWriteInput): StandardWriteInput {
+  const sortOrder = Number(input.sortOrder);
+  if (!Number.isInteger(sortOrder) || sortOrder < 1) {
+    throw new InvalidAdminCatalogError('El orden del estándar debe ser un entero mayor que 0.');
+  }
+  return {
+    code: assertCode(input.code, 'del estándar'),
+    name: required(input.name, 'El nombre del estándar es obligatorio.'),
+    description: input.description.trim(),
+    sortOrder,
+  };
+}
+
+export function assertWeightingWrite(input: StandardWeightingWriteInput): StandardWeightingWriteInput {
+  const program = required(input.program, 'El programa es obligatorio.') as InstructionProgram;
+  if (!INSTRUCTION_PROGRAMS.includes(program)) {
+    throw new InvalidAdminCatalogError('El programa debe ser PPL, CPL, ATPL o IR.');
+  }
+  const weightedValue = Number(input.weightedValue);
+  if (!Number.isFinite(weightedValue) || weightedValue < 0 || weightedValue > 100) {
+    throw new InvalidAdminCatalogError('El valor ponderado debe estar entre 0 y 100.');
+  }
+  const validFrom = required(input.validFrom, 'La fecha de inicio de vigencia es obligatoria.');
+  const validTo = required(input.validTo, 'La fecha de fin de vigencia es obligatoria.');
+  if (!ISO_DATE.test(validFrom) || !ISO_DATE.test(validTo)) {
+    throw new InvalidAdminCatalogError('Indica un periodo de vigencia válido.');
+  }
+  if (validTo < validFrom) {
+    throw new InvalidAdminCatalogError('La vigencia no puede terminar antes de empezar.');
+  }
+  return {
+    standardId: required(input.standardId, 'El estándar es obligatorio.'),
+    unitId: required(input.unitId, 'La unidad es obligatoria.'),
+    squadronId: required(input.squadronId, 'El escuadrón es obligatorio.'),
+    program,
+    weightedValue: Math.round(weightedValue * 10) / 10,
+    validFrom,
+    validTo,
+  };
+}
+
+export function weightingIsCurrent(validTo: string, today = new Date().toISOString().slice(0, 10)): boolean {
+  return validTo >= today;
 }
 
 export function commissionStatusLabel(status: CommissionWorkflowStatus): string {

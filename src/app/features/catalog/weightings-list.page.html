@@ -1,0 +1,36 @@
+<div class="ap">
+  <p class="ap__lead">Ponderaciones de cada estándar por unidad, escuadrón, programa y vigencia.</p>
+
+  <div class="ap__toolbar ap__toolbar--search">
+    <ui-input
+      id="w-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por estándar, unidad, escuadrón o programa"
+      [field]="search"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar las ponderaciones. Recarga la página.</app-alert>
+  } @else {
+    <ui-table
+      heading="Ponderaciones"
+      caption="Ponderaciones"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando ponderaciones"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando ponderaciones"
+      emptyTitle="No hay resultados con ese buscador."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+    </ui-table>
+  }
+</div>

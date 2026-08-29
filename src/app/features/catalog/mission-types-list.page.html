@@ -1,0 +1,36 @@
+<div class="ap">
+  <p class="ap__lead">Tipos de misión: código, nombre y descripción.</p>
+
+  <div class="ap__toolbar ap__toolbar--search">
+    <ui-input
+      id="mt-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por código, nombre o descripción"
+      [field]="search"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar los tipos de misión. Recarga la página.</app-alert>
+  } @else {
+    <ui-table
+      heading="Tipos de misión"
+      caption="Tipos de misión"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando tipos de misión"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando tipos de misión"
+      emptyTitle="No hay resultados con ese buscador."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+    </ui-table>
+  }
+</div>

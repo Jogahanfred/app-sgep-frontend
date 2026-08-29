@@ -1,0 +1,60 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando operación' : 'Cargando operación'"
+      [subtitle]="creating() ? 'Estamos guardando la operación en el catálogo de instrucción.' : 'Un momento.'"
+      [label]="creating() ? 'Creando operación' : 'Cargando operación'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar esta operación.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <ui-input
+          id="op-name"
+          label="Nombre"
+          icon="shield"
+          placeholder="Vuelo visual"
+          [field]="form.controls.name"
+          [error]="requiredError('name', 'Escribe el nombre.')"
+        />
+        <ui-input
+          id="op-desc"
+          label="Descripción"
+          icon="info"
+          placeholder="Para qué se usa esta operación"
+          [field]="form.controls.description"
+        />
+        <ui-select
+          id="op-status"
+          label="Estado"
+          [uppercase]="false"
+          [options]="entityStatusOptions"
+          [value]="form.controls.status.value"
+          [disabled]="isView"
+          (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

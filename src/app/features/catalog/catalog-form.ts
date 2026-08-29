@@ -17,6 +17,13 @@ export const entityStatusOptions: ChoiceOption[] = [
   { value: 'inactive', label: 'Inactivo' },
 ];
 
+export const instructionProgramOptions: ChoiceOption[] = [
+  { value: 'PPL', label: 'PPL' },
+  { value: 'CPL', label: 'CPL' },
+  { value: 'ATPL', label: 'ATPL' },
+  { value: 'IR', label: 'IR' },
+];
+
 export function catalogPasswordValidator(requiredPassword: boolean): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const message = passwordStrengthError(String(control.value ?? ''), requiredPassword);

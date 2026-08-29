@@ -2,10 +2,19 @@ import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import type {
   CatalogWriteInput,
+  ManeuverBankEntity,
+  ManeuverBankWriteInput,
+  MissionTypeEntity,
+  MissionTypeWriteInput,
+  OperationEntity,
   SquadronEntity,
   SquadronWriteInput,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  StandardEntity,
+  StandardWeightingEntity,
+  StandardWeightingWriteInput,
+  StandardWriteInput,
   TemporaryCommissionEntity,
   TemporaryCommissionWriteInput,
   UnitEntity,
@@ -19,12 +28,17 @@ import type { AdminCatalogRepository } from '../../ports/admin-catalog.repositor
 import {
   buildSpecialtyUsers,
   SEED_COMMISSIONS,
+  SEED_MANEUVERS,
+  SEED_MISSION_TYPES,
+  SEED_OPERATIONS,
   SEED_PASSWORDS,
   SEED_ROLES,
   SEED_SPECIALTIES,
   SEED_SQUADRONS,
+  SEED_STANDARDS,
   SEED_UNITS,
   SEED_USERS,
+  SEED_WEIGHTINGS,
 } from './admin.data';
 
 const LATENCY = 140;
@@ -37,6 +51,11 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private units: UnitEntity[] = structuredClone(SEED_UNITS);
   private squadrons: SquadronEntity[] = structuredClone(SEED_SQUADRONS);
   private commissions: TemporaryCommissionEntity[] = structuredClone(SEED_COMMISSIONS);
+  private operations: OperationEntity[] = structuredClone(SEED_OPERATIONS);
+  private missionTypes: MissionTypeEntity[] = structuredClone(SEED_MISSION_TYPES);
+  private maneuvers: ManeuverBankEntity[] = structuredClone(SEED_MANEUVERS);
+  private standards: StandardEntity[] = structuredClone(SEED_STANDARDS);
+  private weightings: StandardWeightingEntity[] = structuredClone(SEED_WEIGHTINGS);
   private passwords = new Map(Object.entries(SEED_PASSWORDS));
   private seq = 1;
 
@@ -237,6 +256,178 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       return of({ ...commission }).pipe(delay(LATENCY));
     } catch (error) {
       return throwError(() => error);
+    }
+  }
+
+  listOperations(): Observable<OperationEntity[]> {
+    return of(this.operations.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createOperation(input: CatalogWriteInput): Observable<OperationEntity> {
+    try {
+      this.assertUniqueName(this.operations, input.name, 'Ya existe una operación con ese nombre.');
+      const item: OperationEntity = { id: `op-${this.seq++}`, ...input };
+      this.operations = [item, ...this.operations];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateOperation(id: string, input: CatalogWriteInput): Observable<OperationEntity> {
+    const index = this.operations.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa operación.'));
+    }
+    try {
+      this.assertUniqueName(this.operations, input.name, 'Ya existe una operación con ese nombre.', id);
+      const item: OperationEntity = { id, ...input };
+      this.operations[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listMissionTypes(): Observable<MissionTypeEntity[]> {
+    return of(this.missionTypes.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createMissionType(input: MissionTypeWriteInput): Observable<MissionTypeEntity> {
+    try {
+      this.assertUniqueCode(this.missionTypes, input.code, 'Ya existe un tipo de misión con ese código.');
+      const item: MissionTypeEntity = { id: `mt-${this.seq++}`, ...input };
+      this.missionTypes = [item, ...this.missionTypes];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateMissionType(id: string, input: MissionTypeWriteInput): Observable<MissionTypeEntity> {
+    const index = this.missionTypes.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese tipo de misión.'));
+    }
+    try {
+      this.assertUniqueCode(this.missionTypes, input.code, 'Ya existe un tipo de misión con ese código.', id);
+      const item: MissionTypeEntity = { id, ...input };
+      this.missionTypes[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listManeuvers(): Observable<ManeuverBankEntity[]> {
+    return of(this.maneuvers.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createManeuver(input: ManeuverBankWriteInput): Observable<ManeuverBankEntity> {
+    try {
+      this.assertOperationExists(input.operationId);
+      this.assertUniqueCode(this.maneuvers, input.code, 'Ya existe una maniobra con ese código.');
+      const item: ManeuverBankEntity = { id: `man-${this.seq++}`, ...input };
+      this.maneuvers = [item, ...this.maneuvers];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateManeuver(id: string, input: ManeuverBankWriteInput): Observable<ManeuverBankEntity> {
+    const index = this.maneuvers.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa maniobra.'));
+    }
+    try {
+      this.assertOperationExists(input.operationId);
+      this.assertUniqueCode(this.maneuvers, input.code, 'Ya existe una maniobra con ese código.', id);
+      const item: ManeuverBankEntity = { id, ...input };
+      this.maneuvers[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listStandards(): Observable<StandardEntity[]> {
+    return of(this.standards.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createStandard(input: StandardWriteInput): Observable<StandardEntity> {
+    try {
+      this.assertUniqueCode(this.standards, input.code, 'Ya existe un estándar con ese código.');
+      const item: StandardEntity = { id: `std-${this.seq++}`, ...input };
+      this.standards = [item, ...this.standards];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateStandard(id: string, input: StandardWriteInput): Observable<StandardEntity> {
+    const index = this.standards.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese estándar.'));
+    }
+    try {
+      this.assertUniqueCode(this.standards, input.code, 'Ya existe un estándar con ese código.', id);
+      const item: StandardEntity = { id, ...input };
+      this.standards[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listWeightings(): Observable<StandardWeightingEntity[]> {
+    return of(this.weightings.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createWeighting(input: StandardWeightingWriteInput): Observable<StandardWeightingEntity> {
+    try {
+      this.assertWeightingRefs(input);
+      const item: StandardWeightingEntity = { id: `w-${this.seq++}`, ...input };
+      this.weightings = [item, ...this.weightings];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateWeighting(id: string, input: StandardWeightingWriteInput): Observable<StandardWeightingEntity> {
+    const index = this.weightings.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa ponderación.'));
+    }
+    try {
+      this.assertWeightingRefs(input);
+      const item: StandardWeightingEntity = { id, ...input };
+      this.weightings[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  private assertOperationExists(operationId: string): void {
+    if (!this.operations.some((item) => item.id === operationId)) {
+      throw new InvalidAdminCatalogError('La operación indicada no existe.');
+    }
+  }
+
+  private assertWeightingRefs(input: StandardWeightingWriteInput): void {
+    if (!this.standards.some((item) => item.id === input.standardId)) {
+      throw new InvalidAdminCatalogError('El estándar indicado no existe.');
+    }
+    this.assertUnitExists(input.unitId);
+    const squadron = this.squadrons.find((item) => item.id === input.squadronId);
+    if (!squadron) {
+      throw new InvalidAdminCatalogError('El escuadrón indicado no existe.');
+    }
+    if (squadron.unitId !== input.unitId) {
+      throw new InvalidAdminCatalogError('El escuadrón no pertenece a esa unidad.');
     }
   }
 

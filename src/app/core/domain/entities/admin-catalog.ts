@@ -115,3 +115,77 @@ export interface TemporaryCommissionWriteInput {
   reason: string;
   status: CommissionWorkflowStatus;
 }
+
+export interface OperationEntity {
+  id: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface MissionTypeEntity {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+}
+
+export interface MissionTypeWriteInput {
+  code: string;
+  name: string;
+  description: string;
+}
+
+export interface ManeuverBankEntity {
+  id: string;
+  operationId: string;
+  code: string;
+  name: string;
+  description: string;
+}
+
+export interface ManeuverBankWriteInput {
+  operationId: string;
+  code: string;
+  name: string;
+  description: string;
+}
+
+export interface StandardEntity {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  sortOrder: number;
+}
+
+export interface StandardWriteInput {
+  code: string;
+  name: string;
+  description: string;
+  sortOrder: number;
+}
+
+export const INSTRUCTION_PROGRAMS = ['PPL', 'CPL', 'ATPL', 'IR'] as const;
+export type InstructionProgram = (typeof INSTRUCTION_PROGRAMS)[number];
+
+export interface StandardWeightingEntity {
+  id: string;
+  standardId: string;
+  unitId: string;
+  squadronId: string;
+  program: InstructionProgram;
+  weightedValue: number;
+  validFrom: string;
+  validTo: string;
+}
+
+export interface StandardWeightingWriteInput {
+  standardId: string;
+  unitId: string;
+  squadronId: string;
+  program: InstructionProgram;
+  weightedValue: number;
+  validFrom: string;
+  validTo: string;
+}

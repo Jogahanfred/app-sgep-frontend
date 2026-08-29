@@ -19,6 +19,7 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/roles/nuevo', component: BlankPage },
           { path: 'catalogo/unidades', component: BlankPage },
           { path: 'catalogo/comisiones-temporales', component: BlankPage },
+          { path: 'catalogo/operaciones', component: BlankPage },
         ]),
       ],
     }).compileComponents();
@@ -69,5 +70,24 @@ describe('CatalogLayout', () => {
     expect(root.querySelector('nav[aria-label="Estructura operativa"]')).toBeNull();
     expect(root.textContent).toContain('Catálogo');
     expect(root.textContent).not.toContain('Estructura operativa');
+  });
+
+  it('muestra solo Catálogos de instrucción en operaciones y maestros', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/operaciones');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
+    expect(text).toContain('Catálogos de instrucción');
+    expect(text).toContain('Operaciones');
+    expect(text).toContain('Tipo de misión');
+    expect(text).toContain('Maniobras');
+    expect(text).toContain('Estándares');
+    expect(text).toContain('Ponderaciones');
+    expect(text).not.toContain('Usuarios');
+    expect(text).not.toContain('Estructura operativa');
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
   });
 });

@@ -1,0 +1,61 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando tipo de misión' : 'Cargando tipo de misión'"
+      [subtitle]="creating() ? 'Estamos guardando el tipo de misión.' : 'Un momento.'"
+      [label]="creating() ? 'Creando tipo de misión' : 'Cargando tipo de misión'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este tipo de misión.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <div class="ap__grid">
+          <ui-input
+            id="mt-code"
+            label="Código"
+            icon="id-card"
+            placeholder="NAV"
+            [field]="form.controls.code"
+            [error]="requiredError('code', 'Escribe el código.')"
+          />
+          <ui-input
+            id="mt-name"
+            label="Nombre"
+            icon="shield"
+            placeholder="Navegación"
+            [field]="form.controls.name"
+            [error]="requiredError('name', 'Escribe el nombre.')"
+          />
+        </div>
+        <ui-input
+          id="mt-desc"
+          label="Descripción"
+          icon="info"
+          placeholder="Para qué se usa este tipo de misión"
+          [field]="form.controls.description"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

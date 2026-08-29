@@ -1,10 +1,19 @@
 import { Observable } from 'rxjs';
 import type {
   CatalogWriteInput,
+  ManeuverBankEntity,
+  ManeuverBankWriteInput,
+  MissionTypeEntity,
+  MissionTypeWriteInput,
+  OperationEntity,
   SquadronEntity,
   SquadronWriteInput,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  StandardEntity,
+  StandardWeightingEntity,
+  StandardWeightingWriteInput,
+  StandardWriteInput,
   TemporaryCommissionEntity,
   TemporaryCommissionWriteInput,
   UnitEntity,
@@ -40,4 +49,24 @@ export interface AdminCatalogRepository {
   listTemporaryCommissions(): Observable<TemporaryCommissionEntity[]>;
   createTemporaryCommission(input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity>;
   updateTemporaryCommission(id: string, input: TemporaryCommissionWriteInput): Observable<TemporaryCommissionEntity>;
+
+  listOperations(): Observable<OperationEntity[]>;
+  createOperation(input: CatalogWriteInput): Observable<OperationEntity>;
+  updateOperation(id: string, input: CatalogWriteInput): Observable<OperationEntity>;
+
+  listMissionTypes(): Observable<MissionTypeEntity[]>;
+  createMissionType(input: MissionTypeWriteInput): Observable<MissionTypeEntity>;
+  updateMissionType(id: string, input: MissionTypeWriteInput): Observable<MissionTypeEntity>;
+
+  listManeuvers(): Observable<ManeuverBankEntity[]>;
+  createManeuver(input: ManeuverBankWriteInput): Observable<ManeuverBankEntity>;
+  updateManeuver(id: string, input: ManeuverBankWriteInput): Observable<ManeuverBankEntity>;
+
+  listStandards(): Observable<StandardEntity[]>;
+  createStandard(input: StandardWriteInput): Observable<StandardEntity>;
+  updateStandard(id: string, input: StandardWriteInput): Observable<StandardEntity>;
+
+  listWeightings(): Observable<StandardWeightingEntity[]>;
+  createWeighting(input: StandardWeightingWriteInput): Observable<StandardWeightingEntity>;
+  updateWeighting(id: string, input: StandardWeightingWriteInput): Observable<StandardWeightingEntity>;
 }

@@ -80,5 +80,8 @@ describe('Header', () => {
     expect(text).toContain('Especialidades');
     expect(text).toContain('Estructura operativa');
     expect(text).toContain('Unidades');
+    expect(text).toContain('Catálogos de instrucción');
+    expect(text).toContain('Operaciones');
+    expect(text).toContain('Ponderaciones');
   });
 });

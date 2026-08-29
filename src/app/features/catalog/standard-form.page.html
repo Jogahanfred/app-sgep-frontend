@@ -1,0 +1,71 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando estándar' : 'Cargando estándar'"
+      [subtitle]="creating() ? 'Estamos guardando el estándar.' : 'Un momento.'"
+      [label]="creating() ? 'Creando estándar' : 'Cargando estándar'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este estándar.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+        <div class="ap__grid">
+          <ui-input
+            id="std-code"
+            label="Código"
+            icon="id-card"
+            placeholder="TOFF-01"
+            [field]="form.controls.code"
+            [error]="requiredError('code', 'Escribe el código.')"
+          />
+          <ui-input
+            id="std-order"
+            label="Orden"
+            type="number"
+            icon="info"
+            [min]="1"
+            [step]="1"
+            [field]="form.controls.sortOrder"
+            [error]="requiredError('sortOrder', 'Indica el orden.')"
+          />
+        </div>
+        <ui-input
+          id="std-name"
+          label="Nombre"
+          icon="shield"
+          placeholder="Despegue normal"
+          [field]="form.controls.name"
+          [error]="requiredError('name', 'Escribe el nombre.')"
+        />
+        <ui-input
+          id="std-desc"
+          label="Descripción"
+          icon="info"
+          placeholder="Qué se evalúa en este estándar"
+          [field]="form.controls.description"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

@@ -1,7 +1,12 @@
 import type {
+  ManeuverBankEntity,
+  MissionTypeEntity,
+  OperationEntity,
   SquadronEntity,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  StandardEntity,
+  StandardWeightingEntity,
   TemporaryCommissionEntity,
   UnitEntity,
   UserEntity,
@@ -337,6 +342,159 @@ export const SEED_COMMISSIONS: TemporaryCommissionEntity[] = [
     endDate: '2026-06-30',
     reason: 'Apoyo de mantenimiento en la línea de Base Norte.',
     status: 'finished',
+  },
+];
+
+export const SEED_OPERATIONS: OperationEntity[] = [
+  {
+    id: 'op-vfr',
+    name: 'Vuelo visual',
+    description: 'Operación diurna en condiciones VMC: circuitos, transiciones y toma y despegue.',
+    status: 'active',
+  },
+  {
+    id: 'op-ifr',
+    name: 'Vuelo instrumental',
+    description: 'Procedimientos IFR, espera, aproximación y mínima visibilidad.',
+    status: 'active',
+  },
+  {
+    id: 'op-nav',
+    name: 'Navegación',
+    description: 'Rutas, puntos de reporte y gestión de combustible en travesía.',
+    status: 'active',
+  },
+  {
+    id: 'op-emer',
+    name: 'Emergencias',
+    description: 'Pérdida, motor, fuego y toma forzosa. Solo en instrucción supervisada.',
+    status: 'inactive',
+  },
+];
+
+export const SEED_MISSION_TYPES: MissionTypeEntity[] = [
+  {
+    id: 'mt-local',
+    code: 'LOC',
+    name: 'Misión local',
+    description: 'Circuito y zona de trabajo de la base, sin salir del TMA.',
+  },
+  {
+    id: 'mt-nav',
+    code: 'NAV',
+    name: 'Navegación',
+    description: 'Travesía con plan de vuelo y puntos de reporte.',
+  },
+  {
+    id: 'mt-ifr',
+    code: 'IFR',
+    name: 'Instrumental',
+    description: 'Salida, espera y aproximación por instrumentos.',
+  },
+];
+
+export const SEED_MANEUVERS: ManeuverBankEntity[] = [
+  {
+    id: 'man-toff',
+    operationId: 'op-vfr',
+    code: 'TOFF',
+    name: 'Despegue',
+    description: 'Carrera, rotación y ascenso inicial con configuración limpia.',
+  },
+  {
+    id: 'man-land',
+    operationId: 'op-vfr',
+    code: 'LAND',
+    name: 'Aterrizaje',
+    description: 'Aproximación estabilizada, flare y toma en el primer tercio.',
+  },
+  {
+    id: 'man-hold',
+    operationId: 'op-ifr',
+    code: 'HOLD',
+    name: 'Espera',
+    description: 'Entrada directa o teardrop y mantenimiento del circuito publicado.',
+  },
+  {
+    id: 'man-stall',
+    operationId: 'op-emer',
+    code: 'STALL',
+    name: 'Pérdida',
+    description: 'Reconocimiento, recuperación y control de altitud.',
+  },
+];
+
+export const SEED_STANDARDS: StandardEntity[] = [
+  {
+    id: 'std-toff',
+    code: 'TOFF-01',
+    name: 'Despegue normal',
+    description: 'Eje de pista, velocidades y perfil de ascenso.',
+    sortOrder: 10,
+  },
+  {
+    id: 'std-land',
+    code: 'LAND-01',
+    name: 'Aterrizaje estabilizado',
+    description: 'Pendiente, velocidad y toma en zona marcada.',
+    sortOrder: 20,
+  },
+  {
+    id: 'std-hold',
+    code: 'HOLD-01',
+    name: 'Entrada a espera',
+    description: 'Radial, crono y corrección de viento.',
+    sortOrder: 30,
+  },
+  {
+    id: 'std-crm',
+    code: 'CRM-01',
+    name: 'Gestión de cabina',
+    description: 'Briefing, distribución de tareas y llamada cruzada.',
+    sortOrder: 40,
+  },
+];
+
+export const SEED_WEIGHTINGS: StandardWeightingEntity[] = [
+  {
+    id: 'w-toff-ppl',
+    standardId: 'std-toff',
+    unitId: 'unit-norte',
+    squadronId: 'sq-alfa',
+    program: 'PPL',
+    weightedValue: 25,
+    validFrom: '2026-01-01',
+    validTo: '2026-12-31',
+  },
+  {
+    id: 'w-land-ppl',
+    standardId: 'std-land',
+    unitId: 'unit-norte',
+    squadronId: 'sq-alfa',
+    program: 'PPL',
+    weightedValue: 30,
+    validFrom: '2026-01-01',
+    validTo: '2026-12-31',
+  },
+  {
+    id: 'w-hold-ir',
+    standardId: 'std-hold',
+    unitId: 'unit-sur',
+    squadronId: 'sq-sur',
+    program: 'IR',
+    weightedValue: 20,
+    validFrom: '2026-03-01',
+    validTo: '2027-02-28',
+  },
+  {
+    id: 'w-crm-cpl',
+    standardId: 'std-crm',
+    unitId: 'unit-academia',
+    squadronId: 'sq-formacion',
+    program: 'CPL',
+    weightedValue: 15,
+    validFrom: '2025-09-01',
+    validTo: '2026-08-31',
   },
 ];
 

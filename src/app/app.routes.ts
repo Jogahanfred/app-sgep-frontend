@@ -388,6 +388,106 @@ export const routes: Routes = [
           },
         },
       },
+      {
+        path: 'operaciones',
+        loadComponent: () => import('./features/catalog/operations-list.page').then((m) => m.OperationsListPage),
+        data: { seo: { title: 'Operaciones | SIGA', description: 'Catálogo maestro de operaciones de instrucción.' } },
+      },
+      {
+        path: 'operaciones/nuevo',
+        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        data: { seo: { title: 'Nueva operación | SIGA', description: 'Alta de una operación de instrucción.' } },
+      },
+      {
+        path: 'operaciones/:id/editar',
+        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar operación | SIGA', description: 'Nombre, descripción y estado de la operación.' } },
+      },
+      {
+        path: 'operaciones/:id',
+        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de operación | SIGA', description: 'Consulta la operación, sin modificar.' } },
+      },
+      {
+        path: 'tipos-de-mision',
+        loadComponent: () => import('./features/catalog/mission-types-list.page').then((m) => m.MissionTypesListPage),
+        data: { seo: { title: 'Tipos de misión | SIGA', description: 'Catálogo maestro de tipos de misión.' } },
+      },
+      {
+        path: 'tipos-de-mision/nuevo',
+        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        data: { seo: { title: 'Nuevo tipo de misión | SIGA', description: 'Alta de un tipo de misión.' } },
+      },
+      {
+        path: 'tipos-de-mision/:id/editar',
+        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar tipo de misión | SIGA', description: 'Código, nombre y descripción del tipo de misión.' } },
+      },
+      {
+        path: 'tipos-de-mision/:id',
+        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de tipo de misión | SIGA', description: 'Consulta el tipo de misión, sin modificar.' } },
+      },
+      {
+        path: 'maniobras',
+        loadComponent: () => import('./features/catalog/maneuvers-list.page').then((m) => m.ManeuversListPage),
+        data: { seo: { title: 'Maniobras | SIGA', description: 'Banco de maniobras de instrucción.' } },
+      },
+      {
+        path: 'maniobras/nuevo',
+        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        data: { seo: { title: 'Nueva maniobra | SIGA', description: 'Alta de una maniobra.' } },
+      },
+      {
+        path: 'maniobras/:id/editar',
+        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar maniobra | SIGA', description: 'Operación, código, nombre y descripción de la maniobra.' } },
+      },
+      {
+        path: 'maniobras/:id',
+        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de maniobra | SIGA', description: 'Consulta la maniobra, sin modificar.' } },
+      },
+      {
+        path: 'estandares',
+        loadComponent: () => import('./features/catalog/standards-list.page').then((m) => m.StandardsListPage),
+        data: { seo: { title: 'Estándares | SIGA', description: 'Estándares de evaluación de instrucción.' } },
+      },
+      {
+        path: 'estandares/nuevo',
+        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        data: { seo: { title: 'Nuevo estándar | SIGA', description: 'Alta de un estándar.' } },
+      },
+      {
+        path: 'estandares/:id/editar',
+        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar estándar | SIGA', description: 'Código, nombre, descripción y orden del estándar.' } },
+      },
+      {
+        path: 'estandares/:id',
+        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de estándar | SIGA', description: 'Consulta el estándar, sin modificar.' } },
+      },
+      {
+        path: 'ponderaciones',
+        loadComponent: () => import('./features/catalog/weightings-list.page').then((m) => m.WeightingsListPage),
+        data: { seo: { title: 'Ponderaciones | SIGA', description: 'Ponderaciones de estándares por unidad, escuadrón y programa.' } },
+      },
+      {
+        path: 'ponderaciones/nuevo',
+        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        data: { seo: { title: 'Nueva ponderación | SIGA', description: 'Alta de una ponderación.' } },
+      },
+      {
+        path: 'ponderaciones/:id/editar',
+        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar ponderación | SIGA', description: 'Estándar, alcance, valor y vigencia.' } },
+      },
+      {
+        path: 'ponderaciones/:id',
+        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de ponderación | SIGA', description: 'Consulta la ponderación, sin modificar.' } },
+      },
     ],
   },
   { path: '**', redirectTo: '' },

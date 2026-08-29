@@ -248,6 +248,16 @@ const configuracion: NavColumn[] = [
           { label: 'Comisiones temporales', href: '/catalogo/comisiones-temporales' },
         ],
       },
+      {
+        heading: 'Catálogos de instrucción',
+        links: [
+          { label: 'Operaciones', href: '/catalogo/operaciones' },
+          { label: 'Tipo de misión', href: '/catalogo/tipos-de-mision' },
+          { label: 'Maniobras', href: '/catalogo/maniobras' },
+          { label: 'Estándares', href: '/catalogo/estandares' },
+          { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
+        ],
+      },
     ],
   },
 ];

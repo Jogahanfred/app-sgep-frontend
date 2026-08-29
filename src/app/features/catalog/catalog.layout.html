@@ -12,6 +12,20 @@
           <a routerLink="/catalogo/comisiones-temporales" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Comisiones temporales</a>
         </nav>
       }
+    } @else if (domain() === 'instruction') {
+      <header class="adm__intro">
+        <p class="adm__kicker">Catálogos de instrucción</p>
+        <p class="adm__lead">Operaciones, tipos de misión, maniobras, estándares y ponderaciones. Aquí se configuran los catálogos maestros.</p>
+      </header>
+      @if (showDomainNav()) {
+        <nav class="adm__nav" aria-label="Catálogos de instrucción">
+          <a routerLink="/catalogo/operaciones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Operaciones</a>
+          <a routerLink="/catalogo/tipos-de-mision" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Tipo de misión</a>
+          <a routerLink="/catalogo/maniobras" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Maniobras</a>
+          <a routerLink="/catalogo/estandares" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Estándares</a>
+          <a routerLink="/catalogo/ponderaciones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Ponderaciones</a>
+        </nav>
+      }
     } @else {
       <header class="adm__intro">
         <p class="adm__kicker">Catálogo</p>

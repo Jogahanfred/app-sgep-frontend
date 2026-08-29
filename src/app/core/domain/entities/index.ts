@@ -2,10 +2,20 @@ export type {
   CatalogWriteInput,
   CommissionWorkflowStatus,
   EntityStatus,
+  InstructionProgram,
+  ManeuverBankEntity,
+  ManeuverBankWriteInput,
+  MissionTypeEntity,
+  MissionTypeWriteInput,
+  OperationEntity,
   SquadronEntity,
   SquadronWriteInput,
   SpecialtyEntity,
   SpecialtyUserEntity,
+  StandardEntity,
+  StandardWeightingEntity,
+  StandardWeightingWriteInput,
+  StandardWriteInput,
   TemporaryCommissionEntity,
   TemporaryCommissionWriteInput,
   UnitEntity,
@@ -14,7 +24,7 @@ export type {
   UserRoleEntity,
   UserWriteInput,
 } from './admin-catalog';
-export { COMMISSION_WORKFLOW, SESSION_DEMO_USER_ID } from './admin-catalog';
+export { COMMISSION_WORKFLOW, INSTRUCTION_PROGRAMS, SESSION_DEMO_USER_ID } from './admin-catalog';
 export type { Account } from './account';
 export type { BankCard, CardKind } from './bank-card';
 export type { FaqItem } from './faq-item';
