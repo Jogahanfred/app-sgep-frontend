@@ -240,6 +240,10 @@ const configuracion: NavColumn[] = [
           { label: 'Especialidades', href: '/catalogo/especialidades' },
         ],
       },
+    ],
+  },
+  {
+    blocks: [
       {
         heading: 'Estructura operativa',
         links: [
@@ -248,6 +252,10 @@ const configuracion: NavColumn[] = [
           { label: 'Comisiones temporales', href: '/catalogo/comisiones-temporales' },
         ],
       },
+    ],
+  },
+  {
+    blocks: [
       {
         heading: 'Catálogos de instrucción',
         links: [
@@ -258,6 +266,10 @@ const configuracion: NavColumn[] = [
           { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
         ],
       },
+    ],
+  },
+  {
+    blocks: [
       {
         heading: 'Material aéreo',
         links: [

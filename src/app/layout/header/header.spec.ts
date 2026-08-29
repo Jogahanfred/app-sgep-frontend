@@ -72,7 +72,8 @@ describe('Header', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
     expect(component.openGroup()?.label).toBe('Configuración');
     expect(text).toContain('Catálogos');
     expect(text).toContain('Usuarios');
@@ -85,5 +86,7 @@ describe('Header', () => {
     expect(text).toContain('Ponderaciones');
     expect(text).toContain('Material aéreo');
     expect(text).toContain('Aeronaves');
+    expect(text).toContain('Flotas');
+    expect(root.querySelectorAll('.mega__col').length).toBe(4);
   });
 });
