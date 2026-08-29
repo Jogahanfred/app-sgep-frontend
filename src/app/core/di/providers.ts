@@ -24,6 +24,8 @@ import {
   CreateManeuver,
   CreateMissionType,
   CreateOperation,
+  CreatePhaseBank,
+  CreateSubphaseBank,
   CreateSquadron,
   CreateStandard,
   CreateTemporaryCommission,
@@ -59,6 +61,8 @@ import {
   UpdateManeuver,
   UpdateMissionType,
   UpdateOperation,
+  UpdatePhaseBank,
+  UpdateSubphaseBank,
   UpdateSquadron,
   UpdateStandard,
   UpdateTemporaryCommission,
@@ -417,8 +421,28 @@ export const CORE_PROVIDERS: Provider[] = [
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {
+    provide: CreatePhaseBank,
+    useFactory: (repo: AdminCatalogRepository) => new CreatePhaseBank(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdatePhaseBank,
+    useFactory: (repo: AdminCatalogRepository) => new UpdatePhaseBank(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
     provide: ListSubphaseBanks,
     useFactory: (repo: AdminCatalogRepository) => new ListSubphaseBanks(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateSubphaseBank,
+    useFactory: (repo: AdminCatalogRepository) => new CreateSubphaseBank(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateSubphaseBank,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateSubphaseBank(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

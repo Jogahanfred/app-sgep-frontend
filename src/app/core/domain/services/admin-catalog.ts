@@ -10,10 +10,12 @@ import type {
   ManeuverBankWriteInput,
   MissionAssignMode,
   MissionTypeWriteInput,
+  PhaseBankWriteInput,
   PhaseDraftInput,
   ProgramCurriculumWriteInput,
   ProgramType,
   ProgramWriteInput,
+  SubphaseBankWriteInput,
   SubphaseDraftInput,
   SquadronWriteInput,
   StandardWeightingWriteInput,
@@ -262,6 +264,24 @@ export function programCoverUrl(type: ProgramType, imageUrl?: string): string {
   const custom = imageUrl?.trim();
   if (custom) return custom;
   return `/programs/${type.toLowerCase()}.jpg`;
+}
+
+export function assertPhaseBankWrite(input: PhaseBankWriteInput): PhaseBankWriteInput {
+  return {
+    code: assertCode(input.code, 'del banco de fase'),
+    name: required(input.name, 'El nombre del banco de fase es obligatorio.'),
+    description: input.description.trim(),
+    status: assertStatus(input.status),
+  };
+}
+
+export function assertSubphaseBankWrite(input: SubphaseBankWriteInput): SubphaseBankWriteInput {
+  return {
+    code: assertCode(input.code, 'del banco de subfase'),
+    name: required(input.name, 'El nombre del banco de subfase es obligatorio.'),
+    description: input.description.trim(),
+    status: assertStatus(input.status),
+  };
 }
 
 export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput {

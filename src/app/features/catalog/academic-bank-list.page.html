@@ -1,0 +1,36 @@
+<div class="ap">
+  <p class="ap__lead">{{ lead }}</p>
+
+  <div class="ap__toolbar ap__toolbar--search">
+    <ui-input
+      [id]="isPhase ? 'pb-search' : 'sb-search'"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por código, nombre o descripción"
+      [field]="search"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar el banco. Recarga la página.</app-alert>
+  } @else {
+    <ui-table
+      [heading]="heading"
+      [caption]="heading"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      [loadingTitle]="'Cargando ' + heading.toLowerCase()"
+      loadingSubtitle="Un momento."
+      [loadingLabel]="'Cargando ' + heading.toLowerCase()"
+      emptyTitle="No hay resultados con ese buscador."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+    </ui-table>
+  }
+</div>

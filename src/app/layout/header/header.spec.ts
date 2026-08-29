@@ -100,7 +100,10 @@ describe('Header', () => {
     expect(text).not.toContain('Nueva ponderación');
     expect(text).toContain('Formación académica');
     expect(text).toContain('Programas');
+    expect(text).toContain('Banco de fases');
+    expect(text).toContain('Banco de subfases');
     expect(text).not.toContain('Nuevo programa');
+    expect(text).not.toContain('Nuevo banco');
     expect(text).toContain('Material aéreo');
     expect(text).toContain('Aeronaves');
     expect(root.querySelector('.mega__title')?.textContent).toContain('Configuración');

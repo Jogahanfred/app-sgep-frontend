@@ -53,6 +53,12 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('C1');
     expect(text).toContain('C17');
     expect(text).toContain('Añadir fase al itinerario');
+    expect(text).toContain('Banco de fases');
+    expect(text).toContain('Banco de subfases');
+    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[id^="phase-bank-"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-table')).toBeNull();
   });
 

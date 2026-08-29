@@ -260,7 +260,11 @@ const configuracion: NavColumn[] = [
     blocks: [
       {
         heading: 'Formación académica',
-        links: [{ label: 'Programas', href: '/catalogo/programas' }],
+        links: [
+          { label: 'Programas', href: '/catalogo/programas' },
+          { label: 'Banco de fases', href: '/catalogo/banco-fases' },
+          { label: 'Banco de subfases', href: '/catalogo/banco-subfases' },
+        ],
       },
     ],
   },

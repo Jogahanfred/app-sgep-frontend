@@ -2,11 +2,15 @@ import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { MockAdminCatalogRepository } from '../../adapters/mock/mock-admin-catalog.repository';
 import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
+import { CreatePhaseBank } from './create-phase-bank';
+import { CreateSubphaseBank } from './create-subphase-bank';
 import { ListPhaseBanks } from './list-phase-banks';
 import { ListPhases } from './list-phases';
 import { ListPrograms } from './list-programs';
+import { ListSubphaseBanks } from './list-subphase-banks';
 import { ListSubphases } from './list-subphases';
 import { SaveProgramCurriculum } from './save-program-curriculum';
+import { UpdatePhaseBank } from './update-phase-bank';
 
 describe('formación académica', () => {
   it('lista los programas de la academia', async () => {
@@ -97,6 +101,56 @@ describe('formación académica', () => {
               ],
             },
           ],
+        }),
+      ),
+    ).rejects.toBeInstanceOf(InvalidAdminCatalogError);
+  });
+
+  it('crea y actualiza el banco de fases fuera del programa', async () => {
+    const repo = new MockAdminCatalogRepository();
+    const created = await firstValueFrom(
+      new CreatePhaseBank(repo).execute({
+        code: 'adv',
+        name: 'Avanzada',
+        description: 'Maniobras avanzadas.',
+        status: 'active',
+      }),
+    );
+    expect(created.code).toBe('ADV');
+    const updated = await firstValueFrom(
+      new UpdatePhaseBank(repo).execute(created.id, {
+        code: 'ADV',
+        name: 'Fase avanzada',
+        description: 'Maniobras avanzadas.',
+        status: 'inactive',
+      }),
+    );
+    expect(updated.name).toBe('Fase avanzada');
+    expect(updated.status).toBe('inactive');
+    const banks = await firstValueFrom(new ListPhaseBanks(repo).execute());
+    expect(banks.some((item) => item.id === created.id && item.name === 'Fase avanzada')).toBe(true);
+  });
+
+  it('crea un banco de subfase y rechaza un código duplicado', async () => {
+    const repo = new MockAdminCatalogRepository();
+    const created = await firstValueFrom(
+      new CreateSubphaseBank(repo).execute({
+        code: 'line',
+        name: 'Línea',
+        description: 'Vuelo en línea.',
+        status: 'active',
+      }),
+    );
+    expect(created.code).toBe('LINE');
+    const banks = await firstValueFrom(new ListSubphaseBanks(repo).execute());
+    expect(banks.some((item) => item.id === created.id)).toBe(true);
+    await expect(
+      firstValueFrom(
+        new CreatePhaseBank(repo).execute({
+          code: 'TEO',
+          name: 'Duplicado',
+          description: '',
+          status: 'active',
         }),
       ),
     ).rejects.toBeInstanceOf(InvalidAdminCatalogError);

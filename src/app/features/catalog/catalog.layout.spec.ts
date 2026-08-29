@@ -26,6 +26,9 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/aeronaves/nuevo', component: BlankPage },
           { path: 'catalogo/programas', component: BlankPage },
           { path: 'catalogo/programas/nuevo', component: BlankPage },
+          { path: 'catalogo/banco-fases', component: BlankPage },
+          { path: 'catalogo/banco-fases/nuevo', component: BlankPage },
+          { path: 'catalogo/banco-subfases', component: BlankPage },
         ]),
       ],
     }).compileComponents();
@@ -146,9 +149,23 @@ describe('CatalogLayout', () => {
     const text = root.textContent ?? '';
     expect(text).toContain('Formación académica');
     expect(text).toContain('Programas');
-    expect(text).toContain('plan de estudios');
+    expect(text).toContain('Banco de fases');
+    expect(text).toContain('Banco de subfases');
+    expect(text).toContain('fuera del programa');
     expect(text).not.toContain('Usuarios');
     expect(text).not.toContain('Catálogos de instrucción');
     expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+  });
+
+  it('oculta el título del padre al editar el banco de fases', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/banco-fases/nuevo');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.adm__kicker')).toBeNull();
+    expect(root.querySelector('nav[aria-label="Formación académica"]')).toBeNull();
+    expect(root.textContent).not.toContain('fuera del programa');
   });
 });

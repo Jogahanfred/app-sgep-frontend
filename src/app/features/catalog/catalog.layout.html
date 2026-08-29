@@ -27,10 +27,12 @@
       @if (showDomainNav()) {
         <header class="adm__intro">
           <h1 class="adm__kicker">Formación académica</h1>
-          <p class="adm__lead">Programas de formación. Aquí se diseña el plan de estudios de la academia.</p>
+          <p class="adm__lead">Programas y bancos de fases. El itinerario usa el banco; el banco se edita fuera del programa.</p>
         </header>
         <nav class="adm__nav" aria-label="Formación académica">
           <a routerLink="/catalogo/programas" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Programas</a>
+          <a routerLink="/catalogo/banco-fases" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Banco de fases</a>
+          <a routerLink="/catalogo/banco-subfases" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Banco de subfases</a>
         </nav>
       }
     } @else if (domain() === 'instruction') {

@@ -240,8 +240,22 @@ export interface PhaseBankEntity {
   status: EntityStatus;
 }
 
+export interface PhaseBankWriteInput {
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
 export interface SubphaseBankEntity {
   id: string;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface SubphaseBankWriteInput {
   code: string;
   name: string;
   description: string;

@@ -531,6 +531,86 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'banco-fases',
+        loadComponent: () => import('./features/catalog/academic-bank-list.page').then((m) => m.AcademicBankListPage),
+        data: {
+          bank: 'phase',
+          seo: {
+            title: 'Banco de fases | SIGA',
+            description: 'Catálogo maestro de fases de formación académica.',
+          },
+        },
+      },
+      {
+        path: 'banco-fases/nuevo',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'phase',
+          seo: { title: 'Nuevo banco de fase | SIGA', description: 'Alta de una fase en el banco maestro.' },
+        },
+      },
+      {
+        path: 'banco-fases/:id/editar',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'phase',
+          mode: 'edit',
+          seo: { title: 'Editar banco de fase | SIGA', description: 'Código, nombre, descripción y estado de la fase.' },
+        },
+      },
+      {
+        path: 'banco-fases/:id',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'phase',
+          mode: 'view',
+          seo: { title: 'Detalle de banco de fase | SIGA', description: 'Consulta la fase del banco, sin modificar.' },
+        },
+      },
+      {
+        path: 'banco-subfases',
+        loadComponent: () => import('./features/catalog/academic-bank-list.page').then((m) => m.AcademicBankListPage),
+        data: {
+          bank: 'subphase',
+          seo: {
+            title: 'Banco de subfases | SIGA',
+            description: 'Catálogo maestro de subfases de formación académica.',
+          },
+        },
+      },
+      {
+        path: 'banco-subfases/nuevo',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'subphase',
+          seo: { title: 'Nuevo banco de subfase | SIGA', description: 'Alta de una subfase en el banco maestro.' },
+        },
+      },
+      {
+        path: 'banco-subfases/:id/editar',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'subphase',
+          mode: 'edit',
+          seo: {
+            title: 'Editar banco de subfase | SIGA',
+            description: 'Código, nombre, descripción y estado de la subfase.',
+          },
+        },
+      },
+      {
+        path: 'banco-subfases/:id',
+        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        data: {
+          bank: 'subphase',
+          mode: 'view',
+          seo: {
+            title: 'Detalle de banco de subfase | SIGA',
+            description: 'Consulta la subfase del banco, sin modificar.',
+          },
+        },
+      },
+      {
         path: 'flotas',
         loadComponent: () => import('./features/catalog/fleets-list.page').then((m) => m.FleetsListPage),
         data: { seo: { title: 'Flotas | SIGA', description: 'Catálogo de flotas de material aéreo.' } },

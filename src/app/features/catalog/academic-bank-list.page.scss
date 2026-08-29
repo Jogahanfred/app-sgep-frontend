@@ -1,0 +1,5 @@
+@use './panel';
+
+.ap__toolbar--search {
+  grid-template-columns: minmax(0, 1fr);
+}

@@ -4,9 +4,13 @@
       <h1>{{ title() }}</h1>
       <p class="ap__lead">{{ lead() }}</p>
     </div>
-    @if (!creating()) {
-      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
-    }
+    <div class="station__tools">
+      <app-button [href]="phaseBankHref" variant="secondary">Banco de fases</app-button>
+      <app-button [href]="subphaseBankHref" variant="secondary">Banco de subfases</app-button>
+      @if (!creating()) {
+        <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+      }
+    </div>
   </div>
 
   @if (loadState() === 'loading' || creating()) {
@@ -115,17 +119,6 @@
                     }
                   </header>
 
-                  @if (!isView) {
-                    <ui-select
-                      [id]="'phase-bank-' + phase.key"
-                      label="Banco de fase"
-                      [uppercase]="false"
-                      [options]="phaseBankOptions()"
-                      [value]="phase.phaseBankId"
-                      (valueChange)="setPhaseBank(phase.key, $event)"
-                    />
-                  }
-
                   <div class="lessons">
                     @for (sub of phase.subphases; track sub.key) {
                       <article class="lesson">
@@ -134,27 +127,17 @@
                           <p>{{ sub.hours }} h</p>
                         </div>
                         @if (!isView) {
-                          <div class="lesson__grid">
-                            <ui-select
-                              [id]="'sub-bank-' + sub.key"
-                              label="Banco de subfase"
-                              [uppercase]="false"
-                              [options]="subphaseBankOptions()"
-                              [value]="sub.subphaseBankId"
-                              (valueChange)="setSubphaseBank(phase.key, sub.key, $event)"
+                          <label class="lesson__hours">
+                            <span>Horas</span>
+                            <input
+                              type="number"
+                              min="0.5"
+                              max="200"
+                              step="0.5"
+                              [value]="sub.hours"
+                              (input)="setHours(phase.key, sub.key, $event)"
                             />
-                            <label class="lesson__hours">
-                              <span>Horas</span>
-                              <input
-                                type="number"
-                                min="0.5"
-                                max="200"
-                                step="0.5"
-                                [value]="sub.hours"
-                                (input)="setHours(phase.key, sub.key, $event)"
-                              />
-                            </label>
-                          </div>
+                          </label>
                           <section class="missions" [attr.aria-label]="'Misiones de ' + subphaseName(sub.subphaseBankId)">
                             <p class="missions__label">Misiones</p>
                             <ui-segmented-control
@@ -268,9 +251,12 @@
                         [value]="nextSubphaseBankId()[phase.key] || subphaseBankOptions()[0]?.value || ''"
                         (valueChange)="setNextSubphase(phase.key, $event)"
                       />
-                      <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
-                        Añadir subfase
-                      </app-button>
+                      <div class="station__tools">
+                        <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
+                          Añadir subfase
+                        </app-button>
+                        <app-button [href]="subphaseBankHref" variant="ghost" size="sm">Banco de subfases</app-button>
+                      </div>
                     </div>
                   }
                 </article>
@@ -289,7 +275,10 @@
               [value]="nextPhaseBankId()"
               (valueChange)="nextPhaseBankId.set($event)"
             />
-            <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
+            <div class="station__tools">
+              <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
+              <app-button [href]="phaseBankHref" variant="secondary">Banco de fases</app-button>
+            </div>
           </div>
         }
       </section>

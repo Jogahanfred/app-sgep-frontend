@@ -183,7 +183,7 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración**, con el mega-menú en cinco columnas: **Catálogos**, **Instrucción**, **Formación académica** (Programas, un solo enlace), **Estructura operativa** y **Material aéreo**. Instrucción y Formación académica no son pestañas de primer nivel.
+El header incluye **Configuración**, con el mega-menú en cinco columnas: **Catálogos**, **Instrucción**, **Formación académica** (Programas, Banco de fases y Banco de subfases), **Estructura operativa** y **Material aéreo**. Instrucción y Formación académica no son pestañas de primer nivel.
 
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
@@ -197,6 +197,8 @@ El header incluye **Configuración**, con el mega-menú en cinco columnas: **Cat
 | `/catalogo/estandares` | Estándares (`StandardEntity`) |
 | `/catalogo/ponderaciones` | Ponderaciones (`StandardWeightingEntity`) |
 | `/catalogo/programas` | Formación académica: tablero de programas (`ProgramEntity`) con itinerario de fases y subfases |
+| `/catalogo/banco-fases` | Banco maestro de fases (`PhaseBankEntity`). Se edita fuera del programa |
+| `/catalogo/banco-subfases` | Banco maestro de subfases (`SubphaseBankEntity`). Se edita fuera del programa |
 | `/catalogo/flotas` | Flotas (`FleetEntity`) |
 | `/catalogo/aeronaves` | Aeronaves (`AircraftEntity`) con foto, matrícula, flota, unidad y operativa |
 

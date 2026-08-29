@@ -107,6 +107,8 @@ export class ProgramStudioPage {
   readonly creating = signal(false);
   readonly error = signal<string | null>(null);
   readonly listHref = '/catalogo/programas';
+  readonly phaseBankHref = '/catalogo/banco-fases';
+  readonly subphaseBankHref = '/catalogo/banco-subfases';
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
   readonly missionModeOptions = missionAssignModeOptions;
@@ -135,8 +137,8 @@ export class ProgramStudioPage {
 
   readonly lead = computed(() =>
     this.isView
-      ? 'Consulta el itinerario: identidad del programa, fases y lecciones.'
-      : 'Define el programa y construye el itinerario como en una escuela: fases, subfases, horas, misiones y maniobras.',
+      ? 'Consulta el itinerario del programa. El banco de fases y de subfases se edita fuera de esta estructura.'
+      : 'El itinerario solo muestra las fases y lecciones del programa. Para crear o editar el banco, sal de esta pantalla.',
   );
 
   readonly totalHours = computed(() => curriculumHours(this.phases()));
@@ -291,11 +293,6 @@ export class ProgramStudioPage {
     });
   }
 
-  setPhaseBank(key: string, phaseBankId: string): void {
-    if (this.isView) return;
-    this.phases.update((items) => items.map((item) => (item.key === key ? { ...item, phaseBankId } : item)));
-  }
-
   setNextSubphase(phaseKey: string, value: string): void {
     this.nextSubphaseBankId.update((map) => ({ ...map, [phaseKey]: value }));
   }
@@ -339,10 +336,6 @@ export class ProgramStudioPage {
           : phase,
       ),
     );
-  }
-
-  setSubphaseBank(phaseKey: string, subKey: string, subphaseBankId: string): void {
-    this.patchSubphase(phaseKey, subKey, { subphaseBankId });
   }
 
   setHours(phaseKey: string, subKey: string, event: Event): void {

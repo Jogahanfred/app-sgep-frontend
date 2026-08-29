@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { InvalidAdminCatalogError } from '../errors/domain-error';
 import {
   assertCatalogWrite,
+  assertPhaseBankWrite,
   expandAutoMissions,
   assertProgramWrite,
   assertUserWrite,
@@ -75,6 +76,17 @@ describe('admin-catalog domain', () => {
     expect(result.description).toBe('');
     expect(result.imageUrl).toBe('/programs/ppl.jpg');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
+  });
+
+  it('normaliza el código del banco de fase', () => {
+    const result = assertPhaseBankWrite({
+      code: 'nav',
+      name: 'Navegación',
+      description: '  Travesía  ',
+      status: 'active',
+    });
+    expect(result.code).toBe('NAV');
+    expect(result.description).toBe('Travesía');
   });
 
   it('genera la serie automática C1 a C17 desde CER y 17', () => {

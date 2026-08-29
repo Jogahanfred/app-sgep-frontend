@@ -35,12 +35,12 @@ function catalogDomain(url: string): 'catalog' | 'ops' | 'instruction' | 'air' |
   if (/\/catalogo\/(unidades|escuadrones|comisiones-temporales)/.test(url)) return 'ops';
   if (/\/catalogo\/(operaciones|tipos-de-mision|maniobras|estandares|ponderaciones)/.test(url)) return 'instruction';
   if (/\/catalogo\/(flotas|aeronaves)/.test(url)) return 'air';
-  if (/\/catalogo\/programas/.test(url)) return 'academic';
+  if (/\/catalogo\/(programas|banco-fases|banco-subfases)/.test(url)) return 'academic';
   return 'catalog';
 }
 
 function isRecordUrl(url: string): boolean {
-  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas)\/[^/?#]+/.test(
+  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas|banco-fases|banco-subfases)\/[^/?#]+/.test(
     url,
   );
 }

@@ -11,10 +11,12 @@ import type {
   MissionTypeWriteInput,
   OperationEntity,
   PhaseBankEntity,
+  PhaseBankWriteInput,
   PhaseEntity,
   ProgramCurriculumWriteInput,
   ProgramEntity,
   SubphaseBankEntity,
+  SubphaseBankWriteInput,
   SubphaseEntity,
   SquadronEntity,
   SquadronWriteInput,
@@ -92,6 +94,10 @@ export interface AdminCatalogRepository {
   listPhases(): Observable<PhaseEntity[]>;
   listSubphases(): Observable<SubphaseEntity[]>;
   listPhaseBanks(): Observable<PhaseBankEntity[]>;
+  createPhaseBank(input: PhaseBankWriteInput): Observable<PhaseBankEntity>;
+  updatePhaseBank(id: string, input: PhaseBankWriteInput): Observable<PhaseBankEntity>;
   listSubphaseBanks(): Observable<SubphaseBankEntity[]>;
+  createSubphaseBank(input: SubphaseBankWriteInput): Observable<SubphaseBankEntity>;
+  updateSubphaseBank(id: string, input: SubphaseBankWriteInput): Observable<SubphaseBankEntity>;
   saveProgramCurriculum(input: ProgramCurriculumWriteInput): Observable<ProgramEntity>;
 }

@@ -12,10 +12,12 @@ import type {
   MissionTypeWriteInput,
   OperationEntity,
   PhaseBankEntity,
+  PhaseBankWriteInput,
   PhaseEntity,
   ProgramCurriculumWriteInput,
   ProgramEntity,
   SubphaseBankEntity,
+  SubphaseBankWriteInput,
   SubphaseEntity,
   SquadronEntity,
   SquadronWriteInput,
@@ -520,8 +522,60 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     return of(this.phaseBanks.map((item) => ({ ...item }))).pipe(delay(LATENCY));
   }
 
+  createPhaseBank(input: PhaseBankWriteInput): Observable<PhaseBankEntity> {
+    try {
+      this.assertUniqueCode(this.phaseBanks, input.code, 'Ya existe un banco de fase con ese código.');
+      const item: PhaseBankEntity = { id: `pb-${this.seq++}`, ...input };
+      this.phaseBanks = [item, ...this.phaseBanks];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updatePhaseBank(id: string, input: PhaseBankWriteInput): Observable<PhaseBankEntity> {
+    const index = this.phaseBanks.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese banco de fase.'));
+    }
+    try {
+      this.assertUniqueCode(this.phaseBanks, input.code, 'Ya existe un banco de fase con ese código.', id);
+      const item: PhaseBankEntity = { id, ...input };
+      this.phaseBanks[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
   listSubphaseBanks(): Observable<SubphaseBankEntity[]> {
     return of(this.subphaseBanks.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createSubphaseBank(input: SubphaseBankWriteInput): Observable<SubphaseBankEntity> {
+    try {
+      this.assertUniqueCode(this.subphaseBanks, input.code, 'Ya existe un banco de subfase con ese código.');
+      const item: SubphaseBankEntity = { id: `sb-${this.seq++}`, ...input };
+      this.subphaseBanks = [item, ...this.subphaseBanks];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateSubphaseBank(id: string, input: SubphaseBankWriteInput): Observable<SubphaseBankEntity> {
+    const index = this.subphaseBanks.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese banco de subfase.'));
+    }
+    try {
+      this.assertUniqueCode(this.subphaseBanks, input.code, 'Ya existe un banco de subfase con ese código.', id);
+      const item: SubphaseBankEntity = { id, ...input };
+      this.subphaseBanks[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
   }
 
   saveProgramCurriculum(input: ProgramCurriculumWriteInput): Observable<ProgramEntity> {
