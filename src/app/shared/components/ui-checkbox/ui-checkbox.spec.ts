@@ -22,4 +22,15 @@ describe('UiCheckbox', () => {
     input.dispatchEvent(new Event('change'));
     expect(emitted).toEqual([true]);
   });
+
+  it('usa el mismo alto que ui-input', () => {
+    const fixture = TestBed.createComponent(UiCheckbox);
+    fixture.componentRef.setInput('id', 'ck-size');
+    fixture.componentRef.setInput('label', 'Despegue');
+    fixture.detectChanges();
+
+    const row = (fixture.nativeElement as HTMLElement).querySelector('.ck') as HTMLElement;
+    expect(getComputedStyle(row).height).toBe('40px');
+    expect(getComputedStyle(row).minHeight).toBe('40px');
+  });
 });
