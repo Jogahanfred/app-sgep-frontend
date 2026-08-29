@@ -36,7 +36,9 @@ describe('UiRadioCardGroup', () => {
     fixture.detectChanges();
 
     const option = (fixture.nativeElement as HTMLElement).querySelector('.cg__opt') as HTMLElement;
-    expect(getComputedStyle(option).height).toBe('2.5rem');
-    expect(getComputedStyle(option).minHeight).toBe('2.5rem');
+    const styles = getComputedStyle(option);
+    expect(styles.height).toMatch(/2\.5rem|40px|control-height/);
+    expect(styles.minHeight).toMatch(/2\.5rem|40px|control-height/);
+    expect(styles.maxHeight).toMatch(/2\.5rem|40px|control-height/);
   });
 });

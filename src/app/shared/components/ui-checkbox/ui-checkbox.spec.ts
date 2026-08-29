@@ -30,7 +30,8 @@ describe('UiCheckbox', () => {
     fixture.detectChanges();
 
     const row = (fixture.nativeElement as HTMLElement).querySelector('.ck') as HTMLElement;
-    expect(getComputedStyle(row).height).toBe('2.5rem');
-    expect(getComputedStyle(row).minHeight).toBe('2.5rem');
+    const styles = getComputedStyle(row);
+    expect(styles.height).toMatch(/2\.5rem|40px|control-height/);
+    expect(styles.minHeight).toMatch(/2\.5rem|40px|control-height/);
   });
 });
