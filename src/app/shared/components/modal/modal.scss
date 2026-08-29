@@ -16,6 +16,11 @@
   width: min(100% - 2rem, 46rem);
 }
 
+.modal.modal--xl {
+  width: min(100% - 2rem, 72rem);
+  max-height: min(94vh, 58rem);
+}
+
 .modal::backdrop {
   background: var(--color-overlay);
 }
