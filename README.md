@@ -183,7 +183,7 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración** → **Catálogos**, **Estructura operativa**, **Catálogos de instrucción** y **Material aéreo**.
+El header incluye, al mismo nivel que Particulares, **Configuración**, **Instrucción** y **Material aéreo**. Cada uno abre un mega-menú en columnas.
 
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |

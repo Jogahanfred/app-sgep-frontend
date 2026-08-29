@@ -254,16 +254,16 @@ const configuracion: NavColumn[] = [
       },
     ],
   },
+];
+
+const instruccion: NavColumn[] = [
   {
     blocks: [
       {
-        heading: 'Catálogos de instrucción',
+        heading: 'Operaciones',
         links: [
-          { label: 'Operaciones', href: '/catalogo/operaciones' },
-          { label: 'Tipo de misión', href: '/catalogo/tipos-de-mision' },
-          { label: 'Maniobras', href: '/catalogo/maniobras' },
-          { label: 'Estándares', href: '/catalogo/estandares' },
-          { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
+          { label: 'Ver operaciones', href: '/catalogo/operaciones' },
+          { label: 'Nueva operación', href: '/catalogo/operaciones/nuevo' },
         ],
       },
     ],
@@ -271,10 +271,68 @@ const configuracion: NavColumn[] = [
   {
     blocks: [
       {
-        heading: 'Material aéreo',
+        heading: 'Tipo de misión',
         links: [
-          { label: 'Flotas', href: '/catalogo/flotas' },
-          { label: 'Aeronaves', href: '/catalogo/aeronaves' },
+          { label: 'Ver tipos de misión', href: '/catalogo/tipos-de-mision' },
+          { label: 'Nuevo tipo de misión', href: '/catalogo/tipos-de-mision/nuevo' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        heading: 'Maniobras',
+        links: [
+          { label: 'Ver maniobras', href: '/catalogo/maniobras' },
+          { label: 'Nueva maniobra', href: '/catalogo/maniobras/nuevo' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        heading: 'Estándares',
+        links: [
+          { label: 'Ver estándares', href: '/catalogo/estandares' },
+          { label: 'Nuevo estándar', href: '/catalogo/estandares/nuevo' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        heading: 'Ponderaciones',
+        links: [
+          { label: 'Ver ponderaciones', href: '/catalogo/ponderaciones' },
+          { label: 'Nueva ponderación', href: '/catalogo/ponderaciones/nuevo' },
+        ],
+      },
+    ],
+  },
+];
+
+const materialAereo: NavColumn[] = [
+  {
+    blocks: [
+      {
+        heading: 'Flotas',
+        links: [
+          { label: 'Ver flotas', href: '/catalogo/flotas' },
+          { label: 'Nueva flota', href: '/catalogo/flotas/nuevo' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        heading: 'Aeronaves',
+        links: [
+          { label: 'Ver aeronaves', href: '/catalogo/aeronaves' },
+          { label: 'Nueva aeronave', href: '/catalogo/aeronaves/nuevo' },
         ],
       },
     ],
@@ -288,6 +346,8 @@ export const AUDIENCE_NAV: NavGroup[] = [
   { label: 'Banca Privada', columns: privada },
   { label: 'Select', columns: select },
   { label: 'Configuración', columns: configuracion },
+  { label: 'Instrucción', columns: instruccion },
+  { label: 'Material aéreo', columns: materialAereo },
 ];
 
 export const MAIN_NAV = AUDIENCE_NAV;
