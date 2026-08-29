@@ -10,13 +10,12 @@
   </div>
 
   @if (loadState() === 'loading' || creating()) {
-    <div class="ap__table-wrap ap__state">
-      <ui-loading
-        [title]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
-        [subtitle]="creating() ? 'Estamos guardando el registro en el catálogo.' : 'Un momento.'"
-        [label]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
-      />
-    </div>
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
+      [subtitle]="creating() ? 'Estamos guardando el registro en el catálogo.' : 'Un momento.'"
+      [label]="creating() ? (isRoles ? 'Creando rol' : 'Creando especialidad') : 'Cargando ' + title()"
+    />
   } @else if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar este registro.</app-alert>
   } @else {

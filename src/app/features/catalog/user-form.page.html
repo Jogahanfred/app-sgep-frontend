@@ -10,13 +10,12 @@
   </div>
 
   @if (loadState() === 'loading' || creating()) {
-    <div class="ap__table-wrap ap__state">
-      <ui-loading
-        [title]="creating() ? 'Creando usuario' : 'Cargando usuario'"
-        [subtitle]="creating() ? 'Estamos dando de alta a la persona.' : 'Un momento.'"
-        [label]="creating() ? 'Creando usuario' : 'Cargando usuario'"
-      />
-    </div>
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando usuario' : 'Cargando usuario'"
+      [subtitle]="creating() ? 'Estamos dando de alta a la persona.' : 'Un momento.'"
+      [label]="creating() ? 'Creando usuario' : 'Cargando usuario'"
+    />
   } @else if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar este usuario.</app-alert>
   } @else {

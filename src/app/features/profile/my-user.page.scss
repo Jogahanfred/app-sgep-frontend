@@ -17,13 +17,8 @@
 }
 
 .mine__load {
-  position: relative;
+  overflow: hidden;
   min-height: 16rem;
-}
-
-.mine__load ui-loading {
-  position: absolute;
-  inset: 0;
 }
 
 .mine__status {

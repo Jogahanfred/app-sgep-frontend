@@ -41,15 +41,12 @@
   border-radius: 0.75rem;
 }
 
-.ap__state {
-  position: relative;
-  min-height: 16rem;
-  padding: 2rem 1rem;
-}
-
-.ap__state ui-loading {
-  position: absolute;
-  inset: 0;
+.ap__loading {
+  display: block;
+  overflow: hidden;
+  min-height: 18rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
 }
 
 .ap__checks {

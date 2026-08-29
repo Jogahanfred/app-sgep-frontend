@@ -17,13 +17,8 @@
 }
 
 .asg__load {
-  position: relative;
+  overflow: hidden;
   min-height: 14rem;
-}
-
-.asg__load ui-loading {
-  position: absolute;
-  inset: 0;
 }
 
 .asg__list {

@@ -110,6 +110,8 @@ describe('UserFormPage', () => {
       expect(page.creating()).toBe(true);
       expect(root.textContent).toContain('Creando usuario');
       expect(root.querySelector('form')).toBeNull();
+      expect(root.querySelector('.ap__table-wrap')).toBeNull();
+      expect(root.querySelector('ui-loading.ap__loading')).not.toBeNull();
       await vi.advanceTimersByTimeAsync(CATALOG_CREATE_HOLD_MS);
       await pending;
     } finally {

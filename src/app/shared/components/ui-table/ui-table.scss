@@ -126,14 +126,13 @@ tbody tr:not(.ui-table__empty-row):hover td {
 }
 
 .ui-table__state {
-  position: relative;
+  overflow: hidden;
   min-height: 16rem;
-  padding: 2rem 1rem;
 }
 
 .ui-table__state ui-loading {
-  position: absolute;
-  inset: 0;
+  display: block;
+  min-height: 16rem;
 }
 
 .ui-table__empty-row td {
