@@ -24,8 +24,7 @@ describe('Header', () => {
     expect(text).toContain('Hazte cliente');
     expect(text).toContain('Particulares');
     expect(text).toContain('Configuración');
-    expect(text).toContain('Instrucción');
-    expect(text).toContain('Material aéreo');
+    expect(text).not.toContain('Instrucción');
   });
 
   it('muestra el chip de cliente tras el acceso demo', async () => {
@@ -83,43 +82,12 @@ describe('Header', () => {
     expect(text).toContain('Especialidades');
     expect(text).toContain('Estructura operativa');
     expect(text).toContain('Unidades');
-    expect(text).not.toContain('Ponderaciones');
-    expect(text).not.toContain('Aeronaves');
-    expect(root.querySelectorAll('.mega__col').length).toBe(2);
-  });
-
-  it('abre Instrucción en columnas al mismo nivel que Particulares', async () => {
-    const fixture = TestBed.createComponent(Header);
-    const component = fixture.componentInstance;
-    component.setMega('Instrucción');
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(component.openGroup()?.label).toBe('Instrucción');
-    expect(root.querySelector('.mega__title')?.textContent).toContain('Instrucción');
     expect(text).toContain('Operaciones');
-    expect(text).toContain('Tipo de misión');
-    expect(text).toContain('Maniobras');
-    expect(text).toContain('Estándares');
     expect(text).toContain('Ponderaciones');
-    expect(root.querySelectorAll('.mega__col').length).toBe(5);
-  });
-
-  it('abre Material aéreo dividido en flotas y aeronaves', async () => {
-    const fixture = TestBed.createComponent(Header);
-    const component = fixture.componentInstance;
-    component.setMega('Material aéreo');
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(component.openGroup()?.label).toBe('Material aéreo');
-    expect(root.querySelector('.mega__title')?.textContent).toContain('Material aéreo');
-    expect(text).toContain('Flotas');
+    expect(text).toContain('Material aéreo');
     expect(text).toContain('Aeronaves');
-    expect(root.querySelectorAll('.mega__col').length).toBe(2);
+    expect(root.querySelector('.mega__title')?.textContent).toContain('Configuración');
+    expect(root.querySelector('.mega__title')?.textContent).not.toContain('Instrucción');
+    expect(root.querySelectorAll('.mega__col').length).toBe(6);
   });
 });

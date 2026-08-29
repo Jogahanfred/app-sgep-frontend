@@ -254,9 +254,6 @@ const configuracion: NavColumn[] = [
       },
     ],
   },
-];
-
-const instruccion: NavColumn[] = [
   {
     blocks: [
       {
@@ -266,10 +263,6 @@ const instruccion: NavColumn[] = [
           { label: 'Nueva operación', href: '/catalogo/operaciones/nuevo' },
         ],
       },
-    ],
-  },
-  {
-    blocks: [
       {
         heading: 'Tipo de misión',
         links: [
@@ -288,10 +281,6 @@ const instruccion: NavColumn[] = [
           { label: 'Nueva maniobra', href: '/catalogo/maniobras/nuevo' },
         ],
       },
-    ],
-  },
-  {
-    blocks: [
       {
         heading: 'Estándares',
         links: [
@@ -312,27 +301,13 @@ const instruccion: NavColumn[] = [
       },
     ],
   },
-];
-
-const materialAereo: NavColumn[] = [
   {
     blocks: [
       {
-        heading: 'Flotas',
+        heading: 'Material aéreo',
         links: [
-          { label: 'Ver flotas', href: '/catalogo/flotas' },
-          { label: 'Nueva flota', href: '/catalogo/flotas/nuevo' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Aeronaves',
-        links: [
-          { label: 'Ver aeronaves', href: '/catalogo/aeronaves' },
-          { label: 'Nueva aeronave', href: '/catalogo/aeronaves/nuevo' },
+          { label: 'Flotas', href: '/catalogo/flotas' },
+          { label: 'Aeronaves', href: '/catalogo/aeronaves' },
         ],
       },
     ],
@@ -346,8 +321,6 @@ export const AUDIENCE_NAV: NavGroup[] = [
   { label: 'Banca Privada', columns: privada },
   { label: 'Select', columns: select },
   { label: 'Configuración', columns: configuracion },
-  { label: 'Instrucción', columns: instruccion },
-  { label: 'Material aéreo', columns: materialAereo },
 ];
 
 export const MAIN_NAV = AUDIENCE_NAV;
