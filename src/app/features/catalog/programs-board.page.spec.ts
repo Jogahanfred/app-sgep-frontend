@@ -42,5 +42,8 @@ describe('ProgramsBoardPage', () => {
     expect(text).toContain('fases');
     expect(root.querySelector('ui-table')).toBeNull();
     expect(root.querySelector('a[href="/catalogo/programas/nuevo"]')).not.toBeNull();
+    const photos = [...root.querySelectorAll<HTMLImageElement>('.course__photo')];
+    expect(photos).toHaveLength(3);
+    expect(new Set(photos.map((img) => img.getAttribute('src'))).size).toBe(3);
   });
 });

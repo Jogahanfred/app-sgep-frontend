@@ -255,6 +255,7 @@ export interface ProgramEntity {
   programType: ProgramType;
   description: string;
   status: EntityStatus;
+  imageUrl: string;
 }
 
 export interface ProgramWriteInput {
@@ -263,6 +264,7 @@ export interface ProgramWriteInput {
   programType: ProgramType;
   description: string;
   status: EntityStatus;
+  imageUrl?: string;
 }
 
 export interface PhaseEntity {

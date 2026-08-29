@@ -531,7 +531,11 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       const programId = input.id ?? `prg-${this.seq++}`;
       this.assertUniqueCode(this.programs, input.program.code, 'Ya existe un programa con ese código.', programId);
       this.assertCurriculumRefs(input);
-      const program: ProgramEntity = { id: programId, ...input.program };
+      const program: ProgramEntity = {
+        id: programId,
+        ...input.program,
+        imageUrl: input.program.imageUrl ?? `/programs/${input.program.programType.toLowerCase()}.jpg`,
+      };
       const nextPhases: PhaseEntity[] = [];
       const nextSubphases: SubphaseEntity[] = [];
       input.phases.forEach((phaseDraft, phaseIndex) => {

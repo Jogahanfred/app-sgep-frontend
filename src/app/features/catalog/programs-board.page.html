@@ -35,11 +35,18 @@
     <div class="school__grid">
       @for (card of visible(); track card.program.id) {
         <a class="course" [routerLink]="['/catalogo/programas', card.program.id, 'editar']">
-          <div class="course__top">
-            <span class="course__type">{{ card.program.programType }}</span>
-            <span class="course__status" [class.course__status--off]="card.program.status === 'inactive'">
-              {{ statusText(card.program.status) }}
-            </span>
+          <div class="course__media">
+            <img
+              class="course__photo"
+              [src]="card.program.imageUrl"
+              [alt]="'Portada de ' + card.program.name"
+            />
+            <div class="course__top">
+              <span class="course__type">{{ card.program.programType }}</span>
+              <span class="course__status" [class.course__status--off]="card.program.status === 'inactive'">
+                {{ statusText(card.program.status) }}
+              </span>
+            </div>
           </div>
           <h2>{{ card.program.name }}</h2>
           <p class="course__code">{{ card.program.code }} · {{ typeLabel(card.program.programType) }}</p>

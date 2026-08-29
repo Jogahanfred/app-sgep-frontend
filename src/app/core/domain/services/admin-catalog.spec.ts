@@ -72,6 +72,7 @@ describe('admin-catalog domain', () => {
     });
     expect(result.code).toBe('PPL-AF');
     expect(result.description).toBe('');
+    expect(result.imageUrl).toBe('/programs/ppl.jpg');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
   });
 });

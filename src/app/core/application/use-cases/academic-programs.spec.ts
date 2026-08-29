@@ -53,6 +53,7 @@ describe('formación académica', () => {
     );
     expect(created.code).toBe('FI-01');
     expect(created.programType).toBe('FI');
+    expect(created.imageUrl).toBe('/programs/fi.jpg');
 
     await expect(
       firstValueFrom(

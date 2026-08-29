@@ -251,6 +251,12 @@ export function programTypeLabel(type: ProgramType): string {
   return labels[type];
 }
 
+export function programCoverUrl(type: ProgramType, imageUrl?: string): string {
+  const custom = imageUrl?.trim();
+  if (custom) return custom;
+  return `/programs/${type.toLowerCase()}.jpg`;
+}
+
 export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput {
   const programType = required(input.programType, 'El tipo de programa es obligatorio.') as ProgramType;
   if (!PROGRAM_TYPES.includes(programType)) {
@@ -262,6 +268,7 @@ export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput 
     programType,
     description: input.description.trim(),
     status: assertStatus(input.status),
+    imageUrl: programCoverUrl(programType, input.imageUrl),
   };
 }
 
