@@ -103,7 +103,7 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     const modal = (fixture.nativeElement as HTMLElement).querySelector('dialog, app-modal');
     const modalText = modal?.textContent ?? '';
-    expect(modal.querySelector('ui-table')).not.toBeNull();
+    expect(modal?.querySelector('ui-table')).not.toBeNull();
     expect(modalText).toContain('Editar fase');
     expect(modalText).toContain('TEO');
     expect(modalText).toContain('Teoría en aula');
