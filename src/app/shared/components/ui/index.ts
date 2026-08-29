@@ -10,6 +10,7 @@ export { UiFormCard } from '../ui-form-card/ui-form-card';
 export { UiHelp } from '../ui-help/ui-help';
 export { UiInfo } from '../ui-info/ui-info';
 export { UiInput } from '../ui-input/ui-input';
+export { UiTextarea } from '../ui-textarea/ui-textarea';
 export { UiRadioCardGroup } from '../ui-radio-card-group/ui-radio-card-group';
 export { UiRangeSlider } from '../ui-range-slider/ui-range-slider';
 export { UiResultCard, type UiResultRow } from '../ui-result-card/ui-result-card';

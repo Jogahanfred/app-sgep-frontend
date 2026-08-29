@@ -206,7 +206,7 @@ Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBa
 
 Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
 
-`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-table`, `ui-checkbox`, `ui-input`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
+`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-table`, `ui-checkbox`, `ui-input`, `ui-textarea`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
 
 Barrel: `src/app/shared/components/ui/index.ts`.
 

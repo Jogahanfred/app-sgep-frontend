@@ -51,5 +51,7 @@ describe('CommissionFormPage', () => {
     expect(text).toContain('Finalizado');
     expect(text).toContain('Pasar a Finalizado');
     expect(fixture.nativeElement.querySelector('ui-steps')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('ui-textarea textarea')).not.toBeNull();
   });
 });
+

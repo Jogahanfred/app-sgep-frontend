@@ -79,11 +79,12 @@
               [error]="requiredError('endDate', 'Indica la fecha de fin.')"
             />
           </div>
-          <ui-input
+          <ui-textarea
             id="com-reason"
             label="Motivo"
             icon="info"
             placeholder="Por qué se desplaza a la unidad de destino"
+            [rows]="4"
             [field]="form.controls.reason"
             [error]="requiredError('reason', 'Escribe el motivo.')"
           />

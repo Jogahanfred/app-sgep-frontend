@@ -1,0 +1,26 @@
+<div class="field" [class.field--error]="!!error()">
+  <ui-field-label [label]="label()" [info]="info()" [forId]="id()" />
+  <div class="field__wrap">
+    @if (icon(); as iconName) {
+      <app-icon class="field__icon" [name]="iconName" />
+    }
+    <textarea
+      class="field__control"
+      [class.field__control--icon]="!!icon()"
+      [id]="id()"
+      [formControl]="field()"
+      [attr.rows]="rows()"
+      [attr.placeholder]="placeholder()"
+      [attr.aria-invalid]="error() ? true : null"
+      [attr.aria-describedby]="error() ? id() + '-error' : hint() ? id() + '-hint' : null"
+    ></textarea>
+  </div>
+  @if (hint() && !error()) {
+    <p class="field__hint" [id]="id() + '-hint'">{{ hint() }}</p>
+  }
+  @if (error(); as message) {
+    <div [id]="id() + '-error'">
+      <ui-error [message]="message" />
+    </div>
+  }
+</div>

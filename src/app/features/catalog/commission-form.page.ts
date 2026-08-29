@@ -17,9 +17,9 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { UiDatePicker } from '@shared/components/ui-date-picker/ui-date-picker';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
-import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
 import { UiSteps, type StepItem } from '@shared/components/ui-steps/ui-steps';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
@@ -28,7 +28,7 @@ import { CATALOG_CREATE_HOLD_MS, holdFor } from './catalog-form';
 @Component({
   selector: 'app-commission-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Alert, Button, UiDatePicker, UiFormCard, UiInput, UiLoading, UiSelect, UiSteps],
+  imports: [ReactiveFormsModule, Alert, Button, UiDatePicker, UiFormCard, UiLoading, UiSelect, UiSteps, UiTextarea],
   templateUrl: './commission-form.page.html',
   styleUrl: './commission-form.page.scss',
 })
