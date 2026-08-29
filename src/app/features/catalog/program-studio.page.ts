@@ -28,6 +28,7 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
+import { UiAssignBlock } from '@shared/components/ui-assign-block/ui-assign-block';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
@@ -75,6 +76,7 @@ interface StudioPhase {
     Alert,
     Button,
     Modal,
+    UiAssignBlock,
     UiCheckbox,
     UiChip,
     UiFormCard,
@@ -503,6 +505,25 @@ export class ProgramStudioPage {
       return mission ? `${mission.code} · ${mission.name}` : id;
     });
     return [...fromCatalog, ...sub.customMissionNames];
+  }
+
+  maneuverLabels(sub: StudioSubphase): string[] {
+    return sub.maneuverIds.map((id) => {
+      const maneuver = this.maneuvers().find((item) => item.id === id);
+      return maneuver ? `${maneuver.code} · ${maneuver.name}` : id;
+    });
+  }
+
+  missionCountLabel(sub: StudioSubphase): string {
+    const count = this.missionLabels(sub).length;
+    if (!count) return 'Ninguna';
+    return count === 1 ? '1 misión' : `${count} misiones`;
+  }
+
+  maneuverCountLabel(sub: StudioSubphase): string {
+    const count = sub.maneuverIds.length;
+    if (!count) return 'Ninguna';
+    return count === 1 ? '1 maniobra' : `${count} maniobras`;
   }
 
   toggleMission(phaseKey: string, subKey: string, missionId: string, checked: boolean): void {

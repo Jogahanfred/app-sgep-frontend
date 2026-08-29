@@ -119,12 +119,24 @@
                   </header>
 
                   <div class="lessons">
-                    @for (sub of phase.subphases; track sub.key) {
+                    @for (sub of phase.subphases; track sub.key; let j = $index) {
                       <article class="lesson">
-                        <div class="lesson__title">
-                          <h4>{{ subphaseName(sub.subphaseBankId) }}</h4>
-                          <p>{{ sub.hours }} h</p>
-                        </div>
+                        <header class="station__head">
+                          <div>
+                            <p class="station__kicker">Subfase {{ j + 1 }}</p>
+                            <h4>{{ subphaseName(sub.subphaseBankId) }}</h4>
+                          </div>
+                          @if (!isView) {
+                            <div class="station__tools">
+                              <app-button type="button" variant="ghost" size="sm" (click)="removeSubphase(phase.key, sub.key)">
+                                Quitar
+                              </app-button>
+                            </div>
+                          } @else {
+                            <p class="lesson__meta">{{ sub.hours }} h</p>
+                          }
+                        </header>
+
                         @if (!isView) {
                           <ui-input
                             [id]="'hours-' + sub.key"
@@ -137,96 +149,118 @@
                             [step]="0.5"
                             [field]="hoursField(phase.key, sub.key, sub.hours)"
                           />
-                          <section class="missions" [attr.aria-label]="'Misiones de ' + subphaseName(sub.subphaseBankId)">
-                            <p class="missions__label">Misiones</p>
-                            <ui-segmented-control
-                              [label]="'Modo de misiones ' + sub.key"
-                              [options]="missionModeOptions"
-                              [value]="sub.missionMode"
-                              (valueChange)="setMissionMode(phase.key, sub.key, $event)"
-                            />
-                            @if (sub.missionMode === 'manual') {
+                        }
+
+                        <div class="lesson__blocks">
+                          <ui-assign-block
+                            title="Misiones"
+                            hint="Las sesiones que vuela o practica el alumno en esta subfase."
+                            [countLabel]="missionCountLabel(sub)"
+                          >
+                            @if (!isView) {
+                              <ui-segmented-control
+                                [label]="'Modo de misiones ' + sub.key"
+                                [options]="missionModeOptions"
+                                [value]="sub.missionMode"
+                                (valueChange)="setMissionMode(phase.key, sub.key, $event)"
+                              />
+                              @if (sub.missionMode === 'manual') {
+                                <fieldset class="picks">
+                                  <legend>Del catálogo</legend>
+                                  @for (mission of missions(); track mission.id) {
+                                    <ui-checkbox
+                                      [id]="'ms-' + sub.key + '-' + mission.id"
+                                      [label]="mission.code + ' · ' + mission.name"
+                                      [checked]="sub.missionTypeIds.includes(mission.id)"
+                                      (checkedChange)="toggleMission(phase.key, sub.key, mission.id, $event)"
+                                    />
+                                  }
+                                </fieldset>
+                                <div class="missions__custom">
+                                  <ui-input
+                                    [id]="'mission-name-' + sub.key"
+                                    label="Nombre propio"
+                                    placeholder="Circuito corto"
+                                    [maxlength]="40"
+                                    [field]="nameField(sub.key, draftMissionName()[sub.key] || '')"
+                                  />
+                                  <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addCustomMission(phase.key, sub.key)">
+                                    Añadir nombre
+                                  </app-button>
+                                </div>
+                                @if (sub.customMissionNames.length) {
+                                  <ul class="chips">
+                                    @for (name of sub.customMissionNames; track name) {
+                                      <li>
+                                        <ui-chip [label]="name" [removable]="true" (removed)="removeCustomMission(phase.key, sub.key, name)" />
+                                      </li>
+                                    }
+                                  </ul>
+                                }
+                              } @else {
+                                <div class="missions__auto">
+                                  <ui-input
+                                    [id]="'auto-code-' + sub.key"
+                                    label="Código"
+                                    placeholder="CER"
+                                    [maxlength]="8"
+                                    [field]="codeField(phase.key, sub.key, sub.autoMissionCode)"
+                                  />
+                                  <ui-input
+                                    [id]="'auto-count-' + sub.key"
+                                    label="Cantidad"
+                                    type="number"
+                                    [min]="1"
+                                    [max]="80"
+                                    [step]="1"
+                                    [field]="countField(phase.key, sub.key, sub.autoMissionCount)"
+                                  />
+                                </div>
+                                <p class="missions__preview">{{ autoPreview(sub) }}</p>
+                              }
+                            } @else if (missionLabels(sub).length) {
+                              <ul class="chips">
+                                @for (name of missionLabels(sub); track name) {
+                                  <li>
+                                    <ui-chip [label]="name" />
+                                  </li>
+                                }
+                              </ul>
+                            } @else {
+                              <p class="lesson__meta">Esta subfase aún no tiene misiones.</p>
+                            }
+                          </ui-assign-block>
+
+                          <ui-assign-block
+                            title="Maniobras"
+                            hint="Los ejercicios que se trabajan o evalúan en esas sesiones."
+                            [countLabel]="maneuverCountLabel(sub)"
+                          >
+                            @if (!isView) {
                               <fieldset class="picks">
                                 <legend>Del catálogo</legend>
-                                @for (mission of missions(); track mission.id) {
+                                @for (maneuver of maneuvers(); track maneuver.id) {
                                   <ui-checkbox
-                                    [id]="'ms-' + sub.key + '-' + mission.id"
-                                    [label]="mission.code + ' · ' + mission.name"
-                                    [checked]="sub.missionTypeIds.includes(mission.id)"
-                                    (checkedChange)="toggleMission(phase.key, sub.key, mission.id, $event)"
+                                    [id]="'mn-' + sub.key + '-' + maneuver.id"
+                                    [label]="maneuver.code + ' · ' + maneuver.name"
+                                    [checked]="sub.maneuverIds.includes(maneuver.id)"
+                                    (checkedChange)="toggleManeuver(phase.key, sub.key, maneuver.id, $event)"
                                   />
                                 }
                               </fieldset>
-                              <div class="missions__custom">
-                                <ui-input
-                                  [id]="'mission-name-' + sub.key"
-                                  label="Nombre propio"
-                                  placeholder="Circuito corto"
-                                  [maxlength]="40"
-                                  [field]="nameField(sub.key, draftMissionName()[sub.key] || '')"
-                                />
-                                <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addCustomMission(phase.key, sub.key)">
-                                  Añadir nombre
-                                </app-button>
-                              </div>
-                              @if (sub.customMissionNames.length) {
-                                <ul class="chips">
-                                  @for (name of sub.customMissionNames; track name) {
-                                    <li>
-                                      <ui-chip [label]="name" [removable]="true" (removed)="removeCustomMission(phase.key, sub.key, name)" />
-                                    </li>
-                                  }
-                                </ul>
-                              }
+                            } @else if (maneuverLabels(sub).length) {
+                              <ul class="chips">
+                                @for (name of maneuverLabels(sub); track name) {
+                                  <li>
+                                    <ui-chip [label]="name" />
+                                  </li>
+                                }
+                              </ul>
                             } @else {
-                              <div class="missions__auto">
-                                <ui-input
-                                  [id]="'auto-code-' + sub.key"
-                                  label="Código"
-                                  placeholder="CER"
-                                  [maxlength]="8"
-                                  [field]="codeField(phase.key, sub.key, sub.autoMissionCode)"
-                                />
-                                <ui-input
-                                  [id]="'auto-count-' + sub.key"
-                                  label="Cantidad"
-                                  type="number"
-                                  [min]="1"
-                                  [max]="80"
-                                  [step]="1"
-                                  [field]="countField(phase.key, sub.key, sub.autoMissionCount)"
-                                />
-                              </div>
-                              <p class="missions__preview">{{ autoPreview(sub) }}</p>
+                              <p class="lesson__meta">Esta subfase aún no tiene maniobras.</p>
                             }
-                          </section>
-                          <fieldset class="picks">
-                            <legend>Maniobras</legend>
-                            @for (maneuver of maneuvers(); track maneuver.id) {
-                              <ui-checkbox
-                                [id]="'mn-' + sub.key + '-' + maneuver.id"
-                                [label]="maneuver.code + ' · ' + maneuver.name"
-                                [checked]="sub.maneuverIds.includes(maneuver.id)"
-                                (checkedChange)="toggleManeuver(phase.key, sub.key, maneuver.id, $event)"
-                              />
-                            }
-                          </fieldset>
-                          <app-button type="button" variant="ghost" size="sm" (click)="removeSubphase(phase.key, sub.key)">
-                            Quitar subfase
-                          </app-button>
-                        } @else {
-                          <p class="lesson__meta">
-                            @if (missionLabels(sub).length) {
-                              Misiones: {{ missionLabels(sub).join(', ') }}.
-                            }
-                            @if (sub.maneuverIds.length) {
-                              Maniobras: {{ sub.maneuverIds.length }}.
-                            }
-                            @if (!missionLabels(sub).length && !sub.maneuverIds.length) {
-                              Sin misiones ni maniobras asignadas.
-                            }
-                          </p>
-                        }
+                          </ui-assign-block>
+                        </div>
                       </article>
                     }
                   </div>

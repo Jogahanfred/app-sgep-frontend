@@ -1,5 +1,6 @@
 export { UiAvatar } from '../ui-avatar/ui-avatar';
 export { UiAmountField } from '../ui-amount-field/ui-amount-field';
+export { UiAssignBlock } from '../ui-assign-block/ui-assign-block';
 export { UiCalcPanel } from '../ui-calc-panel/ui-calc-panel';
 export { UiCheckbox } from '../ui-checkbox/ui-checkbox';
 export { UiChip } from '../ui-chip/ui-chip';

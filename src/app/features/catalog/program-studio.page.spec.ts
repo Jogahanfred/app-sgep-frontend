@@ -59,6 +59,11 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Vuelo básico');
     expect(text).toContain('Aula');
     expect(text).toContain('Dual');
+    expect(text).toContain('Subfase 1');
+    expect(text).toContain('Subfase 2');
+    expect(text).toContain('Las sesiones que vuela o practica el alumno');
+    expect(text).toContain('Los ejercicios que se trabajan o evalúan');
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('ui-assign-block').length).toBeGreaterThan(1);
     expect(text).toContain('Manual');
     expect(text).toContain('Automático');
     expect(text).toContain('C1');
@@ -89,6 +94,7 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.phases().length).toBe(1);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Fase 1');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Subfase 1');
   });
 
   it('permite editar la fase del programa y cambiarla por otra que aún no usa', async () => {
