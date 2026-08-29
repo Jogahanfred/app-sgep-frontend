@@ -23,10 +23,11 @@ import type {
   ProgramType,
   SubphaseBankEntity,
 } from '@core/domain/entities';
-import { curriculumHours, expandAutoMissions } from '@core/domain/services/admin-catalog';
+import { curriculumHours, expandAutoMissions, matchesAdminSearch } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
+import { Modal } from '@shared/components/modal/modal';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
@@ -71,6 +72,7 @@ interface StudioPhase {
     ReactiveFormsModule,
     Alert,
     Button,
+    Modal,
     UiCheckbox,
     UiFormCard,
     UiInput,
@@ -120,6 +122,9 @@ export class ProgramStudioPage {
   readonly phases = signal<StudioPhase[]>([]);
   readonly nextPhaseBankId = signal('');
   readonly nextSubphaseBankId = signal<Record<string, string>>({});
+  readonly phaseBankPickerKey = signal<string | null>(null);
+  readonly phaseBankSearch = new FormControl('', { nonNullable: true });
+  readonly phaseBankQuery = signal('');
 
   readonly form = new FormGroup({
     code: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -144,11 +149,30 @@ export class ProgramStudioPage {
   readonly totalHours = computed(() => curriculumHours(this.phases()));
   readonly phaseCount = computed(() => this.phases().length);
 
-  readonly phaseBankOptions = computed<ChoiceOption[]>(() =>
-    this.phaseBanks()
-      .filter((item) => item.status === 'active')
-      .map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
+  readonly usedPhaseBankIds = computed(() => new Set(this.phases().map((item) => item.phaseBankId)));
+
+  readonly unusedPhaseBanks = computed(() =>
+    this.phaseBanks().filter((item) => item.status === 'active' && !this.usedPhaseBankIds().has(item.id)),
   );
+
+  readonly phaseBankOptions = computed<ChoiceOption[]>(() =>
+    this.unusedPhaseBanks().map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
+  );
+
+  readonly availablePhaseBanks = computed(() =>
+    this.unusedPhaseBanks().filter((item) =>
+      matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery()),
+    ),
+  );
+
+  readonly nextAvailablePhaseBankId = computed(() => {
+    const chosen = this.nextPhaseBankId();
+    const unused = this.unusedPhaseBanks();
+    if (unused.some((item) => item.id === chosen)) return chosen;
+    return unused[0]?.id ?? '';
+  });
+
+  readonly phaseBankOpen = computed(() => this.phaseBankPickerKey() !== null);
 
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
     this.subphaseBanks()
@@ -159,6 +183,9 @@ export class ProgramStudioPage {
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.left = true;
+    });
+    this.phaseBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.phaseBankQuery.set(value);
     });
     forkJoin({
       programs: this.listPrograms.execute(),
@@ -247,8 +274,27 @@ export class ProgramStudioPage {
     this.form.controls.status.setValue(value === 'inactive' ? 'inactive' : 'active');
   }
 
+  openPhaseBankPicker(key: string): void {
+    if (this.isView) return;
+    this.phaseBankSearch.setValue('');
+    this.phaseBankQuery.set('');
+    this.phaseBankPickerKey.set(key);
+  }
+
+  closePhaseBankPicker(): void {
+    this.phaseBankPickerKey.set(null);
+  }
+
+  pickPhaseBank(phaseBankId: string): void {
+    const key = this.phaseBankPickerKey();
+    if (!key || this.isView) return;
+    if (this.usedPhaseBankIds().has(phaseBankId)) return;
+    this.phases.update((items) => items.map((item) => (item.key === key ? { ...item, phaseBankId } : item)));
+    this.closePhaseBankPicker();
+  }
+
   addPhase(): void {
-    const phaseBankId = this.nextPhaseBankId();
+    const phaseBankId = this.nextAvailablePhaseBankId();
     if (!phaseBankId || this.isView) return;
     const defaultSub = this.subphaseBanks().find((item) => item.status === 'active')?.id ?? '';
     this.phases.update((items) => [

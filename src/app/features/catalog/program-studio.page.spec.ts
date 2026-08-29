@@ -32,6 +32,17 @@ function routeSnapshot(id: string | null, mode?: string) {
   };
 }
 
+function stubDialog(): void {
+  if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      this.removeAttribute('open');
+    };
+  }
+}
+
 describe('ProgramStudioPage', () => {
   it('carga el itinerario PPL como un plan de estudios', async () => {
     await TestBed.configureTestingModule({
@@ -75,5 +86,30 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.phases().length).toBe(1);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Fase 1');
+  });
+
+  it('abre el banco de fase y solo ofrece etapas activas que el programa aún no usa', async () => {
+    stubDialog();
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot('prg-ppl', 'edit') }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const firstKey = fixture.componentInstance.phases()[0].key;
+    fixture.componentInstance.openPhaseBankPicker(firstKey);
+    fixture.detectChanges();
+    const modal = (fixture.nativeElement as HTMLElement).querySelector('dialog, app-modal');
+    const modalText = modal?.textContent ?? '';
+    expect(modalText).toContain('Banco de fase');
+    expect(modalText).toContain('IFR · Instrumental');
+    expect(modalText).not.toContain('TEO · Teoría en aula');
+    expect(modalText).not.toContain('BAS · Vuelo básico');
+    fixture.componentInstance.pickPhaseBank('pb-ifr');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.phases()[0].phaseBankId).toBe('pb-ifr');
+    expect(fixture.componentInstance.phaseBankOpen()).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('IFR · Instrumental');
   });
 });
