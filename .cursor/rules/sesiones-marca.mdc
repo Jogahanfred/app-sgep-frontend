@@ -1,0 +1,13 @@
+---
+description: Toda sesión de la agenda Smile · Luna lleva marca Boga Estudio
+alwaysApply: true
+---
+
+# Reglamento de marca en sesiones
+
+Esta línea de trabajo usa la agenda ejecutiva `AGENDA.md` (Smile · Luna).
+
+- Toda sesión, reunión o actividad debe registrar el campo **Marca**.
+- En este caso la sesión es para **Boga Estudio**. Esa es la marca por defecto de los próximos ítems.
+- No confirmes una sesión sin marca. Si no se indica otro estudio o productora, escribe **Boga Estudio**.
+- Al añadir pendientes, calendario o realizado, copia la plantilla del propio `AGENDA.md` e incluye siempre `Marca`.
