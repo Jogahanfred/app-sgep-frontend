@@ -1,0 +1,61 @@
+<div class="school">
+  <div class="school__bar">
+    <p class="school__lead">
+      Elige un plan de estudios o diseña uno nuevo. Cada programa es un itinerario de fases, no un listado plano.
+    </p>
+    <app-button href="/catalogo/programas/nuevo" icon="plus">Nuevo programa</app-button>
+  </div>
+
+  <ui-input
+    id="prg-search"
+    label="Buscador"
+    type="search"
+    icon="search"
+    placeholder="Buscar por código, nombre o tipo"
+    [field]="search"
+  />
+
+  @if (loadState() === 'loading') {
+    <ui-loading
+      class="school__loading"
+      title="Cargando la academia"
+      subtitle="Preparando los planes de estudios."
+      label="Cargando programas"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar los programas. Recarga la página.</app-alert>
+  } @else if (cards().length === 0) {
+    <div class="school__empty">
+      <p>Aún no hay programas. Diseña el primer plan de la academia.</p>
+      <app-button href="/catalogo/programas/nuevo" icon="plus">Crear el primer programa</app-button>
+    </div>
+  } @else if (visible().length === 0) {
+    <app-alert>No hay resultados con ese buscador.</app-alert>
+  } @else {
+    <div class="school__grid">
+      @for (card of visible(); track card.program.id) {
+        <a class="course" [routerLink]="['/catalogo/programas', card.program.id, 'editar']">
+          <div class="course__top">
+            <span class="course__type">{{ card.program.programType }}</span>
+            <span class="course__status" [class.course__status--off]="card.program.status === 'inactive'">
+              {{ statusText(card.program.status) }}
+            </span>
+          </div>
+          <h2>{{ card.program.name }}</h2>
+          <p class="course__code">{{ card.program.code }} · {{ typeLabel(card.program.programType) }}</p>
+          <p class="course__desc">{{ card.program.description }}</p>
+          <ul class="course__stats">
+            <li>{{ card.phaseCount }} {{ card.phaseCount === 1 ? 'fase' : 'fases' }}</li>
+            <li>{{ card.subphaseCount }} {{ card.subphaseCount === 1 ? 'subfase' : 'subfases' }}</li>
+            <li>{{ card.hours }} h</li>
+          </ul>
+        </a>
+      }
+      <a class="course course--new" routerLink="/catalogo/programas/nuevo">
+        <span class="course__plus" aria-hidden="true">+</span>
+        <h2>Diseña un plan</h2>
+        <p class="course__desc">Crea un itinerario con fases, horas, misiones y maniobras.</p>
+      </a>
+    </div>
+  }
+</div>

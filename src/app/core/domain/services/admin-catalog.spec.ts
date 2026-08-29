@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidAdminCatalogError } from '../errors/domain-error';
-import { assertCatalogWrite, assertUserWrite, matchesAdminSearch, passwordStrengthError } from './admin-catalog';
+import {
+  assertCatalogWrite,
+  assertProgramWrite,
+  assertUserWrite,
+  matchesAdminSearch,
+  passwordStrengthError,
+  programTypeLabel,
+} from './admin-catalog';
 
 const validUser = {
   firstName: 'Ana',
@@ -53,5 +60,18 @@ describe('admin-catalog domain', () => {
   it('filtra por buscador global', () => {
     expect(matchesAdminSearch(['Elena', 'Martín', '25198467M'], 'martin')).toBe(true);
     expect(matchesAdminSearch(['Elena', 'Martín'], 'pablo')).toBe(false);
+  });
+
+  it('normaliza el código del programa y nombra el tipo', () => {
+    const result = assertProgramWrite({
+      code: 'ppl-af',
+      name: 'Piloto privado',
+      programType: 'PPL',
+      description: '  ',
+      status: 'active',
+    });
+    expect(result.code).toBe('PPL-AF');
+    expect(result.description).toBe('');
+    expect(programTypeLabel('IR')).toMatch(/instrumental/i);
   });
 });

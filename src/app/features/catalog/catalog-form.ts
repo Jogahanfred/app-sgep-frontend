@@ -24,6 +24,14 @@ export const instructionProgramOptions: ChoiceOption[] = [
   { value: 'IR', label: 'IR' },
 ];
 
+export const academicProgramTypeOptions: ChoiceOption[] = [
+  { value: 'PPL', label: 'PPL' },
+  { value: 'CPL', label: 'CPL' },
+  { value: 'ATPL', label: 'ATPL' },
+  { value: 'IR', label: 'IR' },
+  { value: 'FI', label: 'FI' },
+];
+
 export const fleetTypeOptions: ChoiceOption[] = [
   { value: 'fixed-wing', label: 'Ala fija' },
   { value: 'rotary', label: 'Ala rotatoria' },

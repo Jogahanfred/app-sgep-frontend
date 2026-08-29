@@ -183,7 +183,7 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración**, con el mega-menú en cuatro columnas: **Catálogos** (Usuarios, Roles, Especialidades), **Instrucción** (Operaciones, Tipo de misión, Maniobras, Estándares y Ponderaciones, cada una como un solo enlace al listado, sin Ver/Nuevo), **Estructura operativa** y **Material aéreo**. Instrucción no es una pestaña de primer nivel.
+El header incluye **Configuración**, con el mega-menú en cinco columnas: **Catálogos**, **Instrucción**, **Formación académica** (Programas, un solo enlace), **Estructura operativa** y **Material aéreo**. Instrucción y Formación académica no son pestañas de primer nivel.
 
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
@@ -196,6 +196,7 @@ El header incluye **Configuración**, con el mega-menú en cuatro columnas: **Ca
 | `/catalogo/maniobras` | Banco de maniobras (`ManeuverBankEntity`) |
 | `/catalogo/estandares` | Estándares (`StandardEntity`) |
 | `/catalogo/ponderaciones` | Ponderaciones (`StandardWeightingEntity`) |
+| `/catalogo/programas` | Formación académica: tablero de programas (`ProgramEntity`) con itinerario de fases y subfases |
 | `/catalogo/flotas` | Flotas (`FleetEntity`) |
 | `/catalogo/aeronaves` | Aeronaves (`AircraftEntity`) con foto, matrícula, flota, unidad y operativa |
 

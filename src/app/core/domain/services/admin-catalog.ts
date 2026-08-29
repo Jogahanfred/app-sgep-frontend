@@ -9,6 +9,11 @@ import type {
   InstructionProgram,
   ManeuverBankWriteInput,
   MissionTypeWriteInput,
+  PhaseDraftInput,
+  ProgramCurriculumWriteInput,
+  ProgramType,
+  ProgramWriteInput,
+  SubphaseDraftInput,
   SquadronWriteInput,
   StandardWeightingWriteInput,
   StandardWriteInput,
@@ -16,7 +21,7 @@ import type {
   UnitWriteInput,
   UserWriteInput,
 } from '../entities/admin-catalog';
-import { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS } from '../entities/admin-catalog';
+import { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS, PROGRAM_TYPES } from '../entities/admin-catalog';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -233,6 +238,76 @@ export function assertWeightingWrite(input: StandardWeightingWriteInput): Standa
 
 export function weightingIsCurrent(validTo: string, today = new Date().toISOString().slice(0, 10)): boolean {
   return validTo >= today;
+}
+
+export function programTypeLabel(type: ProgramType): string {
+  const labels: Record<ProgramType, string> = {
+    PPL: 'PPL · Piloto privado',
+    CPL: 'CPL · Piloto comercial',
+    ATPL: 'ATPL · Transporte de línea',
+    IR: 'IR · Habilitación instrumental',
+    FI: 'FI · Instructor de vuelo',
+  };
+  return labels[type];
+}
+
+export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput {
+  const programType = required(input.programType, 'El tipo de programa es obligatorio.') as ProgramType;
+  if (!PROGRAM_TYPES.includes(programType)) {
+    throw new InvalidAdminCatalogError('El tipo debe ser PPL, CPL, ATPL, IR o FI.');
+  }
+  return {
+    code: assertCode(input.code, 'del programa'),
+    name: required(input.name, 'El nombre del programa es obligatorio.'),
+    programType,
+    description: input.description.trim(),
+    status: assertStatus(input.status),
+  };
+}
+
+export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInput {
+  const hours = Number(input.hours);
+  if (!Number.isFinite(hours) || hours < 0.5 || hours > 200) {
+    throw new InvalidAdminCatalogError('Las horas de la subfase deben estar entre 0,5 y 200.');
+  }
+  const sortOrder = Number(input.sortOrder);
+  if (!Number.isInteger(sortOrder) || sortOrder < 1) {
+    throw new InvalidAdminCatalogError('El orden de la subfase debe ser un entero a partir de 1.');
+  }
+  return {
+    subphaseBankId: required(input.subphaseBankId, 'El banco de subfase es obligatorio.'),
+    hours: Math.round(hours * 10) / 10,
+    missionTypeIds: [...new Set(input.missionTypeIds.filter(Boolean))],
+    maneuverIds: [...new Set(input.maneuverIds.filter(Boolean))],
+    sortOrder,
+  };
+}
+
+export function assertPhaseDraft(input: PhaseDraftInput): PhaseDraftInput {
+  const sortOrder = Number(input.sortOrder);
+  if (!Number.isInteger(sortOrder) || sortOrder < 1) {
+    throw new InvalidAdminCatalogError('El orden de la fase debe ser un entero a partir de 1.');
+  }
+  if (!input.subphases.length) {
+    throw new InvalidAdminCatalogError('Cada fase necesita al menos una subfase.');
+  }
+  return {
+    phaseBankId: required(input.phaseBankId, 'El banco de fase es obligatorio.'),
+    sortOrder,
+    subphases: input.subphases.map((item, index) => assertSubphaseDraft({ ...item, sortOrder: index + 1 })),
+  };
+}
+
+export function assertProgramCurriculumWrite(input: ProgramCurriculumWriteInput): ProgramCurriculumWriteInput {
+  return {
+    id: input.id?.trim() || undefined,
+    program: assertProgramWrite(input.program),
+    phases: input.phases.map((item, index) => assertPhaseDraft({ ...item, sortOrder: index + 1 })),
+  };
+}
+
+export function curriculumHours(phases: { subphases: { hours: number }[] }[]): number {
+  return phases.reduce((total, phase) => total + phase.subphases.reduce((sum, item) => sum + item.hours, 0), 0);
 }
 
 export function fleetTypeLabel(type: FleetType): string {

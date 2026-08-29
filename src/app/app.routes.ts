@@ -489,6 +489,48 @@ export const routes: Routes = [
         data: { mode: 'view', seo: { title: 'Detalle de ponderación | SIGA', description: 'Consulta la ponderación, sin modificar.' } },
       },
       {
+        path: 'programas',
+        loadComponent: () => import('./features/catalog/programs-board.page').then((m) => m.ProgramsBoardPage),
+        data: {
+          seo: {
+            title: 'Formación académica | SIGA',
+            description: 'Programas de formación y planes de estudios de la academia.',
+          },
+        },
+      },
+      {
+        path: 'programas/nuevo',
+        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        data: {
+          seo: {
+            title: 'Nuevo programa | SIGA',
+            description: 'Diseña un plan de estudios con fases, subfases, horas, misiones y maniobras.',
+          },
+        },
+      },
+      {
+        path: 'programas/:id/editar',
+        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        data: {
+          mode: 'edit',
+          seo: {
+            title: 'Diseñar programa | SIGA',
+            description: 'Edita el itinerario del programa de formación.',
+          },
+        },
+      },
+      {
+        path: 'programas/:id',
+        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Itinerario del programa | SIGA',
+            description: 'Consulta el plan de estudios, sin modificar.',
+          },
+        },
+      },
+      {
         path: 'flotas',
         loadComponent: () => import('./features/catalog/fleets-list.page').then((m) => m.FleetsListPage),
         data: { seo: { title: 'Flotas | SIGA', description: 'Catálogo de flotas de material aéreo.' } },

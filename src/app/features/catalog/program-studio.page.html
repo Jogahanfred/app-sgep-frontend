@@ -1,0 +1,244 @@
+<div class="ap studio">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Creando el plan de estudios' : 'Cargando el programa'"
+      [subtitle]="creating() ? 'Estamos guardando el itinerario de la academia.' : 'Un momento.'"
+      [label]="creating() ? 'Creando programa' : 'Cargando programa'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
+  } @else {
+    <form class="studio__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      @if (error()) {
+        <app-alert tone="error">{{ error() }}</app-alert>
+      }
+
+      <ui-form-card>
+        <div class="studio__identity">
+          <div class="studio__id-grid">
+            <ui-input
+              id="prg-code"
+              label="Código"
+              icon="id-card"
+              placeholder="PPL-AF"
+              [field]="form.controls.code"
+              [error]="requiredError('code', 'Escribe el código.')"
+            />
+            <ui-input
+              id="prg-name"
+              label="Nombre"
+              icon="shield"
+              placeholder="Piloto privado · ala fija"
+              [field]="form.controls.name"
+              [error]="requiredError('name', 'Escribe el nombre.')"
+            />
+          </div>
+          <ui-radio-card-group
+            id="prg-type"
+            question="Tipo"
+            layout="horizontal"
+            [options]="typeOptions"
+            [value]="form.controls.programType.value"
+            (valueChange)="setType($event)"
+          />
+          <ui-textarea
+            id="prg-desc"
+            label="Descripción"
+            icon="info"
+            placeholder="Qué forma este programa y a quién se dirige"
+            [rows]="3"
+            [field]="form.controls.description"
+          />
+          <ui-select
+            id="prg-status"
+            label="Estado"
+            [uppercase]="false"
+            [options]="entityStatusOptions"
+            [value]="form.controls.status.value"
+            [disabled]="isView"
+            (valueChange)="setStatus($event)"
+          />
+        </div>
+      </ui-form-card>
+
+      <section class="path" aria-label="Itinerario del programa">
+        <header class="path__head">
+          <div>
+            <h2>Itinerario</h2>
+            <p>
+              {{ phaseCount() }} {{ phaseCount() === 1 ? 'fase' : 'fases' }} · {{ totalHours() }} horas de
+              formación
+            </p>
+          </div>
+        </header>
+
+        @if (phases().length === 0) {
+          <div class="path__empty">
+            <p>El curso aún no tiene etapas. Añade la primera fase del itinerario.</p>
+          </div>
+        } @else {
+          <ol class="path__list">
+            @for (phase of phases(); track phase.key; let i = $index) {
+              <li class="station">
+                <div class="station__rail" aria-hidden="true">
+                  <span class="station__num">{{ i + 1 }}</span>
+                </div>
+                <article class="station__card">
+                  <header class="station__head">
+                    <div>
+                      <p class="station__kicker">Fase {{ i + 1 }}</p>
+                      <h3>{{ phaseName(phase.phaseBankId) }}</h3>
+                    </div>
+                    @if (!isView) {
+                      <div class="station__tools">
+                        <app-button type="button" variant="secondary" size="sm" (click)="movePhase(phase.key, -1)">
+                          Subir
+                        </app-button>
+                        <app-button type="button" variant="secondary" size="sm" (click)="movePhase(phase.key, 1)">
+                          Bajar
+                        </app-button>
+                        <app-button type="button" variant="ghost" size="sm" (click)="removePhase(phase.key)">
+                          Quitar
+                        </app-button>
+                      </div>
+                    }
+                  </header>
+
+                  @if (!isView) {
+                    <ui-select
+                      [id]="'phase-bank-' + phase.key"
+                      label="Banco de fase"
+                      [uppercase]="false"
+                      [options]="phaseBankOptions()"
+                      [value]="phase.phaseBankId"
+                      (valueChange)="setPhaseBank(phase.key, $event)"
+                    />
+                  }
+
+                  <div class="lessons">
+                    @for (sub of phase.subphases; track sub.key) {
+                      <article class="lesson">
+                        <div class="lesson__title">
+                          <h4>{{ subphaseName(sub.subphaseBankId) }}</h4>
+                          <p>{{ sub.hours }} h</p>
+                        </div>
+                        @if (!isView) {
+                          <div class="lesson__grid">
+                            <ui-select
+                              [id]="'sub-bank-' + sub.key"
+                              label="Banco de subfase"
+                              [uppercase]="false"
+                              [options]="subphaseBankOptions()"
+                              [value]="sub.subphaseBankId"
+                              (valueChange)="setSubphaseBank(phase.key, sub.key, $event)"
+                            />
+                            <label class="lesson__hours">
+                              <span>Horas</span>
+                              <input
+                                type="number"
+                                min="0.5"
+                                max="200"
+                                step="0.5"
+                                [value]="sub.hours"
+                                (input)="setHours(phase.key, sub.key, $event)"
+                              />
+                            </label>
+                          </div>
+                          <fieldset class="picks">
+                            <legend>Misiones</legend>
+                            @for (mission of missions(); track mission.id) {
+                              <ui-checkbox
+                                [id]="'ms-' + sub.key + '-' + mission.id"
+                                [label]="mission.code + ' · ' + mission.name"
+                                [checked]="sub.missionTypeIds.includes(mission.id)"
+                                (checkedChange)="toggleMission(phase.key, sub.key, mission.id, $event)"
+                              />
+                            }
+                          </fieldset>
+                          <fieldset class="picks">
+                            <legend>Maniobras</legend>
+                            @for (maneuver of maneuvers(); track maneuver.id) {
+                              <ui-checkbox
+                                [id]="'mn-' + sub.key + '-' + maneuver.id"
+                                [label]="maneuver.code + ' · ' + maneuver.name"
+                                [checked]="sub.maneuverIds.includes(maneuver.id)"
+                                (checkedChange)="toggleManeuver(phase.key, sub.key, maneuver.id, $event)"
+                              />
+                            }
+                          </fieldset>
+                          <app-button type="button" variant="ghost" size="sm" (click)="removeSubphase(phase.key, sub.key)">
+                            Quitar subfase
+                          </app-button>
+                        } @else {
+                          <p class="lesson__meta">
+                            @if (sub.missionTypeIds.length) {
+                              Misiones: {{ sub.missionTypeIds.length }}.
+                            }
+                            @if (sub.maneuverIds.length) {
+                              Maniobras: {{ sub.maneuverIds.length }}.
+                            }
+                            @if (!sub.missionTypeIds.length && !sub.maneuverIds.length) {
+                              Sin misiones ni maniobras asignadas.
+                            }
+                          </p>
+                        }
+                      </article>
+                    }
+                  </div>
+
+                  @if (!isView) {
+                    <div class="station__add">
+                      <ui-select
+                        [id]="'add-sub-' + phase.key"
+                        label="Añadir subfase"
+                        [uppercase]="false"
+                        [options]="subphaseBankOptions()"
+                        [value]="nextSubphaseBankId()[phase.key] || subphaseBankOptions()[0]?.value || ''"
+                        (valueChange)="setNextSubphase(phase.key, $event)"
+                      />
+                      <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
+                        Añadir subfase
+                      </app-button>
+                    </div>
+                  }
+                </article>
+              </li>
+            }
+          </ol>
+        }
+
+        @if (!isView) {
+          <div class="path__add">
+            <ui-select
+              id="add-phase"
+              label="Añadir fase"
+              [uppercase]="false"
+              [options]="phaseBankOptions()"
+              [value]="nextPhaseBankId()"
+              (valueChange)="nextPhaseBankId.set($event)"
+            />
+            <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
+          </div>
+        }
+      </section>
+
+      <div class="ap__actions">
+        <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver a la academia' : 'Cancelar' }}</app-button>
+        @if (!isView) {
+          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear programa' : 'Guardar plan' }}</app-button>
+        }
+      </div>
+    </form>
+  }
+</div>

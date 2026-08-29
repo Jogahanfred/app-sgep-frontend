@@ -228,3 +228,76 @@ export interface AircraftWriteInput {
   status: EntityStatus;
   imageUrl: string;
 }
+
+export const PROGRAM_TYPES = ['PPL', 'CPL', 'ATPL', 'IR', 'FI'] as const;
+export type ProgramType = (typeof PROGRAM_TYPES)[number];
+
+export interface PhaseBankEntity {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface SubphaseBankEntity {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface ProgramEntity {
+  id: string;
+  code: string;
+  name: string;
+  programType: ProgramType;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface ProgramWriteInput {
+  code: string;
+  name: string;
+  programType: ProgramType;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface PhaseEntity {
+  id: string;
+  programId: string;
+  phaseBankId: string;
+  sortOrder: number;
+}
+
+export interface SubphaseEntity {
+  id: string;
+  phaseId: string;
+  subphaseBankId: string;
+  hours: number;
+  missionTypeIds: string[];
+  maneuverIds: string[];
+  sortOrder: number;
+}
+
+export interface SubphaseDraftInput {
+  subphaseBankId: string;
+  hours: number;
+  missionTypeIds: string[];
+  maneuverIds: string[];
+  sortOrder: number;
+}
+
+export interface PhaseDraftInput {
+  phaseBankId: string;
+  sortOrder: number;
+  subphases: SubphaseDraftInput[];
+}
+
+export interface ProgramCurriculumWriteInput {
+  id?: string;
+  program: ProgramWriteInput;
+  phases: PhaseDraftInput[];
+}

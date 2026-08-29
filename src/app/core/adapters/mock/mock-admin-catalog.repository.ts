@@ -11,6 +11,12 @@ import type {
   MissionTypeEntity,
   MissionTypeWriteInput,
   OperationEntity,
+  PhaseBankEntity,
+  PhaseEntity,
+  ProgramCurriculumWriteInput,
+  ProgramEntity,
+  SubphaseBankEntity,
+  SubphaseEntity,
   SquadronEntity,
   SquadronWriteInput,
   SpecialtyEntity,
@@ -37,6 +43,11 @@ import {
   SEED_MANEUVERS,
   SEED_MISSION_TYPES,
   SEED_OPERATIONS,
+  SEED_PHASES,
+  SEED_PHASE_BANKS,
+  SEED_PROGRAMS,
+  SEED_SUBPHASES,
+  SEED_SUBPHASE_BANKS,
   SEED_PASSWORDS,
   SEED_ROLES,
   SEED_SPECIALTIES,
@@ -64,6 +75,11 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private weightings: StandardWeightingEntity[] = structuredClone(SEED_WEIGHTINGS);
   private fleets: FleetEntity[] = structuredClone(SEED_FLEETS);
   private aircraft: AircraftEntity[] = structuredClone(SEED_AIRCRAFT);
+  private programs: ProgramEntity[] = structuredClone(SEED_PROGRAMS);
+  private phases: PhaseEntity[] = structuredClone(SEED_PHASES);
+  private subphases: SubphaseEntity[] = structuredClone(SEED_SUBPHASES);
+  private phaseBanks: PhaseBankEntity[] = structuredClone(SEED_PHASE_BANKS);
+  private subphaseBanks: SubphaseBankEntity[] = structuredClone(SEED_SUBPHASE_BANKS);
   private passwords = new Map(Object.entries(SEED_PASSWORDS));
   private seq = 1;
 
@@ -478,6 +494,101 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       return of({ ...item }).pipe(delay(LATENCY));
     } catch (error) {
       return throwError(() => error);
+    }
+  }
+
+  listPrograms(): Observable<ProgramEntity[]> {
+    return of(this.programs.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  listPhases(): Observable<PhaseEntity[]> {
+    return of(this.phases.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  listSubphases(): Observable<SubphaseEntity[]> {
+    return of(
+      this.subphases.map((item) => ({
+        ...item,
+        missionTypeIds: [...item.missionTypeIds],
+        maneuverIds: [...item.maneuverIds],
+      })),
+    ).pipe(delay(LATENCY));
+  }
+
+  listPhaseBanks(): Observable<PhaseBankEntity[]> {
+    return of(this.phaseBanks.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  listSubphaseBanks(): Observable<SubphaseBankEntity[]> {
+    return of(this.subphaseBanks.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  saveProgramCurriculum(input: ProgramCurriculumWriteInput): Observable<ProgramEntity> {
+    try {
+      if (input.id && !this.programs.some((item) => item.id === input.id)) {
+        throw new InvalidAdminCatalogError('No encontramos ese programa.');
+      }
+      const programId = input.id ?? `prg-${this.seq++}`;
+      this.assertUniqueCode(this.programs, input.program.code, 'Ya existe un programa con ese código.', programId);
+      this.assertCurriculumRefs(input);
+      const program: ProgramEntity = { id: programId, ...input.program };
+      const nextPhases: PhaseEntity[] = [];
+      const nextSubphases: SubphaseEntity[] = [];
+      input.phases.forEach((phaseDraft, phaseIndex) => {
+        const phaseId = `ph-${this.seq++}`;
+        nextPhases.push({
+          id: phaseId,
+          programId,
+          phaseBankId: phaseDraft.phaseBankId,
+          sortOrder: phaseIndex + 1,
+        });
+        phaseDraft.subphases.forEach((subDraft, subIndex) => {
+          nextSubphases.push({
+            id: `sp-${this.seq++}`,
+            phaseId,
+            subphaseBankId: subDraft.subphaseBankId,
+            hours: subDraft.hours,
+            missionTypeIds: [...subDraft.missionTypeIds],
+            maneuverIds: [...subDraft.maneuverIds],
+            sortOrder: subIndex + 1,
+          });
+        });
+      });
+      const keepPhaseIds = new Set(this.phases.filter((item) => item.programId !== programId).map((item) => item.id));
+      this.programs = input.id
+        ? this.programs.map((item) => (item.id === programId ? program : item))
+        : [program, ...this.programs];
+      this.phases = [...this.phases.filter((item) => item.programId !== programId), ...nextPhases];
+      this.subphases = [
+        ...this.subphases.filter((item) => keepPhaseIds.has(item.phaseId)),
+        ...nextSubphases,
+      ];
+      return of({ ...program }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  private assertCurriculumRefs(input: ProgramCurriculumWriteInput): void {
+    for (const phase of input.phases) {
+      if (!this.phaseBanks.some((item) => item.id === phase.phaseBankId)) {
+        throw new InvalidAdminCatalogError('El banco de fase indicado no existe.');
+      }
+      for (const sub of phase.subphases) {
+        if (!this.subphaseBanks.some((item) => item.id === sub.subphaseBankId)) {
+          throw new InvalidAdminCatalogError('El banco de subfase indicado no existe.');
+        }
+        for (const missionId of sub.missionTypeIds) {
+          if (!this.missionTypes.some((item) => item.id === missionId)) {
+            throw new InvalidAdminCatalogError('Una de las misiones indicadas no existe.');
+          }
+        }
+        for (const maneuverId of sub.maneuverIds) {
+          if (!this.maneuvers.some((item) => item.id === maneuverId)) {
+            throw new InvalidAdminCatalogError('Una de las maniobras indicadas no existe.');
+          }
+        }
+      }
     }
   }
 

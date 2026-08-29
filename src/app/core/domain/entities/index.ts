@@ -12,6 +12,13 @@ export type {
   ManeuverBankWriteInput,
   MissionTypeEntity,
   MissionTypeWriteInput,
+  PhaseBankEntity,
+  PhaseDraftInput,
+  PhaseEntity,
+  ProgramCurriculumWriteInput,
+  ProgramEntity,
+  ProgramType,
+  ProgramWriteInput,
   OperationEntity,
   SquadronEntity,
   SquadronWriteInput,
@@ -20,6 +27,9 @@ export type {
   StandardEntity,
   StandardWeightingEntity,
   StandardWeightingWriteInput,
+  SubphaseBankEntity,
+  SubphaseDraftInput,
+  SubphaseEntity,
   StandardWriteInput,
   TemporaryCommissionEntity,
   TemporaryCommissionWriteInput,
@@ -29,7 +39,7 @@ export type {
   UserRoleEntity,
   UserWriteInput,
 } from './admin-catalog';
-export { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS, SESSION_DEMO_USER_ID } from './admin-catalog';
+export { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS, PROGRAM_TYPES, SESSION_DEMO_USER_ID } from './admin-catalog';
 export type { Account } from './account';
 export type { BankCard, CardKind } from './bank-card';
 export type { FaqItem } from './faq-item';

@@ -98,9 +98,12 @@ describe('Header', () => {
     expect(text).not.toContain('Nuevo estándar');
     expect(text).not.toContain('Ver ponderaciones');
     expect(text).not.toContain('Nueva ponderación');
+    expect(text).toContain('Formación académica');
+    expect(text).toContain('Programas');
+    expect(text).not.toContain('Nuevo programa');
     expect(text).toContain('Material aéreo');
     expect(text).toContain('Aeronaves');
     expect(root.querySelector('.mega__title')?.textContent).toContain('Configuración');
-    expect(root.querySelectorAll('.mega__col').length).toBe(4);
+    expect(root.querySelectorAll('.mega__col').length).toBe(5);
   });
 });

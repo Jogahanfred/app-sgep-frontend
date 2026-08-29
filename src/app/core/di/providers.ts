@@ -35,6 +35,11 @@ import {
   ListManeuvers,
   ListMissionTypes,
   ListOperations,
+  ListPhaseBanks,
+  ListPhases,
+  ListPrograms,
+  ListSubphaseBanks,
+  ListSubphases,
   ListSquadrons,
   ListSpecialties,
   ListStandards,
@@ -58,6 +63,7 @@ import {
   UpdateStandard,
   UpdateTemporaryCommission,
   UpdateUnit,
+  SaveProgramCurriculum,
   UpdateWeighting,
   UpdateUserRole,
 } from '../application';
@@ -388,6 +394,36 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: UpdateAircraft,
     useFactory: (repo: AdminCatalogRepository) => new UpdateAircraft(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListPrograms,
+    useFactory: (repo: AdminCatalogRepository) => new ListPrograms(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListPhases,
+    useFactory: (repo: AdminCatalogRepository) => new ListPhases(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListSubphases,
+    useFactory: (repo: AdminCatalogRepository) => new ListSubphases(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListPhaseBanks,
+    useFactory: (repo: AdminCatalogRepository) => new ListPhaseBanks(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListSubphaseBanks,
+    useFactory: (repo: AdminCatalogRepository) => new ListSubphaseBanks(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: SaveProgramCurriculum,
+    useFactory: (repo: AdminCatalogRepository) => new SaveProgramCurriculum(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

@@ -24,6 +24,8 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/ponderaciones/:id/editar', component: BlankPage },
           { path: 'catalogo/aeronaves', component: BlankPage },
           { path: 'catalogo/aeronaves/nuevo', component: BlankPage },
+          { path: 'catalogo/programas', component: BlankPage },
+          { path: 'catalogo/programas/nuevo', component: BlankPage },
         ]),
       ],
     }).compileComponents();
@@ -130,6 +132,22 @@ describe('CatalogLayout', () => {
     expect(text).toContain('matrículas');
     expect(text).not.toContain('Usuarios');
     expect(text).not.toContain('Estructura operativa');
+    expect(text).not.toContain('Catálogos de instrucción');
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+  });
+
+  it('muestra solo Formación académica en programas', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/programas');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
+    expect(text).toContain('Formación académica');
+    expect(text).toContain('Programas');
+    expect(text).toContain('plan de estudios');
+    expect(text).not.toContain('Usuarios');
     expect(text).not.toContain('Catálogos de instrucción');
     expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
   });

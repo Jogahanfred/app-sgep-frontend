@@ -259,6 +259,14 @@ const configuracion: NavColumn[] = [
   {
     blocks: [
       {
+        heading: 'Formación académica',
+        links: [{ label: 'Programas', href: '/catalogo/programas' }],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
         heading: 'Estructura operativa',
         links: [
           { label: 'Unidades', href: '/catalogo/unidades' },
