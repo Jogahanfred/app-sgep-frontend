@@ -189,3 +189,42 @@ export interface StandardWeightingWriteInput {
   validFrom: string;
   validTo: string;
 }
+
+export const FLEET_TYPES = ['fixed-wing', 'rotary', 'uas'] as const;
+export type FleetType = (typeof FLEET_TYPES)[number];
+
+export interface FleetEntity {
+  id: string;
+  fleetType: FleetType;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface FleetWriteInput {
+  fleetType: FleetType;
+  code: string;
+  name: string;
+  description: string;
+  status: EntityStatus;
+}
+
+export interface AircraftEntity {
+  id: string;
+  unitId: string;
+  fleetId: string;
+  registration: string;
+  operational: boolean;
+  status: EntityStatus;
+  imageUrl: string;
+}
+
+export interface AircraftWriteInput {
+  unitId: string;
+  fleetId: string;
+  registration: string;
+  operational: boolean;
+  status: EntityStatus;
+  imageUrl: string;
+}

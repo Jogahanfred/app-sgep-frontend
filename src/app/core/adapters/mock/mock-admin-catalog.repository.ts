@@ -1,7 +1,11 @@
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import type {
+  AircraftEntity,
+  AircraftWriteInput,
   CatalogWriteInput,
+  FleetEntity,
+  FleetWriteInput,
   ManeuverBankEntity,
   ManeuverBankWriteInput,
   MissionTypeEntity,
@@ -27,7 +31,9 @@ import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
 import type { AdminCatalogRepository } from '../../ports/admin-catalog.repository';
 import {
   buildSpecialtyUsers,
+  SEED_AIRCRAFT,
   SEED_COMMISSIONS,
+  SEED_FLEETS,
   SEED_MANEUVERS,
   SEED_MISSION_TYPES,
   SEED_OPERATIONS,
@@ -56,6 +62,8 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private maneuvers: ManeuverBankEntity[] = structuredClone(SEED_MANEUVERS);
   private standards: StandardEntity[] = structuredClone(SEED_STANDARDS);
   private weightings: StandardWeightingEntity[] = structuredClone(SEED_WEIGHTINGS);
+  private fleets: FleetEntity[] = structuredClone(SEED_FLEETS);
+  private aircraft: AircraftEntity[] = structuredClone(SEED_AIRCRAFT);
   private passwords = new Map(Object.entries(SEED_PASSWORDS));
   private seq = 1;
 
@@ -408,6 +416,84 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       return of({ ...item }).pipe(delay(LATENCY));
     } catch (error) {
       return throwError(() => error);
+    }
+  }
+
+  listFleets(): Observable<FleetEntity[]> {
+    return of(this.fleets.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createFleet(input: FleetWriteInput): Observable<FleetEntity> {
+    try {
+      this.assertUniqueCode(this.fleets, input.code, 'Ya existe una flota con ese código.');
+      const item: FleetEntity = { id: `fleet-${this.seq++}`, ...input };
+      this.fleets = [item, ...this.fleets];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateFleet(id: string, input: FleetWriteInput): Observable<FleetEntity> {
+    const index = this.fleets.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa flota.'));
+    }
+    try {
+      this.assertUniqueCode(this.fleets, input.code, 'Ya existe una flota con ese código.', id);
+      const item: FleetEntity = { id, ...input };
+      this.fleets[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  listAircraft(): Observable<AircraftEntity[]> {
+    return of(this.aircraft.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+  }
+
+  createAircraft(input: AircraftWriteInput): Observable<AircraftEntity> {
+    try {
+      this.assertAircraftRefs(input);
+      this.assertUniqueRegistration(input.registration);
+      const item: AircraftEntity = { id: `ac-${this.seq++}`, ...input };
+      this.aircraft = [item, ...this.aircraft];
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  updateAircraft(id: string, input: AircraftWriteInput): Observable<AircraftEntity> {
+    const index = this.aircraft.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos esa aeronave.'));
+    }
+    try {
+      this.assertAircraftRefs(input);
+      this.assertUniqueRegistration(input.registration, id);
+      const item: AircraftEntity = { id, ...input };
+      this.aircraft[index] = item;
+      return of({ ...item }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  private assertAircraftRefs(input: AircraftWriteInput): void {
+    this.assertUnitExists(input.unitId);
+    if (!this.fleets.some((item) => item.id === input.fleetId)) {
+      throw new InvalidAdminCatalogError('La flota indicada no existe.');
+    }
+  }
+
+  private assertUniqueRegistration(registration: string, ignoreId?: string): void {
+    const clash = this.aircraft.find(
+      (item) => item.id !== ignoreId && item.registration.trim().toUpperCase() === registration.trim().toUpperCase(),
+    );
+    if (clash) {
+      throw new InvalidAdminCatalogError('Ya existe una aeronave con esa matrícula.');
     }
   }
 

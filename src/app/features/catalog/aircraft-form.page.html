@@ -1,0 +1,102 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ lead() }}</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver al listado</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Registrando aeronave' : 'Cargando aeronave'"
+      [subtitle]="creating() ? 'Estamos guardando la aeronave y su foto.' : 'Un momento.'"
+      [label]="creating() ? 'Registrando aeronave' : 'Cargando aeronave'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar esta aeronave.</app-alert>
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) {
+          <app-alert tone="error">{{ error() }}</app-alert>
+        }
+
+        <div class="air-photo" [class.air-photo--empty]="!imageUrl()">
+          @if (imageUrl()) {
+            <img [src]="imageUrl()" [alt]="form.controls.registration.value || 'Aeronave'" />
+          } @else {
+            <p>Añade una foto de la aeronave para identificarla en el listado.</p>
+          }
+          @if (!isView) {
+            <label class="air-photo__pick">
+              <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+              {{ imageUrl() ? 'Cambiar imagen' : 'Subir imagen' }}
+            </label>
+          }
+        </div>
+        @if (requiredError('imageUrl', 'Añade una imagen de la aeronave.')) {
+          <p class="air-photo__error">{{ requiredError('imageUrl', 'Añade una imagen de la aeronave.') }}</p>
+        }
+
+        <div class="ap__grid">
+          <ui-select
+            id="ac-unit"
+            label="Unidad"
+            [uppercase]="false"
+            [options]="unitOptions()"
+            [value]="form.controls.unitId.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.unitId.setValue($event)"
+          />
+          <ui-select
+            id="ac-fleet"
+            label="Flota"
+            [uppercase]="false"
+            [options]="fleetOptions()"
+            [value]="form.controls.fleetId.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.fleetId.setValue($event)"
+          />
+        </div>
+        <ui-input
+          id="ac-reg"
+          label="Matrícula"
+          icon="id-card"
+          placeholder="EC-HVA"
+          [field]="form.controls.registration"
+          [error]="requiredError('registration', 'Escribe la matrícula.')"
+        />
+        <div class="ap__grid">
+          <ui-select
+            id="ac-op"
+            label="Operativa"
+            [uppercase]="false"
+            [options]="operationalFormOptions"
+            [value]="form.controls.operational.value ? 'yes' : 'no'"
+            [disabled]="isView"
+            (valueChange)="form.controls.operational.setValue($event !== 'no')"
+          />
+          <ui-select
+            id="ac-status"
+            label="Estado"
+            [uppercase]="false"
+            [options]="entityStatusOptions"
+            [value]="form.controls.status.value"
+            [disabled]="isView"
+            (valueChange)="form.controls.status.setValue($event === 'inactive' ? 'inactive' : 'active')"
+          />
+        </div>
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
+          @if (!isView) {
+            <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Registrar' : 'Guardar cambios' }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

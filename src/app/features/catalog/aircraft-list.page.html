@@ -1,0 +1,92 @@
+<div class="ap">
+  <p class="ap__lead">Aeronaves registradas: matrícula, flota, unidad, operativa y foto para identificarlas.</p>
+
+  <div class="ap__toolbar ap__toolbar--air">
+    <ui-input
+      id="ac-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por matrícula, flota o unidad"
+      [field]="search"
+    />
+    <ui-select
+      id="ac-unit-filter"
+      label="Unidad"
+      [uppercase]="false"
+      [options]="unitOptions()"
+      [value]="unitFilter()"
+      (valueChange)="unitFilter.set($event || 'all'); selectedId.set(null)"
+    />
+    <ui-select
+      id="ac-fleet-filter"
+      label="Flota"
+      [uppercase]="false"
+      [options]="fleetOptions()"
+      [value]="fleetFilter()"
+      (valueChange)="fleetFilter.set($event || 'all'); selectedId.set(null)"
+    />
+    <ui-select
+      id="ac-op-filter"
+      label="Operativa"
+      [uppercase]="false"
+      [options]="operationalOptions"
+      [value]="operationalFilter()"
+      (valueChange)="onOperationalFilter($event)"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar las aeronaves. Recarga la página.</app-alert>
+  } @else if (loadState() === 'ready' && filtered().length === 0) {
+    <app-alert tone="empty">No hay aeronaves con ese buscador o filtro.</app-alert>
+  } @else if (loadState() === 'ready') {
+    <div class="air-gallery" role="list">
+      @for (item of filtered(); track item.id) {
+        <button
+          type="button"
+          class="air-card"
+          role="listitem"
+          [class.air-card--on]="selectedId() === item.id"
+          (click)="selectAircraft(item.id)"
+        >
+          <img [src]="item.imageUrl" [alt]="'Aeronave ' + item.registration" />
+          <span class="air-card__meta">
+            <strong>{{ item.registration }}</strong>
+            <span>{{ fleetName(item.fleetId) }}</span>
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (loadState() !== 'error') {
+    <ui-table
+      heading="Aeronaves"
+      caption="Aeronaves"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando aeronaves"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando aeronaves"
+      emptyTitle="No hay resultados con ese buscador o filtro."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="askDeactivate()">Baja</app-button>
+    </ui-table>
+  }
+
+  <ui-confirm-dialog
+    title="Confirmar baja"
+    confirmLabel="Dar de baja"
+    [open]="confirmOpen()"
+    [message]="confirmMessage()"
+    (closed)="closeConfirm()"
+    (confirmed)="confirmDeactivate()"
+  />
+</div>

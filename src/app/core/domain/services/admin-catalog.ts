@@ -1,8 +1,11 @@
 import { InvalidAdminCatalogError } from '../errors/domain-error';
 import type {
+  AircraftWriteInput,
   CatalogWriteInput,
   CommissionWorkflowStatus,
   EntityStatus,
+  FleetType,
+  FleetWriteInput,
   InstructionProgram,
   ManeuverBankWriteInput,
   MissionTypeWriteInput,
@@ -13,7 +16,7 @@ import type {
   UnitWriteInput,
   UserWriteInput,
 } from '../entities/admin-catalog';
-import { COMMISSION_WORKFLOW, INSTRUCTION_PROGRAMS } from '../entities/admin-catalog';
+import { COMMISSION_WORKFLOW, FLEET_TYPES, INSTRUCTION_PROGRAMS } from '../entities/admin-catalog';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -230,6 +233,63 @@ export function assertWeightingWrite(input: StandardWeightingWriteInput): Standa
 
 export function weightingIsCurrent(validTo: string, today = new Date().toISOString().slice(0, 10)): boolean {
   return validTo >= today;
+}
+
+export function fleetTypeLabel(type: FleetType): string {
+  const labels: Record<FleetType, string> = {
+    'fixed-wing': 'Ala fija',
+    rotary: 'Ala rotatoria',
+    uas: 'UAS',
+  };
+  return labels[type];
+}
+
+export function operationalLabel(operational: boolean): string {
+  return operational ? 'Operativa' : 'No operativa';
+}
+
+export function assertFleetWrite(input: FleetWriteInput): FleetWriteInput {
+  const fleetType = required(input.fleetType, 'El tipo de flota es obligatorio.') as FleetType;
+  if (!FLEET_TYPES.includes(fleetType)) {
+    throw new InvalidAdminCatalogError('El tipo de flota debe ser Ala fija, Ala rotatoria o UAS.');
+  }
+  return {
+    fleetType,
+    code: assertCode(input.code, 'de la flota'),
+    name: required(input.name, 'El nombre de la flota es obligatorio.'),
+    description: input.description.trim(),
+    status: assertStatus(input.status),
+  };
+}
+
+export function assertAircraftWrite(input: AircraftWriteInput): AircraftWriteInput {
+  const registration = required(input.registration, 'La matrícula es obligatoria.').toUpperCase();
+  if (!/^[A-Z]{1,2}-[A-Z0-9]{3,5}$/.test(registration)) {
+    throw new InvalidAdminCatalogError('La matrícula debe tener el formato EC-HVA.');
+  }
+  return {
+    unitId: required(input.unitId, 'La unidad es obligatoria.'),
+    fleetId: required(input.fleetId, 'La flota es obligatoria.'),
+    registration,
+    operational: Boolean(input.operational),
+    status: assertStatus(input.status),
+    imageUrl: assertAircraftImage(input.imageUrl),
+  };
+}
+
+function assertAircraftImage(value: string): string {
+  const imageUrl = value.trim();
+  if (!imageUrl) {
+    throw new InvalidAdminCatalogError('La aeronave necesita una imagen para identificarla.');
+  }
+  if (imageUrl.startsWith('data:image/')) {
+    if (imageUrl.length > 2_800_000) {
+      throw new InvalidAdminCatalogError('La imagen no puede superar 2 MB.');
+    }
+    return imageUrl;
+  }
+  if (imageUrl.startsWith('/')) return imageUrl;
+  throw new InvalidAdminCatalogError('La imagen debe ser un archivo JPEG, PNG o WebP.');
 }
 
 export function commissionStatusLabel(status: CommissionWorkflowStatus): string {

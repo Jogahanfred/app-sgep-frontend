@@ -103,4 +103,18 @@ describe('UiTable', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Cargando usuarios');
   });
+
+  it('muestra la miniatura cuando la celda trae imagen', () => {
+    const fixture = TestBed.createComponent(UiTable);
+    fixture.componentRef.setInput('columns', [{ id: 'reg', header: 'Matrícula', align: 'left' }]);
+    fixture.componentRef.setInput('rows', [
+      { id: 'ac-1', cells: { reg: { text: 'EC-HVA', image: '/aircraft/ec-hva.jpg', imageAlt: 'Aeronave EC-HVA' } } },
+    ]);
+    fixture.detectChanges();
+    const img = (fixture.nativeElement as HTMLElement).querySelector('img') as HTMLImageElement | null;
+    expect(img?.getAttribute('src')).toBe('/aircraft/ec-hva.jpg');
+    expect(img?.getAttribute('alt')).toBe('Aeronave EC-HVA');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('EC-HVA');
+  });
 });
+

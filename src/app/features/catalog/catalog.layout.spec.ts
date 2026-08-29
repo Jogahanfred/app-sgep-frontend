@@ -20,6 +20,7 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/unidades', component: BlankPage },
           { path: 'catalogo/comisiones-temporales', component: BlankPage },
           { path: 'catalogo/operaciones', component: BlankPage },
+          { path: 'catalogo/aeronaves', component: BlankPage },
         ]),
       ],
     }).compileComponents();
@@ -88,6 +89,24 @@ describe('CatalogLayout', () => {
     expect(text).toContain('Ponderaciones');
     expect(text).not.toContain('Usuarios');
     expect(text).not.toContain('Estructura operativa');
+    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+  });
+
+  it('muestra solo Gestión de material aéreo en flotas y aeronaves', async () => {
+    const fixture = TestBed.createComponent(CatalogLayout);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/catalogo/aeronaves');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
+    expect(text).toContain('Gestión de material aéreo');
+    expect(text).toContain('Flotas');
+    expect(text).toContain('Aeronaves');
+    expect(text).toContain('matrículas');
+    expect(text).not.toContain('Usuarios');
+    expect(text).not.toContain('Estructura operativa');
+    expect(text).not.toContain('Catálogos de instrucción');
     expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
   });
 });

@@ -99,6 +99,22 @@ tbody tr:not(.ui-table__empty-row):hover td {
   text-align: right;
 }
 
+.ui-table__media {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.ui-table__media img {
+  width: 4.4rem;
+  height: 2.55rem;
+  object-fit: cover;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.35rem;
+  background: #f4f6f8;
+}
+
 .ui-table__badge {
   display: inline-flex;
   min-height: 1.4rem;

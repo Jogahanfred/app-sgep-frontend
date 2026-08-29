@@ -183,7 +183,7 @@ Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a 
 | `/perfil/usuario` | Ficha de acceso de la persona logueada |
 | `/perfil/roles` | Roles asignados a esa persona |
 | `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración** → **Catálogos**, **Estructura operativa** y **Catálogos de instrucción**.
+El header incluye **Configuración** → **Catálogos**, **Estructura operativa**, **Catálogos de instrucción** y **Material aéreo**.
 
 | `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
 | `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
@@ -196,6 +196,8 @@ El header incluye **Configuración** → **Catálogos**, **Estructura operativa*
 | `/catalogo/maniobras` | Banco de maniobras (`ManeuverBankEntity`) |
 | `/catalogo/estandares` | Estándares (`StandardEntity`) |
 | `/catalogo/ponderaciones` | Ponderaciones (`StandardWeightingEntity`) |
+| `/catalogo/flotas` | Flotas (`FleetEntity`) |
+| `/catalogo/aeronaves` | Aeronaves (`AircraftEntity`) con foto, matrícula, flota, unidad y operativa |
 
 Las features se cargan con **lazy loading** (`loadComponent`).
 

@@ -27,6 +27,8 @@ export interface UiTableCell {
   text: string;
   badge?: UiTableBadgeTone;
   href?: string;
+  image?: string;
+  imageAlt?: string;
 }
 
 export interface UiTableRow {

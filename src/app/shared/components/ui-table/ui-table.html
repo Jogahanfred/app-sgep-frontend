@@ -49,7 +49,12 @@
                 @for (column of columns(); track column.id) {
                   @let item = cell(row, column.id);
                   <td [class]="alignClass(column.align)">
-                    @if (item.badge) {
+                    @if (item.image) {
+                      <span class="ui-table__media">
+                        <img [src]="item.image" [alt]="item.imageAlt || item.text" />
+                        <span>{{ item.text }}</span>
+                      </span>
+                    } @else if (item.badge) {
                       <span [class]="'ui-table__badge ui-table__badge--' + item.badge">{{ item.text }}</span>
                     } @else if (item.href) {
                       <a class="ui-table__link" [routerLink]="item.href" (click)="$event.stopPropagation()">{{ item.text }}</a>

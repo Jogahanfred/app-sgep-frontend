@@ -19,6 +19,8 @@ import {
   GetMortgages,
   GetProductsByNeed,
   GetPromotions,
+  CreateAircraft,
+  CreateFleet,
   CreateManeuver,
   CreateMissionType,
   CreateOperation,
@@ -28,6 +30,8 @@ import {
   CreateUnit,
   CreateWeighting,
   ListAdminUsers,
+  ListAircraft,
+  ListFleets,
   ListManeuvers,
   ListMissionTypes,
   ListOperations,
@@ -45,6 +49,8 @@ import {
   UpdateUserPhoto,
   UpdateUserPreferences,
   UpdateUserProfile,
+  UpdateAircraft,
+  UpdateFleet,
   UpdateManeuver,
   UpdateMissionType,
   UpdateOperation,
@@ -352,6 +358,36 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: UpdateWeighting,
     useFactory: (repo: AdminCatalogRepository) => new UpdateWeighting(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListFleets,
+    useFactory: (repo: AdminCatalogRepository) => new ListFleets(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateFleet,
+    useFactory: (repo: AdminCatalogRepository) => new CreateFleet(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateFleet,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateFleet(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListAircraft,
+    useFactory: (repo: AdminCatalogRepository) => new ListAircraft(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateAircraft,
+    useFactory: (repo: AdminCatalogRepository) => new CreateAircraft(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: UpdateAircraft,
+    useFactory: (repo: AdminCatalogRepository) => new UpdateAircraft(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

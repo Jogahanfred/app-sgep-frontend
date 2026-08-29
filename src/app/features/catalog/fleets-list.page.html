@@ -1,0 +1,54 @@
+<div class="ap">
+  <p class="ap__lead">Flotas de material aéreo: tipo, código, nombre, descripción y estado.</p>
+
+  <div class="ap__toolbar">
+    <ui-input
+      id="fleet-search"
+      label="Buscador global"
+      type="search"
+      icon="search"
+      placeholder="Buscar por tipo, código, nombre o descripción"
+      [field]="search"
+    />
+    <ui-select
+      id="fleet-status-filter"
+      label="Estado"
+      [uppercase]="false"
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      (valueChange)="statusFilter.set($event === 'all' ? 'all' : $event === 'inactive' ? 'inactive' : 'active')"
+    />
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar las flotas. Recarga la página.</app-alert>
+  } @else {
+    <ui-table
+      heading="Flotas"
+      caption="Flotas"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando flotas"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando flotas"
+      emptyTitle="No hay resultados con ese buscador o filtro de estado."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="createHref" icon="plus" size="sm">Añadir</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="goEdit()">Modificar</app-button>
+      <app-button variant="secondary" size="sm" icon="trash" [disabled]="!selectedId()" (click)="askDeactivate()">Baja</app-button>
+    </ui-table>
+  }
+
+  <ui-confirm-dialog
+    title="Confirmar baja"
+    confirmLabel="Dar de baja"
+    [open]="confirmOpen()"
+    [message]="confirmMessage()"
+    (closed)="closeConfirm()"
+    (confirmed)="confirmDeactivate()"
+  />
+</div>

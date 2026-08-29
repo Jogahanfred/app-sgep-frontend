@@ -31,14 +31,15 @@ export class CatalogLayout {
   );
 }
 
-function catalogDomain(url: string): 'catalog' | 'ops' | 'instruction' {
+function catalogDomain(url: string): 'catalog' | 'ops' | 'instruction' | 'air' {
   if (/\/catalogo\/(unidades|escuadrones|comisiones-temporales)/.test(url)) return 'ops';
   if (/\/catalogo\/(operaciones|tipos-de-mision|maniobras|estandares|ponderaciones)/.test(url)) return 'instruction';
+  if (/\/catalogo\/(flotas|aeronaves)/.test(url)) return 'air';
   return 'catalog';
 }
 
 function isRecordUrl(url: string): boolean {
-  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones)\/[^/?#]+/.test(
+  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves)\/[^/?#]+/.test(
     url,
   );
 }

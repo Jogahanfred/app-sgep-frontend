@@ -24,6 +24,23 @@ export const instructionProgramOptions: ChoiceOption[] = [
   { value: 'IR', label: 'IR' },
 ];
 
+export const fleetTypeOptions: ChoiceOption[] = [
+  { value: 'fixed-wing', label: 'Ala fija' },
+  { value: 'rotary', label: 'Ala rotatoria' },
+  { value: 'uas', label: 'UAS' },
+];
+
+export const operationalOptions: ChoiceOption[] = [
+  { value: 'all', label: 'Todas' },
+  { value: 'yes', label: 'Operativa' },
+  { value: 'no', label: 'No operativa' },
+];
+
+export const operationalFormOptions: ChoiceOption[] = [
+  { value: 'yes', label: 'Operativa' },
+  { value: 'no', label: 'No operativa' },
+];
+
 export function catalogPasswordValidator(requiredPassword: boolean): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const message = passwordStrengthError(String(control.value ?? ''), requiredPassword);

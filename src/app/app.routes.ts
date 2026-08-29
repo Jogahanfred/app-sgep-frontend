@@ -488,6 +488,46 @@ export const routes: Routes = [
         loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de ponderación | SIGA', description: 'Consulta la ponderación, sin modificar.' } },
       },
+      {
+        path: 'flotas',
+        loadComponent: () => import('./features/catalog/fleets-list.page').then((m) => m.FleetsListPage),
+        data: { seo: { title: 'Flotas | SIGA', description: 'Catálogo de flotas de material aéreo.' } },
+      },
+      {
+        path: 'flotas/nuevo',
+        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        data: { seo: { title: 'Nueva flota | SIGA', description: 'Alta de una flota.' } },
+      },
+      {
+        path: 'flotas/:id/editar',
+        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar flota | SIGA', description: 'Tipo, código, nombre, descripción y estado de la flota.' } },
+      },
+      {
+        path: 'flotas/:id',
+        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de flota | SIGA', description: 'Consulta la flota, sin modificar.' } },
+      },
+      {
+        path: 'aeronaves',
+        loadComponent: () => import('./features/catalog/aircraft-list.page').then((m) => m.AircraftListPage),
+        data: { seo: { title: 'Aeronaves | SIGA', description: 'Registro de aeronaves con imagen, flota y unidad.' } },
+      },
+      {
+        path: 'aeronaves/nuevo',
+        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        data: { seo: { title: 'Nueva aeronave | SIGA', description: 'Alta de una aeronave.' } },
+      },
+      {
+        path: 'aeronaves/:id/editar',
+        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar aeronave | SIGA', description: 'Unidad, flota, matrícula, operativa y estado.' } },
+      },
+      {
+        path: 'aeronaves/:id',
+        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de aeronave | SIGA', description: 'Consulta la aeronave y su foto.' } },
+      },
     ],
   },
   { path: '**', redirectTo: '' },

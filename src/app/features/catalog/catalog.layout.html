@@ -12,6 +12,17 @@
           <a routerLink="/catalogo/comisiones-temporales" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Comisiones temporales</a>
         </nav>
       }
+    } @else if (domain() === 'air') {
+      <header class="adm__intro">
+        <p class="adm__kicker">Gestión de material aéreo</p>
+        <p class="adm__lead">Flotas y aeronaves. Aquí se registran las matrículas, su unidad y si están operativas.</p>
+      </header>
+      @if (showDomainNav()) {
+        <nav class="adm__nav" aria-label="Gestión de material aéreo">
+          <a routerLink="/catalogo/flotas" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Flotas</a>
+          <a routerLink="/catalogo/aeronaves" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Aeronaves</a>
+        </nav>
+      }
     } @else if (domain() === 'instruction') {
       <header class="adm__intro">
         <p class="adm__kicker">Catálogos de instrucción</p>

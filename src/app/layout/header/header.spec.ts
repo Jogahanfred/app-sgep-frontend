@@ -83,5 +83,7 @@ describe('Header', () => {
     expect(text).toContain('Catálogos de instrucción');
     expect(text).toContain('Operaciones');
     expect(text).toContain('Ponderaciones');
+    expect(text).toContain('Material aéreo');
+    expect(text).toContain('Aeronaves');
   });
 });

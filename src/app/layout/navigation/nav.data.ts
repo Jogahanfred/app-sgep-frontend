@@ -258,6 +258,13 @@ const configuracion: NavColumn[] = [
           { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
         ],
       },
+      {
+        heading: 'Material aéreo',
+        links: [
+          { label: 'Flotas', href: '/catalogo/flotas' },
+          { label: 'Aeronaves', href: '/catalogo/aeronaves' },
+        ],
+      },
     ],
   },
 ];

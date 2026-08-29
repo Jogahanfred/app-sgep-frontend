@@ -1,6 +1,10 @@
 import { Observable } from 'rxjs';
 import type {
+  AircraftEntity,
+  AircraftWriteInput,
   CatalogWriteInput,
+  FleetEntity,
+  FleetWriteInput,
   ManeuverBankEntity,
   ManeuverBankWriteInput,
   MissionTypeEntity,
@@ -69,4 +73,12 @@ export interface AdminCatalogRepository {
   listWeightings(): Observable<StandardWeightingEntity[]>;
   createWeighting(input: StandardWeightingWriteInput): Observable<StandardWeightingEntity>;
   updateWeighting(id: string, input: StandardWeightingWriteInput): Observable<StandardWeightingEntity>;
+
+  listFleets(): Observable<FleetEntity[]>;
+  createFleet(input: FleetWriteInput): Observable<FleetEntity>;
+  updateFleet(id: string, input: FleetWriteInput): Observable<FleetEntity>;
+
+  listAircraft(): Observable<AircraftEntity[]>;
+  createAircraft(input: AircraftWriteInput): Observable<AircraftEntity>;
+  updateAircraft(id: string, input: AircraftWriteInput): Observable<AircraftEntity>;
 }
