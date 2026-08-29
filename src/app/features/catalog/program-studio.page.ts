@@ -35,6 +35,7 @@ import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
 import type { ChoiceOption } from '@shared/models/choice.model';
@@ -80,6 +81,7 @@ interface StudioPhase {
     UiRadioCardGroup,
     UiSegmentedControl,
     UiSelect,
+    UiTable,
     UiTextarea,
   ],
   templateUrl: './program-studio.page.html',
@@ -123,6 +125,14 @@ export class ProgramStudioPage {
   readonly phaseBankPickerKey = signal<string | null>(null);
   readonly phaseBankSearch = new FormControl('', { nonNullable: true });
   readonly phaseBankQuery = signal('');
+  readonly pickerSelectedId = signal<string | null>(null);
+  readonly phasePickerPageSizes = [5] as const;
+  readonly phasePickerColumns: UiTableColumn[] = [
+    { id: 'code', header: 'Código' },
+    { id: 'name', header: 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'use', header: 'Uso' },
+  ];
 
   readonly form = new FormGroup({
     code: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -162,11 +172,30 @@ export class ProgramStudioPage {
     return this.phases().find((item) => item.key === key)?.phaseBankId ?? '';
   });
 
-  readonly pickerPhaseBanks = computed(() => {
+  readonly pickerPhaseBanks = computed(() =>
+    this.phaseBanks()
+      .filter((item) => item.status === 'active')
+      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery())),
+  );
+
+  readonly pickerTableRows = computed<UiTableRow[]>(() => {
     const currentId = this.currentPickerBankId();
-    const current = this.phaseBanks().find((item) => item.id === currentId);
-    const items = current ? [current, ...this.unusedPhaseBanks()] : this.unusedPhaseBanks();
-    return items.filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery()));
+    const used = this.usedPhaseBankIds();
+    return this.pickerPhaseBanks().map((item) => ({
+      id: item.id,
+      cells: {
+        code: item.code,
+        name: item.name,
+        description: item.description || '—',
+        use: item.id === currentId ? 'En el programa' : used.has(item.id) ? 'En uso' : 'Disponible',
+      },
+    }));
+  });
+
+  readonly canApplyPickerPhase = computed(() => {
+    const id = this.pickerSelectedId();
+    if (!id) return false;
+    return id === this.currentPickerBankId() || !this.usedPhaseBankIds().has(id);
   });
 
   readonly nextAvailablePhaseBankId = computed(() => {
@@ -283,10 +312,17 @@ export class ProgramStudioPage {
     this.phaseBankSearch.setValue('');
     this.phaseBankQuery.set('');
     this.phaseBankPickerKey.set(key);
+    this.pickerSelectedId.set(this.phases().find((item) => item.key === key)?.phaseBankId ?? null);
   }
 
   closePhaseBankPicker(): void {
     this.phaseBankPickerKey.set(null);
+    this.pickerSelectedId.set(null);
+  }
+
+  applyPickerPhase(): void {
+    const id = this.pickerSelectedId();
+    if (id) this.pickPhaseBank(id);
   }
 
   pickPhaseBank(phaseBankId: string): void {

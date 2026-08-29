@@ -285,9 +285,9 @@
     </form>
 
     @if (!isView) {
-      <app-modal [open]="phaseBankOpen()" title="Editar fase" (closed)="closePhaseBankPicker()">
+      <app-modal [open]="phaseBankOpen()" size="lg" title="Editar fase" (closed)="closePhaseBankPicker()">
         <div class="lessons">
-          <p class="lesson__meta">La fase de esta etapa y las activas que el programa aún no usa.</p>
+          <p class="lesson__meta">Todas las fases activas. Busca, selecciona una fila y úsala en esta etapa.</p>
           <ui-input
             id="pick-fase-buscar"
             label="Buscar"
@@ -296,24 +296,20 @@
             placeholder="Código, nombre o descripción"
             [field]="phaseBankSearch"
           />
-          @if (pickerPhaseBanks().length === 0) {
-            <div class="path__empty">
-              <p>No hay resultados con ese buscador.</p>
-            </div>
-          } @else {
-            <div class="lessons">
-              @for (bank of pickerPhaseBanks(); track bank.id) {
-                <app-button
-                  type="button"
-                  [variant]="bank.id === currentPickerBankId() ? 'primary' : 'secondary'"
-                  [fullWidth]="true"
-                  (click)="pickPhaseBank(bank.id)"
-                >
-                  {{ bank.code }} · {{ bank.name }}{{ bank.id === currentPickerBankId() ? ' · En el programa' : '' }}
-                </app-button>
-              }
-            </div>
-          }
+          <ui-table
+            heading="Fases"
+            caption="Fases del banco"
+            [columns]="phasePickerColumns"
+            [rows]="pickerTableRows()"
+            [selectedId]="pickerSelectedId()"
+            [initialPageSize]="5"
+            [pageSizeOptions]="phasePickerPageSizes"
+            emptyTitle="No hay resultados con ese buscador."
+            (selectedIdChange)="pickerSelectedId.set($event)"
+          />
+          <app-button type="button" [disabled]="!canApplyPickerPhase()" (click)="applyPickerPhase()">
+            Usar esta fase
+          </app-button>
         </div>
       </app-modal>
     }

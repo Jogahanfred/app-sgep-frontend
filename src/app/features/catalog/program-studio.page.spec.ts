@@ -71,7 +71,7 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-table')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.path ui-table')).toBeNull();
   });
 
   it('permite empezar un programa vacío y añadir la primera fase', async () => {
@@ -103,12 +103,20 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     const modal = (fixture.nativeElement as HTMLElement).querySelector('dialog, app-modal');
     const modalText = modal?.textContent ?? '';
+    expect(modal.querySelector('ui-table')).not.toBeNull();
     expect(modalText).toContain('Editar fase');
-    expect(modalText).toContain('TEO · Teoría en aula');
+    expect(modalText).toContain('TEO');
+    expect(modalText).toContain('Teoría en aula');
     expect(modalText).toContain('En el programa');
-    expect(modalText).toContain('IFR · Instrumental');
-    expect(modalText).not.toContain('BAS · Vuelo básico');
-    fixture.componentInstance.pickPhaseBank('pb-ifr');
+    expect(modalText).toContain('IFR');
+    expect(modalText).toContain('Instrumental');
+    expect(modalText).toContain('Mostrando 1 - 5 de 6');
+    fixture.componentInstance.phaseBankSearch.setValue('BAS');
+    fixture.detectChanges();
+    expect((modal?.textContent ?? '')).toContain('Vuelo básico');
+    expect((modal?.textContent ?? '')).not.toContain('Instrumental');
+    fixture.componentInstance.pickerSelectedId.set('pb-ifr');
+    fixture.componentInstance.applyPickerPhase();
     fixture.detectChanges();
     expect(fixture.componentInstance.phases()[0].phaseBankId).toBe('pb-ifr');
     expect(fixture.componentInstance.phaseBankOpen()).toBe(false);
