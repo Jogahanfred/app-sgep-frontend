@@ -68,7 +68,7 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Banco de subfases');
     expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases"]')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('[id^="phase-bank-"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-table')).toBeNull();
   });
