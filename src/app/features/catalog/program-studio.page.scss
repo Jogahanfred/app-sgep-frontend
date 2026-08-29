@@ -187,20 +187,7 @@
 }
 
 .lesson__hours {
-  display: grid;
-  gap: 0.35rem;
-  color: #333;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.lesson__hours input {
-  min-height: 2.6rem;
-  padding: 0.45rem 0.7rem;
-  border: 1px solid #d5dbe1;
-  border-radius: 0.55rem;
-  background: #fff;
-  font: inherit;
+  max-width: 10rem;
 }
 
 .picks {
@@ -262,21 +249,6 @@
 
 .chips li {
   display: flex;
-  gap: 0.35rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 999px;
-  background: #eef4fa;
-  color: #35506a;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.chips button {
-  border: 0;
-  background: transparent;
-  color: #35506a;
-  font: inherit;
-  cursor: pointer;
 }
 
 .station__add,

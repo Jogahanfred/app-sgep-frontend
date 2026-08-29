@@ -22,6 +22,7 @@ export class UiInput {
   readonly min = input<number | undefined>(undefined);
   readonly max = input<number | undefined>(undefined);
   readonly step = input<number | undefined>(undefined);
+  readonly maxlength = input<number | undefined>(undefined);
   readonly autocomplete = input<string | undefined>(undefined);
   readonly suffix = input<string | undefined>(undefined);
   readonly placeholder = input<string | undefined>(undefined);

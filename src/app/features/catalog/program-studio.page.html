@@ -126,17 +126,17 @@
                           <p>{{ sub.hours }} h</p>
                         </div>
                         @if (!isView) {
-                          <label class="lesson__hours">
-                            <span>Horas</span>
-                            <input
-                              type="number"
-                              min="0.5"
-                              max="200"
-                              step="0.5"
-                              [value]="sub.hours"
-                              (input)="setHours(phase.key, sub.key, $event)"
-                            />
-                          </label>
+                          <ui-input
+                            [id]="'hours-' + sub.key"
+                            class="lesson__hours"
+                            label="Horas"
+                            type="number"
+                            suffix="h"
+                            [min]="0.5"
+                            [max]="200"
+                            [step]="0.5"
+                            [field]="hoursField(phase.key, sub.key, sub.hours)"
+                          />
                           <section class="missions" [attr.aria-label]="'Misiones de ' + subphaseName(sub.subphaseBankId)">
                             <p class="missions__label">Misiones</p>
                             <ui-segmented-control
@@ -158,16 +158,13 @@
                                 }
                               </fieldset>
                               <div class="missions__custom">
-                                <label class="lesson__hours">
-                                  <span>Nombre propio</span>
-                                  <input
-                                    type="text"
-                                    maxlength="40"
-                                    placeholder="Circuito corto"
-                                    [value]="draftMissionName()[sub.key] || ''"
-                                    (input)="setDraftMissionName(sub.key, $event)"
-                                  />
-                                </label>
+                                <ui-input
+                                  [id]="'mission-name-' + sub.key"
+                                  label="Nombre propio"
+                                  placeholder="Circuito corto"
+                                  [maxlength]="40"
+                                  [field]="nameField(sub.key, draftMissionName()[sub.key] || '')"
+                                />
                                 <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addCustomMission(phase.key, sub.key)">
                                   Añadir nombre
                                 </app-button>
@@ -176,35 +173,29 @@
                                 <ul class="chips">
                                   @for (name of sub.customMissionNames; track name) {
                                     <li>
-                                      <span>{{ name }}</span>
-                                      <button type="button" (click)="removeCustomMission(phase.key, sub.key, name)">Quitar</button>
+                                      <ui-chip [label]="name" [removable]="true" (removed)="removeCustomMission(phase.key, sub.key, name)" />
                                     </li>
                                   }
                                 </ul>
                               }
                             } @else {
                               <div class="missions__auto">
-                                <label class="lesson__hours">
-                                  <span>Código</span>
-                                  <input
-                                    type="text"
-                                    maxlength="8"
-                                    placeholder="CER"
-                                    [value]="sub.autoMissionCode"
-                                    (input)="setAutoCode(phase.key, sub.key, $event)"
-                                  />
-                                </label>
-                                <label class="lesson__hours">
-                                  <span>Cantidad</span>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="80"
-                                    step="1"
-                                    [value]="sub.autoMissionCount || ''"
-                                    (input)="setAutoCount(phase.key, sub.key, $event)"
-                                  />
-                                </label>
+                                <ui-input
+                                  [id]="'auto-code-' + sub.key"
+                                  label="Código"
+                                  placeholder="CER"
+                                  [maxlength]="8"
+                                  [field]="codeField(phase.key, sub.key, sub.autoMissionCode)"
+                                />
+                                <ui-input
+                                  [id]="'auto-count-' + sub.key"
+                                  label="Cantidad"
+                                  type="number"
+                                  [min]="1"
+                                  [max]="80"
+                                  [step]="1"
+                                  [field]="countField(phase.key, sub.key, sub.autoMissionCount)"
+                                />
                               </div>
                               <p class="missions__preview">{{ autoPreview(sub) }}</p>
                             }
@@ -302,7 +293,7 @@
             [columns]="phasePickerColumns"
             [rows]="pickerTableRows()"
             [selectedId]="pickerSelectedId()"
-            [initialPageSize]="5"
+            [initialPageSize]="4"
             [pageSizeOptions]="phasePickerPageSizes"
             emptyTitle="No hay resultados con ese buscador."
             (selectedIdChange)="pickerSelectedId.set($event)"

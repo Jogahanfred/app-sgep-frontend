@@ -42,7 +42,8 @@ describe('ProgramsBoardPage', () => {
     expect(text).toContain('fases');
     expect(root.querySelector('ui-table')).toBeNull();
     expect(root.querySelector('a[href="/catalogo/programas/nuevo"]')).not.toBeNull();
-    const photos = [...root.querySelectorAll<HTMLImageElement>('.course__photo')];
+    expect(root.querySelectorAll('ui-program-card').length).toBe(4);
+    const photos = [...root.querySelectorAll<HTMLImageElement>('.pcard__photo')];
     expect(photos).toHaveLength(3);
     expect(new Set(photos.map((img) => img.getAttribute('src'))).size).toBe(3);
   });

@@ -29,6 +29,7 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
+import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
@@ -75,6 +76,7 @@ interface StudioPhase {
     Button,
     Modal,
     UiCheckbox,
+    UiChip,
     UiFormCard,
     UiInput,
     UiLoading,
@@ -102,6 +104,7 @@ export class ProgramStudioPage {
   private readonly toast = inject(ToastService);
   private draftSeq = 1;
   private left = false;
+  private readonly fieldControls = new Map<string, FormControl<string> | FormControl<number>>();
 
   readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isCreate = !this.editingId;
@@ -126,7 +129,7 @@ export class ProgramStudioPage {
   readonly phaseBankSearch = new FormControl('', { nonNullable: true });
   readonly phaseBankQuery = signal('');
   readonly pickerSelectedId = signal<string | null>(null);
-  readonly phasePickerPageSizes = [5] as const;
+  readonly phasePickerPageSizes = [4] as const;
   readonly phasePickerColumns: UiTableColumn[] = [
     { id: 'code', header: 'Código' },
     { id: 'name', header: 'Nombre' },
@@ -425,27 +428,33 @@ export class ProgramStudioPage {
     );
   }
 
-  setHours(phaseKey: string, subKey: string, event: Event): void {
-    const hours = Number((event.target as HTMLInputElement).value);
-    this.patchSubphase(phaseKey, subKey, { hours: Number.isFinite(hours) ? hours : 0 });
+  hoursField(phaseKey: string, subKey: string, hours: number): FormControl<number> {
+    return this.numberField(`hours:${phaseKey}:${subKey}`, hours, (value) => {
+      this.patchSubphase(phaseKey, subKey, { hours: Number.isFinite(value) ? value : 0 });
+    });
+  }
+
+  nameField(subKey: string, value: string): FormControl<string> {
+    return this.textField(`name:${subKey}`, value, (next) => {
+      this.draftMissionName.update((map) => ({ ...map, [subKey]: next }));
+    });
+  }
+
+  codeField(phaseKey: string, subKey: string, value: string): FormControl<string> {
+    return this.textField(`code:${phaseKey}:${subKey}`, value, (next) => {
+      this.patchSubphase(phaseKey, subKey, { autoMissionCode: next });
+    });
+  }
+
+  countField(phaseKey: string, subKey: string, count: number): FormControl<number> {
+    return this.numberField(`count:${phaseKey}:${subKey}`, count, (value) => {
+      this.patchSubphase(phaseKey, subKey, { autoMissionCount: Number.isFinite(value) ? value : 0 });
+    });
   }
 
   setMissionMode(phaseKey: string, subKey: string, value: string): void {
     if (value !== 'manual' && value !== 'automatic') return;
     this.patchSubphase(phaseKey, subKey, { missionMode: value });
-  }
-
-  setAutoCode(phaseKey: string, subKey: string, event: Event): void {
-    this.patchSubphase(phaseKey, subKey, { autoMissionCode: (event.target as HTMLInputElement).value });
-  }
-
-  setAutoCount(phaseKey: string, subKey: string, event: Event): void {
-    const count = Number((event.target as HTMLInputElement).value);
-    this.patchSubphase(phaseKey, subKey, { autoMissionCount: Number.isFinite(count) ? count : 0 });
-  }
-
-  setDraftMissionName(subKey: string, event: Event): void {
-    this.draftMissionName.update((map) => ({ ...map, [subKey]: (event.target as HTMLInputElement).value }));
   }
 
   addCustomMission(phaseKey: string, subKey: string): void {
@@ -466,6 +475,7 @@ export class ProgramStudioPage {
       ),
     );
     this.draftMissionName.update((map) => ({ ...map, [subKey]: '' }));
+    this.nameField(subKey, '');
   }
 
   removeCustomMission(phaseKey: string, subKey: string, name: string): void {
@@ -537,6 +547,32 @@ export class ProgramStudioPage {
             },
       ),
     );
+  }
+
+  private textField(key: string, value: string, apply: (value: string) => void): FormControl<string> {
+    const existing = this.fieldControls.get(key);
+    if (existing instanceof FormControl) {
+      const control = existing as FormControl<string>;
+      if (control.value !== value) control.setValue(value, { emitEvent: false });
+      return control;
+    }
+    const control = new FormControl(value, { nonNullable: true });
+    control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(apply);
+    this.fieldControls.set(key, control);
+    return control;
+  }
+
+  private numberField(key: string, value: number, apply: (value: number) => void): FormControl<number> {
+    const existing = this.fieldControls.get(key);
+    if (existing instanceof FormControl) {
+      const control = existing as FormControl<number>;
+      if (Number(control.value) !== value) control.setValue(value, { emitEvent: false });
+      return control;
+    }
+    const control = new FormControl(value, { nonNullable: true });
+    control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((next) => apply(Number(next)));
+    this.fieldControls.set(key, control);
+    return control;
   }
 
   private patchSubphase(phaseKey: string, subKey: string, patch: Partial<StudioSubphase>): void {

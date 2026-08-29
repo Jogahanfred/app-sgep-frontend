@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { ListPhases, ListPrograms, ListSubphases } from '@core/application';
 import type { ProgramEntity } from '@core/domain/entities';
 import { curriculumHours, matchesAdminSearch, programTypeLabel, statusLabel } from '@core/domain/services/admin-catalog';
@@ -9,6 +8,7 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+import { UiProgramCard } from '@shared/components/ui-program-card/ui-program-card';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 export interface ProgramCard {
@@ -21,7 +21,7 @@ export interface ProgramCard {
 @Component({
   selector: 'app-programs-board-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Alert, Button, UiInput, UiLoading],
+  imports: [ReactiveFormsModule, Alert, Button, UiInput, UiLoading, UiProgramCard],
   templateUrl: './programs-board.page.html',
   styleUrl: './programs-board.page.scss',
 })
@@ -83,4 +83,12 @@ export class ProgramsBoardPage {
 
   typeLabel = programTypeLabel;
   statusText = statusLabel;
+
+  cardStats(card: ProgramCard): string[] {
+    return [
+      `${card.phaseCount} ${card.phaseCount === 1 ? 'fase' : 'fases'}`,
+      `${card.subphaseCount} ${card.subphaseCount === 1 ? 'subfase' : 'subfases'}`,
+      `${card.hours} h`,
+    ];
+  }
 }

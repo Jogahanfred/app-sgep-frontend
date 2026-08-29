@@ -72,6 +72,8 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.path ui-table')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-input[id^="hours-"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('label.lesson__hours')).toBeNull();
   });
 
   it('permite empezar un programa vacío y añadir la primera fase', async () => {
@@ -110,7 +112,9 @@ describe('ProgramStudioPage', () => {
     expect(modalText).toContain('En el programa');
     expect(modalText).toContain('IFR');
     expect(modalText).toContain('Instrumental');
-    expect(modalText).toContain('Mostrando 1 - 5 de 6');
+    expect(modalText).toContain('Mostrando 1 - 4 de 6');
+    expect(modalText).not.toContain('Vuelo solo');
+    expect(modalText).not.toContain('Prueba de pericia');
     fixture.componentInstance.phaseBankSearch.setValue('BAS');
     fixture.detectChanges();
     expect((modal?.textContent ?? '')).toContain('Vuelo básico');

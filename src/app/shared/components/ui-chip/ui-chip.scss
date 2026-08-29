@@ -1,0 +1,24 @@
+:host {
+  display: inline-flex;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: #35506a;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.chip__remove {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

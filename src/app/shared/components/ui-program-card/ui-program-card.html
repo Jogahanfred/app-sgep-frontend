@@ -1,0 +1,25 @@
+<a class="pcard" [class.pcard--create]="variant() === 'create'" [routerLink]="href()">
+  @if (variant() === 'create') {
+    <span class="pcard__plus" aria-hidden="true">+</span>
+    <h2>{{ title() }}</h2>
+    <p class="pcard__desc">{{ description() }}</p>
+  } @else {
+    <div class="pcard__media">
+      <img class="pcard__photo" [src]="imageUrl()" [alt]="imageAlt()" />
+      <div class="pcard__top">
+        <span class="pcard__type">{{ typeBadge() }}</span>
+        <span class="pcard__status" [class.pcard__status--off]="status() === 'inactive'">{{ statusLabel() }}</span>
+      </div>
+    </div>
+    <h2>{{ title() }}</h2>
+    <p class="pcard__code">{{ kicker() }}</p>
+    <p class="pcard__desc">{{ description() }}</p>
+    @if (stats().length) {
+      <ul class="pcard__stats">
+        @for (stat of stats(); track stat) {
+          <li>{{ stat }}</li>
+        }
+      </ul>
+    }
+  }
+</a>
