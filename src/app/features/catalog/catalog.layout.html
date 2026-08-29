@@ -3,7 +3,7 @@
     @if (domain() === 'ops') {
       @if (showDomainNav()) {
         <header class="adm__intro">
-          <p class="adm__kicker">Estructura operativa</p>
+          <h1 class="adm__kicker">Estructura operativa</h1>
           <p class="adm__lead">Unidades, escuadrones y comisiones temporales. Aquí se configura dónde opera el personal.</p>
         </header>
         <nav class="adm__nav" aria-label="Estructura operativa">
@@ -15,7 +15,7 @@
     } @else if (domain() === 'air') {
       @if (showDomainNav()) {
         <header class="adm__intro">
-          <p class="adm__kicker">Gestión de material aéreo</p>
+          <h1 class="adm__kicker">Gestión de material aéreo</h1>
           <p class="adm__lead">Flotas y aeronaves. Aquí se registran las matrículas, su unidad y si están operativas.</p>
         </header>
         <nav class="adm__nav" aria-label="Gestión de material aéreo">
@@ -26,7 +26,7 @@
     } @else if (domain() === 'instruction') {
       @if (showDomainNav()) {
         <header class="adm__intro">
-          <p class="adm__kicker">Catálogos de instrucción</p>
+          <h1 class="adm__kicker">Catálogos de instrucción</h1>
           <p class="adm__lead">Operaciones, tipos de misión, maniobras, estándares y ponderaciones. Aquí se configuran los catálogos maestros.</p>
         </header>
         <nav class="adm__nav" aria-label="Catálogos de instrucción">
@@ -40,7 +40,7 @@
     } @else {
       @if (showDomainNav()) {
         <header class="adm__intro">
-          <p class="adm__kicker">Catálogo</p>
+          <h1 class="adm__kicker">Catálogo</h1>
           <p class="adm__lead">Personas, roles y especialidades. Tu ficha personal está en Mi perfil.</p>
         </header>
         <nav class="adm__nav" aria-label="Catálogo">

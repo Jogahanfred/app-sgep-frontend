@@ -41,7 +41,7 @@ describe('CatalogLayout', () => {
     expect(text).toContain('Mi perfil');
     expect(text).not.toContain('Estructura operativa');
     expect(text).not.toContain('Unidades');
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+    expect(root.querySelectorAll('h1.adm__kicker').length).toBe(1);
     expect(text).not.toContain('Sprint');
   });
 
