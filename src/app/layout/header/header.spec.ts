@@ -80,6 +80,7 @@ describe('Header', () => {
     expect(text).toContain('Usuarios');
     expect(text).toContain('Roles');
     expect(text).toContain('Especialidades');
+    expect(text).toContain('Instrucción');
     expect(text).toContain('Estructura operativa');
     expect(text).toContain('Unidades');
     expect(text).toContain('Operaciones');
@@ -100,6 +101,6 @@ describe('Header', () => {
     expect(text).toContain('Material aéreo');
     expect(text).toContain('Aeronaves');
     expect(root.querySelector('.mega__title')?.textContent).toContain('Configuración');
-    expect(root.querySelectorAll('.mega__col').length).toBe(3);
+    expect(root.querySelectorAll('.mega__col').length).toBe(4);
   });
 });

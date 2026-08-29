@@ -238,6 +238,15 @@ const configuracion: NavColumn[] = [
           { label: 'Usuarios', href: '/catalogo/usuarios' },
           { label: 'Roles', href: '/catalogo/roles' },
           { label: 'Especialidades', href: '/catalogo/especialidades' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        heading: 'Instrucción',
+        links: [
           { label: 'Operaciones', href: '/catalogo/operaciones' },
           { label: 'Tipo de misión', href: '/catalogo/tipos-de-mision' },
           { label: 'Maniobras', href: '/catalogo/maniobras' },
