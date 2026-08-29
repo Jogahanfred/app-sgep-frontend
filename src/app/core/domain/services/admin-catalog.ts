@@ -175,6 +175,16 @@ export function commissionStatusLabel(status: CommissionWorkflowStatus): string 
   return labels[status];
 }
 
+export function commissionEventTitle(status: CommissionWorkflowStatus): string {
+  const titles: Record<CommissionWorkflowStatus, string> = {
+    registered: 'Comisión registrada',
+    approved: 'Comisión aprobada',
+    active: 'Comisión activa',
+    finished: 'Comisión finalizada',
+  };
+  return titles[status];
+}
+
 export function nextCommissionStatus(status: CommissionWorkflowStatus): CommissionWorkflowStatus | null {
   const index = COMMISSION_WORKFLOW.indexOf(status);
   return index >= 0 && index < COMMISSION_WORKFLOW.length - 1 ? COMMISSION_WORKFLOW[index + 1] : null;

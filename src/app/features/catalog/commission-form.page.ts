@@ -11,7 +11,7 @@ import {
 } from '@core/application';
 import { COMMISSION_WORKFLOW, type CommissionWorkflowStatus, type TemporaryCommissionWriteInput } from '@core/domain/entities';
 import { DomainError } from '@core/domain/errors/domain-error';
-import { commissionStatusLabel, nextCommissionStatus } from '@core/domain/services/admin-catalog';
+import { commissionEventTitle, commissionStatusLabel, nextCommissionStatus } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -170,7 +170,7 @@ export class CommissionFormPage {
         await firstValueFrom(this.updateCommission.execute(id, payload));
         this.workflow.set(status);
         this.toast.success(
-          fromAdvance ? `Comisión ${commissionStatusLabel(status).toLowerCase()}` : 'Comisión actualizada',
+          fromAdvance ? commissionEventTitle(status) : 'Comisión actualizada',
           fromAdvance ? 'El timeline ya refleja el nuevo estado.' : 'Los cambios de la comisión ya están guardados.',
         );
         if (!fromAdvance) await this.router.navigate([this.listHref]);
