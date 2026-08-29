@@ -40,7 +40,7 @@ describe('AcademicBankListPage', () => {
     expect(text).toContain('Banco de fases');
     expect(text).toContain('Teoría en aula');
     expect(text).toContain('Vuelo básico');
-    expect(text).toContain('fuera del programa');
+    expect(text).toContain('el programa solo lo asigna');
     expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases/nuevo"]')).not.toBeNull();
   });
 
