@@ -26,7 +26,15 @@ interface HoleBox {
   radius: string;
 }
 
+interface TipBox {
+  top: number;
+  left: number;
+}
+
 const PAD = 8;
+const TIP_GAP = 10;
+const TIP_WIDTH = 320;
+const TIP_HEIGHT = 168;
 
 @Component({
   selector: 'ui-guided-tour',
@@ -49,6 +57,7 @@ export class UiGuidedTour {
   readonly prev = output<void>();
 
   readonly hole = signal<HoleBox | null>(null);
+  readonly tip = signal<TipBox | null>(null);
 
   constructor() {
     const onResize = () => this.queueAlign(false);
@@ -66,10 +75,12 @@ export class UiGuidedTour {
       const step = this.step();
       if (!open || !step?.target) {
         this.hole.set(null);
+        this.tip.set(null);
         this.tries = 0;
         return;
       }
       this.tries = 0;
+      this.tip.set({ top: 16, left: 12 });
       this.queueAlign(true);
     });
   }
@@ -95,7 +106,7 @@ export class UiGuidedTour {
     this.tries = 0;
     if (scroll) {
       this.cancelScroll?.();
-      this.cancelScroll = animateScrollIntoView(el, 112, () => this.place(el));
+      this.cancelScroll = animateScrollIntoView(el, 196, () => this.place(el));
       return;
     }
     this.place(el);
@@ -118,6 +129,18 @@ export class UiGuidedTour {
       hole.height = Math.max(32, window.innerHeight - 16 - hole.top);
     }
     this.hole.set(hole);
+    this.tip.set(this.placeTip(hole));
+  }
+
+  private placeTip(hole: HoleBox): TipBox {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const width = Math.min(TIP_WIDTH, vw - 24);
+    const above = hole.top - TIP_GAP - TIP_HEIGHT;
+    const below = hole.top + hole.height + TIP_GAP;
+    const top = above >= 12 ? above : below + TIP_HEIGHT <= vh - 12 ? below : Math.max(12, Math.min(above, vh - TIP_HEIGHT - 12));
+    const left = Math.min(Math.max(12, hole.left), Math.max(12, vw - width - 12));
+    return { top, left };
   }
 
   private readRadius(el: HTMLElement): string {

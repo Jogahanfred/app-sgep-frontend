@@ -98,7 +98,7 @@ export function buildFlowTourSteps(phases: TourPhaseSource[]): FlowTourStep[] {
     steps.push({
       kind: 'maneuvers',
       title: 'Maniobras',
-      body: 'Debajo de la misión ves las maniobras agrupadas por operación.',
+      body: 'Aquí están las misiones y, debajo, las maniobras agrupadas por operación.',
       eyebrow: 'Maniobras',
       target: 'maneuvers',
       phaseIndex: path.phaseIndex,

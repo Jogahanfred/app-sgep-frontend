@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { UiGuidedTour } from './ui-guided-tour';
 
 describe('UiGuidedTour', () => {
-  it('centra el cuadro, oculta el contador y no permite omitir', async () => {
+  it('pega el cuadro al elemento, oculta el contador y no permite omitir', async () => {
     await TestBed.configureTestingModule({
       imports: [UiGuidedTour],
     }).compileComponents();

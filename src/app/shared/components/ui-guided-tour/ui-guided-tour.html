@@ -11,7 +11,8 @@
         [style.border-radius]="hole.radius"
       ></div>
     }
-    <aside class="coach__tip">
+    @if (tip(); as tip) {
+    <aside class="coach__tip" [style.top.px]="tip.top" [style.left.px]="tip.left">
       <h2 id="coach-title">{{ step.title }}</h2>
       <p>{{ step.body }}</p>
       <div class="coach__actions">
@@ -23,5 +24,6 @@
         </app-button>
       </div>
     </aside>
+    }
   </div>
 }

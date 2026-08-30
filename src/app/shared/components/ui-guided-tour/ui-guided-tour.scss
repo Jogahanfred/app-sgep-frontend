@@ -27,8 +27,6 @@
 }
 
 .coach__tip {
-  top: 1rem;
-  left: 50%;
   z-index: 72;
   width: min(20rem, calc(100vw - 1.5rem));
   padding: 1rem 1.05rem 0.95rem;
@@ -36,7 +34,9 @@
   border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
-  transform: translateX(-50%);
+  transition:
+    top var(--duration-med) var(--ease-out),
+    left var(--duration-med) var(--ease-out);
 }
 
 .coach__tip h2 {

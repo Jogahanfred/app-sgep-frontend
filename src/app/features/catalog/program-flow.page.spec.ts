@@ -119,10 +119,12 @@ describe('ProgramFlowPage', () => {
     fixture.detectChanges();
     expect(page.depth()).toBe('mission');
     expect(page.currentMission()?.name).toBe('LOC · Misión local');
-    expect(root.querySelector('.flow__task')?.textContent).toContain('Dentro de la misión');
+    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Misiones');
+    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('LOC · Misión local');
     expect(root.textContent).toContain('Misión 1 de 1');
     expect(root.textContent).not.toContain('Circuito corto');
     expect(root.textContent).not.toContain('Ver maniobras');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Misiones');
     expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Vuelo visual');
     expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('TOFF · Despegue');
     expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('LAND · Aterrizaje');
@@ -136,6 +138,8 @@ describe('ProgramFlowPage', () => {
     fixture.detectChanges();
     expect(page.currentMission()?.name).toBe('LOC · Misión local');
     expect(root.textContent).toContain('Misión 1 de 3');
+    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Circuito corto');
+    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Circuito largo');
 
     page.goNext();
     fixture.detectChanges();

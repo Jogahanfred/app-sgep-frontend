@@ -109,42 +109,52 @@
               <p class="flow__meta">{{ missionCountLabel(lesson.missions.length) }}</p>
 
               @if (depth() === 'mission' && currentMission(); as mission) {
-                <article class="flow__task flow__on" data-tour="mission">
-                  <p class="flow__tag">Dentro de la misión</p>
-                  <h3>{{ mission.name }}</h3>
-                  <p>{{ mission.detail }}</p>
-                  <p class="flow__meta">{{ stepLabel() }}</p>
-                </article>
-                <div class="flow__ops" data-tour="maneuvers">
-                  <p>Maniobras</p>
-                  @if (lesson.hasManeuvers) {
-                    @for (group of lesson.groups; track group.name) {
-                      <div class="flow__group">
-                        <h4>{{ group.name }}</h4>
-                        <ul>
-                          @for (name of group.maneuvers; track name) {
+                <article class="flow__pack" data-tour="maneuvers">
+                  <section data-tour="mission">
+                    <p class="flow__tag">Misiones</p>
+                    <ol class="flow__missions">
+                      @for (item of lesson.missions; track item.name; let i = $index) {
+                        <li [class.flow__missions--on]="i === missionCursor()">
+                          <strong>{{ item.name }}</strong>
+                          @if (i === missionCursor()) {
+                            <p>{{ item.detail }}</p>
+                          }
+                        </li>
+                      }
+                    </ol>
+                  </section>
+                  <div class="flow__ops">
+                    <p>Maniobras</p>
+                    @if (lesson.hasManeuvers) {
+                      @for (group of lesson.groups; track group.name) {
+                        <div class="flow__group">
+                          <h4>{{ group.name }}</h4>
+                          <ul>
+                            @for (name of group.maneuvers; track name) {
+                              <li><ui-chip [label]="name" /></li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                      @if (lesson.loose.length) {
+                        <ul class="flow__chips">
+                          @for (name of lesson.loose; track name) {
                             <li><ui-chip [label]="name" /></li>
                           }
                         </ul>
-                      </div>
+                      }
+                    } @else {
+                      <span class="flow__none">Sin maniobras</span>
                     }
-                    @if (lesson.loose.length) {
-                      <ul class="flow__chips">
-                        @for (name of lesson.loose; track name) {
-                          <li><ui-chip [label]="name" /></li>
-                        }
-                      </ul>
-                    }
-                  } @else {
-                    <span class="flow__none">Sin maniobras</span>
-                  }
-                </div>
+                  </div>
+                </article>
               } @else if (lesson.missions.length) {
                 <p class="flow__hint">Siguiente entra en la primera misión de esta subfase.</p>
               } @else {
                 <p class="flow__hint">Esta subfase no tiene misiones. Siguiente sigue el itinerario.</p>
-                <div class="flow__ops" data-tour="maneuvers">
-                  <p>Maniobras</p>
+                <article class="flow__pack" data-tour="maneuvers">
+                  <div class="flow__ops">
+                    <p>Maniobras</p>
                   @if (lesson.hasManeuvers) {
                     @for (group of lesson.groups; track group.name) {
                       <div class="flow__group">
@@ -166,7 +176,8 @@
                   } @else {
                     <span class="flow__none">Sin maniobras</span>
                   }
-                </div>
+                  </div>
+                </article>
               }
             </article>
           }

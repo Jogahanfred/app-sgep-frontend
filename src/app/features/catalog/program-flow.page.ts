@@ -147,6 +147,7 @@ export class ProgramFlowPage {
     if (!point || !lesson || point.missionIndex < 0) return null;
     return lesson.missions[point.missionIndex] ?? null;
   });
+  readonly missionCursor = computed(() => this.stop()?.missionIndex ?? -1);
   readonly isFirst = computed(() => this.cursor() <= 0);
   readonly isLast = computed(() => {
     const total = this.stops().length;

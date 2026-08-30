@@ -241,9 +241,32 @@
   margin-bottom: 0.45rem;
 }
 
-.flow__task {
+.flow__task,
+.flow__pack {
   margin-top: 0.75rem;
   background: #fff;
+}
+
+.flow__pack {
+  padding: 0.8rem;
+}
+
+.flow__missions {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow__missions--on {
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid var(--color-primary);
+  background: #f8fbfd;
+}
+
+.flow__missions p {
+  margin: 0.25rem 0 0;
 }
 
 .flow__task h3 {
