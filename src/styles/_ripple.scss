@@ -29,29 +29,19 @@
     rgb(120 120 120 / 6%) 88%,
     rgb(130 130 130 / 0%) 100%
   );
-  transform: translateX(-92%);
-  animation: app-ripple-ltr 1.45s cubic-bezier(0.22, 0.1, 0.25, 1) forwards;
+  transform: translateX(-88%);
+  animation: app-ripple-ltr 0.65s var(--ease-out) forwards;
 }
 
 @keyframes app-ripple-ltr {
   0% {
-    opacity: 0.45;
-    transform: translateX(-92%);
-  }
-
-  16% {
     opacity: 1;
-    transform: translateX(-22%);
-  }
-
-  58% {
-    opacity: 1;
-    transform: translateX(-10%);
+    transform: translateX(-88%);
   }
 
   100% {
     opacity: 0;
-    transform: translateX(70%);
+    transform: translateX(68%);
   }
 }
 
