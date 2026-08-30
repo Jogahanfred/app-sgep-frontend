@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Icon, type IconName } from '../icon/icon';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'inverse';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
 @Component({
   selector: 'app-button',
