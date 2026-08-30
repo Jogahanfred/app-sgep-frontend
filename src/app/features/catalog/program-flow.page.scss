@@ -240,38 +240,76 @@
 
 .flow__grid {
   overflow-x: auto;
+  border: 1px solid #d5e1ed;
+  border-radius: 0.75rem;
   background: #fff;
 }
 
 .flow__grid table {
   width: 100%;
   min-width: 18rem;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.flow__grid caption {
+  caption-side: top;
+  padding: 0.5rem 0.8rem 0.15rem;
+  color: #5a7388;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
 }
 
 .flow__grid th,
 .flow__grid td {
-  padding: 0.45rem 0.55rem;
-  border: 1px solid #d5e1ed;
-  font-size: 0.72rem;
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid #e6eef6;
+  border-right: 1px solid #e6eef6;
+  font-size: 0.74rem;
   text-align: center;
 }
 
 .flow__grid thead th {
-  background: #e8f1f8;
-  color: #22384c;
+  background: #eef6fc;
+  color: #1d4f73;
   font-weight: 800;
 }
 
+.flow__grid .flow__corner,
 .flow__grid tbody th {
   text-align: left;
-  background: #f8fbfd;
+  background: #f4f8fb;
   color: #22384c;
   font-weight: 800;
   white-space: nowrap;
 }
 
-.flow__grid td {
+.flow__grid .flow__corner {
+  color: #5a7388;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flow__grid tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.flow__grid :is(th, td):last-child {
+  border-right: 0;
+}
+
+.flow__mark {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #e3f0fa;
   color: var(--color-primary);
   font-weight: 800;
 }

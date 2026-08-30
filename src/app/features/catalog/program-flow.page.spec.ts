@@ -138,7 +138,7 @@ describe('ProgramFlowPage', () => {
     expect(page.depth()).toBe('matrix');
     const briefing = root.querySelector('[data-tour="matrix"] table') as HTMLTableElement | null;
     expect(briefing).not.toBeNull();
-    expect(headerCells(briefing!)).toEqual(['', 'LOC · Misión local']);
+    expect(headerCells(briefing!)).toEqual(['Maniobras', 'LOC · Misión local']);
     expect(rowLabels(briefing!)).toEqual(['TOFF · Despegue', 'LAND · Aterrizaje']);
     expect([...briefing!.querySelectorAll('td')].map((cell) => cell.textContent?.trim())).toEqual(['X', 'X']);
     expect(root.textContent).toContain('Matriz · 1 × 2');
@@ -155,7 +155,7 @@ describe('ProgramFlowPage', () => {
     expect(page.depth()).toBe('matrix');
     const dual = root.querySelector('[data-tour="matrix"] table') as HTMLTableElement | null;
     expect(dual).not.toBeNull();
-    expect(headerCells(dual!)).toEqual(['', 'LOC · Misión local', 'Circuito corto', 'Circuito largo']);
+    expect(headerCells(dual!)).toEqual(['Maniobras', 'LOC · Misión local', 'Circuito corto', 'Circuito largo']);
     expect(rowLabels(dual!)).toEqual(['TOFF · Despegue', 'LAND · Aterrizaje']);
     expect([...dual!.querySelectorAll('td')].every((cell) => cell.textContent?.trim() === 'X')).toBe(true);
     expect(dual!.querySelectorAll('td')).toHaveLength(6);
@@ -219,6 +219,8 @@ describe('ProgramFlowPage', () => {
     expect(page.tourStep()?.kind).toBe('matrix');
     expect(page.depth()).toBe('matrix');
     expect(root.querySelector('[data-tour="matrix"]')).not.toBeNull();
+    expect(root.querySelector('[data-tour="matrix"] caption')?.textContent).toContain('Misiones');
+    expect(root.querySelector('[data-tour="matrix"] thead')?.textContent).toContain('Maniobras');
     expect(root.querySelector('[data-tour="matrix"] thead')?.textContent).toContain('LOC · Misión local');
     expect(root.querySelector('[data-tour="matrix"] tbody')?.textContent).toContain('TOFF · Despegue');
     expect(root.querySelector('[data-tour="matrix"] td')?.textContent).toContain('X');

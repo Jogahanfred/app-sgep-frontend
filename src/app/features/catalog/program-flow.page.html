@@ -114,9 +114,10 @@
                     <p class="flow__none">Esta subfase no tiene misiones ni maniobras.</p>
                   } @else {
                     <table>
+                      <caption>Misiones</caption>
                       <thead>
                         <tr>
-                          <th scope="col"></th>
+                          <th scope="col" class="flow__corner">Maniobras</th>
                           @for (mission of lesson.missions; track mission.name) {
                             <th scope="col">{{ mission.name }}</th>
                           }
@@ -127,7 +128,7 @@
                           <tr>
                             <th scope="row">{{ maneuver }}</th>
                             @for (mission of lesson.missions; track mission.name) {
-                              <td>X</td>
+                              <td><span class="flow__mark">X</span></td>
                             }
                           </tr>
                         }

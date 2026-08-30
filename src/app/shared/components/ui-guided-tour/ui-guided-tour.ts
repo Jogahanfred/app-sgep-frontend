@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { Button } from '../button/button';
 import { animateScrollIntoView } from '@shared/utils/scroll-to';
+import { placeCoachTip } from './place-coach-tip';
 
 export interface CoachStep {
   title: string;
@@ -32,9 +33,8 @@ interface TipBox {
 }
 
 const PAD = 8;
-const TIP_GAP = 10;
 const TIP_WIDTH = 320;
-const TIP_HEIGHT = 168;
+const TIP_HEIGHT = 220;
 
 @Component({
   selector: 'ui-guided-tour',
@@ -106,7 +106,7 @@ export class UiGuidedTour {
     this.tries = 0;
     if (scroll) {
       this.cancelScroll?.();
-      this.cancelScroll = animateScrollIntoView(el, 196, () => this.place(el));
+      this.cancelScroll = animateScrollIntoView(el, this.measureTip().height + 36, () => this.place(el));
       return;
     }
     this.place(el);
@@ -129,18 +129,24 @@ export class UiGuidedTour {
       hole.height = Math.max(32, window.innerHeight - 16 - hole.top);
     }
     this.hole.set(hole);
-    this.tip.set(this.placeTip(hole));
+    const view = { width: window.innerWidth, height: window.innerHeight };
+    this.tip.set(placeCoachTip(hole, view, this.measureTip()));
+    requestAnimationFrame(() => {
+      if (!this.open()) return;
+      this.tip.set(placeCoachTip(hole, view, this.measureTip()));
+    });
   }
 
-  private placeTip(hole: HoleBox): TipBox {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const width = Math.min(TIP_WIDTH, vw - 24);
-    const above = hole.top - TIP_GAP - TIP_HEIGHT;
-    const below = hole.top + hole.height + TIP_GAP;
-    const top = above >= 12 ? above : below + TIP_HEIGHT <= vh - 12 ? below : Math.max(12, Math.min(above, vh - TIP_HEIGHT - 12));
-    const left = Math.min(Math.max(12, hole.left), Math.max(12, vw - width - 12));
-    return { top, left };
+  private measureTip(): { width: number; height: number } {
+    const node = document.querySelector('.coach__tip');
+    if (node instanceof HTMLElement && node.getClientRects().length) {
+      const rect = node.getBoundingClientRect();
+      return {
+        width: Math.max(160, Math.ceil(rect.width)),
+        height: Math.max(120, Math.ceil(rect.height)),
+      };
+    }
+    return { width: TIP_WIDTH, height: TIP_HEIGHT };
   }
 
   private readRadius(el: HTMLElement): string {
