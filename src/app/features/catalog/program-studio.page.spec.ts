@@ -211,12 +211,9 @@ describe('ProgramStudioPage', () => {
         (item.textContent ?? '').includes('Elige una maniobra del catálogo'),
       ) ?? null;
     expect(modal).not.toBeNull();
-    const dialog = (fixture.nativeElement as HTMLElement).querySelector('dialog.modal') as HTMLDialogElement | null;
-    expect(dialog).not.toBeNull();
-    expect(dialog?.classList.contains('modal--full')).toBe(false);
-    expect(dialog?.classList.contains('modal--xl')).toBe(false);
-    expect(modal?.querySelector('ui-table')).toBeNull();
-    expect(modal?.querySelector('ui-pick-list ul')).not.toBeNull();
+    expect(modal?.querySelector('dialog.modal--xl')).not.toBeNull();
+    expect(modal?.querySelector('ui-table')).not.toBeNull();
+    expect(modal?.querySelector('ui-pick-list')).toBeNull();
     expect(modal?.textContent).toContain('TOFF');
     expect(modal?.textContent).toContain('HOLD');
     expect(modal?.textContent).toContain('En la subfase');
