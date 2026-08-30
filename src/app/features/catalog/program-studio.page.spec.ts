@@ -211,6 +211,7 @@ describe('ProgramStudioPage', () => {
         (item.textContent ?? '').includes('Elige una maniobra del catálogo'),
       ) ?? null;
     expect(modal).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('dialog.modal--full')).not.toBeNull();
     expect(modal?.textContent).toContain('Catálogo');
     expect(modal?.textContent).toContain('TOFF');
     expect(modal?.textContent).toContain('HOLD');

@@ -21,6 +21,23 @@
   max-height: min(94vh, 58rem);
 }
 
+.modal.modal--full {
+  width: calc(100vw - 1.5rem);
+  height: calc(100vh - 1.5rem);
+  max-height: calc(100vh - 1.5rem);
+}
+
+.modal.modal--full .modal__card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.modal.modal--full .modal__body {
+  flex: 1;
+  min-height: 0;
+}
+
 .modal::backdrop {
   background: var(--color-overlay);
 }

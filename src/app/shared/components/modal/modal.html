@@ -3,6 +3,7 @@
   class="modal"
   [class.modal--lg]="size() === 'lg'"
   [class.modal--xl]="size() === 'xl'"
+  [class.modal--full]="size() === 'full'"
   (cancel)="onCancel($event)"
   [attr.aria-labelledby]="'modal-title'"
 >
