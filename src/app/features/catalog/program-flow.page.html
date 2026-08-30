@@ -5,7 +5,12 @@
       <h1>{{ title() }}</h1>
       <p class="ap__lead">Siguiente coloca el cuadro sobre la fase, luego la subfase y entra en cada misión.</p>
     </div>
-    <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+    <div class="flow__tools">
+      @if (!tourOpen()) {
+        <app-button type="button" variant="ghost" (click)="startTour()">Recorrido guiado</app-button>
+      }
+      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+    </div>
   </div>
 
   @if (loadState() === 'loading') {
@@ -32,11 +37,11 @@
       </div>
     } @else {
       <div class="flow__nav">
-        <app-button type="button" variant="secondary" icon="chevron-left" [disabled]="isFirst()" (click)="goBack()">
+        <app-button type="button" variant="secondary" icon="chevron-left" [disabled]="isFirst() || tourOpen()" (click)="goBack()">
           Atrás
         </app-button>
         <p>{{ stepLabel() }}</p>
-        <app-button type="button" icon="chevron-right" [disabled]="isLast()" (click)="goNext()">Siguiente</app-button>
+        <app-button type="button" icon="chevron-right" [disabled]="isLast() || tourOpen()" (click)="goNext()">Siguiente</app-button>
       </div>
       <p class="flow__crumb">{{ crumb() }}</p>
 
@@ -66,7 +71,7 @@
           </ol>
         </article>
       } @else if (currentPhase(); as phase) {
-        <article class="flow__phase" [class.flow__on]="depth() === 'phase'">
+        <article class="flow__phase" data-tour="phase" [class.flow__on]="depth() === 'phase'">
           @if (depth() === 'phase') {
             <p class="flow__tag">Cuadro en la fase</p>
           }
@@ -94,6 +99,7 @@
                     variant="secondary"
                     size="xs"
                     icon="eye"
+                    data-tour="maneuvers"
                     [disabled]="!lesson.hasManeuvers"
                     (click)="openManeuvers(lesson)"
                   >
@@ -103,7 +109,7 @@
               }
             </ol>
           } @else if (currentLesson(); as lesson) {
-            <article class="flow__lesson" [class.flow__on]="depth() === 'lesson'">
+            <article class="flow__lesson" data-tour="lesson" [class.flow__on]="depth() === 'lesson'">
               @if (depth() === 'lesson') {
                 <p class="flow__tag">Cuadro en la subfase</p>
               }
@@ -117,6 +123,7 @@
                 variant="secondary"
                 size="xs"
                 icon="eye"
+                data-tour="maneuvers"
                 [disabled]="!lesson.hasManeuvers"
                 (click)="openManeuvers(lesson)"
               >
@@ -124,7 +131,7 @@
               </app-button>
 
               @if (depth() === 'mission' && currentMission(); as mission) {
-                <article class="flow__task flow__on">
+                <article class="flow__task flow__on" data-tour="mission">
                   <p class="flow__tag">Dentro de la misión</p>
                   <h3>{{ mission.name }}</h3>
                   <p>{{ mission.detail }}</p>
@@ -146,6 +153,38 @@
     }
   }
 </div>
+
+<ui-confirm-dialog
+  [open]="tourIntro()"
+  title="Recorrido del programa"
+  message="En este recorrido conocerás cómo está organizado el programa y cómo avanzar por sus diferentes niveles de entrenamiento."
+  confirmLabel="Comenzar"
+  cancelLabel="Omitir"
+  (confirmed)="tourNext()"
+  (closed)="skipTour()"
+/>
+
+<ui-confirm-dialog
+  [open]="tourFinish()"
+  title="Ya conoces la estructura"
+  message="El programa se organiza así: Programa → Fase → Subfase → Misiones → Maniobras. Ya puedes recorrer el itinerario por tu cuenta."
+  confirmLabel="Finalizar"
+  cancelLabel="Cerrar"
+  (confirmed)="finishTour()"
+  (closed)="finishTour()"
+/>
+
+<ui-guided-tour
+  [open]="tourCoach()"
+  [step]="tourStep()"
+  [index]="tourIndex()"
+  [total]="tourTotal()"
+  [isFirst]="false"
+  [isLast]="tourOnManeuvers()"
+  (next)="tourNext()"
+  (prev)="tourPrev()"
+  (skip)="skipTour()"
+/>
 
 <app-modal [open]="!!maneuverLesson()" [title]="maneuverTitle()" size="lg" (closed)="closeManeuvers()">
   @if (maneuverLesson(); as lesson) {

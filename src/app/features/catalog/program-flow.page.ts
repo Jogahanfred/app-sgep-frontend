@@ -26,7 +26,10 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
+import { UiConfirmDialog } from '@shared/components/ui-confirm-dialog/ui-confirm-dialog';
+import { UiGuidedTour } from '@shared/components/ui-guided-tour/ui-guided-tour';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+import { buildFlowTourSteps, readTourMemory, writeTourMemory, type FlowTourStep } from './program-flow.tour';
 
 export type FlowDepth = 'start' | 'phase' | 'lesson' | 'mission';
 
@@ -79,7 +82,7 @@ export function buildFlowStops(phases: { lessons: { missions: unknown[] }[] }[])
 @Component({
   selector: 'app-program-flow-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Modal, UiChip, UiLoading],
+  imports: [Alert, Button, Modal, UiChip, UiConfirmDialog, UiGuidedTour, UiLoading],
   templateUrl: './program-flow.page.html',
   styleUrl: './program-flow.page.scss',
 })
@@ -103,6 +106,18 @@ export class ProgramFlowPage {
   readonly stops = signal<FlowStop[]>([]);
   readonly cursor = signal(0);
   readonly maneuverLesson = signal<FlowLesson | null>(null);
+  readonly tourOpen = signal(false);
+  readonly tourIndex = signal(0);
+  readonly tourSteps = computed(() => buildFlowTourSteps(this.phases()));
+  readonly tourStep = computed(() => this.tourSteps()[this.tourIndex()] ?? null);
+  readonly tourCoach = computed(() => {
+    const step = this.tourStep();
+    return this.tourOpen() && !!step?.target;
+  });
+  readonly tourIntro = computed(() => this.tourOpen() && this.tourStep()?.kind === 'intro');
+  readonly tourFinish = computed(() => this.tourOpen() && this.tourStep()?.kind === 'finish');
+  readonly tourTotal = computed(() => this.tourSteps().length);
+  readonly tourOnManeuvers = computed(() => this.tourStep()?.kind === 'maneuvers');
 
   readonly title = computed(() => {
     const name = this.program()?.name;
@@ -194,6 +209,42 @@ export class ProgramFlowPage {
     this.maneuverLesson.set(null);
   }
 
+  startTour(): void {
+    if (!this.tourSteps().length) return;
+    this.tourIndex.set(0);
+    this.tourOpen.set(true);
+    const step = this.tourSteps()[0];
+    if (step) this.revealForTour(step);
+  }
+
+  skipTour(): void {
+    writeTourMemory(this.programId, 'skipped');
+    this.tourOpen.set(false);
+  }
+
+  finishTour(): void {
+    writeTourMemory(this.programId, 'completed');
+    this.tourOpen.set(false);
+  }
+
+  tourNext(): void {
+    if (this.tourIndex() >= this.tourSteps().length - 1) {
+      this.finishTour();
+      return;
+    }
+    writeTourMemory(this.programId, 'started');
+    this.tourIndex.update((value) => value + 1);
+    const step = this.tourSteps()[this.tourIndex()];
+    if (step) this.revealForTour(step);
+  }
+
+  tourPrev(): void {
+    if (this.tourIndex() <= 0) return;
+    this.tourIndex.update((value) => value - 1);
+    const step = this.tourSteps()[this.tourIndex()];
+    if (step) this.revealForTour(step);
+  }
+
   missionCountLabel(count: number): string {
     return count === 1 ? '1 misión' : `${count} misiones`;
   }
@@ -236,6 +287,9 @@ export class ProgramFlowPage {
           this.stops.set(buildFlowStops(phases));
           this.cursor.set(0);
           this.loadState.set('ready');
+          if (readTourMemory(program.id) === 'idle' && phases.length) {
+            this.startTour();
+          }
         },
         error: () => this.loadState.set('error'),
       });
@@ -293,6 +347,22 @@ export class ProgramFlowPage {
       loose,
       hasManeuvers: groups.length + loose.length > 0,
     };
+  }
+
+  private revealForTour(step: FlowTourStep): void {
+    if (step.kind === 'intro') {
+      this.cursor.set(0);
+      return;
+    }
+    const depth = step.kind === 'phase' ? 'phase' : step.kind === 'mission' ? 'mission' : 'lesson';
+    const index = this.stops().findIndex(
+      (item) =>
+        item.depth === depth &&
+        item.phaseIndex === step.phaseIndex &&
+        item.lessonIndex === step.lessonIndex &&
+        item.missionIndex === step.missionIndex,
+    );
+    if (index >= 0) this.cursor.set(index);
   }
 
   private phaseName(phaseBankId: string, banks: PhaseBankEntity[]): string {

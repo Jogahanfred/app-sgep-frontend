@@ -43,6 +43,11 @@ function navButtons(root: HTMLElement): { back?: HTMLButtonElement; next?: HTMLB
 }
 
 describe('ProgramFlowPage', () => {
+  beforeEach(() => {
+    sessionStorage.setItem('siga-flow-tour', JSON.stringify({ 'prg-ppl': 'completed' }));
+    TestBed.resetTestingModule();
+  });
+
   it('coloca el cuadro en fase, subfase y entra misión a misión', async () => {
     stubDialog();
     await TestBed.configureTestingModule({
@@ -160,5 +165,70 @@ describe('ProgramFlowPage', () => {
     expect(page.isLast()).toBe(true);
     expect(root.querySelector('.flow__phase')?.textContent).toContain('Fin del programa');
     expect(navButtons(root).next?.disabled).toBe(true);
+  });
+
+  it('recorre el tour sobre la fase, la subfase, cada misión real y Ver maniobras', async () => {
+    sessionStorage.clear();
+    stubDialog();
+    await TestBed.configureTestingModule({
+      imports: [ProgramFlowPage],
+      providers: [
+        provideRouter([]),
+        ...CORE_PROVIDERS,
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'prg-ppl' }), data: {} } },
+        },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramFlowPage);
+    await waitReady(fixture);
+    const page = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(page.tourOpen()).toBe(true);
+    expect(page.tourStep()?.kind).toBe('intro');
+    expect(root.textContent).toContain('Comenzar');
+    expect(root.textContent).toContain('Omitir');
+    expect(page.tourSteps().filter((step) => step.kind === 'mission').length).toBeGreaterThan(0);
+
+    page.tourNext();
+    fixture.detectChanges();
+    expect(page.tourStep()?.kind).toBe('phase');
+    expect(page.depth()).toBe('phase');
+    expect(root.querySelector('[data-tour="phase"]')).not.toBeNull();
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('Una fase es una etapa');
+
+    page.tourNext();
+    fixture.detectChanges();
+    expect(page.tourStep()?.kind).toBe('lesson');
+    expect(page.depth()).toBe('lesson');
+    expect(root.querySelector('[data-tour="lesson"]')).not.toBeNull();
+
+    const missionSteps = page.tourSteps().filter((step) => step.kind === 'mission');
+    for (const step of missionSteps) {
+      page.tourNext();
+      fixture.detectChanges();
+      expect(page.tourStep()?.kind).toBe('mission');
+      expect(page.currentMission()?.name).toBe(step.title);
+      expect(root.querySelector('[data-tour="mission"]')).not.toBeNull();
+    }
+
+    page.tourNext();
+    fixture.detectChanges();
+    expect(page.tourStep()?.kind).toBe('maneuvers');
+    expect(root.querySelector('[data-tour="maneuvers"]')).not.toBeNull();
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('consultar las maniobras');
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('Finalizar');
+
+    page.tourNext();
+    fixture.detectChanges();
+    expect(page.tourStep()?.kind).toBe('finish');
+    expect(root.textContent).toContain('Programa → Fase → Subfase → Misiones → Maniobras');
+    page.finishTour();
+    fixture.detectChanges();
+    expect(page.tourOpen()).toBe(false);
+    expect(JSON.parse(sessionStorage.getItem('siga-flow-tour') ?? '{}')['prg-ppl']).toBe('completed');
   });
 });

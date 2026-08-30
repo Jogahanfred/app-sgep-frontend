@@ -1,0 +1,33 @@
+@if (open() && step(); as step) {
+  <div class="coach" role="dialog" aria-modal="true" [attr.aria-labelledby]="'coach-title'" (keydown)="onKeydown($event)">
+    <div class="coach__dim" [style.clip-path]="clipPath()"></div>
+    @if (hole(); as hole) {
+      <div
+        class="coach__ring"
+        [style.top.px]="hole.top"
+        [style.left.px]="hole.left"
+        [style.width.px]="hole.width"
+        [style.height.px]="hole.height"
+        [style.border-radius.px]="hole.radius"
+      ></div>
+    }
+    @if (tip(); as tip) {
+      <aside class="coach__tip" [style.top.px]="tip.top" [style.left.px]="tip.left">
+        <p class="coach__prog">{{ step.eyebrow }} · {{ index() + 1 }} / {{ total() }}</p>
+        <h2 id="coach-title">{{ step.title }}</h2>
+        <p>{{ step.body }}</p>
+        <div class="coach__actions">
+          <app-button type="button" variant="ghost" size="sm" (click)="skip.emit()">Omitir</app-button>
+          <div>
+            <app-button type="button" variant="secondary" size="sm" [disabled]="isFirst()" (click)="prev.emit()">
+              Anterior
+            </app-button>
+            <app-button type="button" size="sm" (click)="next.emit()">
+              {{ isLast() ? 'Finalizar' : 'Siguiente' }}
+            </app-button>
+          </div>
+        </div>
+      </aside>
+    }
+  </div>
+}

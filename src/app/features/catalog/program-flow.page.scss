@@ -29,6 +29,12 @@
   border-radius: 0.75rem;
 }
 
+.flow__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
 .flow__badge,
 .flow__end,
 .flow__tag {

@@ -9,6 +9,7 @@ export { UiDatePicker } from '../ui-date-picker/ui-date-picker';
 export { UiError } from '../ui-error/ui-error';
 export { UiFieldLabel } from '../ui-field-label/ui-field-label';
 export { UiFormCard } from '../ui-form-card/ui-form-card';
+export { UiGuidedTour, type CoachStep } from '../ui-guided-tour/ui-guided-tour';
 export { UiHelp } from '../ui-help/ui-help';
 export { UiInfo } from '../ui-info/ui-info';
 export { UiInput } from '../ui-input/ui-input';

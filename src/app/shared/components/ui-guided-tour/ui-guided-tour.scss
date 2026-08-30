@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.coach__dim,
+.coach__ring,
+.coach__tip {
+  position: fixed;
+  z-index: 70;
+}
+
+.coach__dim {
+  inset: 0;
+  background: var(--color-overlay);
+}
+
+.coach__ring {
+  pointer-events: none;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 0 6px rgb(30 138 230 / 18%);
+  transition:
+    top var(--duration-med) var(--ease-out),
+    left var(--duration-med) var(--ease-out),
+    width var(--duration-med) var(--ease-out),
+    height var(--duration-med) var(--ease-out);
+}
+
+.coach__tip {
+  width: min(20rem, calc(100vw - 1.5rem));
+  padding: 1rem 1.05rem 0.95rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.coach__prog {
+  margin: 0 0 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.coach__tip h2 {
+  margin: 0 0 0.4rem;
+  color: var(--color-text);
+  font-size: var(--fs-md);
+}
+
+.coach__tip p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.coach__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.coach__actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach__ring {
+    transition: none;
+  }
+}
