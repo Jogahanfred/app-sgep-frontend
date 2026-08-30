@@ -176,23 +176,6 @@
   }
 }
 
-.picks {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.picks legend {
-  padding: 0 0 0.4rem;
-  color: #4b6074;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 .missions__custom,
 .missions__auto {
   display: grid;

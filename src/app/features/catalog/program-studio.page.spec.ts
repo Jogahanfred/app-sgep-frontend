@@ -77,7 +77,11 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('C17');
     expect(text).not.toMatch(/C1, C2, C3, C4 … C17/);
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.chips ui-chip').length).toBeGreaterThanOrEqual(17);
+    expect(text).toContain('TOFF · Despegue');
+    expect(text).toContain('LAND · Aterrizaje');
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="mn-"]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('fieldset.picks')).toBeNull();
     expect(text).toContain('Añadir fase al itinerario');
     expect(text).toContain('Editar fase');
     expect(text).not.toContain('Banco de fases');
@@ -187,5 +191,39 @@ describe('ProgramStudioPage', () => {
     expect(fixture.componentInstance.phases()[1].subphases[1].customMissionNames).toContain('Circuito bajo');
     expect(fixture.componentInstance.generatedMissions().some((item) => item.label === 'Circuito bajo')).toBe(true);
     expect(fixture.componentInstance.missionAdding()).toBe(false);
+  });
+
+  it('añade maniobras desde el catálogo y las muestra como chips', async () => {
+    stubDialog();
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot('prg-ppl', 'edit') }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const phase = fixture.componentInstance.phases()[1];
+    const dual = phase.subphases[1];
+    fixture.componentInstance.openManeuverPicker(phase.key, dual.key);
+    fixture.detectChanges();
+    const modal =
+      [...(fixture.nativeElement as HTMLElement).querySelectorAll('app-modal')].find((item) =>
+        (item.textContent ?? '').includes('Elige una maniobra del catálogo'),
+      ) ?? null;
+    expect(modal).not.toBeNull();
+    expect(modal?.textContent).toContain('Catálogo');
+    expect(modal?.textContent).toContain('TOFF');
+    expect(modal?.textContent).toContain('HOLD');
+    expect(modal?.textContent).toContain('En la subfase');
+    fixture.componentInstance.maneuverSelectedId.set('man-hold');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.canAddPickerManeuver()).toBe(true);
+    fixture.componentInstance.addPickerManeuver();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).toContain('man-hold');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('HOLD · Espera');
+    fixture.componentInstance.removeManeuver(phase.key, dual.key, 'HOLD · Espera');
+    fixture.detectChanges();
+    expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).not.toContain('man-hold');
   });
 });

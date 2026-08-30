@@ -30,7 +30,6 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiAssignBlock } from '@shared/components/ui-assign-block/ui-assign-block';
-import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
@@ -86,7 +85,6 @@ interface GeneratedMission {
     Button,
     Modal,
     UiAssignBlock,
-    UiCheckbox,
     UiChip,
     UiFormCard,
     UiInput,
@@ -156,6 +154,17 @@ export class ProgramStudioPage {
   readonly generatedMissionColumns: UiTableColumn[] = [
     { id: 'mission', header: 'Misión' },
     { id: 'origin', header: 'Modo' },
+  ];
+  readonly maneuverPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
+  readonly maneuverSearch = new FormControl('', { nonNullable: true });
+  readonly maneuverQuery = signal('');
+  readonly maneuverSelectedId = signal<string | null>(null);
+  readonly maneuverPickerPageSizes = [4] as const;
+  readonly maneuverPickerColumns: UiTableColumn[] = [
+    { id: 'code', header: 'Código' },
+    { id: 'name', header: 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'use', header: 'Uso' },
   ];
 
   readonly form = new FormGroup({
@@ -250,6 +259,36 @@ export class ProgramStudioPage {
     })),
   );
 
+  readonly maneuverPickerOpen = computed(() => this.maneuverPickerTarget() !== null);
+
+  readonly currentManeuverSub = computed(() => {
+    const target = this.maneuverPickerTarget();
+    if (!target) return null;
+    const phase = this.phases().find((item) => item.key === target.phaseKey);
+    return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
+  });
+
+  readonly maneuverPickerRows = computed<UiTableRow[]>(() => {
+    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
+    return this.maneuvers()
+      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.maneuverQuery()))
+      .map((item) => ({
+        id: item.id,
+        cells: {
+          code: item.code,
+          name: item.name,
+          description: item.description || '—',
+          use: assigned.has(item.id) ? 'En la subfase' : 'Catálogo',
+        },
+      }));
+  });
+
+  readonly canAddPickerManeuver = computed(() => {
+    const id = this.maneuverSelectedId();
+    const sub = this.currentManeuverSub();
+    return !!id && !!sub && !sub.maneuverIds.includes(id);
+  });
+
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
     this.subphaseBanks()
       .filter((item) => item.status === 'active')
@@ -262,6 +301,9 @@ export class ProgramStudioPage {
     });
     this.phaseBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.phaseBankQuery.set(value);
+    });
+    this.maneuverSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.maneuverQuery.set(value);
     });
     forkJoin({
       programs: this.listPrograms.execute(),
@@ -384,6 +426,31 @@ export class ProgramStudioPage {
     this.missionPickerTarget.set(null);
     this.generatedSelectedId.set(null);
     this.missionAdding.set(false);
+  }
+
+  openManeuverPicker(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub) return;
+    this.maneuverPickerTarget.set({ phaseKey, subKey });
+    this.maneuverSelectedId.set(null);
+    this.maneuverSearch.setValue('');
+    this.maneuverQuery.set('');
+  }
+
+  closeManeuverPicker(): void {
+    this.maneuverPickerTarget.set(null);
+    this.maneuverSelectedId.set(null);
+  }
+
+  addPickerManeuver(): void {
+    const target = this.maneuverPickerTarget();
+    const id = this.maneuverSelectedId();
+    if (!target || !id || !this.canAddPickerManeuver()) return;
+    this.toggleManeuver(target.phaseKey, target.subKey, id, true);
+    this.maneuverSelectedId.set(null);
   }
 
   startAddingMissions(): void {
@@ -679,6 +746,11 @@ export class ProgramStudioPage {
     const count = sub.maneuverIds.length;
     if (!count) return 'Ninguna';
     return count === 1 ? '1 maniobra' : `${count} maniobras`;
+  }
+
+  removeManeuver(phaseKey: string, subKey: string, name: string): void {
+    const maneuver = this.maneuvers().find((item) => `${item.code} · ${item.name}` === name);
+    if (maneuver) this.toggleManeuver(phaseKey, subKey, maneuver.id, false);
   }
 
   toggleMission(phaseKey: string, subKey: string, missionId: string, checked: boolean): void {
