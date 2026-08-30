@@ -45,6 +45,15 @@
   height: 0.85rem;
 }
 
+.btn__label:empty {
+  display: none;
+}
+
+.btn:has(.btn__label:empty) {
+  padding-inline: 0.4rem;
+  min-width: 1.7rem;
+}
+
 .btn--block {
   width: 100%;
 }

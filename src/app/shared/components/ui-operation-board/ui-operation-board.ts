@@ -60,18 +60,32 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                 <span class="ob__num">{{ i + 1 }}</span>
                 <h4>{{ op.name }}</h4>
                 <div class="ob__sort">
-                  <button type="button" [disabled]="i === 0" aria-label="Subir operación" (click)="shiftOperation(op.id, -1)">
-                    ↑
-                  </button>
-                  <button
+                  <app-button
                     type="button"
+                    variant="secondary"
+                    size="xs"
+                    icon="arrow-up"
+                    ariaLabel="Subir operación"
+                    [disabled]="i === 0"
+                    (click)="shiftOperation(op.id, -1)"
+                  />
+                  <app-button
+                    type="button"
+                    variant="secondary"
+                    size="xs"
+                    icon="arrow-down"
+                    ariaLabel="Bajar operación"
                     [disabled]="i === orderedOperations().length - 1"
-                    aria-label="Bajar operación"
                     (click)="shiftOperation(op.id, 1)"
-                  >
-                    ↓
-                  </button>
-                  <button type="button" aria-label="Quitar operación" (click)="forgetOperation(op.id)">×</button>
+                  />
+                  <app-button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    icon="close"
+                    ariaLabel="Quitar operación"
+                    (click)="forgetOperation(op.id)"
+                  />
                 </div>
               </header>
               <ul class="ob__drop">

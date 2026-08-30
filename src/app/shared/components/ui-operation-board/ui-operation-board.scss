@@ -107,22 +107,8 @@
 
 .ob__sort {
   display: inline-flex;
-  gap: 0.15rem;
-}
-
-.ob__sort button {
-  width: 1.45rem;
-  height: 1.45rem;
-  border: 1px solid #d5e1ed;
-  border-radius: 0.35rem;
-  background: #fff;
-  color: #35506a;
-  cursor: pointer;
-}
-
-.ob__sort button:disabled {
-  opacity: 0.35;
-  cursor: default;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .ob__drop,

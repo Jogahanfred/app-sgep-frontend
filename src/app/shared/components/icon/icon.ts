@@ -22,6 +22,7 @@ export type IconName =
   | 'external'
   | 'shield'
   | 'arrow-up'
+  | 'arrow-down'
   | 'plus'
   | 'minus'
   | 'info'
@@ -60,6 +61,7 @@ const PATHS: Record<IconName, string> = {
   external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14 20 4',
   shield: 'M12 3 5 6v6c0 5 3.2 8.4 7 9.5 3.8-1.1 7-4.5 7-9.5V6l-7-3Z',
   'arrow-up': 'M12 19V5M6 11l6-6 6 6',
+  'arrow-down': 'M12 5v14M6 13l6 6 6-6',
   plus: 'M12 5v14M5 12h14',
   minus: 'M5 12h14',
   info: 'M12 8h.01M11 12h1v5h1M12 21a9 9 0 1 0 0-18 9 9 0 1 0 0 18Z',
