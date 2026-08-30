@@ -217,10 +217,17 @@ describe('ProgramStudioPage', () => {
     expect(modal?.textContent).toContain('HOLD');
     expect(modal?.textContent).toContain('En la subfase');
     expect(modal?.querySelector('.btn--xs')?.textContent).toContain('Añadir');
-    expect(modal?.textContent).not.toContain('Agrupar por operaciones');
+    expect(modal?.textContent).toContain('Agrupar por operaciones');
+    const groupBtn = [...(modal?.querySelectorAll('button') ?? [])].find((node) =>
+      (node.textContent ?? '').includes('Agrupar por operaciones'),
+    ) as HTMLButtonElement | undefined;
+    expect(groupBtn?.disabled).toBe(true);
     fixture.componentInstance.maneuverCheckedIds.set(['man-hold', 'man-stall']);
     fixture.detectChanges();
-    expect(modal?.textContent).toContain('Agrupar por operaciones');
+    const groupBtnOn = [...(modal?.querySelectorAll('button') ?? [])].find((node) =>
+      (node.textContent ?? '').includes('Agrupar por operaciones'),
+    ) as HTMLButtonElement | undefined;
+    expect(groupBtnOn?.disabled).toBe(false);
     fixture.componentInstance.addManeuverFromCatalog('man-hold');
     fixture.detectChanges();
     expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).toContain('man-hold');

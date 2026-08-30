@@ -22,9 +22,9 @@
 }
 
 .modal.modal--full {
-  width: calc(100vw - 2.5rem);
-  height: min(78vh, 46rem);
-  max-height: 78vh;
+  width: min(100% - 8rem, 52rem);
+  height: min(72vh, 38rem);
+  max-height: 72vh;
 }
 
 .modal.modal--full .modal__card {

@@ -473,6 +473,9 @@ export class ProgramStudioPage {
     const sub = this.currentManeuverSub();
     if (!target || !sub || sub.maneuverIds.includes(maneuverId)) return;
     this.toggleManeuver(target.phaseKey, target.subKey, maneuverId, true);
+    if (!this.maneuverCheckedIds().includes(maneuverId)) {
+      this.maneuverCheckedIds.update((ids) => [...ids, maneuverId]);
+    }
   }
 
   showManeuverGroups(): void {

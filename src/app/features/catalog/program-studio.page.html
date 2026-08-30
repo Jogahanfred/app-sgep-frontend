@@ -410,13 +410,14 @@
               emptyTitle="No hay resultados con ese buscador."
               (checkedIdsChange)="maneuverCheckedIds.set($event)"
               (rowActionClick)="addManeuverFromCatalog($event)"
+            />
+            <app-button
+              type="button"
+              [disabled]="!canGroupManeuvers()"
+              (click)="showManeuverGroups()"
             >
-              @if (canGroupManeuvers()) {
-                <app-button type="button" size="sm" (click)="showManeuverGroups()">
-                  Agrupar por operaciones
-                </app-button>
-              }
-            </ui-table>
+              Agrupar por operaciones
+            </app-button>
           } @else {
             @for (section of groupedManeuverSections(); track section.operationId) {
               <ui-table
