@@ -29,11 +29,20 @@
   border-radius: 0.75rem;
 }
 
-.flow__tools {
+.flow__tools,
+.flow__summary,
+.flow__nav,
+.flow__time,
+.flow__who,
+.flow__lesson header,
+.flow__preview li {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
   gap: 0.45rem;
+}
+
+.flow__tools {
+  justify-content: flex-end;
 }
 
 .flow__badge,
@@ -53,16 +62,6 @@
   background: #e8f1f8;
   color: var(--color-primary);
   font-size: 0.72rem;
-}
-
-.flow__summary,
-.flow__nav,
-.flow__time,
-.flow__who,
-.flow__lesson header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
 }
 
 .flow__summary span,
@@ -146,7 +145,8 @@
 }
 
 .flow__time span,
-.flow__num {
+.flow__num,
+.flow__mark {
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -174,7 +174,8 @@
 
 .flow__empty,
 .flow__phase,
-.flow__lesson {
+.flow__lesson,
+.flow__grid {
   border: 1px solid #d5e1ed;
   border-radius: 0.9rem;
   background: #fff;
@@ -240,27 +241,25 @@
 
 .flow__grid {
   overflow-x: auto;
-  border: 1px solid #d5e1ed;
-  border-radius: 0.75rem;
-  background: #fff;
 }
 
 .flow__grid table {
   width: 100%;
-  min-width: 18rem;
   border-collapse: separate;
   border-spacing: 0;
 }
 
-.flow__grid caption {
-  caption-side: top;
-  padding: 0.5rem 0.8rem 0.15rem;
+.flow__grid caption,
+.flow__grid .flow__corner {
   color: #5a7388;
   font-size: 0.64rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-align: right;
   text-transform: uppercase;
+}
+
+.flow__grid caption {
+  padding: 0.5rem 0.8rem 0.1rem;
+  text-align: right;
 }
 
 .flow__grid th,
@@ -283,15 +282,7 @@
   text-align: left;
   background: #f4f8fb;
   color: #22384c;
-  font-weight: 800;
   white-space: nowrap;
-}
-
-.flow__grid .flow__corner {
-  color: #5a7388;
-  font-size: 0.64rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .flow__grid tr:last-child :is(th, td) {
@@ -303,20 +294,14 @@
 }
 
 .flow__mark {
-  display: grid;
-  place-items: center;
   width: 1.85rem;
   height: 1.85rem;
   margin: 0 auto;
-  border-radius: 999px;
   background: #e3f0fa;
   color: var(--color-primary);
-  font-weight: 800;
 }
 
 .flow__preview li {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.35rem;
   padding: 0.45rem 0;
