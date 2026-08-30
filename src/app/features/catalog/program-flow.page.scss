@@ -13,7 +13,8 @@
   text-transform: uppercase;
 }
 
-.flow__summary {
+.flow__summary,
+.flow__nav {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -29,6 +30,88 @@
   font-weight: 800;
 }
 
+.flow__nav {
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+}
+
+.flow__nav p {
+  margin: 0;
+  color: #35506a;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.flow__time {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  margin: 0.85rem 0 0;
+  padding: 0.35rem 0 0.55rem;
+  list-style: none;
+}
+
+.flow__time li {
+  position: relative;
+  flex: 1 0 6.5rem;
+  min-width: 6.5rem;
+}
+
+.flow__time li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0.85rem;
+  left: calc(50% + 0.9rem);
+  right: -50%;
+  height: 2px;
+  background: #c5d6e8;
+}
+
+.flow__time li.flow__dot--done:not(:last-child)::after,
+.flow__time li.flow__dot--on:not(:last-child)::after {
+  background: var(--color-primary);
+}
+
+.flow__time button {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4b6074;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+}
+
+.flow__time span {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  background: #d7e3ee;
+  color: #22384c;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.flow__dot--done span,
+.flow__dot--on span {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.flow__dot--on button {
+  color: var(--color-primary);
+}
+
 .flow__empty,
 .flow__phase,
 .flow__lesson {
@@ -37,62 +120,19 @@
   background: #fff;
 }
 
-.flow__empty {
-  padding: 1.4rem;
+.flow__empty,
+.flow__phase {
+  margin-top: 0.85rem;
+  padding: 1.05rem 1rem 1.1rem;
 }
 
 .flow__empty p,
 .flow__who p,
-.flow__none {
+.flow__none,
+.flow__end {
   margin: 0;
   color: #4b6074;
   font-size: 0.82rem;
-}
-
-.flow__rail {
-  display: grid;
-  gap: 0;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.flow__mark {
-  justify-self: start;
-  margin: 0.35rem 0 0.55rem 0.15rem;
-  padding: 0.28rem 0.7rem;
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.flow__mark--end {
-  margin-top: 0.7rem;
-  background: #22384c;
-}
-
-.flow__phase {
-  position: relative;
-  margin-left: 0.85rem;
-  padding: 1rem 1rem 1.05rem 1.15rem;
-}
-
-.flow__phase:not(:last-of-type) {
-  margin-bottom: 0.85rem;
-}
-
-.flow__phase::before {
-  content: '';
-  position: absolute;
-  top: -0.55rem;
-  bottom: -0.85rem;
-  left: -0.85rem;
-  width: 2px;
-  background: #c5d6e8;
 }
 
 .flow__who {
@@ -182,4 +222,14 @@
   border-left: 3px solid var(--color-primary);
   border-radius: 0 0.55rem 0.55rem 0;
   background: #fff;
+}
+
+.flow__end {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #c5d6e8;
+  color: #22384c;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }

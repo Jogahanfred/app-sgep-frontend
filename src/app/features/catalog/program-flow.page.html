@@ -3,9 +3,7 @@
     <div>
       <p class="flow__badge">Solo consulta</p>
       <h1>{{ title() }}</h1>
-      <p class="ap__lead">
-        Recorre el itinerario completo, de la primera fase al cierre. Aquí no se puede modificar nada.
-      </p>
+      <p class="ap__lead">Avanza fase a fase, como una línea de tiempo. Aquí no se puede modificar nada.</p>
     </div>
     <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
   </div>
@@ -33,67 +31,87 @@
         <p>Este programa aún no tiene fases. El flujo aparecerá cuando se diseñe el itinerario.</p>
       </div>
     } @else {
-      <ol class="flow__rail">
-        <li class="flow__mark">Inicio</li>
+      <div class="flow__nav">
+        <app-button type="button" variant="secondary" icon="chevron-left" [disabled]="isFirst()" (click)="goBack()">
+          Atrás
+        </app-button>
+        <p>{{ stepLabel() }}</p>
+        <app-button type="button" icon="chevron-right" [disabled]="isLast()" (click)="goNext()">Siguiente</app-button>
+      </div>
+
+      <ol class="flow__time" aria-label="Línea de tiempo del programa">
         @for (phase of phases(); track phase.name; let i = $index) {
-          <li class="flow__phase">
-            <div class="flow__who">
-              <span class="flow__num">{{ i + 1 }}</span>
-              <div>
-                <h2>{{ phase.name }}</h2>
-                <p>{{ phase.lessons.length }} {{ phase.lessons.length === 1 ? 'subfase' : 'subfases' }} · {{ phase.hours }} h</p>
-              </div>
+          <li [class.flow__dot--on]="i === step()" [class.flow__dot--done]="i < step()">
+            <button type="button" (click)="goTo(i)">
+              <span>{{ i + 1 }}</span>
+              {{ phase.name }}
+            </button>
+          </li>
+        }
+      </ol>
+
+      @if (current(); as phase) {
+        <article class="flow__phase">
+          <div class="flow__who">
+            <span class="flow__num">{{ step() + 1 }}</span>
+            <div>
+              <h2>{{ phase.name }}</h2>
+              <p>
+                {{ phase.lessons.length }} {{ phase.lessons.length === 1 ? 'subfase' : 'subfases' }} · {{ phase.hours }} h
+              </p>
             </div>
-            <ol class="flow__lessons">
-              @for (lesson of phase.lessons; track lesson.name) {
-                <li class="flow__lesson">
-                  <header>
-                    <h3>{{ lesson.name }}</h3>
-                    <span>{{ lesson.hours }} h</span>
-                  </header>
-                  <div class="flow__block">
-                    <p>Misiones</p>
-                    @if (lesson.missions.length) {
-                      <ul>
-                        @for (name of lesson.missions; track name) {
-                          <li><ui-chip [label]="name" /></li>
-                        }
-                      </ul>
-                    } @else {
-                      <span class="flow__none">Sin misiones</span>
-                    }
-                  </div>
-                  <div class="flow__block">
-                    <p>Maniobras</p>
-                    @if (lesson.groups.length || lesson.loose.length) {
-                      @for (group of lesson.groups; track group.name) {
-                        <div class="flow__group">
-                          <h4>{{ group.name }}</h4>
-                          <ul>
-                            @for (name of group.maneuvers; track name) {
-                              <li><ui-chip [label]="name" /></li>
-                            }
-                          </ul>
-                        </div>
+          </div>
+          <ol class="flow__lessons">
+            @for (lesson of phase.lessons; track lesson.name) {
+              <li class="flow__lesson">
+                <header>
+                  <h3>{{ lesson.name }}</h3>
+                  <span>{{ lesson.hours }} h</span>
+                </header>
+                <div class="flow__block">
+                  <p>Misiones</p>
+                  @if (lesson.missions.length) {
+                    <ul>
+                      @for (name of lesson.missions; track name) {
+                        <li><ui-chip [label]="name" /></li>
                       }
-                      @if (lesson.loose.length) {
+                    </ul>
+                  } @else {
+                    <span class="flow__none">Sin misiones</span>
+                  }
+                </div>
+                <div class="flow__block">
+                  <p>Maniobras</p>
+                  @if (lesson.groups.length || lesson.loose.length) {
+                    @for (group of lesson.groups; track group.name) {
+                      <div class="flow__group">
+                        <h4>{{ group.name }}</h4>
                         <ul>
-                          @for (name of lesson.loose; track name) {
+                          @for (name of group.maneuvers; track name) {
                             <li><ui-chip [label]="name" /></li>
                           }
                         </ul>
-                      }
-                    } @else {
-                      <span class="flow__none">Sin maniobras</span>
+                      </div>
                     }
-                  </div>
-                </li>
-              }
-            </ol>
-          </li>
-        }
-        <li class="flow__mark flow__mark--end">Fin del programa</li>
-      </ol>
+                    @if (lesson.loose.length) {
+                      <ul>
+                        @for (name of lesson.loose; track name) {
+                          <li><ui-chip [label]="name" /></li>
+                        }
+                      </ul>
+                    }
+                  } @else {
+                    <span class="flow__none">Sin maniobras</span>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+          @if (isLast()) {
+            <p class="flow__end">Fin del programa</p>
+          }
+        </article>
+      }
     }
   }
 </div>

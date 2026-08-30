@@ -70,6 +70,7 @@ export class ProgramFlowPage {
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly program = signal<ProgramEntity | null>(null);
   readonly phases = signal<FlowPhase[]>([]);
+  readonly step = signal(0);
 
   readonly title = computed(() => {
     const name = this.program()?.name;
@@ -83,6 +84,32 @@ export class ProgramFlowPage {
 
   readonly totalHours = computed(() => curriculumHours(this.phases().map((phase) => ({ subphases: phase.lessons }))));
   readonly lessonCount = computed(() => this.phases().reduce((sum, phase) => sum + phase.lessons.length, 0));
+  readonly current = computed(() => this.phases()[this.step()] ?? null);
+  readonly isFirst = computed(() => this.step() <= 0);
+  readonly isLast = computed(() => {
+    const total = this.phases().length;
+    return total === 0 || this.step() >= total - 1;
+  });
+  readonly stepLabel = computed(() => {
+    const total = this.phases().length;
+    if (!total) return '';
+    return `Fase ${this.step() + 1} de ${total}`;
+  });
+
+  goBack(): void {
+    if (this.isFirst()) return;
+    this.step.update((value) => value - 1);
+  }
+
+  goNext(): void {
+    if (this.isLast()) return;
+    this.step.update((value) => value + 1);
+  }
+
+  goTo(index: number): void {
+    if (index < 0 || index >= this.phases().length) return;
+    this.step.set(index);
+  }
 
   constructor() {
     forkJoin({

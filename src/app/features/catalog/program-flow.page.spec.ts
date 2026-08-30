@@ -24,7 +24,7 @@ async function waitReady(fixture: ComponentFixture<ProgramFlowPage>): Promise<vo
 }
 
 describe('ProgramFlowPage', () => {
-  it('muestra el flujo completo del PPL en solo lectura', async () => {
+  it('entra en la primera fase y avanza el tiempo con Atrás y Siguiente', async () => {
     await TestBed.configureTestingModule({
       imports: [ProgramFlowPage],
       providers: [
@@ -43,20 +43,44 @@ describe('ProgramFlowPage', () => {
     const text = root.textContent ?? '';
     expect(text).toContain('Flujo de Piloto privado · ala fija');
     expect(text).toContain('Solo consulta');
-    expect(text).toContain('Inicio');
-    expect(text).toContain('Fin del programa');
-    expect(text).toContain('TEO · Teoría en aula');
-    expect(text).toContain('BAS · Vuelo básico');
-    expect(text).toContain('DUAL · Dual');
-    expect(text).toContain('Circuito corto');
-    expect(text).toContain('TOFF · Despegue');
-    expect(text).toContain('Vuelo visual');
-    expect(text).toContain('C17');
+    expect(text).toContain('Atrás');
+    expect(text).toContain('Siguiente');
+    expect(text).toContain('Fase 1 de 5');
+    expect(fixture.componentInstance.step()).toBe(0);
+    expect(fixture.componentInstance.current()?.name).toBe('TEO · Teoría en aula');
+    const card = root.querySelector('.flow__phase')?.textContent ?? '';
+    expect(card).toContain('TEO · Teoría en aula');
+    expect(card).toContain('AULA · Aula');
+    expect(card).not.toContain('DUAL · Dual');
+    expect(card).not.toContain('Circuito corto');
+    expect(card).not.toContain('C17');
+    expect(card).not.toContain('Fin del programa');
+    const back = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Atrás'));
+    const next = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Siguiente'));
+    expect(back?.disabled).toBe(true);
+    expect(next?.disabled).toBe(false);
     expect(text).not.toContain('Añadir');
     expect(text).not.toContain('Guardar');
     expect(text).not.toContain('Editar fase');
     expect(root.querySelector('input')).toBeNull();
     expect(root.querySelector('form')).toBeNull();
-    expect(root.querySelector('a[href="/catalogo/programas"]')).not.toBeNull();
+
+    fixture.componentInstance.goNext();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.step()).toBe(1);
+    expect(fixture.componentInstance.current()?.name).toBe('BAS · Vuelo básico');
+    const second = root.querySelector('.flow__phase')?.textContent ?? '';
+    expect(second).toContain('DUAL · Dual');
+    expect(second).toContain('Circuito corto');
+    expect(second).toContain('TOFF · Despegue');
+    expect(second).toContain('Vuelo visual');
+    expect((root.textContent ?? '')).toContain('Fase 2 de 5');
+
+    fixture.componentInstance.goTo(4);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isLast()).toBe(true);
+    expect(root.querySelector('.flow__phase')?.textContent).toContain('Fin del programa');
+    const lastNext = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Siguiente'));
+    expect(lastNext?.disabled).toBe(true);
   });
 });
