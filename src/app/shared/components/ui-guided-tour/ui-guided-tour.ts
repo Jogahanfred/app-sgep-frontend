@@ -9,7 +9,6 @@ import {
   signal,
 } from '@angular/core';
 import { Button } from '../button/button';
-import { animateScrollIntoView } from '@shared/utils/scroll-to';
 import { placeCoachTip } from './place-coach-tip';
 
 export interface CoachStep {
@@ -45,7 +44,6 @@ const TIP_HEIGHT = 220;
 })
 export class UiGuidedTour {
   private readonly destroyRef = inject(DestroyRef);
-  private cancelScroll: (() => void) | null = null;
   private raf = 0;
   private tries = 0;
 
@@ -58,15 +56,17 @@ export class UiGuidedTour {
 
   readonly hole = signal<HoleBox | null>(null);
   readonly tip = signal<TipBox | null>(null);
+  readonly placed = signal(false);
 
   constructor() {
-    const onResize = () => this.queueAlign(false);
+    const onResize = () => {
+      if (this.placed()) this.queueAlign(false);
+    };
     window.addEventListener('resize', onResize);
     window.addEventListener('scroll', onResize, true);
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onResize, true);
-      this.cancelScroll?.();
       cancelAnimationFrame(this.raf);
     });
 
@@ -76,11 +76,13 @@ export class UiGuidedTour {
       if (!open || !step?.target) {
         this.hole.set(null);
         this.tip.set(null);
+        this.placed.set(false);
         this.tries = 0;
         return;
       }
       this.tries = 0;
-      this.tip.set({ top: 16, left: 12 });
+      this.placed.set(false);
+      this.hole.set(null);
       this.queueAlign(true);
     });
   }
@@ -104,12 +106,19 @@ export class UiGuidedTour {
     }
 
     this.tries = 0;
-    if (scroll) {
-      this.cancelScroll?.();
-      this.cancelScroll = animateScrollIntoView(el, this.measureTip().height + 36, () => this.place(el));
-      return;
-    }
+    if (scroll) this.jumpTo(el);
     this.place(el);
+  }
+
+  private jumpTo(el: HTMLElement): void {
+    const pad = TIP_HEIGHT + 36;
+    const rect = el.getBoundingClientRect();
+    const topGap = rect.top - pad;
+    const bottomGap = rect.bottom - (window.innerHeight - pad);
+    let delta = 0;
+    if (topGap < 0) delta = topGap;
+    else if (bottomGap > 0) delta = bottomGap;
+    if (delta) window.scrollTo({ top: window.scrollY + delta, behavior: 'auto' });
   }
 
   private place(el: HTMLElement): void {
@@ -132,8 +141,9 @@ export class UiGuidedTour {
     const view = { width: window.innerWidth, height: window.innerHeight };
     this.tip.set(placeCoachTip(hole, view, this.measureTip()));
     requestAnimationFrame(() => {
-      if (!this.open()) return;
+      if (!this.open() || !this.step()?.target) return;
       this.tip.set(placeCoachTip(hole, view, this.measureTip()));
+      this.placed.set(true);
     });
   }
 

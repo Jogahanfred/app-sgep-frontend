@@ -34,6 +34,7 @@ describe('UiGuidedTour', () => {
     expect(root.textContent).not.toContain('Omitir');
     expect(root.textContent).not.toMatch(/\d+\s*\/\s*\d+/);
     expect(root.querySelector('.coach__tip')).not.toBeNull();
+    expect(root.querySelector('.coach__tip')?.classList.contains('coach__tip--on')).toBe(false);
     [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Siguiente'))?.click();
     expect(next).toEqual(['ok']);
     host.remove();
