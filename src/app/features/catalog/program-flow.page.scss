@@ -82,7 +82,6 @@
 .flow__empty p,
 .flow__who p,
 .flow__sheet,
-.flow__crumb,
 .flow__meta,
 .flow__hint,
 .flow__preview span {
@@ -91,14 +90,9 @@
   font-size: 0.82rem;
 }
 
-.flow__nav p,
-.flow__crumb {
+.flow__nav p {
   color: #35506a;
   font-weight: 800;
-}
-
-.flow__crumb {
-  margin: 0.45rem 0 0;
 }
 
 .flow__time {

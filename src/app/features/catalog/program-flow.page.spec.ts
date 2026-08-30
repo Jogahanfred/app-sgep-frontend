@@ -81,6 +81,7 @@ describe('ProgramFlowPage', () => {
     expect(text).not.toContain('PPL-AF');
     expect(text).not.toContain('89 h');
     expect(root.querySelector('.flow__summary')).toBeNull();
+    expect(root.querySelector('.flow__crumb')).toBeNull();
     expect(root.querySelector('.flow__time span')).toBeNull();
     expect(text).toContain('Inicio');
     expect(page.depth()).toBe('start');

@@ -142,14 +142,6 @@ export class ProgramFlowPage {
     }
     return '';
   });
-  readonly crumb = computed(() => {
-    const phase = this.currentPhase();
-    const lesson = this.currentLesson();
-    if (!phase) return 'Programa';
-    if (!lesson) return phase.name;
-    if (this.depth() === 'matrix') return `${phase.name} · ${lesson.name} · Matriz`;
-    return `${phase.name} · ${lesson.name}`;
-  });
 
   goBack(): void {
     if (this.isFirst()) return;

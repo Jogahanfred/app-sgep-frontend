@@ -35,7 +35,6 @@
         <p>{{ stepLabel() }}</p>
         <app-button type="button" icon="chevron-right" [disabled]="isLast() || tourOpen()" (click)="goNext()">Siguiente</app-button>
       </div>
-      <p class="flow__crumb">{{ crumb() }}</p>
 
       <ol class="flow__time" aria-label="Línea de tiempo del programa">
         @for (phase of phases(); track phase.name; let i = $index) {
