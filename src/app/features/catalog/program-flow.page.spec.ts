@@ -42,13 +42,21 @@ function navButtons(root: HTMLElement): { back?: HTMLButtonElement; next?: HTMLB
   };
 }
 
+function headerCells(table: HTMLTableElement): string[] {
+  return [...table.querySelectorAll('thead th')].map((node) => (node.textContent ?? '').trim());
+}
+
+function rowLabels(table: HTMLTableElement): string[] {
+  return [...table.querySelectorAll('tbody th')].map((node) => (node.textContent ?? '').trim());
+}
+
 describe('ProgramFlowPage', () => {
   beforeEach(() => {
     sessionStorage.setItem('siga-flow-tour', JSON.stringify({ 'prg-ppl': 'completed' }));
     TestBed.resetTestingModule();
   });
 
-  it('coloca el cuadro en fase, subfase y entra misión a misión', async () => {
+  it('marca FASE 1 y, tras la subfase, muestra la matriz misión × maniobra', async () => {
     stubDialog();
     await TestBed.configureTestingModule({
       imports: [ProgramFlowPage],
@@ -78,6 +86,7 @@ describe('ProgramFlowPage', () => {
     expect(text).not.toContain('Añadir');
     expect(text).not.toContain('Guardar');
     expect(text).not.toContain('Editar fase');
+    expect(text).not.toContain('Cuadro en la fase');
     expect(root.querySelector('input')).toBeNull();
     expect(root.querySelector('form')).toBeNull();
 
@@ -86,7 +95,8 @@ describe('ProgramFlowPage', () => {
     expect(page.depth()).toBe('phase');
     expect(page.currentPhase()?.name).toBe('TEO · Teoría en aula');
     expect(root.querySelector('.flow__on')?.textContent).toContain('TEO · Teoría en aula');
-    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la fase');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('FASE 1');
+    expect(root.querySelector('.flow__on')?.textContent).not.toContain('Cuadro en la fase');
     expect(root.textContent).toContain('AULA · Aula');
     expect(root.textContent).not.toContain('Ver maniobras');
     expect(root.textContent).not.toContain('DUAL · Dual');
@@ -98,14 +108,22 @@ describe('ProgramFlowPage', () => {
     fixture.detectChanges();
     expect(page.depth()).toBe('lesson');
     expect(page.currentLesson()?.name).toBe('AULA · Aula');
-    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la subfase');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('SUBFASE 1');
     expect(root.textContent).toContain('0 misiones');
+    expect(root.querySelector('[data-tour="matrix"]')).toBeNull();
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.depth()).toBe('matrix');
+    expect(root.querySelector('[data-tour="matrix"]')?.textContent).toContain(
+      'Esta subfase no tiene misiones ni maniobras.',
+    );
 
     page.goNext();
     fixture.detectChanges();
     expect(page.depth()).toBe('phase');
     expect(page.currentPhase()?.name).toBe('BAS · Vuelo básico');
-    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la fase');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('FASE 2');
     expect(root.textContent).toContain('BRF · Briefing');
     expect(root.textContent).toContain('DUAL · Dual');
     expect(root.textContent).not.toContain('Circuito corto');
@@ -117,17 +135,15 @@ describe('ProgramFlowPage', () => {
 
     page.goNext();
     fixture.detectChanges();
-    expect(page.depth()).toBe('mission');
-    expect(page.currentMission()?.name).toBe('LOC · Misión local');
-    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Misiones');
-    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('LOC · Misión local');
-    expect(root.textContent).toContain('Misión 1 de 1');
-    expect(root.textContent).not.toContain('Circuito corto');
+    expect(page.depth()).toBe('matrix');
+    const briefing = root.querySelector('[data-tour="matrix"] table') as HTMLTableElement | null;
+    expect(briefing).not.toBeNull();
+    expect(headerCells(briefing!)).toEqual(['', 'LOC · Misión local']);
+    expect(rowLabels(briefing!)).toEqual(['TOFF · Despegue', 'LAND · Aterrizaje']);
+    expect([...briefing!.querySelectorAll('td')].map((cell) => cell.textContent?.trim())).toEqual(['X', 'X']);
+    expect(root.textContent).toContain('Matriz · 1 × 2');
     expect(root.textContent).not.toContain('Ver maniobras');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Misiones');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Vuelo visual');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('TOFF · Despegue');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('LAND · Aterrizaje');
+    expect(root.textContent).not.toContain('Circuito corto');
 
     page.goNext();
     fixture.detectChanges();
@@ -136,22 +152,13 @@ describe('ProgramFlowPage', () => {
 
     page.goNext();
     fixture.detectChanges();
-    expect(page.currentMission()?.name).toBe('LOC · Misión local');
-    expect(root.textContent).toContain('Misión 1 de 3');
-    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Circuito corto');
-    expect(root.querySelector('[data-tour="mission"]')?.textContent).toContain('Circuito largo');
-
-    page.goNext();
-    fixture.detectChanges();
-    expect(page.currentMission()?.name).toBe('Circuito corto');
-    expect(root.textContent).toContain('Misión 2 de 3');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Vuelo visual');
-    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('TOFF · Despegue');
-
-    page.goNext();
-    fixture.detectChanges();
-    expect(page.currentMission()?.name).toBe('Circuito largo');
-    expect(root.textContent).toContain('Misión 3 de 3');
+    expect(page.depth()).toBe('matrix');
+    const dual = root.querySelector('[data-tour="matrix"] table') as HTMLTableElement | null;
+    expect(dual).not.toBeNull();
+    expect(headerCells(dual!)).toEqual(['', 'LOC · Misión local', 'Circuito corto', 'Circuito largo']);
+    expect(rowLabels(dual!)).toEqual(['TOFF · Despegue', 'LAND · Aterrizaje']);
+    expect([...dual!.querySelectorAll('td')].every((cell) => cell.textContent?.trim() === 'X')).toBe(true);
+    expect(dual!.querySelectorAll('td')).toHaveLength(6);
 
     page.goTo(4);
     fixture.detectChanges();
@@ -165,7 +172,7 @@ describe('ProgramFlowPage', () => {
     expect(navButtons(root).next?.disabled).toBe(true);
   });
 
-  it('recorre el tour sobre la fase, la subfase, cada misión y las maniobras agrupadas', async () => {
+  it('recorre el tour sobre la fase, la subfase y la matriz', async () => {
     sessionStorage.clear();
     stubDialog();
     await TestBed.configureTestingModule({
@@ -189,14 +196,17 @@ describe('ProgramFlowPage', () => {
     expect(page.tourStep()?.kind).toBe('intro');
     expect(root.textContent).toContain('Comenzar');
     expect(root.textContent).not.toContain('Omitir');
-    expect(page.tourSteps().filter((step) => step.kind === 'mission').length).toBeGreaterThan(0);
+    expect(page.tourSteps().filter((step) => step.kind === 'matrix')).toHaveLength(1);
+    expect(page.tourSteps().some((step) => step.kind === 'mission' as never)).toBe(false);
 
     page.tourNext();
     fixture.detectChanges();
     expect(page.tourStep()?.kind).toBe('phase');
+    expect(page.tourStep()?.title).toBe('FASE 2');
     expect(page.depth()).toBe('phase');
     expect(root.querySelector('[data-tour="phase"]')).not.toBeNull();
     expect(root.querySelector('ui-guided-tour')?.textContent).toContain('Una fase es una etapa');
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('FASE 2');
 
     page.tourNext();
     fixture.detectChanges();
@@ -204,26 +214,22 @@ describe('ProgramFlowPage', () => {
     expect(page.depth()).toBe('lesson');
     expect(root.querySelector('[data-tour="lesson"]')).not.toBeNull();
 
-    const missionSteps = page.tourSteps().filter((step) => step.kind === 'mission');
-    for (const step of missionSteps) {
-      page.tourNext();
-      fixture.detectChanges();
-      expect(page.tourStep()?.kind).toBe('mission');
-      expect(page.currentMission()?.name).toBe(step.title);
-      expect(root.querySelector('[data-tour="mission"]')).not.toBeNull();
-    }
-
     page.tourNext();
     fixture.detectChanges();
-    expect(page.tourStep()?.kind).toBe('maneuvers');
-    expect(root.querySelector('[data-tour="maneuvers"]')).not.toBeNull();
-    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('agrupadas por operación');
+    expect(page.tourStep()?.kind).toBe('matrix');
+    expect(page.depth()).toBe('matrix');
+    expect(root.querySelector('[data-tour="matrix"]')).not.toBeNull();
+    expect(root.querySelector('[data-tour="matrix"] thead')?.textContent).toContain('LOC · Misión local');
+    expect(root.querySelector('[data-tour="matrix"] tbody')?.textContent).toContain('TOFF · Despegue');
+    expect(root.querySelector('[data-tour="matrix"] td')?.textContent).toContain('X');
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('eje X');
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('eje Y');
     expect(root.querySelector('ui-guided-tour')?.textContent).toContain('Finalizar');
 
     page.tourNext();
     fixture.detectChanges();
     expect(page.tourStep()?.kind).toBe('finish');
-    expect(root.textContent).toContain('Programa → Fase → Subfase → Misiones → Maniobras');
+    expect(root.textContent).toContain('Programa → Fase → Subfase → Matriz de misiones y maniobras');
     page.finishTour();
     fixture.detectChanges();
     expect(page.tourOpen()).toBe(false);

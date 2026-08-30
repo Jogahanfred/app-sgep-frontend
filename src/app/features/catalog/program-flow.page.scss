@@ -59,9 +59,7 @@
 .flow__nav,
 .flow__time,
 .flow__who,
-.flow__lesson header,
-.flow__chips,
-.flow__group ul {
+.flow__lesson header {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -90,7 +88,6 @@
 .flow__crumb,
 .flow__meta,
 .flow__hint,
-.flow__task p,
 .flow__preview span {
   margin: 0;
   color: #4b6074;
@@ -177,8 +174,7 @@
 
 .flow__empty,
 .flow__phase,
-.flow__lesson,
-.flow__task {
+.flow__lesson {
   border: 1px solid #d5e1ed;
   border-radius: 0.9rem;
   background: #fff;
@@ -202,8 +198,6 @@
 
 .flow__who h2,
 .flow__lesson h3,
-.flow__group h4,
-.flow__task h3,
 .flow__phase h2 {
   margin: 0;
   color: #22384c;
@@ -221,8 +215,7 @@
 }
 
 .flow__lessons,
-.flow__preview,
-.flow__group {
+.flow__preview {
   display: grid;
   gap: 0.55rem;
   margin: 0;
@@ -230,8 +223,7 @@
   list-style: none;
 }
 
-.flow__lesson,
-.flow__task {
+.flow__lesson {
   padding: 0.8rem;
   background: #f8fbfd;
 }
@@ -241,50 +233,47 @@
   margin-bottom: 0.45rem;
 }
 
-.flow__task,
-.flow__pack {
-  margin-top: 0.75rem;
-  background: #fff;
-}
-
-.flow__pack {
-  padding: 0.8rem;
-}
-
-.flow__missions {
-  display: grid;
-  gap: 0.4rem;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.flow__missions--on {
-  padding: 0.45rem 0.55rem;
-  border-left: 3px solid var(--color-primary);
-  background: #f8fbfd;
-}
-
-.flow__missions p {
-  margin: 0.25rem 0 0;
-}
-
-.flow__task h3 {
-  margin: 0.2rem 0 0.35rem;
-}
-
 .flow__hint,
-.flow__ops {
+.flow__grid {
   margin-top: 0.65rem;
 }
 
-.flow__ops > p,
-.flow__group h4 {
-  color: var(--color-primary);
-  font-size: 0.7rem;
+.flow__grid {
+  overflow-x: auto;
+  background: #fff;
+}
+
+.flow__grid table {
+  width: 100%;
+  min-width: 18rem;
+  border-collapse: collapse;
+}
+
+.flow__grid th,
+.flow__grid td {
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #d5e1ed;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.flow__grid thead th {
+  background: #e8f1f8;
+  color: #22384c;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+.flow__grid tbody th {
+  text-align: left;
+  background: #f8fbfd;
+  color: #22384c;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.flow__grid td {
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 .flow__preview li {
@@ -294,21 +283,6 @@
   gap: 0.35rem;
   padding: 0.45rem 0;
   border-bottom: 1px solid #e6eef6;
-}
-
-.flow__chips,
-.flow__group ul {
-  margin: 0.35rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.flow__group {
-  margin-top: 0.65rem;
-  padding: 0.5rem 0.6rem;
-  border-left: 3px solid var(--color-primary);
-  border-radius: 0 0.5rem 0.5rem 0;
-  background: #fff;
 }
 
 .flow__end {

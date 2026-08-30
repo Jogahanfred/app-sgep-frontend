@@ -1,5 +1,5 @@
-export type FlowTourKind = 'intro' | 'phase' | 'lesson' | 'mission' | 'maneuvers' | 'finish';
-export type FlowTourTarget = 'phase' | 'lesson' | 'mission' | 'maneuvers';
+export type FlowTourKind = 'intro' | 'phase' | 'lesson' | 'matrix' | 'finish';
+export type FlowTourTarget = 'phase' | 'lesson' | 'matrix';
 export type FlowTourMemory = 'idle' | 'started' | 'skipped' | 'completed';
 
 interface TourLessonSource {
@@ -20,7 +20,6 @@ export interface FlowTourStep {
   target: FlowTourTarget | null;
   phaseIndex: number;
   lessonIndex: number;
-  missionIndex: number;
 }
 
 const MEMORY_KEY = 'siga-flow-tour';
@@ -52,22 +51,21 @@ export function buildFlowTourSteps(phases: TourPhaseSource[]): FlowTourStep[] {
       target: null,
       phaseIndex: -1,
       lessonIndex: -1,
-      missionIndex: -1,
     },
   ];
 
   const path = pickTourPath(phases);
   const phase = path.phaseIndex >= 0 ? phases[path.phaseIndex] : null;
   if (phase) {
+    const phaseLabel = `FASE ${path.phaseIndex + 1}`;
     steps.push({
       kind: 'phase',
-      title: phase.name,
-      body: 'Una fase es una etapa del entrenamiento. El programa avanza de la primera fase al cierre.',
-      eyebrow: 'Fase',
+      title: phaseLabel,
+      body: `${phase.name}. Una fase es una etapa del entrenamiento. El programa avanza de la primera fase al cierre.`,
+      eyebrow: phaseLabel,
       target: 'phase',
       phaseIndex: path.phaseIndex,
       lessonIndex: -1,
-      missionIndex: -1,
     });
   }
 
@@ -81,41 +79,26 @@ export function buildFlowTourSteps(phases: TourPhaseSource[]): FlowTourStep[] {
       target: 'lesson',
       phaseIndex: path.phaseIndex,
       lessonIndex: path.lessonIndex,
-      missionIndex: -1,
-    });
-    lesson.missions.forEach((mission, missionIndex) => {
-      steps.push({
-        kind: 'mission',
-        title: mission.name,
-        body: mission.detail || 'Cada misión es una unidad de vuelo o de aula dentro de esta subfase.',
-        eyebrow: `Misión ${missionIndex + 1}`,
-        target: 'mission',
-        phaseIndex: path.phaseIndex,
-        lessonIndex: path.lessonIndex,
-        missionIndex,
-      });
     });
     steps.push({
-      kind: 'maneuvers',
-      title: 'Maniobras',
-      body: 'Aquí están las misiones y, debajo, las maniobras agrupadas por operación.',
-      eyebrow: 'Maniobras',
-      target: 'maneuvers',
+      kind: 'matrix',
+      title: 'Misiones y maniobras',
+      body: 'Las misiones van en el eje X, arriba. Las maniobras van en el eje Y. En cada cruce, la X indica que esa maniobra se entrena en esa misión.',
+      eyebrow: 'Matriz',
+      target: 'matrix',
       phaseIndex: path.phaseIndex,
       lessonIndex: path.lessonIndex,
-      missionIndex: lesson.missions.length ? lesson.missions.length - 1 : -1,
     });
   }
 
   steps.push({
     kind: 'finish',
     title: 'Ya conoces la estructura',
-    body: 'El programa se organiza así: Programa → Fase → Subfase → Misiones → Maniobras. Ya puedes recorrer el itinerario por tu cuenta.',
+    body: 'El programa se organiza así: Programa → Fase → Subfase → Matriz de misiones y maniobras. Ya puedes recorrer el itinerario por tu cuenta.',
     eyebrow: 'Fin',
     target: null,
     phaseIndex: path.phaseIndex,
     lessonIndex: path.lessonIndex,
-    missionIndex: -1,
   });
 
   return steps;

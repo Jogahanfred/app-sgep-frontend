@@ -3,7 +3,7 @@
     <div>
       <p class="flow__badge">Solo consulta</p>
       <h1>{{ title() }}</h1>
-      <p class="ap__lead">Siguiente coloca el cuadro sobre la fase, luego la subfase y entra en cada misión.</p>
+      <p class="ap__lead">Siguiente entra en la fase, luego en la subfase y abre la matriz de misiones y maniobras.</p>
     </div>
     <div class="flow__tools">
       @if (!tourOpen()) {
@@ -60,7 +60,7 @@
         <article class="flow__phase">
           <p class="flow__tag">Inicio</p>
           <h2>Itinerario</h2>
-          <p>Siguiente coloca el cuadro sobre la primera fase. Después entra en la subfase y, si hay, en cada misión.</p>
+          <p>Siguiente entra en la primera fase. Después abre la subfase y su matriz de misiones y maniobras.</p>
           <ol class="flow__preview">
             @for (phase of phases(); track phase.name; let i = $index) {
               <li>
@@ -73,7 +73,7 @@
       } @else if (currentPhase(); as phase) {
         <article class="flow__phase" data-tour="phase" [class.flow__on]="depth() === 'phase'">
           @if (depth() === 'phase') {
-            <p class="flow__tag">Cuadro en la fase</p>
+            <p class="flow__tag">FASE {{ phaseIndex() + 1 }}</p>
           }
           <div class="flow__who">
             <span class="flow__num">{{ phaseIndex() + 1 }}</span>
@@ -100,7 +100,7 @@
           } @else if (currentLesson(); as lesson) {
             <article class="flow__lesson" data-tour="lesson" [class.flow__on]="depth() === 'lesson'">
               @if (depth() === 'lesson') {
-                <p class="flow__tag">Cuadro en la subfase</p>
+                <p class="flow__tag">SUBFASE {{ lessonIndex() + 1 }}</p>
               }
               <header>
                 <h3>{{ lesson.name }}</h3>
@@ -108,76 +108,37 @@
               </header>
               <p class="flow__meta">{{ missionCountLabel(lesson.missions.length) }}</p>
 
-              @if (depth() === 'mission' && currentMission(); as mission) {
-                <article class="flow__pack" data-tour="maneuvers">
-                  <section data-tour="mission">
-                    <p class="flow__tag">Misiones</p>
-                    <ol class="flow__missions">
-                      @for (item of lesson.missions; track item.name; let i = $index) {
-                        <li [class.flow__missions--on]="i === missionCursor()">
-                          <strong>{{ item.name }}</strong>
-                          @if (i === missionCursor()) {
-                            <p>{{ item.detail }}</p>
-                          }
-                        </li>
-                      }
-                    </ol>
-                  </section>
-                  <div class="flow__ops">
-                    <p>Maniobras</p>
-                    @if (lesson.hasManeuvers) {
-                      @for (group of lesson.groups; track group.name) {
-                        <div class="flow__group">
-                          <h4>{{ group.name }}</h4>
-                          <ul>
-                            @for (name of group.maneuvers; track name) {
-                              <li><ui-chip [label]="name" /></li>
-                            }
-                          </ul>
-                        </div>
-                      }
-                      @if (lesson.loose.length) {
-                        <ul class="flow__chips">
-                          @for (name of lesson.loose; track name) {
-                            <li><ui-chip [label]="name" /></li>
-                          }
-                        </ul>
-                      }
-                    } @else {
-                      <span class="flow__none">Sin maniobras</span>
-                    }
-                  </div>
-                </article>
-              } @else if (lesson.missions.length) {
-                <p class="flow__hint">Siguiente entra en la primera misión de esta subfase.</p>
-              } @else {
-                <p class="flow__hint">Esta subfase no tiene misiones. Siguiente sigue el itinerario.</p>
-                <article class="flow__pack" data-tour="maneuvers">
-                  <div class="flow__ops">
-                    <p>Maniobras</p>
-                  @if (lesson.hasManeuvers) {
-                    @for (group of lesson.groups; track group.name) {
-                      <div class="flow__group">
-                        <h4>{{ group.name }}</h4>
-                        <ul>
-                          @for (name of group.maneuvers; track name) {
-                            <li><ui-chip [label]="name" /></li>
-                          }
-                        </ul>
-                      </div>
-                    }
-                    @if (lesson.loose.length) {
-                      <ul class="flow__chips">
-                        @for (name of lesson.loose; track name) {
-                          <li><ui-chip [label]="name" /></li>
-                        }
-                      </ul>
-                    }
+              @if (depth() === 'matrix') {
+                <div class="flow__grid" data-tour="matrix">
+                  @if (!lesson.missions.length && !lesson.maneuvers.length) {
+                    <p class="flow__none">Esta subfase no tiene misiones ni maniobras.</p>
                   } @else {
-                    <span class="flow__none">Sin maniobras</span>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th scope="col"></th>
+                          @for (mission of lesson.missions; track mission.name) {
+                            <th scope="col">{{ mission.name }}</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (maneuver of lesson.maneuvers; track maneuver) {
+                          <tr>
+                            <th scope="row">{{ maneuver }}</th>
+                            @for (mission of lesson.missions; track mission.name) {
+                              <td>X</td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
                   }
-                  </div>
-                </article>
+                </div>
+              } @else if (lesson.missions.length || lesson.maneuvers.length) {
+                <p class="flow__hint">Siguiente abre la matriz: misiones arriba, maniobras a la izquierda y X en los cruces.</p>
+              } @else {
+                <p class="flow__hint">Esta subfase no tiene misiones ni maniobras. Siguiente abre su matriz vacía.</p>
               }
             </article>
           }
@@ -203,8 +164,8 @@
 
 <app-modal [open]="tourFinish()" title="Ya conoces la estructura" (closed)="finishTour()">
   <p class="flow__none">
-    El programa se organiza así: Programa → Fase → Subfase → Misiones → Maniobras. Ya puedes recorrer el itinerario por
-    tu cuenta.
+    El programa se organiza así: Programa → Fase → Subfase → Matriz de misiones y maniobras. Ya puedes recorrer el
+    itinerario por tu cuenta.
   </p>
   <div class="flow__tools">
     <app-button type="button" (click)="finishTour()">Finalizar</app-button>
@@ -215,8 +176,7 @@
   [open]="tourCoach()"
   [step]="tourStep()"
   [isFirst]="false"
-  [isLast]="tourOnManeuvers()"
+  [isLast]="tourOnMatrix()"
   (next)="tourNext()"
   (prev)="tourPrev()"
 />
-

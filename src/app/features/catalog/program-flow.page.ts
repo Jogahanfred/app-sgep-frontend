@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import {
   ListManeuvers,
   ListMissionTypes,
-  ListOperations,
   ListPhaseBanks,
   ListPhases,
   ListPrograms,
@@ -14,7 +13,6 @@ import {
 import type {
   ManeuverBankEntity,
   MissionTypeEntity,
-  OperationEntity,
   PhaseBankEntity,
   ProgramEntity,
   SubphaseBankEntity,
@@ -25,18 +23,16 @@ import { forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
-import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiGuidedTour } from '@shared/components/ui-guided-tour/ui-guided-tour';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { buildFlowTourSteps, readTourMemory, writeTourMemory, type FlowTourStep } from './program-flow.tour';
 
-export type FlowDepth = 'start' | 'phase' | 'lesson' | 'mission';
+export type FlowDepth = 'start' | 'phase' | 'lesson' | 'matrix';
 
 export interface FlowStop {
   depth: FlowDepth;
   phaseIndex: number;
   lessonIndex: number;
-  missionIndex: number;
 }
 
 export interface FlowMission {
@@ -44,18 +40,11 @@ export interface FlowMission {
   detail: string;
 }
 
-interface FlowGroup {
-  name: string;
-  maneuvers: string[];
-}
-
 export interface FlowLesson {
   name: string;
   hours: number;
   missions: FlowMission[];
-  groups: FlowGroup[];
-  loose: string[];
-  hasManeuvers: boolean;
+  maneuvers: string[];
 }
 
 export interface FlowPhase {
@@ -64,15 +53,13 @@ export interface FlowPhase {
   lessons: FlowLesson[];
 }
 
-export function buildFlowStops(phases: { lessons: { missions: unknown[] }[] }[]): FlowStop[] {
-  const stops: FlowStop[] = [{ depth: 'start', phaseIndex: -1, lessonIndex: -1, missionIndex: -1 }];
+export function buildFlowStops(phases: { lessons: unknown[] }[]): FlowStop[] {
+  const stops: FlowStop[] = [{ depth: 'start', phaseIndex: -1, lessonIndex: -1 }];
   phases.forEach((phase, phaseIndex) => {
-    stops.push({ depth: 'phase', phaseIndex, lessonIndex: -1, missionIndex: -1 });
-    phase.lessons.forEach((lesson, lessonIndex) => {
-      stops.push({ depth: 'lesson', phaseIndex, lessonIndex, missionIndex: -1 });
-      lesson.missions.forEach((_, missionIndex) => {
-        stops.push({ depth: 'mission', phaseIndex, lessonIndex, missionIndex });
-      });
+    stops.push({ depth: 'phase', phaseIndex, lessonIndex: -1 });
+    phase.lessons.forEach((_, lessonIndex) => {
+      stops.push({ depth: 'lesson', phaseIndex, lessonIndex });
+      stops.push({ depth: 'matrix', phaseIndex, lessonIndex });
     });
   });
   return stops;
@@ -81,7 +68,7 @@ export function buildFlowStops(phases: { lessons: { missions: unknown[] }[] }[])
 @Component({
   selector: 'app-program-flow-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Modal, UiChip, UiGuidedTour, UiLoading],
+  imports: [Alert, Button, Modal, UiGuidedTour, UiLoading],
   templateUrl: './program-flow.page.html',
   styleUrl: './program-flow.page.scss',
 })
@@ -95,7 +82,6 @@ export class ProgramFlowPage {
   private readonly listSubphaseBanks = inject(ListSubphaseBanks);
   private readonly listMissions = inject(ListMissionTypes);
   private readonly listManeuvers = inject(ListManeuvers);
-  private readonly listOperations = inject(ListOperations);
 
   readonly programId = this.route.snapshot.paramMap.get('id') ?? '';
   readonly listHref = '/catalogo/programas';
@@ -114,7 +100,7 @@ export class ProgramFlowPage {
   });
   readonly tourIntro = computed(() => this.tourOpen() && this.tourStep()?.kind === 'intro');
   readonly tourFinish = computed(() => this.tourOpen() && this.tourStep()?.kind === 'finish');
-  readonly tourOnManeuvers = computed(() => this.tourStep()?.kind === 'maneuvers');
+  readonly tourOnMatrix = computed(() => this.tourStep()?.kind === 'matrix');
 
   readonly title = computed(() => {
     const name = this.program()?.name;
@@ -130,6 +116,7 @@ export class ProgramFlowPage {
   readonly lessonCount = computed(() => this.phases().reduce((sum, phase) => sum + phase.lessons.length, 0));
   readonly stop = computed(() => this.stops()[this.cursor()] ?? null);
   readonly phaseIndex = computed(() => this.stop()?.phaseIndex ?? -1);
+  readonly lessonIndex = computed(() => this.stop()?.lessonIndex ?? -1);
   readonly depth = computed(() => this.stop()?.depth ?? 'start');
   readonly currentPhase = computed(() => {
     const index = this.stop()?.phaseIndex ?? -1;
@@ -141,13 +128,6 @@ export class ProgramFlowPage {
     if (!point || !phase || point.lessonIndex < 0) return null;
     return phase.lessons[point.lessonIndex] ?? null;
   });
-  readonly currentMission = computed(() => {
-    const point = this.stop();
-    const lesson = this.currentLesson();
-    if (!point || !lesson || point.missionIndex < 0) return null;
-    return lesson.missions[point.missionIndex] ?? null;
-  });
-  readonly missionCursor = computed(() => this.stop()?.missionIndex ?? -1);
   readonly isFirst = computed(() => this.cursor() <= 0);
   readonly isLast = computed(() => {
     const total = this.stops().length;
@@ -164,19 +144,18 @@ export class ProgramFlowPage {
     if (point.depth === 'lesson' && phase) {
       return `Subfase ${point.lessonIndex + 1} de ${phase.lessons.length}`;
     }
-    if (point.depth === 'mission' && lesson) {
-      return `Misión ${point.missionIndex + 1} de ${lesson.missions.length}`;
+    if (point.depth === 'matrix' && lesson) {
+      return `Matriz · ${lesson.missions.length} × ${lesson.maneuvers.length}`;
     }
     return '';
   });
   readonly crumb = computed(() => {
     const phase = this.currentPhase();
     const lesson = this.currentLesson();
-    const mission = this.currentMission();
     if (!phase) return 'Programa';
     if (!lesson) return phase.name;
-    if (!mission) return `${phase.name} · ${lesson.name}`;
-    return `${phase.name} · ${lesson.name} · ${mission.name}`;
+    if (this.depth() === 'matrix') return `${phase.name} · ${lesson.name} · Matriz`;
+    return `${phase.name} · ${lesson.name}`;
   });
 
   goBack(): void {
@@ -239,7 +218,6 @@ export class ProgramFlowPage {
       subphaseBanks: this.listSubphaseBanks.execute(),
       missions: this.listMissions.execute(),
       maneuvers: this.listManeuvers.execute(),
-      operations: this.listOperations.execute(),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -282,7 +260,6 @@ export class ProgramFlowPage {
       subphaseBanks: SubphaseBankEntity[];
       missions: MissionTypeEntity[];
       maneuvers: ManeuverBankEntity[];
-      operations: OperationEntity[];
     },
   ): FlowLesson {
     const bank = bundle.subphaseBanks.find((item) => item.id === sub.subphaseBankId);
@@ -306,47 +283,15 @@ export class ProgramFlowPage {
             })),
           ];
     const maneuverById = new Map(bundle.maneuvers.map((item) => [item.id, item]));
-    const groups: FlowGroup[] = [];
-    const assigned = new Set<string>();
-    const labelOf = (id: string) => {
+    const maneuvers = sub.maneuverIds.map((id) => {
       const item = maneuverById.get(id);
       return item ? `${item.code} · ${item.name}` : id;
-    };
-    for (const operationId of sub.maneuverOperationIds) {
-      const operation = bundle.operations.find((item) => item.id === operationId);
-      const maneuvers = sub.maneuverIds
-        .filter((id) => sub.maneuverAssignment[id] === operationId)
-        .map((id) => {
-          assigned.add(id);
-          return labelOf(id);
-        });
-      if (!maneuvers.length) continue;
-      groups.push({ name: operation?.name ?? 'Operación', maneuvers });
-    }
-    const leftover = new Map<string, string[]>();
-    const loose: string[] = [];
-    for (const id of sub.maneuverIds) {
-      if (assigned.has(id)) continue;
-      const item = maneuverById.get(id);
-      if (!item?.operationId) {
-        loose.push(labelOf(id));
-        continue;
-      }
-      const bucket = leftover.get(item.operationId) ?? [];
-      bucket.push(labelOf(id));
-      leftover.set(item.operationId, bucket);
-    }
-    for (const [operationId, maneuvers] of leftover) {
-      const operation = bundle.operations.find((item) => item.id === operationId);
-      groups.push({ name: operation?.name ?? 'Operación', maneuvers });
-    }
+    });
     return {
       name: bank ? `${bank.code} · ${bank.name}` : 'Subfase',
       hours: sub.hours,
       missions,
-      groups,
-      loose,
-      hasManeuvers: groups.length + loose.length > 0,
+      maneuvers,
     };
   }
 
@@ -355,18 +300,10 @@ export class ProgramFlowPage {
       this.cursor.set(0);
       return;
     }
-    const depth =
-      step.kind === 'phase'
-        ? 'phase'
-        : step.kind === 'mission' || (step.kind === 'maneuvers' && step.missionIndex >= 0)
-          ? 'mission'
-          : 'lesson';
+    const depth = step.kind === 'phase' ? 'phase' : step.kind === 'matrix' ? 'matrix' : 'lesson';
     const index = this.stops().findIndex(
       (item) =>
-        item.depth === depth &&
-        item.phaseIndex === step.phaseIndex &&
-        item.lessonIndex === step.lessonIndex &&
-        item.missionIndex === step.missionIndex,
+        item.depth === depth && item.phaseIndex === step.phaseIndex && item.lessonIndex === step.lessonIndex,
     );
     if (index >= 0) this.cursor.set(index);
   }

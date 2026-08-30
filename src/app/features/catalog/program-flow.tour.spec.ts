@@ -15,37 +15,24 @@ const dualLesson = {
 };
 
 describe('program-flow.tour', () => {
-  it('elige la primera subfase que tenga misiones y genera un paso por cada una', () => {
+  it('elige la primera subfase con misiones y, tras ella, un solo paso de matriz', () => {
     const phases = [
       { name: 'TEO · Teoría en aula', lessons: [emptyLesson] },
       { name: 'BAS · Vuelo básico', lessons: [dualLesson] },
     ];
     expect(pickTourPath(phases)).toEqual({ phaseIndex: 1, lessonIndex: 0 });
     const steps = buildFlowTourSteps(phases);
-    const missions = steps.filter((step) => step.kind === 'mission');
-    expect(missions).toHaveLength(3);
-    expect(missions.map((step) => step.title)).toEqual([
-      'LOC · Misión local',
-      'Circuito corto',
-      'Circuito largo',
-    ]);
-    expect(steps.map((step) => step.kind)).toEqual([
-      'intro',
-      'phase',
-      'lesson',
-      'mission',
-      'mission',
-      'mission',
-      'maneuvers',
-      'finish',
-    ]);
-    expect(steps.find((step) => step.kind === 'phase')?.title).toBe('BAS · Vuelo básico');
-    expect(steps.filter((step) => step.kind === 'maneuvers')).toHaveLength(1);
+    expect(steps.map((step) => step.kind)).toEqual(['intro', 'phase', 'lesson', 'matrix', 'finish']);
+    expect(steps.find((step) => step.kind === 'phase')?.title).toBe('FASE 2');
+    expect(steps.find((step) => step.kind === 'matrix')?.body).toContain('eje X');
+    expect(steps.find((step) => step.kind === 'matrix')?.body).toContain('eje Y');
+    expect(steps.filter((step) => step.kind === 'matrix')).toHaveLength(1);
   });
 
-  it('si no hay misiones, sigue a las maniobras sin romper el recorrido', () => {
+  it('si no hay misiones, sigue a la matriz sin romper el recorrido', () => {
     const steps = buildFlowTourSteps([{ name: 'TEO', lessons: [emptyLesson] }]);
-    expect(steps.map((step) => step.kind)).toEqual(['intro', 'phase', 'lesson', 'maneuvers', 'finish']);
+    expect(steps.map((step) => step.kind)).toEqual(['intro', 'phase', 'lesson', 'matrix', 'finish']);
+    expect(steps.find((step) => step.kind === 'phase')?.title).toBe('FASE 1');
   });
 
   it('si no hay subfase, solo presenta el programa, la fase y el cierre', () => {
