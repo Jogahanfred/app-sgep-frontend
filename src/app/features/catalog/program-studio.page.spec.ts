@@ -65,6 +65,12 @@ describe('ProgramStudioPage', () => {
     expect(text).toContain('Los ejercicios que se trabajan o evalúan');
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('ui-assign-block').length).toBeGreaterThan(1);
     expect(text).toContain('Añadir');
+    const chips = (fixture.nativeElement as HTMLElement).querySelector('.chips') as HTMLElement | null;
+    expect(chips).not.toBeNull();
+    expect(getComputedStyle(chips!).justifyContent).toBe('center');
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-assign-block app-button')?.textContent).toContain(
+      'Añadir',
+    );
     expect(text).toContain('C1');
     expect(text).toContain('C17');
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
