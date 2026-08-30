@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { UiOperationBoard } from './ui-operation-board';
 
 describe('UiOperationBoard', () => {
-  it('busca operaciones primero y deja todas las maniobras debajo', () => {
+  it('busca operaciones en el select superpuesto y deja todas las maniobras debajo', () => {
     TestBed.configureTestingModule({ imports: [UiOperationBoard] });
     const fixture = TestBed.createComponent(UiOperationBoard);
     fixture.componentRef.setInput('catalog', [
@@ -26,17 +26,32 @@ describe('UiOperationBoard', () => {
     fixture.componentInstance.orderChange.subscribe(ordered);
 
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('input[type="search"]')).not.toBeNull();
+    expect(root.querySelector('ui-select')).not.toBeNull();
+    expect(root.querySelector('.ob__hits')).toBeNull();
     expect(root.querySelectorAll('[data-op]').length).toBe(0);
     expect(root.textContent).toContain('TOFF · Despegue');
     expect(root.textContent).toContain('STALL · Pérdida');
     expect(root.textContent).toContain('Busca arriba para elegir las operaciones');
 
-    fixture.componentInstance.query.set('visual');
+    const trigger = root.querySelector('.sm__trigger') as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const panel = root.querySelector('.sm__panel') as HTMLElement;
+    expect(panel).not.toBeNull();
+    expect(getComputedStyle(panel).position).toBe('absolute');
+
+    const search = root.querySelector('.sm__search') as HTMLInputElement;
+    search.value = 'visual';
+    search.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     expect(root.textContent).toContain('Vuelo visual');
     expect(root.textContent).not.toContain('Navegación');
-    fixture.componentInstance.pickOperation('op-vfr');
+
+    const option = [...root.querySelectorAll<HTMLButtonElement>('[role="option"]')].find((node) =>
+      (node.textContent ?? '').includes('Vuelo visual'),
+    );
+    option?.click();
+    fixture.detectChanges();
     expect(ordered).toHaveBeenCalledWith(['op-vfr']);
 
     fixture.componentRef.setInput('order', ['op-vfr']);

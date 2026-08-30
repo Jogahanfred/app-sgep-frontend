@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import type { ChoiceOption } from '@shared/models/choice.model';
 import { Button } from '../button/button';
+import { UiSelect } from '../ui-select/ui-select';
 
 export interface BoardOperation {
   id: string;
@@ -18,7 +20,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
 @Component({
   selector: 'ui-operation-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [Button, UiSelect],
   template: `
     <div class="ob">
       <section class="ob__box">
@@ -26,26 +28,21 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
           <h3>Operaciones</h3>
           <p>Busca y elige las operaciones que estarán en el cuadro. Luego ordénalas.</p>
         </header>
-        <label class="ob__search">
-          <span>Buscar operación</span>
-          <input
-            type="search"
-            [value]="query()"
+        <div class="ob__picker">
+          <ui-select
+            id="ob-pick-operation"
+            label="Buscar operación"
             placeholder="Nombre o descripción"
-            (input)="onQuery($event)"
+            leadingIcon="search"
+            [uppercase]="false"
+            [filter]="true"
+            [options]="availableOperations()"
+            value=""
+            emptyMessage="No hay operaciones disponibles."
+            emptyFilterMessage="No hay operaciones con ese buscador."
+            (valueChange)="pickOperation($event)"
           />
-        </label>
-        @if (suggestions().length) {
-          <ul class="ob__hits">
-            @for (op of suggestions(); track op.id) {
-              <li>
-                <button type="button" (click)="pickOperation(op.id)">{{ op.name }}</button>
-              </li>
-            }
-          </ul>
-        } @else if (query().trim()) {
-          <p class="ob__hint">No hay operaciones con ese buscador.</p>
-        }
+        </div>
         <ol class="ob__ops">
           @for (op of orderedOperations(); track op.id; let i = $index) {
             <li
@@ -136,7 +133,6 @@ export class UiOperationBoard {
   readonly maneuvers = input.required<BoardManeuver[]>();
   readonly order = input<readonly string[]>([]);
   readonly assignment = input<Readonly<Record<string, string>>>({});
-  readonly query = signal('');
   readonly orderChange = output<string[]>();
   readonly assignmentChange = output<Record<string, string>>();
   readonly addManeuver = output<string>();
@@ -152,14 +148,14 @@ export class UiOperationBoard {
       .filter((item): item is BoardOperation => !!item);
   });
 
-  readonly suggestions = computed(() => {
-    const term = this.query().trim().toLowerCase();
-    if (!term) return [];
+  readonly availableOperations = computed<ChoiceOption[]>(() => {
     const chosen = new Set(this.order());
-    return this.catalog().filter((item) => {
-      if (chosen.has(item.id)) return false;
-      return `${item.name} ${item.description ?? ''}`.toLowerCase().includes(term);
-    });
+    return this.catalog()
+      .filter((item) => !chosen.has(item.id))
+      .map((item) => ({
+        value: item.id,
+        label: item.description ? `${item.name} · ${item.description}` : item.name,
+      }));
   });
 
   maneuversIn(operationId: string): BoardManeuver[] {
@@ -217,14 +213,9 @@ export class UiOperationBoard {
     this.drag = null;
   }
 
-  onQuery(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-  }
-
   pickOperation(operationId: string): void {
-    if (this.order().includes(operationId)) return;
+    if (!operationId || this.order().includes(operationId)) return;
     this.orderChange.emit([...this.order(), operationId]);
-    this.query.set('');
   }
 
   forgetOperation(operationId: string): void {

@@ -239,7 +239,7 @@ describe('ProgramStudioPage', () => {
     expect(modal?.querySelector('ui-operation-board')).not.toBeNull();
     expect(modal?.querySelector('ui-operation-board table')).toBeNull();
     expect(modal?.textContent).toContain('Buscar operación');
-    expect(modal?.querySelector('ui-operation-board input[type="search"]')).not.toBeNull();
+    expect(modal?.querySelector('ui-operation-board ui-select')).not.toBeNull();
     expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(0);
     expect(modal?.textContent).toContain('HOLD · Espera');
     expect(modal?.textContent).toContain('STALL · Pérdida');
