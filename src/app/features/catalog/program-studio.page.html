@@ -372,7 +372,7 @@
         </div>
       </app-modal>
 
-      <app-modal [open]="maneuverPickerOpen()" size="full" title="Maniobras" (closed)="closeManeuverPicker()">
+      <app-modal [open]="maneuverPickerOpen()" size="md" title="Maniobras" (closed)="closeManeuverPicker()">
         <div class="lessons">
           @if (maneuverPickerView() === 'grouped') {
             <app-breadcrumb
@@ -397,19 +397,12 @@
               placeholder="Código, nombre o descripción"
               [field]="maneuverSearch"
             />
-            <ui-table
-              heading="Catálogo"
-              caption="Maniobras del banco"
-              [columns]="maneuverPickerColumns"
-              [rows]="maneuverPickerRows()"
-              [multiSelect]="true"
+            <ui-pick-list
+              [items]="maneuverPickerItems()"
               [checkedIds]="maneuverCheckedIds()"
-              rowAction="Añadir"
-              [initialPageSize]="4"
-              [pageSizeOptions]="maneuverPickerPageSizes"
               emptyTitle="No hay resultados con ese buscador."
               (checkedIdsChange)="maneuverCheckedIds.set($event)"
-              (rowActionClick)="addManeuverFromCatalog($event)"
+              (actionClick)="addManeuverFromCatalog($event)"
             />
             <app-button
               type="button"
@@ -420,17 +413,15 @@
             </app-button>
           } @else {
             @for (section of groupedManeuverSections(); track section.operationId) {
-              <ui-table
-                [heading]="section.operationName"
-                caption="Maniobras de la operación"
-                [columns]="maneuverPickerColumns"
-                [rows]="section.rows"
-                rowAction="Añadir"
-                [initialPageSize]="4"
-                [pageSizeOptions]="maneuverPickerPageSizes"
-                emptyTitle="Esta operación no tiene seleccionadas."
-                (rowActionClick)="addManeuverFromCatalog($event)"
-              />
+              <section>
+                <p class="station__kicker">{{ section.operationName }}</p>
+                <ui-pick-list
+                  [items]="section.items"
+                  [selectable]="false"
+                  emptyTitle="Esta operación no tiene seleccionadas."
+                  (actionClick)="addManeuverFromCatalog($event)"
+                />
+              </section>
             }
           }
         </div>

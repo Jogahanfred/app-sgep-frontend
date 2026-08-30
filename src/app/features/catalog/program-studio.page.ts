@@ -37,6 +37,7 @@ import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+import { UiPickList, type UiPickItem } from '@shared/components/ui-pick-list/ui-pick-list';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
@@ -93,6 +94,7 @@ interface GeneratedMission {
     UiFormCard,
     UiInput,
     UiLoading,
+    UiPickList,
     UiRadioCardGroup,
     UiSegmentedControl,
     UiSelect,
@@ -166,13 +168,6 @@ export class ProgramStudioPage {
   readonly maneuverQuery = signal('');
   readonly maneuverCheckedIds = signal<string[]>([]);
   readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
-  readonly maneuverPickerPageSizes = [4] as const;
-  readonly maneuverPickerColumns: UiTableColumn[] = [
-    { id: 'code', header: 'Código' },
-    { id: 'name', header: 'Nombre' },
-    { id: 'description', header: 'Descripción' },
-    { id: 'use', header: 'Uso' },
-  ];
 
   readonly form = new FormGroup({
     code: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -275,8 +270,8 @@ export class ProgramStudioPage {
     return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
   });
 
-  readonly maneuverPickerRows = computed<UiTableRow[]>(() =>
-    this.toManeuverRows(
+  readonly maneuverPickerItems = computed<UiPickItem[]>(() =>
+    this.toManeuverItems(
       this.maneuvers().filter((item) =>
         matchesAdminSearch([item.code, item.name, item.description], this.maneuverQuery()),
       ),
@@ -303,7 +298,7 @@ export class ProgramStudioPage {
       .map(([operationId, maneuvers]) => ({
         operationId,
         operationName: this.operations().find((item) => item.id === operationId)?.name ?? 'Sin operación',
-        rows: this.toManeuverRows(maneuvers),
+        items: this.toManeuverItems(maneuvers),
       }))
       .sort((a, b) => a.operationName.localeCompare(b.operationName, 'es'));
   });
@@ -487,17 +482,14 @@ export class ProgramStudioPage {
     if (action === 'catalog') this.maneuverPickerView.set('catalog');
   }
 
-  private toManeuverRows(items: ManeuverBankEntity[]): UiTableRow[] {
+  private toManeuverItems(items: ManeuverBankEntity[]): UiPickItem[] {
     const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
     return items.map((item) => ({
       id: item.id,
+      title: `${item.code} · ${item.name}`,
+      hint: item.description,
+      meta: assigned.has(item.id) ? 'En la subfase' : undefined,
       actionDisabled: assigned.has(item.id),
-      cells: {
-        code: item.code,
-        name: item.name,
-        description: item.description || '—',
-        use: assigned.has(item.id) ? 'En la subfase' : 'Catálogo',
-      },
     }));
   }
 

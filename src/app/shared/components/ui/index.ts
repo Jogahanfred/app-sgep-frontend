@@ -17,6 +17,7 @@ export { UiRadioCardGroup } from '../ui-radio-card-group/ui-radio-card-group';
 export { UiRangeSlider } from '../ui-range-slider/ui-range-slider';
 export { UiResultCard, type UiResultRow } from '../ui-result-card/ui-result-card';
 export { UiSegmentedControl } from '../ui-segmented-control/ui-segmented-control';
+export { UiPickList, type UiPickItem } from '../ui-pick-list/ui-pick-list';
 export { UiLoading } from '../ui-loading/ui-loading';
 export { UiProgramCard } from '../ui-program-card/ui-program-card';
 export { UiSigaLoader } from '../ui-siga-loader/ui-siga-loader';
