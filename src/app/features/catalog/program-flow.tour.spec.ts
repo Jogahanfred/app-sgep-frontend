@@ -43,7 +43,7 @@ describe('program-flow.tour', () => {
     expect(steps.filter((step) => step.kind === 'maneuvers')).toHaveLength(1);
   });
 
-  it('si no hay misiones, sigue a Ver maniobras sin romper el recorrido', () => {
+  it('si no hay misiones, sigue a las maniobras sin romper el recorrido', () => {
     const steps = buildFlowTourSteps([{ name: 'TEO', lessons: [emptyLesson] }]);
     expect(steps.map((step) => step.kind)).toEqual(['intro', 'phase', 'lesson', 'maneuvers', 'finish']);
   });

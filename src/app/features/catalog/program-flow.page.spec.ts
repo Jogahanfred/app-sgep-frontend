@@ -88,7 +88,7 @@ describe('ProgramFlowPage', () => {
     expect(root.querySelector('.flow__on')?.textContent).toContain('TEO · Teoría en aula');
     expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la fase');
     expect(root.textContent).toContain('AULA · Aula');
-    expect(root.textContent).toContain('Ver maniobras');
+    expect(root.textContent).not.toContain('Ver maniobras');
     expect(root.textContent).not.toContain('DUAL · Dual');
     expect(root.textContent).not.toContain('Circuito corto');
     expect(root.textContent).not.toContain('TOFF · Despegue');
@@ -122,18 +122,10 @@ describe('ProgramFlowPage', () => {
     expect(root.querySelector('.flow__task')?.textContent).toContain('Dentro de la misión');
     expect(root.textContent).toContain('Misión 1 de 1');
     expect(root.textContent).not.toContain('Circuito corto');
-    expect(root.textContent).not.toContain('TOFF · Despegue');
-
-    const briefing = page.currentLesson();
-    expect(briefing?.hasManeuvers).toBe(true);
-    page.openManeuvers(briefing!);
-    fixture.detectChanges();
-    expect(root.textContent).toContain('Maniobras · BRF · Briefing');
-    expect(root.textContent).toContain('TOFF · Despegue');
-    expect(root.textContent).toContain('LAND · Aterrizaje');
-    page.closeManeuvers();
-    fixture.detectChanges();
-    expect(root.querySelector('.flow__phase')?.textContent).not.toContain('TOFF · Despegue');
+    expect(root.textContent).not.toContain('Ver maniobras');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Vuelo visual');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('TOFF · Despegue');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('LAND · Aterrizaje');
 
     page.goNext();
     fixture.detectChanges();
@@ -149,6 +141,8 @@ describe('ProgramFlowPage', () => {
     fixture.detectChanges();
     expect(page.currentMission()?.name).toBe('Circuito corto');
     expect(root.textContent).toContain('Misión 2 de 3');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('Vuelo visual');
+    expect(root.querySelector('[data-tour="maneuvers"]')?.textContent).toContain('TOFF · Despegue');
 
     page.goNext();
     fixture.detectChanges();
@@ -167,7 +161,7 @@ describe('ProgramFlowPage', () => {
     expect(navButtons(root).next?.disabled).toBe(true);
   });
 
-  it('recorre el tour sobre la fase, la subfase, cada misión real y Ver maniobras', async () => {
+  it('recorre el tour sobre la fase, la subfase, cada misión y las maniobras agrupadas', async () => {
     sessionStorage.clear();
     stubDialog();
     await TestBed.configureTestingModule({
@@ -219,7 +213,7 @@ describe('ProgramFlowPage', () => {
     fixture.detectChanges();
     expect(page.tourStep()?.kind).toBe('maneuvers');
     expect(root.querySelector('[data-tour="maneuvers"]')).not.toBeNull();
-    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('consultar las maniobras');
+    expect(root.querySelector('ui-guided-tour')?.textContent).toContain('agrupadas por operación');
     expect(root.querySelector('ui-guided-tour')?.textContent).toContain('Finalizar');
 
     page.tourNext();

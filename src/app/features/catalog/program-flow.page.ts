@@ -104,7 +104,6 @@ export class ProgramFlowPage {
   readonly phases = signal<FlowPhase[]>([]);
   readonly stops = signal<FlowStop[]>([]);
   readonly cursor = signal(0);
-  readonly maneuverLesson = signal<FlowLesson | null>(null);
   readonly tourOpen = signal(false);
   readonly tourIndex = signal(0);
   readonly tourSteps = computed(() => buildFlowTourSteps(this.phases()));
@@ -178,10 +177,6 @@ export class ProgramFlowPage {
     if (!mission) return `${phase.name} · ${lesson.name}`;
     return `${phase.name} · ${lesson.name} · ${mission.name}`;
   });
-  readonly maneuverTitle = computed(() => {
-    const lesson = this.maneuverLesson();
-    return lesson ? `Maniobras · ${lesson.name}` : 'Maniobras';
-  });
 
   goBack(): void {
     if (this.isFirst()) return;
@@ -197,14 +192,6 @@ export class ProgramFlowPage {
     const index = this.stops().findIndex((item) => item.depth === 'phase' && item.phaseIndex === phaseIndex);
     if (index < 0) return;
     this.cursor.set(index);
-  }
-
-  openManeuvers(lesson: FlowLesson): void {
-    this.maneuverLesson.set(lesson);
-  }
-
-  closeManeuvers(): void {
-    this.maneuverLesson.set(null);
   }
 
   startTour(): void {
@@ -317,21 +304,41 @@ export class ProgramFlowPage {
               detail: 'Misión anotada en esta subfase.',
             })),
           ];
-    const maneuverById = new Map(bundle.maneuvers.map((item) => [item.id, `${item.code} · ${item.name}`]));
+    const maneuverById = new Map(bundle.maneuvers.map((item) => [item.id, item]));
     const groups: FlowGroup[] = [];
-    const seen = new Set<string>();
+    const assigned = new Set<string>();
+    const labelOf = (id: string) => {
+      const item = maneuverById.get(id);
+      return item ? `${item.code} · ${item.name}` : id;
+    };
     for (const operationId of sub.maneuverOperationIds) {
       const operation = bundle.operations.find((item) => item.id === operationId);
       const maneuvers = sub.maneuverIds
         .filter((id) => sub.maneuverAssignment[id] === operationId)
-        .map((id) => maneuverById.get(id) ?? id);
+        .map((id) => {
+          assigned.add(id);
+          return labelOf(id);
+        });
       if (!maneuvers.length) continue;
-      maneuvers.forEach((label) => seen.add(label));
       groups.push({ name: operation?.name ?? 'Operación', maneuvers });
     }
-    const loose = sub.maneuverIds
-      .map((id) => maneuverById.get(id) ?? id)
-      .filter((label) => !seen.has(label));
+    const leftover = new Map<string, string[]>();
+    const loose: string[] = [];
+    for (const id of sub.maneuverIds) {
+      if (assigned.has(id)) continue;
+      const item = maneuverById.get(id);
+      if (!item?.operationId) {
+        loose.push(labelOf(id));
+        continue;
+      }
+      const bucket = leftover.get(item.operationId) ?? [];
+      bucket.push(labelOf(id));
+      leftover.set(item.operationId, bucket);
+    }
+    for (const [operationId, maneuvers] of leftover) {
+      const operation = bundle.operations.find((item) => item.id === operationId);
+      groups.push({ name: operation?.name ?? 'Operación', maneuvers });
+    }
     return {
       name: bank ? `${bank.code} · ${bank.name}` : 'Subfase',
       hours: sub.hours,
@@ -347,7 +354,12 @@ export class ProgramFlowPage {
       this.cursor.set(0);
       return;
     }
-    const depth = step.kind === 'phase' ? 'phase' : step.kind === 'mission' ? 'mission' : 'lesson';
+    const depth =
+      step.kind === 'phase'
+        ? 'phase'
+        : step.kind === 'mission' || (step.kind === 'maneuvers' && step.missionIndex >= 0)
+          ? 'mission'
+          : 'lesson';
     const index = this.stops().findIndex(
       (item) =>
         item.depth === depth &&

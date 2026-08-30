@@ -76,7 +76,7 @@ export function buildFlowTourSteps(phases: TourPhaseSource[]): FlowTourStep[] {
     steps.push({
       kind: 'lesson',
       title: lesson.name,
-      body: 'Programa → Fase → Subfase. La subfase concreta las horas, las misiones y el acceso a las maniobras.',
+      body: 'Programa → Fase → Subfase. La subfase concreta las horas y las misiones del entrenamiento.',
       eyebrow: 'Subfase',
       target: 'lesson',
       phaseIndex: path.phaseIndex,
@@ -97,13 +97,13 @@ export function buildFlowTourSteps(phases: TourPhaseSource[]): FlowTourStep[] {
     });
     steps.push({
       kind: 'maneuvers',
-      title: 'Ver maniobras',
-      body: 'Desde aquí puedes consultar las maniobras asociadas a esta subfase.',
+      title: 'Maniobras',
+      body: 'Debajo de la misión ves las maniobras agrupadas por operación.',
       eyebrow: 'Maniobras',
       target: 'maneuvers',
       phaseIndex: path.phaseIndex,
       lessonIndex: path.lessonIndex,
-      missionIndex: -1,
+      missionIndex: lesson.missions.length ? lesson.missions.length - 1 : -1,
     });
   }
 
