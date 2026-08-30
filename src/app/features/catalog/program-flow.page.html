@@ -154,36 +154,33 @@
   }
 </div>
 
-<ui-confirm-dialog
-  [open]="tourIntro()"
-  title="Recorrido del programa"
-  message="En este recorrido conocerás cómo está organizado el programa y cómo avanzar por sus diferentes niveles de entrenamiento."
-  confirmLabel="Comenzar"
-  cancelLabel="Omitir"
-  (confirmed)="tourNext()"
-  (closed)="skipTour()"
-/>
+<app-modal [open]="tourIntro()" title="Recorrido del programa" (closed)="tourNext()">
+  <p class="flow__none">
+    En este recorrido conocerás cómo está organizado el programa y cómo avanzar por sus diferentes niveles de
+    entrenamiento.
+  </p>
+  <div class="flow__tools">
+    <app-button type="button" (click)="tourNext()">Comenzar</app-button>
+  </div>
+</app-modal>
 
-<ui-confirm-dialog
-  [open]="tourFinish()"
-  title="Ya conoces la estructura"
-  message="El programa se organiza así: Programa → Fase → Subfase → Misiones → Maniobras. Ya puedes recorrer el itinerario por tu cuenta."
-  confirmLabel="Finalizar"
-  cancelLabel="Cerrar"
-  (confirmed)="finishTour()"
-  (closed)="finishTour()"
-/>
+<app-modal [open]="tourFinish()" title="Ya conoces la estructura" (closed)="finishTour()">
+  <p class="flow__none">
+    El programa se organiza así: Programa → Fase → Subfase → Misiones → Maniobras. Ya puedes recorrer el itinerario por
+    tu cuenta.
+  </p>
+  <div class="flow__tools">
+    <app-button type="button" (click)="finishTour()">Finalizar</app-button>
+  </div>
+</app-modal>
 
 <ui-guided-tour
   [open]="tourCoach()"
   [step]="tourStep()"
-  [index]="tourIndex()"
-  [total]="tourTotal()"
   [isFirst]="false"
   [isLast]="tourOnManeuvers()"
   (next)="tourNext()"
   (prev)="tourPrev()"
-  (skip)="skipTour()"
 />
 
 <app-modal [open]="!!maneuverLesson()" [title]="maneuverTitle()" size="lg" (closed)="closeManeuvers()">

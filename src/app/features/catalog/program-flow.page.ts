@@ -26,7 +26,6 @@ import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
-import { UiConfirmDialog } from '@shared/components/ui-confirm-dialog/ui-confirm-dialog';
 import { UiGuidedTour } from '@shared/components/ui-guided-tour/ui-guided-tour';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { buildFlowTourSteps, readTourMemory, writeTourMemory, type FlowTourStep } from './program-flow.tour';
@@ -82,7 +81,7 @@ export function buildFlowStops(phases: { lessons: { missions: unknown[] }[] }[])
 @Component({
   selector: 'app-program-flow-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, Modal, UiChip, UiConfirmDialog, UiGuidedTour, UiLoading],
+  imports: [Alert, Button, Modal, UiChip, UiGuidedTour, UiLoading],
   templateUrl: './program-flow.page.html',
   styleUrl: './program-flow.page.scss',
 })
@@ -116,7 +115,6 @@ export class ProgramFlowPage {
   });
   readonly tourIntro = computed(() => this.tourOpen() && this.tourStep()?.kind === 'intro');
   readonly tourFinish = computed(() => this.tourOpen() && this.tourStep()?.kind === 'finish');
-  readonly tourTotal = computed(() => this.tourSteps().length);
   readonly tourOnManeuvers = computed(() => this.tourStep()?.kind === 'maneuvers');
 
   readonly title = computed(() => {
@@ -215,11 +213,6 @@ export class ProgramFlowPage {
     this.tourOpen.set(true);
     const step = this.tourSteps()[0];
     if (step) this.revealForTour(step);
-  }
-
-  skipTour(): void {
-    writeTourMemory(this.programId, 'skipped');
-    this.tourOpen.set(false);
   }
 
   finishTour(): void {

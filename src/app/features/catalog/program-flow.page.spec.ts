@@ -190,7 +190,7 @@ describe('ProgramFlowPage', () => {
     expect(page.tourOpen()).toBe(true);
     expect(page.tourStep()?.kind).toBe('intro');
     expect(root.textContent).toContain('Comenzar');
-    expect(root.textContent).toContain('Omitir');
+    expect(root.textContent).not.toContain('Omitir');
     expect(page.tourSteps().filter((step) => step.kind === 'mission').length).toBeGreaterThan(0);
 
     page.tourNext();
