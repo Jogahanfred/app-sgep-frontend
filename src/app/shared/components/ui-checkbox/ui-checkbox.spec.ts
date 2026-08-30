@@ -34,7 +34,7 @@ describe('UiCheckbox', () => {
       ({ left: 0, top: 0, width: 200, height: 40, right: 200, bottom: 40, x: 0, y: 0, toJSON: () => undefined }) as DOMRect;
     row.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 30, clientY: 16, bubbles: true }));
 
-    expect(row.querySelectorAll('.app-ripple, .app-ripple--wash').length).toBe(3);
+    expect(row.querySelectorAll('.app-ripple').length).toBe(1);
   });
 
   it('usa el mismo alto que ui-input', () => {

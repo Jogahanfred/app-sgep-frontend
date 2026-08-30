@@ -11,20 +11,35 @@ class RippleHost {
 }
 
 describe('RippleDirective', () => {
-  it('lanza la onda de agua al pulsar y la retira al terminar', () => {
+  it('barre de izquierda a derecha al pulsar y se retira al terminar', () => {
     const fixture = TestBed.createComponent(RippleHost);
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    button.getBoundingClientRect = () =>
-      ({ left: 0, top: 0, width: 120, height: 40, right: 120, bottom: 40, x: 0, y: 0, toJSON: () => undefined }) as DOMRect;
 
     button.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 24, clientY: 12, bubbles: true }));
 
-    const waves = button.querySelectorAll('.app-ripple, .app-ripple--wash');
-    expect(waves.length).toBe(3);
+    const waves = button.querySelectorAll('.app-ripple');
+    expect(waves.length).toBe(1);
 
     waves[0].dispatchEvent(new Event('animationend'));
-    expect(button.querySelectorAll('.app-ripple, .app-ripple--wash').length).toBe(2);
+    expect(button.querySelector('.app-ripple')).toBeNull();
+  });
+
+  it('barre al recibir el foco con Tab', () => {
+    const fixture = TestBed.createComponent(RippleHost);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    button.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    expect(button.querySelectorAll('.app-ripple').length).toBe(1);
+  });
+
+  it('no duplica la onda si el clic ya disparó el barrido', () => {
+    const fixture = TestBed.createComponent(RippleHost);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    button.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 8, clientY: 8, bubbles: true }));
+    button.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    expect(button.querySelectorAll('.app-ripple').length).toBe(1);
   });
 
   it('no anima si el control está desactivado', () => {
@@ -33,6 +48,7 @@ describe('RippleDirective', () => {
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 8, clientY: 8, bubbles: true }));
+    button.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
     expect(button.querySelector('.app-ripple')).toBeNull();
   });
 });

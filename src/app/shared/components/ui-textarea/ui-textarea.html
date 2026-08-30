@@ -1,6 +1,6 @@
 <div class="field" [class.field--error]="!!error()">
   <ui-field-label [label]="label()" [info]="info()" [forId]="id()" />
-  <div class="field__wrap">
+  <div class="field__wrap" appRipple [appRippleDisabled]="field().disabled">
     @if (icon(); as iconName) {
       <app-icon class="field__icon" [name]="iconName" />
     }

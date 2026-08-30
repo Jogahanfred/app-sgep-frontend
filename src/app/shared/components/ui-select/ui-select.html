@@ -24,6 +24,8 @@
     [class.sm__trigger--open]="open()"
     [class.sm__trigger--invalid]="!!error()"
     [disabled]="disabled() || loading()"
+    appRipple
+    [appRippleDisabled]="disabled() || loading()"
     [attr.aria-expanded]="open()"
     [attr.aria-busy]="loading() || null"
     [attr.aria-invalid]="error() ? true : null"

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { ClickOutsideDirective } from '@shared/directives/click-outside.directive';
+import { RippleDirective } from '@shared/directives/ripple.directive';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { UiError } from '../ui-error/ui-error';
 import { UiFieldLabel } from '../ui-field-label/ui-field-label';
@@ -10,7 +11,7 @@ export type UiSelectSize = 'sm' | 'md' | 'lg';
 @Component({
   selector: 'ui-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ClickOutsideDirective, UiError, UiFieldLabel, Icon],
+  imports: [ClickOutsideDirective, RippleDirective, UiError, UiFieldLabel, Icon],
   templateUrl: './ui-select.html',
   styleUrl: './ui-select.scss',
   host: {

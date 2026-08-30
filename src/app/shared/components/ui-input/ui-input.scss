@@ -16,6 +16,8 @@
 
 .field__wrap {
   position: relative;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 .field__icon {

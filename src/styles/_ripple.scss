@@ -4,77 +4,46 @@
   isolation: isolate;
 }
 
-.app-ripple,
-.app-ripple--wash {
-  position: absolute;
-  pointer-events: none;
-  z-index: 0;
+.app-ripple-host:focus,
+.app-ripple-host:focus-visible,
+.app-ripple-host :is(input, textarea, button, select):focus,
+.app-ripple-host :is(input, textarea, button, select):focus-visible {
+  outline: none;
 }
 
 .app-ripple {
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: radial-gradient(
-    circle,
-    rgb(0 160 160 / 42%) 0%,
-    rgb(0 106 120 / 26%) 32%,
-    rgb(238 247 247 / 40%) 58%,
-    rgb(0 77 77 / 0%) 72%
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 58%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(40 40 40 / 0%) 0%,
+    rgb(35 35 35 / 38%) 38%,
+    rgb(35 35 35 / 28%) 62%,
+    rgb(40 40 40 / 0%) 100%
   );
-  box-shadow:
-    0 0 0 1px rgb(0 77 77 / 12%),
-    inset 0 0 10px rgb(255 255 255 / 45%);
-  animation: app-ripple-wave 720ms var(--ease-out) forwards;
+  transform: translateX(-110%);
+  animation: app-ripple-ltr 640ms var(--ease-out) forwards;
 }
 
-.app-ripple--ring {
-  background: transparent;
-  border: 1.5px solid rgb(0 77 77 / 32%);
-  box-shadow: 0 0 10px rgb(0 128 128 / 18%);
-  animation-duration: 780ms;
-}
-
-.app-ripple--wash {
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
-    rgb(0 128 128 / 20%) 0%,
-    rgb(238 247 247 / 38%) 38%,
-    transparent 72%
-  );
-  animation: app-ripple-wash 680ms var(--ease-out) forwards;
-}
-
-@keyframes app-ripple-wave {
+@keyframes app-ripple-ltr {
   0% {
-    opacity: 0.92;
-    transform: translate(-50%, -50%) scale(0);
-  }
-
-  42% {
-    opacity: 0.55;
+    opacity: 1;
+    transform: translateX(-110%);
   }
 
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes app-ripple-wash {
-  0% {
-    opacity: 0.7;
-  }
-
-  100% {
-    opacity: 0;
+    transform: translateX(220%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-ripple,
-  .app-ripple--wash {
+  .app-ripple {
     animation: none;
     display: none;
   }

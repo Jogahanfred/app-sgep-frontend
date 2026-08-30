@@ -40,7 +40,7 @@ describe('UiRadioCardGroup', () => {
       ({ left: 0, top: 0, width: 240, height: 40, right: 240, bottom: 40, x: 0, y: 0, toJSON: () => undefined }) as DOMRect;
     option.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 40, clientY: 18, bubbles: true }));
 
-    expect(option.querySelectorAll('.app-ripple, .app-ripple--wash').length).toBe(3);
+    expect(option.querySelectorAll('.app-ripple').length).toBe(1);
   });
 
   it('usa el mismo alto que ui-input', () => {
