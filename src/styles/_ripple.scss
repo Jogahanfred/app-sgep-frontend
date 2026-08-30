@@ -17,7 +17,7 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  width: 58%;
+  width: 88%;
   pointer-events: none;
   background: linear-gradient(
     90deg,
@@ -27,7 +27,7 @@
     rgb(40 40 40 / 0%) 100%
   );
   transform: translateX(-110%);
-  animation: app-ripple-ltr 640ms var(--ease-out) forwards;
+  animation: app-ripple-ltr 980ms var(--ease-out) forwards;
 }
 
 @keyframes app-ripple-ltr {
