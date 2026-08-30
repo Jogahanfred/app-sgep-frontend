@@ -622,6 +622,18 @@ export class ProgramStudioPage {
       .flatMap((phase) => phase.subphases)
       .find((item) => item.key === subKey);
     if (!sub) return;
+    if (sub.missionMode === 'automatic') {
+      const remaining = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0).filter(
+        (item) => item !== name,
+      );
+      this.patchSubphase(phaseKey, subKey, {
+        missionMode: 'manual',
+        customMissionNames: remaining,
+        autoMissionCode: '',
+        autoMissionCount: 0,
+      });
+      return;
+    }
     if (sub.customMissionNames.includes(name)) {
       this.removeCustomMission(phaseKey, subKey, name);
       return;

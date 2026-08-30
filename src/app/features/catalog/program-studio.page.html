@@ -169,9 +169,7 @@
                                 Añadir
                               </app-button>
                             }
-                            @if (sub.missionMode === 'automatic' && missionLabels(sub).length) {
-                              <p class="missions__preview">{{ autoPreview(sub) }}</p>
-                            } @else if (missionLabels(sub).length) {
+                            @if (missionLabels(sub).length) {
                               <ul class="chips">
                                 @for (name of missionLabels(sub); track name) {
                                   <li>

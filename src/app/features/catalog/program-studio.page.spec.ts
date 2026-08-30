@@ -73,7 +73,10 @@ describe('ProgramStudioPage', () => {
     expect(addMission?.querySelector('.btn--xs')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.ab__body app-button')).toBeNull();
     expect(text).toContain('C1');
+    expect(text).toContain('C8');
     expect(text).toContain('C17');
+    expect(text).not.toMatch(/C1, C2, C3, C4 … C17/);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.chips ui-chip').length).toBeGreaterThanOrEqual(17);
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
     expect(text).toContain('Añadir fase al itinerario');
     expect(text).toContain('Editar fase');
