@@ -157,6 +157,17 @@
                             hint="Las sesiones que vuela o practica el alumno en esta subfase."
                             [countLabel]="missionCountLabel(sub)"
                           >
+                            @if (!isView) {
+                              <app-button
+                                blockAction
+                                type="button"
+                                size="xs"
+                                icon="plus"
+                                (click)="openMissionPicker(phase.key, sub.key)"
+                              >
+                                Añadir
+                              </app-button>
+                            }
                             @if (sub.missionMode === 'automatic' && missionLabels(sub).length) {
                               <p class="missions__preview">{{ autoPreview(sub) }}</p>
                             } @else if (missionLabels(sub).length) {
@@ -173,11 +184,6 @@
                               </ul>
                             } @else {
                               <p class="lesson__meta">Esta subfase aún no tiene misiones.</p>
-                            }
-                            @if (!isView) {
-                              <app-button type="button" size="xs" icon="plus" (click)="openMissionPicker(phase.key, sub.key)">
-                                Añadir
-                              </app-button>
                             }
                           </ui-assign-block>
 

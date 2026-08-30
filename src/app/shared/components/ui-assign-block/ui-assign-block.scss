@@ -21,8 +21,16 @@
   gap: 0.55rem;
 }
 
+.ab__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.2rem;
+}
+
 .ab__title {
-  margin: 0 0 0.2rem;
+  margin: 0;
   color: var(--color-primary);
   font-size: 0.72rem;
   font-weight: 800;
@@ -51,8 +59,4 @@
 .ab__body {
   display: grid;
   gap: 0.7rem;
-}
-
-.ab__body > app-button {
-  justify-self: center;
 }

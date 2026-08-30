@@ -7,7 +7,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     <section class="ab">
       <header class="ab__head">
         <div>
-          <h3 class="ab__title">{{ title() }}</h3>
+          <div class="ab__title-row">
+            <h3 class="ab__title">{{ title() }}</h3>
+            <ng-content select="[blockAction]" />
+          </div>
           @if (hint()) {
             <p class="ab__hint">{{ hint() }}</p>
           }
