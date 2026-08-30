@@ -14,12 +14,21 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       >
         <span class="chip__label">{{ label() }}</span>
       </button>
+    } @else if (removable()) {
+      <button
+        type="button"
+        class="chip chip--flip"
+        [attr.aria-label]="'Quitar ' + label()"
+        (click)="removed.emit()"
+      >
+        <span class="chip__inner">
+          <span class="chip__face chip__face--front">{{ label() }}</span>
+          <span class="chip__face chip__face--back">{{ removeLabel() }}</span>
+        </span>
+      </button>
     } @else {
       <span class="chip">
         <span class="chip__label">{{ label() }}</span>
-        @if (removable()) {
-          <button type="button" class="chip__remove" (click)="removed.emit()">{{ removeLabel() }}</button>
-        }
       </span>
     }
   `,

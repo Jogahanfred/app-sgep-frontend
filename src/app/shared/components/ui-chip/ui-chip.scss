@@ -5,9 +5,10 @@
 .chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   min-height: 1.7rem;
-  padding: 0.15rem 0.55rem;
+  padding: 0.15rem 0.7rem;
   border-radius: 999px;
   background: #eef4fa;
   color: #35506a;
@@ -33,10 +34,57 @@ button.chip {
   color: #fff;
 }
 
-.chip__remove {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
+.chip--flip {
+  min-width: 4.6rem;
+  perspective: 720px;
+}
+
+.chip__inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.42s var(--ease-out);
+}
+
+.chip--flip:hover .chip__inner,
+.chip--flip:focus-visible .chip__inner {
+  transform: rotateY(180deg);
+}
+
+.chip__face {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.2rem;
+  backface-visibility: hidden;
+}
+
+.chip__face--back {
+  color: #c62828;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip__inner {
+    transition: none;
+  }
+
+  .chip--flip:hover .chip__inner,
+  .chip--flip:focus-visible .chip__inner {
+    transform: none;
+  }
+
+  .chip--flip:hover .chip__face--front,
+  .chip--flip:focus-visible .chip__face--front {
+    display: none;
+  }
+
+  .chip--flip:not(:hover):not(:focus-visible) .chip__face--back {
+    display: none;
+  }
+
+  .chip--flip:hover .chip__face--back,
+  .chip--flip:focus-visible .chip__face--back {
+    transform: none;
+  }
 }

@@ -18,8 +18,11 @@ describe('UiChip', () => {
     const removed = vi.fn();
     fixture.componentInstance.removed.subscribe(removed);
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.textContent).toContain('Circuito corto');
-    root.querySelector('button')?.click();
+    const flip = root.querySelector('.chip--flip') as HTMLButtonElement;
+    expect(flip).not.toBeNull();
+    expect(root.querySelector('.chip__face--front')?.textContent).toContain('Circuito corto');
+    expect(root.querySelector('.chip__face--back')?.textContent).toContain('Quitar');
+    flip.click();
     expect(removed).toHaveBeenCalled();
   });
 
