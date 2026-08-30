@@ -177,8 +177,8 @@
                                   <li>
                                     <ui-chip
                                       [label]="name"
-                                      [removable]="!isView && sub.customMissionNames.includes(name)"
-                                      (removed)="removeCustomMission(phase.key, sub.key, name)"
+                                      [removable]="!isView"
+                                      (removed)="removeMission(phase.key, sub.key, name)"
                                     />
                                   </li>
                                 }

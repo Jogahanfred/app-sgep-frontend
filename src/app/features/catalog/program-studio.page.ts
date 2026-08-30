@@ -611,6 +611,21 @@ export class ProgramStudioPage {
     });
   }
 
+  removeMission(phaseKey: string, subKey: string, name: string): void {
+    const sub = this.phases()
+      .flatMap((phase) => phase.subphases)
+      .find((item) => item.key === subKey);
+    if (!sub) return;
+    if (sub.customMissionNames.includes(name)) {
+      this.removeCustomMission(phaseKey, subKey, name);
+      return;
+    }
+    const mission = this.missions().find((item) => `${item.code} · ${item.name}` === name);
+    if (mission) {
+      this.toggleMission(phaseKey, subKey, mission.id, false);
+    }
+  }
+
   autoPreview(sub: StudioSubphase): string {
     const items = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
     if (!items.length) return 'Ejemplo: CER y 17 generan C1, C2, C3 … C17.';

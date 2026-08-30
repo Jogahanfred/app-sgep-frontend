@@ -6,7 +6,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
   min-height: 1.7rem;
   padding: 0.15rem 0.7rem;
   border-radius: 999px;
@@ -35,12 +34,19 @@ button.chip {
 }
 
 .chip--flip {
-  min-width: 4.6rem;
-  perspective: 720px;
+  --chip-remove: #c62828;
+  position: relative;
+  isolation: isolate;
+  min-width: 4.75rem;
+  padding: 0;
+  overflow: hidden;
+  perspective: 860px;
 }
 
 .chip__inner {
-  display: grid;
+  position: relative;
+  display: block;
+  min-height: 1.7rem;
   transform-style: preserve-3d;
   transition: transform 0.42s var(--ease-out);
 }
@@ -50,18 +56,42 @@ button.chip {
   transform: rotateY(180deg);
 }
 
+.chip--flip:hover,
+.chip--flip:focus-visible {
+  background: var(--color-error-soft);
+}
+
 .chip__face {
-  grid-area: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.2rem;
+  min-height: 1.7rem;
+  padding: 0.15rem 0.7rem;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
+.chip__face--front {
+  position: relative;
+}
+
 .chip__face--back {
-  color: #c62828;
+  position: absolute;
+  inset: 0;
+  color: var(--chip-remove);
+  pointer-events: none;
   transform: rotateY(180deg);
+  visibility: hidden;
+}
+
+.chip--flip:hover .chip__face--front,
+.chip--flip:focus-visible .chip__face--front {
+  visibility: hidden;
+}
+
+.chip--flip:hover .chip__face--back,
+.chip--flip:focus-visible .chip__face--back {
+  visibility: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -74,17 +104,7 @@ button.chip {
     transform: none;
   }
 
-  .chip--flip:hover .chip__face--front,
-  .chip--flip:focus-visible .chip__face--front {
-    display: none;
-  }
-
-  .chip--flip:not(:hover):not(:focus-visible) .chip__face--back {
-    display: none;
-  }
-
-  .chip--flip:hover .chip__face--back,
-  .chip--flip:focus-visible .chip__face--back {
+  .chip__face--back {
     transform: none;
   }
 }

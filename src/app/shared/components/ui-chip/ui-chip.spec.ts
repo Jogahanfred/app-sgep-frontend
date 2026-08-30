@@ -21,7 +21,9 @@ describe('UiChip', () => {
     const flip = root.querySelector('.chip--flip') as HTMLButtonElement;
     expect(flip).not.toBeNull();
     expect(root.querySelector('.chip__face--front')?.textContent).toContain('Circuito corto');
-    expect(root.querySelector('.chip__face--back')?.textContent).toContain('Quitar');
+    const back = root.querySelector('.chip__face--back') as HTMLElement;
+    expect(back.textContent).toContain('Quitar');
+    expect(back.classList.contains('chip__face--back')).toBe(true);
     flip.click();
     expect(removed).toHaveBeenCalled();
   });
