@@ -279,8 +279,8 @@ describe('ProgramStudioPage', () => {
     expect(modal?.querySelector('ui-operation-board ui-select')).toBeNull();
     expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Subir');
     expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Quitar');
-    expect(modal?.querySelector('app-breadcrumb')?.textContent).toContain('Por operaciones');
-    expect(modal?.querySelector('app-breadcrumb')?.textContent).not.toContain('Catálogo');
+    expect(modal?.querySelector('app-breadcrumb')).toBeNull();
+    expect(modal?.textContent).not.toContain('Por operaciones');
     fixture.componentInstance.onManeuverCrumb('catalog');
     fixture.detectChanges();
     expect(fixture.componentInstance.maneuverPickerView()).toBe('grouped');

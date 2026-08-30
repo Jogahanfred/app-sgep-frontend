@@ -384,7 +384,7 @@
 
       <app-modal [open]="maneuverPickerOpen()" size="xl" title="Maniobras" (closed)="closeManeuverPicker()">
         <div class="lessons">
-          @if (maneuverPickerView() === 'grouped') {
+          @if (maneuverPickerView() === 'grouped' && maneuverPickerMode() === 'add') {
             <app-breadcrumb
               [includeHome]="false"
               [crumbs]="maneuverCrumbs()"

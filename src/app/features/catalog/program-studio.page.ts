@@ -293,14 +293,10 @@ export class ProgramStudioPage {
 
   readonly canGroupManeuvers = computed(() => this.maneuverCheckedIds().length > 0);
 
-  readonly maneuverCrumbs = computed(() =>
-    this.maneuverPickerMode() === 'order'
-      ? [{ label: 'Por operaciones' }]
-      : [
-          { label: 'Catálogo', action: 'catalog' },
-          { label: 'Por operaciones' },
-        ],
-  );
+  readonly maneuverCrumbs = computed(() => [
+    { label: 'Catálogo', action: 'catalog' },
+    { label: 'Por operaciones' },
+  ]);
 
   readonly maneuverBoardOperations = computed(() =>
     this.operations().map((item) => ({ id: item.id, name: item.name, description: item.description })),
