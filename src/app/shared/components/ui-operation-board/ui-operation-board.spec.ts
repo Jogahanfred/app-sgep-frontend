@@ -91,4 +91,47 @@ describe('UiOperationBoard', () => {
     fixture.componentInstance.shiftOperation('op-vfr', 1);
     expect(ordered).toHaveBeenCalledTimes(2);
   });
+
+  it('en solo lectura muestra las operaciones en orden y no permite cambios', () => {
+    TestBed.configureTestingModule({ imports: [UiOperationBoard] });
+    const fixture = TestBed.createComponent(UiOperationBoard);
+    fixture.componentRef.setInput('catalog', [
+      { id: 'op-vfr', name: 'Vuelo visual', description: 'Circuitos' },
+      { id: 'op-ifr', name: 'Vuelo instrumental' },
+    ]);
+    fixture.componentRef.setInput('maneuvers', [
+      { id: 'man-toff', label: 'TOFF · Despegue' },
+      { id: 'man-land', label: 'LAND · Aterrizaje' },
+    ]);
+    fixture.componentRef.setInput('order', ['op-vfr']);
+    fixture.componentRef.setInput('maneuverOrder', ['man-toff', 'man-land']);
+    fixture.componentRef.setInput('assignment', { 'man-toff': 'op-vfr', 'man-land': 'op-vfr' });
+    fixture.componentRef.setInput('readonly', true);
+    fixture.detectChanges();
+
+    const assigned = vi.fn();
+    const ordered = vi.fn();
+    fixture.componentInstance.assignmentChange.subscribe(assigned);
+    fixture.componentInstance.orderChange.subscribe(ordered);
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.ob--readonly')).not.toBeNull();
+    expect(root.querySelector('ui-select')).toBeNull();
+    expect(root.querySelector('.ob__pool')).toBeNull();
+    expect(root.textContent).toContain('Vuelo visual');
+    expect(root.textContent).toContain('TOFF · Despegue');
+    expect(root.textContent).toContain('LAND · Aterrizaje');
+    expect(root.querySelector('[data-assigned="man-toff"]')?.textContent).toContain('TOFF');
+    expect(root.querySelector('[data-assigned="man-land"]')?.textContent).toContain('LAND');
+    expect(root.textContent).not.toContain('Subir');
+    expect(root.textContent).not.toContain('Bajar');
+    expect(root.textContent).not.toContain('Quitar');
+    expect(root.textContent).not.toContain('Buscar operación');
+
+    fixture.componentInstance.place('man-toff', null);
+    fixture.componentInstance.shiftOperation('op-vfr', 1);
+    fixture.componentInstance.forgetOperation('op-vfr');
+    expect(assigned).not.toHaveBeenCalled();
+    expect(ordered).not.toHaveBeenCalled();
+  });
 });

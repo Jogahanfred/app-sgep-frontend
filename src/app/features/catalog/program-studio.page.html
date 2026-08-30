@@ -394,6 +394,8 @@
           <p class="lesson__meta">
             @if (maneuverPickerView() === 'catalog') {
               Elige una maniobra del catálogo y añádela a esta subfase.
+            } @else if (maneuverPickerMode() === 'order') {
+              Maniobras agrupadas por operación, en el orden de la subfase. Solo consulta.
             } @else {
               Elige las operaciones. Debajo, arrastra las maniobras.
             }
@@ -435,6 +437,7 @@
               [order]="maneuverOperationOrder()"
               [maneuverOrder]="maneuverBoardOrder()"
               [assignment]="maneuverAssignment()"
+              [readonly]="maneuverPickerMode() === 'order'"
               (orderChange)="onOperationOrder($event)"
               (maneuverOrderChange)="onManeuverBoardOrder($event)"
               (assignmentChange)="onManeuverAssignment($event)"

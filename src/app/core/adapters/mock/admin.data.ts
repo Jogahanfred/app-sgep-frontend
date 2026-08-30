@@ -777,6 +777,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: [],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -790,6 +792,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -803,6 +807,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: ['op-vfr'],
+    maneuverAssignment: { 'man-toff': 'op-vfr', 'man-land': 'op-vfr' },
     sortOrder: 2,
   },
   {
@@ -816,6 +822,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -829,6 +837,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: 'CER',
     autoMissionCount: 17,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -842,6 +852,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -855,6 +867,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: [],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -868,6 +882,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-hold'],
+    maneuverOperationIds: ['op-ifr'],
+    maneuverAssignment: { 'man-hold': 'op-ifr' },
     sortOrder: 1,
   },
   {
@@ -881,6 +897,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-hold'],
+    maneuverOperationIds: ['op-ifr'],
+    maneuverAssignment: { 'man-hold': 'op-ifr' },
     sortOrder: 2,
   },
   {
@@ -894,6 +912,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-hold'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -907,6 +927,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
   {
@@ -920,6 +942,8 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     autoMissionCode: '',
     autoMissionCount: 0,
     maneuverIds: ['man-toff', 'man-land'],
+    maneuverOperationIds: [],
+    maneuverAssignment: {},
     sortOrder: 1,
   },
 ];

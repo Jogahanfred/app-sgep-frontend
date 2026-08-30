@@ -514,6 +514,8 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         missionTypeIds: [...item.missionTypeIds],
         customMissionNames: [...item.customMissionNames],
         maneuverIds: [...item.maneuverIds],
+        maneuverOperationIds: [...item.maneuverOperationIds],
+        maneuverAssignment: { ...item.maneuverAssignment },
       })),
     ).pipe(delay(LATENCY));
   }
@@ -613,6 +615,8 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
             autoMissionCode: subDraft.autoMissionCode,
             autoMissionCount: subDraft.autoMissionCount,
             maneuverIds: [...subDraft.maneuverIds],
+            maneuverOperationIds: [...(subDraft.maneuverOperationIds ?? [])],
+            maneuverAssignment: { ...(subDraft.maneuverAssignment ?? {}) },
             sortOrder: subIndex + 1,
           });
         });
@@ -652,6 +656,9 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
           if (!this.maneuvers.some((item) => item.id === maneuverId)) {
             throw new InvalidAdminCatalogError('Una de las maniobras indicadas no existe.');
           }
+        }
+        for (const operationId of sub.maneuverOperationIds ?? []) {
+          this.assertOperationExists(operationId);
         }
       }
     }

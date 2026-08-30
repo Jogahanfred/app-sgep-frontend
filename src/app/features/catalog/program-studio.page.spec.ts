@@ -223,13 +223,19 @@ describe('ProgramStudioPage', () => {
     expect(modal?.textContent).toContain('TOFF');
     expect(modal?.textContent).toContain('HOLD');
     expect(modal?.textContent).toContain('En la subfase');
+    expect(fixture.componentInstance.maneuverCheckedIds()).toEqual(['man-toff', 'man-land']);
+    expect(fixture.componentInstance.maneuverOperationOrder()).toEqual(['op-vfr']);
+    expect(fixture.componentInstance.maneuverAssignment()).toEqual({
+      'man-toff': 'op-vfr',
+      'man-land': 'op-vfr',
+    });
     expect(modal?.querySelector('.btn--xs')?.textContent).toContain('Añadir');
     expect(modal?.textContent).toContain('Agrupar por operaciones');
     const groupBtn = [...(modal?.querySelectorAll('button') ?? [])].find((node) =>
       (node.textContent ?? '').includes('Agrupar por operaciones'),
     ) as HTMLButtonElement | undefined;
-    expect(groupBtn?.disabled).toBe(true);
-    fixture.componentInstance.maneuverCheckedIds.set(['man-hold', 'man-stall']);
+    expect(groupBtn?.disabled).toBe(false);
+    fixture.componentInstance.maneuverCheckedIds.set(['man-toff', 'man-land', 'man-hold', 'man-stall']);
     fixture.detectChanges();
     const groupBtnOn = [...(modal?.querySelectorAll('button') ?? [])].find((node) =>
       (node.textContent ?? '').includes('Agrupar por operaciones'),
@@ -246,28 +252,38 @@ describe('ProgramStudioPage', () => {
     expect(modal?.querySelector('ui-operation-board table')).toBeNull();
     expect(modal?.textContent).toContain('Buscar operación');
     expect(modal?.querySelector('ui-operation-board ui-select')).not.toBeNull();
-    expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(0);
+    expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(1);
+    expect(modal?.textContent).toContain('Vuelo visual');
     expect(modal?.textContent).toContain('HOLD · Espera');
     expect(modal?.textContent).toContain('STALL · Pérdida');
     expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Añadir');
     expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).toContain('HOLD');
     expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).not.toContain('Subir');
     expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).not.toContain('Quitar');
-    fixture.componentInstance.maneuverOperationOrder.set(['op-vfr']);
-    fixture.detectChanges();
-    expect(modal?.textContent).toContain('Vuelo visual');
-    expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(1);
     expect(modal?.textContent).not.toContain('Añadir en este orden');
     expect(modal?.querySelector('app-breadcrumb')).not.toBeNull();
+    expect(modal?.querySelector('app-breadcrumb')?.textContent).toContain('Catálogo');
     fixture.componentInstance.showManeuverOrder(phase.key, dual.key);
     fixture.detectChanges();
+    expect(fixture.componentInstance.maneuverPickerMode()).toBe('order');
     expect(fixture.componentInstance.maneuverPickerView()).toBe('grouped');
+    expect(modal?.querySelector('ui-operation-board .ob--readonly')).not.toBeNull();
     expect(modal?.textContent).toContain('TOFF · Despegue');
     expect(modal?.textContent).toContain('LAND · Aterrizaje');
+    expect(modal?.textContent).toContain('Vuelo visual');
+    expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(1);
+    expect(modal?.querySelector('ui-operation-board [data-assigned="man-toff"]')?.textContent).toContain('TOFF');
+    expect(modal?.querySelector('ui-operation-board [data-assigned="man-land"]')?.textContent).toContain('LAND');
     expect(modal?.textContent).not.toContain('Añadir en este orden');
+    expect(modal?.textContent).not.toContain('Buscar operación');
+    expect(modal?.querySelector('ui-operation-board ui-select')).toBeNull();
+    expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Subir');
+    expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Quitar');
+    expect(modal?.querySelector('app-breadcrumb')?.textContent).toContain('Por operaciones');
+    expect(modal?.querySelector('app-breadcrumb')?.textContent).not.toContain('Catálogo');
     fixture.componentInstance.onManeuverCrumb('catalog');
     fixture.detectChanges();
-    expect(fixture.componentInstance.maneuverPickerView()).toBe('catalog');
+    expect(fixture.componentInstance.maneuverPickerView()).toBe('grouped');
     fixture.componentInstance.removeManeuver(phase.key, dual.key, 'HOLD · Espera');
     fixture.detectChanges();
     expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).not.toContain('man-hold');

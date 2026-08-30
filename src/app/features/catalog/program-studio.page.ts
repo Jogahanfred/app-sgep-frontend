@@ -64,6 +64,8 @@ interface StudioSubphase {
   autoMissionCode: string;
   autoMissionCount: number;
   maneuverIds: string[];
+  maneuverOperationIds: string[];
+  maneuverAssignment: Record<string, string>;
 }
 
 interface StudioPhase {
@@ -167,6 +169,7 @@ export class ProgramStudioPage {
   readonly maneuverSearch = new FormControl('', { nonNullable: true });
   readonly maneuverQuery = signal('');
   readonly maneuverCheckedIds = signal<string[]>([]);
+  readonly maneuverPickerMode = signal<'add' | 'order'>('add');
   readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
   readonly maneuverOperationOrder = signal<string[]>([]);
   readonly maneuverBoardOrder = signal<string[]>([]);
@@ -290,10 +293,14 @@ export class ProgramStudioPage {
 
   readonly canGroupManeuvers = computed(() => this.maneuverCheckedIds().length > 0);
 
-  readonly maneuverCrumbs = computed(() => [
-    { label: 'Catálogo', action: 'catalog' },
-    { label: 'Por operaciones' },
-  ]);
+  readonly maneuverCrumbs = computed(() =>
+    this.maneuverPickerMode() === 'order'
+      ? [{ label: 'Por operaciones' }]
+      : [
+          { label: 'Catálogo', action: 'catalog' },
+          { label: 'Por operaciones' },
+        ],
+  );
 
   readonly maneuverBoardOperations = computed(() =>
     this.operations().map((item) => ({ id: item.id, name: item.name, description: item.description })),
@@ -379,6 +386,8 @@ export class ProgramStudioPage {
                     autoMissionCode: item.autoMissionCode,
                     autoMissionCount: item.autoMissionCount,
                     maneuverIds: [...item.maneuverIds],
+                    maneuverOperationIds: [...item.maneuverOperationIds],
+                    maneuverAssignment: { ...item.maneuverAssignment },
                   })),
               })),
             );
@@ -459,17 +468,16 @@ export class ProgramStudioPage {
       ?.subphases.find((item) => item.key === subKey);
     if (!sub) return;
     this.maneuverPickerTarget.set({ phaseKey, subKey });
-    this.maneuverCheckedIds.set([]);
+    this.maneuverPickerMode.set('add');
     this.maneuverPickerView.set('catalog');
-    this.maneuverOperationOrder.set([]);
-    this.maneuverBoardOrder.set([]);
-    this.maneuverAssignment.set({});
+    this.applySubphaseManeuvers(sub);
     this.maneuverSearch.setValue('');
     this.maneuverQuery.set('');
   }
 
   closeManeuverPicker(): void {
     this.maneuverPickerTarget.set(null);
+    this.maneuverPickerMode.set('add');
     this.maneuverCheckedIds.set([]);
     this.maneuverPickerView.set('catalog');
     this.maneuverOperationOrder.set([]);
@@ -488,13 +496,12 @@ export class ProgramStudioPage {
   }
 
   showManeuverGroups(): void {
-    if (!this.canGroupManeuvers()) return;
+    if (!this.canGroupManeuvers() || this.maneuverPickerMode() === 'order') return;
     const existing = this.currentManeuverSub()?.maneuverIds ?? [];
     const merged = [...new Set([...existing, ...this.maneuverCheckedIds()])];
     this.maneuverCheckedIds.set(merged);
-    this.maneuverOperationOrder.set([]);
-    this.maneuverBoardOrder.set(merged);
-    this.maneuverAssignment.set({});
+    this.maneuverBoardOrder.set(this.mergeManeuverOrder(this.maneuverBoardOrder(), merged));
+    this.maneuverAssignment.set(this.filterManeuverAssignment(this.maneuverAssignment(), merged));
     this.maneuverPickerView.set('grouped');
     this.syncManeuversFromBoard();
   }
@@ -506,24 +513,25 @@ export class ProgramStudioPage {
       ?.subphases.find((item) => item.key === subKey);
     if (!sub?.maneuverIds.length) return;
     this.maneuverPickerTarget.set({ phaseKey, subKey });
-    this.maneuverCheckedIds.set([...sub.maneuverIds]);
-    this.maneuverBoardOrder.set([...sub.maneuverIds]);
-    this.maneuverOperationOrder.set([]);
-    this.maneuverAssignment.set({});
+    this.maneuverPickerMode.set('order');
+    this.applySubphaseManeuvers(sub);
     this.maneuverPickerView.set('grouped');
   }
 
   onOperationOrder(ids: string[]): void {
+    if (this.maneuverPickerMode() === 'order') return;
     this.maneuverOperationOrder.set(ids);
     this.syncManeuversFromBoard();
   }
 
   onManeuverBoardOrder(ids: string[]): void {
+    if (this.maneuverPickerMode() === 'order') return;
     this.maneuverBoardOrder.set(ids);
     this.syncManeuversFromBoard();
   }
 
   onManeuverAssignment(next: Record<string, string>): void {
+    if (this.maneuverPickerMode() === 'order') return;
     this.maneuverAssignment.set(next);
     this.syncManeuversFromBoard();
   }
@@ -539,7 +547,7 @@ export class ProgramStudioPage {
 
   private syncManeuversFromBoard(): void {
     const target = this.maneuverPickerTarget();
-    if (!target) return;
+    if (!target || this.maneuverPickerMode() === 'order') return;
     const items = this.maneuverBoardOrder().length ? this.maneuverBoardOrder() : this.maneuverCheckedIds();
     const assignment = this.maneuverAssignment();
     const queued: string[] = [];
@@ -551,27 +559,55 @@ export class ProgramStudioPage {
     for (const id of items) {
       if (!assignment[id]) queued.push(id);
     }
-    this.setSubphaseManeuverIds(target.phaseKey, target.subKey, queued);
+    this.setSubphaseManeuverState(target.phaseKey, target.subKey, queued, this.maneuverOperationOrder(), assignment);
   }
 
-  private setSubphaseManeuverIds(phaseKey: string, subKey: string, ids: string[]): void {
+  private applySubphaseManeuvers(sub: StudioSubphase): void {
+    this.maneuverCheckedIds.set([...sub.maneuverIds]);
+    this.maneuverBoardOrder.set([...sub.maneuverIds]);
+    this.maneuverOperationOrder.set([...sub.maneuverOperationIds]);
+    this.maneuverAssignment.set({ ...sub.maneuverAssignment });
+  }
+
+  private mergeManeuverOrder(current: readonly string[], next: readonly string[]): string[] {
+    const wanted = new Set(next);
+    const kept = current.filter((id) => wanted.has(id));
+    const seen = new Set(kept);
+    return [...kept, ...next.filter((id) => !seen.has(id))];
+  }
+
+  private filterManeuverAssignment(
+    assignment: Record<string, string>,
+    maneuverIds: readonly string[],
+  ): Record<string, string> {
+    const wanted = new Set(maneuverIds);
+    const next: Record<string, string> = {};
+    for (const [maneuverId, operationId] of Object.entries(assignment)) {
+      if (wanted.has(maneuverId)) next[maneuverId] = operationId;
+    }
+    return next;
+  }
+
+  private setSubphaseManeuverState(
+    phaseKey: string,
+    subKey: string,
+    ids: string[],
+    operationIds: readonly string[],
+    assignment: Record<string, string>,
+  ): void {
     const unique = [...new Set(ids.filter(Boolean))];
-    this.phases.update((items) =>
-      items.map((phase) =>
-        phase.key !== phaseKey
-          ? phase
-          : {
-              ...phase,
-              subphases: phase.subphases.map((sub) =>
-                sub.key !== subKey ? sub : { ...sub, maneuverIds: unique },
-              ),
-            },
-      ),
-    );
+    const ops = [...new Set(operationIds.filter(Boolean))];
+    this.patchSubphase(phaseKey, subKey, {
+      maneuverIds: unique,
+      maneuverOperationIds: ops,
+      maneuverAssignment: this.filterManeuverAssignment(assignment, unique),
+    });
   }
 
   onManeuverCrumb(action: string): void {
-    if (action === 'catalog') this.maneuverPickerView.set('catalog');
+    if (action === 'catalog' && this.maneuverPickerMode() === 'add') {
+      this.maneuverPickerView.set('catalog');
+    }
   }
 
   private toManeuverRows(items: ManeuverBankEntity[]): UiTableRow[] {
@@ -683,6 +719,8 @@ export class ProgramStudioPage {
                 autoMissionCode: '',
                 autoMissionCount: 0,
                 maneuverIds: [],
+                maneuverOperationIds: [],
+                maneuverAssignment: {},
               },
             ]
           : [],
@@ -734,6 +772,8 @@ export class ProgramStudioPage {
                   autoMissionCode: '',
                   autoMissionCount: 0,
                   maneuverIds: [],
+                  maneuverOperationIds: [],
+                  maneuverAssignment: {},
                 },
               ],
             }
@@ -925,6 +965,9 @@ export class ProgramStudioPage {
                       maneuverIds: checked
                         ? [...sub.maneuverIds, maneuverId]
                         : sub.maneuverIds.filter((id) => id !== maneuverId),
+                      maneuverAssignment: checked
+                        ? sub.maneuverAssignment
+                        : this.filterManeuverAssignment(sub.maneuverAssignment, sub.maneuverIds.filter((id) => id !== maneuverId)),
                     },
               ),
             },
@@ -1042,6 +1085,8 @@ export class ProgramStudioPage {
         autoMissionCode: sub.autoMissionCode,
         autoMissionCount: sub.autoMissionCount,
         maneuverIds: sub.maneuverIds,
+        maneuverOperationIds: sub.maneuverOperationIds,
+        maneuverAssignment: sub.maneuverAssignment,
         sortOrder: subIndex + 1,
       })),
     }));

@@ -303,6 +303,8 @@ export interface SubphaseEntity {
   autoMissionCode: string;
   autoMissionCount: number;
   maneuverIds: string[];
+  maneuverOperationIds: string[];
+  maneuverAssignment: Record<string, string>;
   sortOrder: number;
 }
 
@@ -315,6 +317,8 @@ export interface SubphaseDraftInput {
   autoMissionCode: string;
   autoMissionCount: number;
   maneuverIds: string[];
+  maneuverOperationIds?: string[];
+  maneuverAssignment?: Record<string, string>;
   sortOrder: number;
 }
 

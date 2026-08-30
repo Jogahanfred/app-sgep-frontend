@@ -352,8 +352,28 @@ export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInp
     autoMissionCode: missionMode === 'automatic' ? autoMissionCode : '',
     autoMissionCount: missionMode === 'automatic' ? autoMissionCount : 0,
     maneuverIds: [...new Set(input.maneuverIds.filter(Boolean))],
+    maneuverOperationIds: [...new Set((input.maneuverOperationIds ?? []).filter(Boolean))],
+    maneuverAssignment: sanitizeManeuverAssignment(
+      input.maneuverAssignment ?? {},
+      [...new Set(input.maneuverIds.filter(Boolean))],
+      [...new Set((input.maneuverOperationIds ?? []).filter(Boolean))],
+    ),
     sortOrder,
   };
+}
+
+function sanitizeManeuverAssignment(
+  assignment: Record<string, string>,
+  maneuverIds: readonly string[],
+  operationIds: readonly string[],
+): Record<string, string> {
+  const maneuvers = new Set(maneuverIds);
+  const operations = new Set(operationIds);
+  const next: Record<string, string> = {};
+  for (const [maneuverId, operationId] of Object.entries(assignment)) {
+    if (maneuvers.has(maneuverId) && operations.has(operationId)) next[maneuverId] = operationId;
+  }
+  return next;
 }
 
 export function assertPhaseDraft(input: PhaseDraftInput): PhaseDraftInput {

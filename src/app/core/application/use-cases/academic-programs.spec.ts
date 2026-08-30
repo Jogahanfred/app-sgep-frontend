@@ -71,6 +71,8 @@ describe('formación académica', () => {
     expect(createdSubs[0].missionMode).toBe('automatic');
     expect(createdSubs[0].autoMissionCode).toBe('CER');
     expect(createdSubs[0].autoMissionCount).toBe(17);
+    expect(createdSubs[0].maneuverOperationIds).toEqual([]);
+    expect(createdSubs[0].maneuverAssignment).toEqual({});
 
     await expect(
       firstValueFrom(

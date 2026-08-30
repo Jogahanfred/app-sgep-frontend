@@ -159,3 +159,12 @@
   font-weight: 600;
   text-align: center;
 }
+
+.ob--readonly .ob__drop {
+  min-height: 0;
+  border-style: solid;
+}
+
+.ob--readonly .ob__chip {
+  cursor: default;
+}
