@@ -1,13 +1,44 @@
-@use './panel';
+.ap__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.ap__head h1 {
+  margin: 0 0 0.35rem;
+  color: var(--color-text);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+}
+
+.ap__lead {
+  margin: 0 0 1rem;
+  max-width: 38rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ap__loading {
+  display: block;
+  overflow: hidden;
+  min-height: 20rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.75rem;
+}
 
 .flow__badge,
-.flow__end {
+.flow__end,
+.flow__tag {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.flow__badge {
+.flow__badge,
+.flow__tag {
   display: inline-flex;
   margin: 0 0 0.4rem;
   padding: 0.2rem 0.55rem;
@@ -19,7 +50,11 @@
 
 .flow__summary,
 .flow__nav,
-.flow__time {
+.flow__time,
+.flow__who,
+.flow__lesson header,
+.flow__chips,
+.flow__group ul {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -44,15 +79,25 @@
 .flow__nav p,
 .flow__empty p,
 .flow__who p,
-.flow__none {
+.flow__none,
+.flow__crumb,
+.flow__meta,
+.flow__hint,
+.flow__task p,
+.flow__preview span {
   margin: 0;
   color: #4b6074;
   font-size: 0.82rem;
 }
 
-.flow__nav p {
+.flow__nav p,
+.flow__crumb {
   color: #35506a;
   font-weight: 800;
+}
+
+.flow__crumb {
+  margin: 0.45rem 0 0;
 }
 
 .flow__time {
@@ -125,7 +170,8 @@
 
 .flow__empty,
 .flow__phase,
-.flow__lesson {
+.flow__lesson,
+.flow__task {
   border: 1px solid #d5e1ed;
   border-radius: 0.9rem;
   background: #fff;
@@ -137,26 +183,27 @@
   padding: 1rem;
 }
 
-.flow__who,
-.flow__lesson header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem;
+.flow__on {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px #d6e8f6;
 }
 
 .flow__who {
+  align-items: center;
   margin-bottom: 0.8rem;
 }
 
 .flow__who h2,
 .flow__lesson h3,
-.flow__group h4 {
+.flow__group h4,
+.flow__task h3,
+.flow__phase h2 {
   margin: 0;
+  color: #22384c;
 }
 
-.flow__who h2 {
-  color: #22384c;
+.flow__who h2,
+.flow__phase h2 {
   font-size: 1.05rem;
 }
 
@@ -167,57 +214,68 @@
 }
 
 .flow__lessons,
-.flow__block,
+.flow__preview,
 .flow__group {
   display: grid;
-  gap: 0.4rem;
-}
-
-.flow__lessons {
-  gap: 0.7rem;
+  gap: 0.55rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.flow__lesson {
+.flow__lesson,
+.flow__task {
   padding: 0.8rem;
   background: #f8fbfd;
 }
 
 .flow__lesson header {
   justify-content: space-between;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.45rem;
 }
 
-.flow__block + .flow__block {
+.flow__task {
+  margin-top: 0.75rem;
+  background: #fff;
+}
+
+.flow__task h3 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.flow__hint {
   margin-top: 0.65rem;
 }
 
-.flow__block p,
-.flow__group h4 {
-  color: var(--color-primary);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.flow__block ul,
-.flow__group ul {
+.flow__preview li {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid #e6eef6;
+}
+
+.flow__chips,
+.flow__group ul {
+  margin: 0.35rem 0 0;
   padding: 0;
   list-style: none;
 }
 
 .flow__group {
+  margin-top: 0.65rem;
   padding: 0.5rem 0.6rem;
   border-left: 3px solid var(--color-primary);
   border-radius: 0 0.5rem 0.5rem 0;
   background: #fff;
+}
+
+.flow__group h4 {
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .flow__end {

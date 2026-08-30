@@ -24,32 +24,62 @@ import { curriculumHours, expandAutoMissions, programTypeLabel } from '@core/dom
 import { forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
+import { Modal } from '@shared/components/modal/modal';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+
+export type FlowDepth = 'start' | 'phase' | 'lesson' | 'mission';
+
+export interface FlowStop {
+  depth: FlowDepth;
+  phaseIndex: number;
+  lessonIndex: number;
+  missionIndex: number;
+}
+
+export interface FlowMission {
+  name: string;
+  detail: string;
+}
 
 interface FlowGroup {
   name: string;
   maneuvers: string[];
 }
 
-interface FlowLesson {
+export interface FlowLesson {
   name: string;
   hours: number;
-  missions: string[];
+  missions: FlowMission[];
   groups: FlowGroup[];
   loose: string[];
+  hasManeuvers: boolean;
 }
 
-interface FlowPhase {
+export interface FlowPhase {
   name: string;
   hours: number;
   lessons: FlowLesson[];
 }
 
+export function buildFlowStops(phases: { lessons: { missions: unknown[] }[] }[]): FlowStop[] {
+  const stops: FlowStop[] = [{ depth: 'start', phaseIndex: -1, lessonIndex: -1, missionIndex: -1 }];
+  phases.forEach((phase, phaseIndex) => {
+    stops.push({ depth: 'phase', phaseIndex, lessonIndex: -1, missionIndex: -1 });
+    phase.lessons.forEach((lesson, lessonIndex) => {
+      stops.push({ depth: 'lesson', phaseIndex, lessonIndex, missionIndex: -1 });
+      lesson.missions.forEach((_, missionIndex) => {
+        stops.push({ depth: 'mission', phaseIndex, lessonIndex, missionIndex });
+      });
+    });
+  });
+  return stops;
+}
+
 @Component({
   selector: 'app-program-flow-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alert, Button, UiChip, UiLoading],
+  imports: [Alert, Button, Modal, UiChip, UiLoading],
   templateUrl: './program-flow.page.html',
   styleUrl: './program-flow.page.scss',
 })
@@ -70,7 +100,9 @@ export class ProgramFlowPage {
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly program = signal<ProgramEntity | null>(null);
   readonly phases = signal<FlowPhase[]>([]);
-  readonly step = signal(0);
+  readonly stops = signal<FlowStop[]>([]);
+  readonly cursor = signal(0);
+  readonly maneuverLesson = signal<FlowLesson | null>(null);
 
   readonly title = computed(() => {
     const name = this.program()?.name;
@@ -84,31 +116,86 @@ export class ProgramFlowPage {
 
   readonly totalHours = computed(() => curriculumHours(this.phases().map((phase) => ({ subphases: phase.lessons }))));
   readonly lessonCount = computed(() => this.phases().reduce((sum, phase) => sum + phase.lessons.length, 0));
-  readonly current = computed(() => this.phases()[this.step()] ?? null);
-  readonly isFirst = computed(() => this.step() <= 0);
+  readonly stop = computed(() => this.stops()[this.cursor()] ?? null);
+  readonly phaseIndex = computed(() => this.stop()?.phaseIndex ?? -1);
+  readonly depth = computed(() => this.stop()?.depth ?? 'start');
+  readonly currentPhase = computed(() => {
+    const index = this.stop()?.phaseIndex ?? -1;
+    return index >= 0 ? (this.phases()[index] ?? null) : null;
+  });
+  readonly currentLesson = computed(() => {
+    const point = this.stop();
+    const phase = this.currentPhase();
+    if (!point || !phase || point.lessonIndex < 0) return null;
+    return phase.lessons[point.lessonIndex] ?? null;
+  });
+  readonly currentMission = computed(() => {
+    const point = this.stop();
+    const lesson = this.currentLesson();
+    if (!point || !lesson || point.missionIndex < 0) return null;
+    return lesson.missions[point.missionIndex] ?? null;
+  });
+  readonly isFirst = computed(() => this.cursor() <= 0);
   readonly isLast = computed(() => {
-    const total = this.phases().length;
-    return total === 0 || this.step() >= total - 1;
+    const total = this.stops().length;
+    return total === 0 || this.cursor() >= total - 1;
   });
   readonly stepLabel = computed(() => {
-    const total = this.phases().length;
-    if (!total) return '';
-    return `Fase ${this.step() + 1} de ${total}`;
+    const point = this.stop();
+    const phase = this.currentPhase();
+    const lesson = this.currentLesson();
+    if (!point || point.depth === 'start') return 'Inicio';
+    if (point.depth === 'phase') {
+      return `Fase ${point.phaseIndex + 1} de ${this.phases().length}`;
+    }
+    if (point.depth === 'lesson' && phase) {
+      return `Subfase ${point.lessonIndex + 1} de ${phase.lessons.length}`;
+    }
+    if (point.depth === 'mission' && lesson) {
+      return `Misión ${point.missionIndex + 1} de ${lesson.missions.length}`;
+    }
+    return '';
+  });
+  readonly crumb = computed(() => {
+    const phase = this.currentPhase();
+    const lesson = this.currentLesson();
+    const mission = this.currentMission();
+    if (!phase) return 'Programa';
+    if (!lesson) return phase.name;
+    if (!mission) return `${phase.name} · ${lesson.name}`;
+    return `${phase.name} · ${lesson.name} · ${mission.name}`;
+  });
+  readonly maneuverTitle = computed(() => {
+    const lesson = this.maneuverLesson();
+    return lesson ? `Maniobras · ${lesson.name}` : 'Maniobras';
   });
 
   goBack(): void {
     if (this.isFirst()) return;
-    this.step.update((value) => value - 1);
+    this.cursor.update((value) => value - 1);
   }
 
   goNext(): void {
     if (this.isLast()) return;
-    this.step.update((value) => value + 1);
+    this.cursor.update((value) => value + 1);
   }
 
-  goTo(index: number): void {
-    if (index < 0 || index >= this.phases().length) return;
-    this.step.set(index);
+  goTo(phaseIndex: number): void {
+    const index = this.stops().findIndex((item) => item.depth === 'phase' && item.phaseIndex === phaseIndex);
+    if (index < 0) return;
+    this.cursor.set(index);
+  }
+
+  openManeuvers(lesson: FlowLesson): void {
+    this.maneuverLesson.set(lesson);
+  }
+
+  closeManeuvers(): void {
+    this.maneuverLesson.set(null);
+  }
+
+  missionCountLabel(count: number): string {
+    return count === 1 ? '1 misión' : `${count} misiones`;
   }
 
   constructor() {
@@ -131,22 +218,23 @@ export class ProgramFlowPage {
             return;
           }
           this.program.set(program);
-          this.phases.set(
-            bundle.phases
-              .filter((item) => item.programId === program.id)
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-              .map((phase) => {
-                const lessons = bundle.subphases
-                  .filter((item) => item.phaseId === phase.id)
-                  .sort((a, b) => a.sortOrder - b.sortOrder)
-                  .map((sub) => this.toLesson(sub, bundle));
-                return {
-                  name: this.phaseName(phase.phaseBankId, bundle.phaseBanks),
-                  hours: lessons.reduce((sum, item) => sum + item.hours, 0),
-                  lessons,
-                };
-              }),
-          );
+          const phases = bundle.phases
+            .filter((item) => item.programId === program.id)
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((phase) => {
+              const lessons = bundle.subphases
+                .filter((item) => item.phaseId === phase.id)
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((sub) => this.toLesson(sub, bundle));
+              return {
+                name: this.phaseName(phase.phaseBankId, bundle.phaseBanks),
+                hours: lessons.reduce((sum, item) => sum + item.hours, 0),
+                lessons,
+              };
+            });
+          this.phases.set(phases);
+          this.stops.set(buildFlowStops(phases));
+          this.cursor.set(0);
           this.loadState.set('ready');
         },
         error: () => this.loadState.set('error'),
@@ -165,13 +253,22 @@ export class ProgramFlowPage {
     const bank = bundle.subphaseBanks.find((item) => item.id === sub.subphaseBankId);
     const missions =
       sub.missionMode === 'automatic'
-        ? expandAutoMissions(sub.autoMissionCode, sub.autoMissionCount)
+        ? expandAutoMissions(sub.autoMissionCode, sub.autoMissionCount).map((name, index, items) => ({
+            name,
+            detail: `Serie automática ${sub.autoMissionCode} · vuelo ${index + 1} de ${items.length}`,
+          }))
         : [
             ...sub.missionTypeIds.map((id) => {
               const mission = bundle.missions.find((item) => item.id === id);
-              return mission ? `${mission.code} · ${mission.name}` : id;
+              return {
+                name: mission ? `${mission.code} · ${mission.name}` : id,
+                detail: mission?.description || 'Misión del catálogo.',
+              };
             }),
-            ...sub.customMissionNames,
+            ...sub.customMissionNames.map((name) => ({
+              name,
+              detail: 'Misión anotada en esta subfase.',
+            })),
           ];
     const maneuverById = new Map(bundle.maneuvers.map((item) => [item.id, `${item.code} · ${item.name}`]));
     const groups: FlowGroup[] = [];
@@ -194,6 +291,7 @@ export class ProgramFlowPage {
       missions,
       groups,
       loose,
+      hasManeuvers: groups.length + loose.length > 0,
     };
   }
 

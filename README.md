@@ -197,7 +197,7 @@ El header incluye **Configuración**, con el mega-menú en cinco columnas: **Cat
 | `/catalogo/estandares` | Estándares (`StandardEntity`) |
 | `/catalogo/ponderaciones` | Ponderaciones (`StandardWeightingEntity`) |
 | `/catalogo/programas` | Formación académica: tablero de programas (`ProgramEntity`) con itinerario de fases y subfases |
-| `/catalogo/programas/:id/flujo` | Recorre el programa fase a fase (Atrás / Siguiente) en solo consulta |
+| `/catalogo/programas/:id/flujo` | Recorre el programa con Atrás / Siguiente: cuadro en fase, subfase y cada misión |
 | `/catalogo/banco-fases` | Banco maestro de fases (`PhaseBankEntity`). Se edita fuera del programa |
 | `/catalogo/banco-subfases` | Banco maestro de subfases (`SubphaseBankEntity`). Se edita fuera del programa |
 | `/catalogo/flotas` | Flotas (`FleetEntity`) |

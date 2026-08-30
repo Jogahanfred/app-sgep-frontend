@@ -13,6 +13,17 @@ vi.mock('lottie-web', () => ({
   },
 }));
 
+function stubDialog(): void {
+  if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      this.removeAttribute('open');
+    };
+  }
+}
+
 async function waitReady(fixture: ComponentFixture<ProgramFlowPage>): Promise<void> {
   fixture.detectChanges();
   const started = Date.now();
@@ -23,8 +34,17 @@ async function waitReady(fixture: ComponentFixture<ProgramFlowPage>): Promise<vo
   fixture.detectChanges();
 }
 
+function navButtons(root: HTMLElement): { back?: HTMLButtonElement; next?: HTMLButtonElement } {
+  const buttons = [...root.querySelectorAll('button')];
+  return {
+    back: buttons.find((node) => (node.textContent ?? '').includes('Atrás')),
+    next: buttons.find((node) => (node.textContent ?? '').includes('Siguiente')),
+  };
+}
+
 describe('ProgramFlowPage', () => {
-  it('entra en la primera fase y avanza el tiempo con Atrás y Siguiente', async () => {
+  it('coloca el cuadro en fase, subfase y entra misión a misión', async () => {
+    stubDialog();
     await TestBed.configureTestingModule({
       imports: [ProgramFlowPage],
       providers: [
@@ -39,48 +59,106 @@ describe('ProgramFlowPage', () => {
 
     const fixture = TestBed.createComponent(ProgramFlowPage);
     await waitReady(fixture);
+    const page = fixture.componentInstance;
     const root = fixture.nativeElement as HTMLElement;
     const text = root.textContent ?? '';
+
     expect(text).toContain('Flujo de Piloto privado · ala fija');
     expect(text).toContain('Solo consulta');
-    expect(text).toContain('Atrás');
-    expect(text).toContain('Siguiente');
-    expect(text).toContain('Fase 1 de 5');
-    expect(fixture.componentInstance.step()).toBe(0);
-    expect(fixture.componentInstance.current()?.name).toBe('TEO · Teoría en aula');
-    const card = root.querySelector('.flow__phase')?.textContent ?? '';
-    expect(card).toContain('TEO · Teoría en aula');
-    expect(card).toContain('AULA · Aula');
-    expect(card).not.toContain('DUAL · Dual');
-    expect(card).not.toContain('Circuito corto');
-    expect(card).not.toContain('C17');
-    expect(card).not.toContain('Fin del programa');
-    const back = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Atrás'));
-    const next = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Siguiente'));
-    expect(back?.disabled).toBe(true);
-    expect(next?.disabled).toBe(false);
+    expect(text).toContain('Inicio');
+    expect(page.depth()).toBe('start');
+    expect(root.querySelector('.flow__on')).toBeNull();
+    expect(navButtons(root).back?.disabled).toBe(true);
+    expect(navButtons(root).next?.disabled).toBe(false);
     expect(text).not.toContain('Añadir');
     expect(text).not.toContain('Guardar');
     expect(text).not.toContain('Editar fase');
     expect(root.querySelector('input')).toBeNull();
     expect(root.querySelector('form')).toBeNull();
 
-    fixture.componentInstance.goNext();
+    page.goNext();
     fixture.detectChanges();
-    expect(fixture.componentInstance.step()).toBe(1);
-    expect(fixture.componentInstance.current()?.name).toBe('BAS · Vuelo básico');
-    const second = root.querySelector('.flow__phase')?.textContent ?? '';
-    expect(second).toContain('DUAL · Dual');
-    expect(second).toContain('Circuito corto');
-    expect(second).toContain('TOFF · Despegue');
-    expect(second).toContain('Vuelo visual');
-    expect((root.textContent ?? '')).toContain('Fase 2 de 5');
+    expect(page.depth()).toBe('phase');
+    expect(page.currentPhase()?.name).toBe('TEO · Teoría en aula');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('TEO · Teoría en aula');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la fase');
+    expect(root.textContent).toContain('AULA · Aula');
+    expect(root.textContent).toContain('Ver maniobras');
+    expect(root.textContent).not.toContain('DUAL · Dual');
+    expect(root.textContent).not.toContain('Circuito corto');
+    expect(root.textContent).not.toContain('TOFF · Despegue');
+    expect(root.textContent).not.toContain('Fin del programa');
 
-    fixture.componentInstance.goTo(4);
+    page.goNext();
     fixture.detectChanges();
-    expect(fixture.componentInstance.isLast()).toBe(true);
+    expect(page.depth()).toBe('lesson');
+    expect(page.currentLesson()?.name).toBe('AULA · Aula');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la subfase');
+    expect(root.textContent).toContain('0 misiones');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.depth()).toBe('phase');
+    expect(page.currentPhase()?.name).toBe('BAS · Vuelo básico');
+    expect(root.querySelector('.flow__on')?.textContent).toContain('Cuadro en la fase');
+    expect(root.textContent).toContain('BRF · Briefing');
+    expect(root.textContent).toContain('DUAL · Dual');
+    expect(root.textContent).not.toContain('Circuito corto');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.depth()).toBe('lesson');
+    expect(page.currentLesson()?.name).toBe('BRF · Briefing');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.depth()).toBe('mission');
+    expect(page.currentMission()?.name).toBe('LOC · Misión local');
+    expect(root.querySelector('.flow__task')?.textContent).toContain('Dentro de la misión');
+    expect(root.textContent).toContain('Misión 1 de 1');
+    expect(root.textContent).not.toContain('Circuito corto');
+    expect(root.textContent).not.toContain('TOFF · Despegue');
+
+    const briefing = page.currentLesson();
+    expect(briefing?.hasManeuvers).toBe(true);
+    page.openManeuvers(briefing!);
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Maniobras · BRF · Briefing');
+    expect(root.textContent).toContain('TOFF · Despegue');
+    expect(root.textContent).toContain('LAND · Aterrizaje');
+    page.closeManeuvers();
+    fixture.detectChanges();
+    expect(root.querySelector('.flow__phase')?.textContent).not.toContain('TOFF · Despegue');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.depth()).toBe('lesson');
+    expect(page.currentLesson()?.name).toBe('DUAL · Dual');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.currentMission()?.name).toBe('LOC · Misión local');
+    expect(root.textContent).toContain('Misión 1 de 3');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.currentMission()?.name).toBe('Circuito corto');
+    expect(root.textContent).toContain('Misión 2 de 3');
+
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.currentMission()?.name).toBe('Circuito largo');
+    expect(root.textContent).toContain('Misión 3 de 3');
+
+    page.goTo(4);
+    fixture.detectChanges();
+    expect(page.depth()).toBe('phase');
+    expect(page.currentPhase()?.name).toContain('CHK');
+    page.goNext();
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.isLast()).toBe(true);
     expect(root.querySelector('.flow__phase')?.textContent).toContain('Fin del programa');
-    const lastNext = [...root.querySelectorAll('button')].find((node) => (node.textContent ?? '').includes('Siguiente'));
-    expect(lastNext?.disabled).toBe(true);
+    expect(navButtons(root).next?.disabled).toBe(true);
   });
 });
