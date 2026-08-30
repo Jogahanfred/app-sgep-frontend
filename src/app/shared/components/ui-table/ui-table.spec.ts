@@ -116,5 +116,33 @@ describe('UiTable', () => {
     expect(img?.getAttribute('alt')).toBe('Aeronave EC-HVA');
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('EC-HVA');
   });
+
+  it('marca varias filas y emite la acción de cada registro', () => {
+    const fixture = TestBed.createComponent(UiTable);
+    fixture.componentRef.setInput('columns', [{ id: 'name', header: 'Nombre' }]);
+    fixture.componentRef.setInput('rows', [
+      { id: 'a', cells: { name: 'Alfa' } },
+      { id: 'b', cells: { name: 'Bravo' }, actionDisabled: true },
+    ]);
+    fixture.componentRef.setInput('multiSelect', true);
+    fixture.componentRef.setInput('checkedIds', ['a']);
+    fixture.componentRef.setInput('rowAction', 'Añadir');
+    fixture.detectChanges();
+
+    const picked = vi.fn();
+    const checked = vi.fn();
+    fixture.componentInstance.rowActionClick.subscribe(picked);
+    fixture.componentInstance.checkedIdsChange.subscribe(checked);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('input[type="checkbox"]').length).toBe(2);
+    expect((root.querySelector('input[type="checkbox"]') as HTMLInputElement).checked).toBe(true);
+    const actions = [...root.querySelectorAll('button')].filter((node) => (node.textContent ?? '').includes('Añadir'));
+    expect(actions).toHaveLength(2);
+    expect((actions[1] as HTMLButtonElement).disabled).toBe(true);
+    actions[0].click();
+    expect(picked).toHaveBeenCalledWith('a');
+    (root.querySelectorAll('input[type="checkbox"]')[1] as HTMLInputElement).click();
+    expect(checked).toHaveBeenCalledWith(['a', 'b']);
+  });
 });
 

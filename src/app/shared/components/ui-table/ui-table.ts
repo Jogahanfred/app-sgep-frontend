@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Button } from '../button/button';
 import { Icon } from '../icon/icon';
 import { UiLoading } from '../ui-loading/ui-loading';
 import { UiSelect } from '../ui-select/ui-select';
@@ -34,12 +35,13 @@ export interface UiTableCell {
 export interface UiTableRow {
   id: string;
   cells: Record<string, UiTableCell | string>;
+  actionDisabled?: boolean;
 }
 
 @Component({
   selector: 'ui-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, UiLoading, UiSelect],
+  imports: [RouterLink, Button, Icon, UiLoading, UiSelect],
   templateUrl: './ui-table.html',
   styleUrl: './ui-table.scss',
 })
@@ -55,6 +57,11 @@ export class UiTable {
   readonly heading = input('');
   readonly selectedId = input<string | null>(null);
   readonly selectedIdChange = output<string | null>();
+  readonly multiSelect = input(false);
+  readonly checkedIds = input<readonly string[]>([]);
+  readonly checkedIdsChange = output<string[]>();
+  readonly rowAction = input('');
+  readonly rowActionClick = output<string>();
   readonly pageSizeOptions = input<readonly number[]>([10, 20, 50]);
   readonly initialPageSize = input(10);
 
@@ -83,6 +90,8 @@ export class UiTable {
   readonly pageSizeChoices = computed(() =>
     this.pageSizeOptions().map((size) => ({ value: String(size), label: String(size) })),
   );
+  readonly extraColumns = computed(() => (this.multiSelect() ? 1 : 0) + (this.rowAction() ? 1 : 0));
+  readonly totalColumns = computed(() => this.columns().length + this.extraColumns());
   readonly pageSizeId = computed(() => {
     const slug = this.heading().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'tabla';
     return `${slug}-page-size`;
@@ -123,7 +132,27 @@ export class UiTable {
   }
 
   selectRow(row: UiTableRow): void {
+    if (this.multiSelect()) {
+      this.toggleChecked(row.id);
+      return;
+    }
     this.selectedIdChange.emit(this.selectedId() === row.id ? null : row.id);
+  }
+
+  isChecked(id: string): boolean {
+    return this.checkedIds().includes(id);
+  }
+
+  toggleChecked(id: string): void {
+    const current = this.checkedIds();
+    const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+    this.checkedIdsChange.emit(next);
+  }
+
+  emitRowAction(row: UiTableRow, event: Event): void {
+    event.stopPropagation();
+    if (row.actionDisabled) return;
+    this.rowActionClick.emit(row.id);
   }
 
   alignClass(align: UiTableAlign | undefined): string {

@@ -24,15 +24,21 @@
         }
         <thead>
           <tr>
+            @if (multiSelect()) {
+              <th class="ui-table__check">Sel.</th>
+            }
             @for (column of columns(); track column.id) {
               <th [class]="alignClass(column.align)">{{ column.header }}</th>
+            }
+            @if (rowAction()) {
+              <th>Acción</th>
             }
           </tr>
         </thead>
         <tbody>
           @if (total() === 0) {
             <tr class="ui-table__empty-row">
-              <td [attr.colspan]="columns().length">
+              <td [attr.colspan]="totalColumns()">
                 <div class="ui-table__empty" role="status">
                   <app-icon class="ui-table__empty-icon" name="inbox" />
                   <p>{{ emptyTitle() }}</p>
@@ -42,10 +48,20 @@
           } @else {
             @for (row of pagedRows(); track row.id) {
               <tr
-                [class.ui-table__row--on]="selectedId() === row.id"
+                [class.ui-table__row--on]="selectedId() === row.id || isChecked(row.id)"
                 [style.--i]="$index"
                 (click)="selectRow(row)"
               >
+                @if (multiSelect()) {
+                  <td class="ui-table__check" (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="isChecked(row.id)"
+                      [attr.aria-label]="'Seleccionar ' + cell(row, columns()[0].id).text"
+                      (change)="toggleChecked(row.id)"
+                    />
+                  </td>
+                }
                 @for (column of columns(); track column.id) {
                   @let item = cell(row, column.id);
                   <td [class]="alignClass(column.align)">
@@ -61,6 +77,18 @@
                     } @else {
                       {{ item.text }}
                     }
+                  </td>
+                }
+                @if (rowAction()) {
+                  <td>
+                    <app-button
+                      type="button"
+                      size="xs"
+                      [disabled]="!!row.actionDisabled"
+                      (click)="emitRowAction(row, $event)"
+                    >
+                      {{ rowAction() }}
+                    </app-button>
                   </td>
                 }
               </tr>

@@ -99,6 +99,16 @@ tbody tr:not(.ui-table__empty-row):hover td {
   text-align: right;
 }
 
+.ui-table__check {
+  width: 2.6rem;
+}
+
+.ui-table__check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary);
+}
+
 .ui-table__media {
   display: inline-flex;
   align-items: center;

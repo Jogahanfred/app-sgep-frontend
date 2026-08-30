@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   ListManeuvers,
   ListMissionTypes,
+  ListOperations,
   ListPhaseBanks,
   ListPhases,
   ListPrograms,
@@ -18,6 +19,7 @@ import {
   type EntityStatus,
   type ManeuverBankEntity,
   type MissionTypeEntity,
+  type OperationEntity,
   type PhaseBankEntity,
   type MissionAssignMode,
   type PhaseDraftInput,
@@ -27,6 +29,7 @@ import {
 import { curriculumHours, expandAutoMissions, matchesAdminSearch } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
+import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiAssignBlock } from '@shared/components/ui-assign-block/ui-assign-block';
@@ -82,6 +85,7 @@ interface GeneratedMission {
   imports: [
     ReactiveFormsModule,
     Alert,
+    Breadcrumb,
     Button,
     Modal,
     UiAssignBlock,
@@ -109,6 +113,7 @@ export class ProgramStudioPage {
   private readonly listSubphaseBanks = inject(ListSubphaseBanks);
   private readonly listMissionTypes = inject(ListMissionTypes);
   private readonly listManeuvers = inject(ListManeuvers);
+  private readonly listOperations = inject(ListOperations);
   private readonly saveCurriculum = inject(SaveProgramCurriculum);
   private readonly toast = inject(ToastService);
   private draftSeq = 1;
@@ -132,6 +137,7 @@ export class ProgramStudioPage {
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
   readonly missions = signal<MissionTypeEntity[]>([]);
   readonly maneuvers = signal<ManeuverBankEntity[]>([]);
+  readonly operations = signal<OperationEntity[]>([]);
   readonly phases = signal<StudioPhase[]>([]);
   readonly nextPhaseBankId = signal('');
   readonly nextSubphaseBankId = signal<Record<string, string>>({});
@@ -158,7 +164,8 @@ export class ProgramStudioPage {
   readonly maneuverPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
   readonly maneuverSearch = new FormControl('', { nonNullable: true });
   readonly maneuverQuery = signal('');
-  readonly maneuverSelectedId = signal<string | null>(null);
+  readonly maneuverCheckedIds = signal<string[]>([]);
+  readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
   readonly maneuverPickerPageSizes = [4] as const;
   readonly maneuverPickerColumns: UiTableColumn[] = [
     { id: 'code', header: 'Código' },
@@ -268,25 +275,37 @@ export class ProgramStudioPage {
     return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
   });
 
-  readonly maneuverPickerRows = computed<UiTableRow[]>(() => {
-    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
-    return this.maneuvers()
-      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.maneuverQuery()))
-      .map((item) => ({
-        id: item.id,
-        cells: {
-          code: item.code,
-          name: item.name,
-          description: item.description || '—',
-          use: assigned.has(item.id) ? 'En la subfase' : 'Catálogo',
-        },
-      }));
-  });
+  readonly maneuverPickerRows = computed<UiTableRow[]>(() =>
+    this.toManeuverRows(
+      this.maneuvers().filter((item) =>
+        matchesAdminSearch([item.code, item.name, item.description], this.maneuverQuery()),
+      ),
+    ),
+  );
 
-  readonly canAddPickerManeuver = computed(() => {
-    const id = this.maneuverSelectedId();
-    const sub = this.currentManeuverSub();
-    return !!id && !!sub && !sub.maneuverIds.includes(id);
+  readonly canGroupManeuvers = computed(() => this.maneuverCheckedIds().length > 0);
+
+  readonly maneuverCrumbs = computed(() => [
+    { label: 'Catálogo', action: 'catalog' },
+    { label: 'Por operaciones' },
+  ]);
+
+  readonly groupedManeuverSections = computed(() => {
+    const selected = new Set(this.maneuverCheckedIds());
+    const items = this.maneuvers().filter((item) => selected.has(item.id));
+    const groups = new Map<string, ManeuverBankEntity[]>();
+    for (const item of items) {
+      const list = groups.get(item.operationId) ?? [];
+      list.push(item);
+      groups.set(item.operationId, list);
+    }
+    return [...groups.entries()]
+      .map(([operationId, maneuvers]) => ({
+        operationId,
+        operationName: this.operations().find((item) => item.id === operationId)?.name ?? 'Sin operación',
+        rows: this.toManeuverRows(maneuvers),
+      }))
+      .sort((a, b) => a.operationName.localeCompare(b.operationName, 'es'));
   });
 
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
@@ -313,6 +332,7 @@ export class ProgramStudioPage {
       subphaseBanks: this.listSubphaseBanks.execute(),
       missions: this.listMissionTypes.execute(),
       maneuvers: this.listManeuvers.execute(),
+      operations: this.listOperations.execute(),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -321,6 +341,7 @@ export class ProgramStudioPage {
           this.subphaseBanks.set(bundle.subphaseBanks);
           this.missions.set(bundle.missions);
           this.maneuvers.set(bundle.maneuvers);
+          this.operations.set(bundle.operations);
           this.nextPhaseBankId.set(bundle.phaseBanks.find((item) => item.status === 'active')?.id ?? '');
           if (this.editingId) {
             const program = bundle.programs.find((item) => item.id === this.editingId);
@@ -435,22 +456,46 @@ export class ProgramStudioPage {
       ?.subphases.find((item) => item.key === subKey);
     if (!sub) return;
     this.maneuverPickerTarget.set({ phaseKey, subKey });
-    this.maneuverSelectedId.set(null);
+    this.maneuverCheckedIds.set([]);
+    this.maneuverPickerView.set('catalog');
     this.maneuverSearch.setValue('');
     this.maneuverQuery.set('');
   }
 
   closeManeuverPicker(): void {
     this.maneuverPickerTarget.set(null);
-    this.maneuverSelectedId.set(null);
+    this.maneuverCheckedIds.set([]);
+    this.maneuverPickerView.set('catalog');
   }
 
-  addPickerManeuver(): void {
+  addManeuverFromCatalog(maneuverId: string): void {
     const target = this.maneuverPickerTarget();
-    const id = this.maneuverSelectedId();
-    if (!target || !id || !this.canAddPickerManeuver()) return;
-    this.toggleManeuver(target.phaseKey, target.subKey, id, true);
-    this.maneuverSelectedId.set(null);
+    const sub = this.currentManeuverSub();
+    if (!target || !sub || sub.maneuverIds.includes(maneuverId)) return;
+    this.toggleManeuver(target.phaseKey, target.subKey, maneuverId, true);
+  }
+
+  showManeuverGroups(): void {
+    if (!this.canGroupManeuvers()) return;
+    this.maneuverPickerView.set('grouped');
+  }
+
+  onManeuverCrumb(action: string): void {
+    if (action === 'catalog') this.maneuverPickerView.set('catalog');
+  }
+
+  private toManeuverRows(items: ManeuverBankEntity[]): UiTableRow[] {
+    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
+    return items.map((item) => ({
+      id: item.id,
+      actionDisabled: assigned.has(item.id),
+      cells: {
+        code: item.code,
+        name: item.name,
+        description: item.description || '—',
+        use: assigned.has(item.id) ? 'En la subfase' : 'Catálogo',
+      },
+    }));
   }
 
   startAddingMissions(): void {
