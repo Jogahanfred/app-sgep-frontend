@@ -21,13 +21,13 @@
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgb(40 40 40 / 0%) 0%,
-    rgb(35 35 35 / 38%) 38%,
-    rgb(35 35 35 / 28%) 62%,
-    rgb(40 40 40 / 0%) 100%
+    rgb(70 70 70 / 0%) 0%,
+    rgb(90 90 90 / 16%) 38%,
+    rgb(90 90 90 / 12%) 62%,
+    rgb(70 70 70 / 0%) 100%
   );
   transform: translateX(-110%);
-  animation: app-ripple-ltr 980ms var(--ease-out) forwards;
+  animation: app-ripple-ltr 1450ms var(--ease-out) forwards;
 }
 
 @keyframes app-ripple-ltr {
