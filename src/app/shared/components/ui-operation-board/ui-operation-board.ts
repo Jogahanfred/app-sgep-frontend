@@ -57,35 +57,24 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
               (drop)="dropOnOp(op.id, $event)"
             >
               <header class="ob__op-head">
-                <span class="ob__num">{{ i + 1 }}</span>
-                <h4>{{ op.name }}</h4>
+                <div class="ob__who">
+                  <span class="ob__num">{{ i + 1 }}</span>
+                  <h4>{{ op.name }}</h4>
+                </div>
                 <div class="ob__sort">
+                  <app-button type="button" variant="secondary" size="sm" [disabled]="i === 0" (click)="shiftOperation(op.id, -1)">
+                    Subir
+                  </app-button>
                   <app-button
                     type="button"
                     variant="secondary"
-                    size="xs"
-                    icon="arrow-up"
-                    ariaLabel="Subir operación"
-                    [disabled]="i === 0"
-                    (click)="shiftOperation(op.id, -1)"
-                  />
-                  <app-button
-                    type="button"
-                    variant="secondary"
-                    size="xs"
-                    icon="arrow-down"
-                    ariaLabel="Bajar operación"
+                    size="sm"
                     [disabled]="i === orderedOperations().length - 1"
                     (click)="shiftOperation(op.id, 1)"
-                  />
-                  <app-button
-                    type="button"
-                    variant="ghost"
-                    size="xs"
-                    icon="close"
-                    ariaLabel="Quitar operación"
-                    (click)="forgetOperation(op.id)"
-                  />
+                  >
+                    Bajar
+                  </app-button>
+                  <app-button type="button" variant="ghost" size="sm" (click)="forgetOperation(op.id)">Quitar</app-button>
                 </div>
               </header>
               <ul class="ob__drop">

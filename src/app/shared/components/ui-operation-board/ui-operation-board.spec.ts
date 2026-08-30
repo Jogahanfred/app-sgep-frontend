@@ -58,10 +58,11 @@ describe('UiOperationBoard', () => {
     fixture.detectChanges();
     expect(root.querySelectorAll('[data-op]').length).toBe(1);
     expect(root.textContent).toContain('TOFF · Despegue');
-    expect(root.querySelectorAll('.ob__sort app-button').length).toBe(3);
-    expect(root.querySelector('[aria-label="Subir operación"]')).not.toBeNull();
-    expect(root.querySelector('[aria-label="Bajar operación"]')).not.toBeNull();
-    expect(root.querySelector('[aria-label="Quitar operación"]')).not.toBeNull();
+    const tools = root.querySelector('.ob__sort') as HTMLElement;
+    expect(tools.querySelectorAll('app-button').length).toBe(3);
+    expect(tools.textContent).toContain('Subir');
+    expect(tools.textContent).toContain('Bajar');
+    expect(tools.textContent).toContain('Quitar');
 
     fixture.componentInstance.place('man-toff', 'op-vfr');
     expect(assigned).toHaveBeenCalledWith({ 'man-toff': 'op-vfr' });

@@ -81,10 +81,18 @@
 }
 
 .ob__op-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ob__who {
+  display: flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0;
 }
 
 .ob__op-head h4 {
@@ -106,9 +114,9 @@
 }
 
 .ob__sort {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .ob__drop,
