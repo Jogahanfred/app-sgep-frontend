@@ -3,6 +3,9 @@
 }
 
 .ab {
+  --chip-size: 1.7rem;
+  --chip-font: 0.72rem;
+  --chip-pad-x: 0.55rem;
   display: grid;
   gap: 0.85rem;
   padding: 0.9rem 1rem 1rem;

@@ -1,18 +1,22 @@
 :host {
   display: inline-flex;
+  font-size: inherit;
 }
 
 .chip {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 1.7rem;
-  padding: 0.15rem 0.7rem;
+  height: var(--chip-size, 1.7rem);
+  min-height: var(--chip-size, 1.7rem);
+  padding: 0 var(--chip-pad-x, 0.55rem);
   border-radius: 999px;
   background: #eef4fa;
   color: #35506a;
-  font-size: 0.78rem;
+  font-size: var(--chip-font, 0.72rem);
   font-weight: 700;
+  line-height: 1;
 }
 
 button.chip {
@@ -37,7 +41,7 @@ button.chip {
   --chip-remove: #c62828;
   position: relative;
   isolation: isolate;
-  min-width: 4.75rem;
+  min-width: 3.35rem;
   padding: 0;
   overflow: hidden;
   perspective: 860px;
@@ -46,7 +50,7 @@ button.chip {
 .chip__inner {
   position: relative;
   display: block;
-  min-height: 1.7rem;
+  height: var(--chip-size, 1.7rem);
   transform-style: preserve-3d;
   transition: transform 0.42s var(--ease-out);
 }
@@ -62,11 +66,12 @@ button.chip {
 }
 
 .chip__face {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 1.7rem;
-  padding: 0.15rem 0.7rem;
+  height: var(--chip-size, 1.7rem);
+  padding: 0 var(--chip-pad-x, 0.55rem);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }

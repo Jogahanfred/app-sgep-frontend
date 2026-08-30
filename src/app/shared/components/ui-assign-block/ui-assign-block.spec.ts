@@ -40,4 +40,19 @@ describe('UiAssignBlock', () => {
     const empty = root.querySelector('.ab__body p') as HTMLElement;
     expect(getComputedStyle(empty).textAlign).toBe('center');
   });
+
+  it('expone la escala del título para que el chip la herede', () => {
+    TestBed.configureTestingModule({ imports: [UiAssignBlock] });
+    const fixture = TestBed.createComponent(UiAssignBlock);
+    fixture.componentRef.setInput('title', 'Misiones');
+    fixture.detectChanges();
+    const block = (fixture.nativeElement as HTMLElement).querySelector('.ab') as HTMLElement;
+    const styles = getComputedStyle(block);
+    expect(styles.getPropertyValue('--chip-size').trim()).toBe('1.7rem');
+    expect(styles.getPropertyValue('--chip-font').trim()).toBe('0.72rem');
+    expect(styles.getPropertyValue('--chip-pad-x').trim()).toBe('0.55rem');
+    expect(getComputedStyle(block.querySelector('.ab__title') as HTMLElement).fontSize).toBe(
+      styles.getPropertyValue('--chip-font').trim(),
+    );
+  });
 });
