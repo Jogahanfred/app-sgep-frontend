@@ -27,7 +27,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
       <section class="ob__box">
         <header class="ob__head">
           <h3>Operaciones</h3>
-          <p>Busca y elige las operaciones que estarán en el cuadro. Luego ordénalas.</p>
+          <p>Elige las que estarán. El orden se cambia con Subir y Bajar.</p>
         </header>
         <div class="ob__picker">
           <ui-select
@@ -35,6 +35,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
             label="Buscar operación"
             placeholder="Nombre o descripción"
             leadingIcon="search"
+            size="sm"
             [uppercase]="false"
             [filter]="true"
             [options]="availableOperations()"
@@ -63,19 +64,19 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                   <h4>{{ op.name }}</h4>
                 </div>
                 <div class="ob__sort">
-                  <app-button type="button" variant="secondary" size="sm" [disabled]="i === 0" (click)="shiftOperation(op.id, -1)">
+                    <app-button type="button" variant="secondary" size="xs" [disabled]="i === 0" (click)="shiftOperation(op.id, -1)">
                     Subir
                   </app-button>
                   <app-button
                     type="button"
                     variant="secondary"
-                    size="sm"
+                    size="xs"
                     [disabled]="i === orderedOperations().length - 1"
                     (click)="shiftOperation(op.id, 1)"
                   >
                     Bajar
                   </app-button>
-                  <app-button type="button" variant="ghost" size="sm" (click)="forgetOperation(op.id)">Quitar</app-button>
+                  <app-button type="button" variant="ghost" size="xs" (click)="forgetOperation(op.id)">Quitar</app-button>
                 </div>
               </header>
               <ol class="ob__drop">
@@ -93,7 +94,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                       <app-button
                         type="button"
                         variant="secondary"
-                        size="sm"
+                        size="xs"
                         [disabled]="m === 0"
                         (click)="shiftAssigned(op.id, item.id, -1)"
                       >
@@ -102,13 +103,13 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                       <app-button
                         type="button"
                         variant="secondary"
-                        size="sm"
+                        size="xs"
                         [disabled]="m === maneuversIn(op.id).length - 1"
                         (click)="shiftAssigned(op.id, item.id, 1)"
                       >
                         Bajar
                       </app-button>
-                      <app-button type="button" variant="ghost" size="sm" (click)="place(item.id, null)">Quitar</app-button>
+                      <app-button type="button" variant="ghost" size="xs" (click)="place(item.id, null)">Quitar</app-button>
                     </div>
                   </li>
                 } @empty {
@@ -178,7 +179,8 @@ export class UiOperationBoard {
       .filter((item) => !chosen.has(item.id))
       .map((item) => ({
         value: item.id,
-        label: item.description ? `${item.name} · ${item.description}` : item.name,
+        label: item.name,
+        hint: item.description,
       }));
   });
 

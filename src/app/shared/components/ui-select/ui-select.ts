@@ -52,7 +52,7 @@ export class UiSelect {
     const query = this.filterQuery().trim().toLowerCase();
     const items = this.options();
     if (!query) return items;
-    return items.filter((option) => option.label.toLowerCase().includes(query));
+    return items.filter((option) => `${option.label} ${option.hint ?? ''}`.toLowerCase().includes(query));
   });
 
   readonly emptyCopy = computed(() =>

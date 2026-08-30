@@ -94,4 +94,27 @@ describe('UiSelect', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('No se encontraron resultados.');
   });
+
+  it('muestra la descripción como pista y filtra por ella', () => {
+    const fixture = TestBed.createComponent(UiSelect);
+    fixture.componentRef.setInput('id', 'ops');
+    fixture.componentRef.setInput('label', 'Operación');
+    fixture.componentRef.setInput('filter', true);
+    fixture.componentRef.setInput('uppercase', false);
+    fixture.componentRef.setInput('options', [
+      { value: 'vfr', label: 'Vuelo visual', hint: 'Circuitos y transiciones' },
+      { value: 'ifr', label: 'Vuelo instrumental' },
+    ]);
+    fixture.detectChanges();
+    ((fixture.nativeElement as HTMLElement).querySelector('.sm__trigger') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Circuitos y transiciones');
+
+    const search = (fixture.nativeElement as HTMLElement).querySelector('.sm__search') as HTMLInputElement;
+    search.value = 'circuitos';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Vuelo visual');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Vuelo instrumental');
+  });
 });

@@ -71,7 +71,12 @@
               [class.sm__opt--caps]="uppercase()"
               (click)="pick(option)"
             >
-              <span>{{ option.label }}</span>
+              <span class="sm__opt-text">
+                <span>{{ option.label }}</span>
+                @if (option.hint) {
+                  <small class="sm__opt-hint">{{ option.hint }}</small>
+                }
+              </span>
               @if (value() === option.value) {
                 <svg class="sm__mark" viewBox="0 0 16 16" aria-hidden="true">
                   <rect x="2.2" y="2.2" width="11.6" height="11.6" />
