@@ -43,11 +43,13 @@ describe('ProgramsBoardPage', () => {
     expect(root.querySelector('ui-table')).toBeNull();
     expect(root.querySelector('a[href="/catalogo/programas/nuevo"]')).not.toBeNull();
     expect(root.querySelectorAll('ui-program-card').length).toBe(4);
-    const assign = [...root.querySelectorAll<HTMLAnchorElement>('.pcard__actions a.btn')];
-    expect(assign.length).toBe(3);
-    expect(assign.every((node) => !node.classList.contains('btn--disabled'))).toBe(true);
-    expect(assign[0]?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/estandares');
+    const actions = [...root.querySelectorAll<HTMLAnchorElement>('.pcard__actions a.btn')];
+    expect(actions.length).toBe(6);
+    expect(actions.every((node) => !node.classList.contains('btn--disabled'))).toBe(true);
+    expect(actions[0]?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/estandares');
+    expect(actions[1]?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/flujo');
     expect(root.textContent).toContain('Asignar estándares');
+    expect(root.textContent).toContain('Ver flujo');
     const photos = [...root.querySelectorAll<HTMLImageElement>('.pcard__photo')];
     expect(photos).toHaveLength(3);
     expect(new Set(photos.map((img) => img.getAttribute('src'))).size).toBe(3);

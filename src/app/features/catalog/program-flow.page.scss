@@ -1,0 +1,185 @@
+@use './panel';
+
+.flow__badge {
+  display: inline-flex;
+  margin: 0 0 0.45rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #e8f1f8;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.flow__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.flow__summary span,
+.flow__lesson header span {
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: #35506a;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.flow__empty,
+.flow__phase,
+.flow__lesson {
+  border: 1px solid #d5e1ed;
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.flow__empty {
+  padding: 1.4rem;
+}
+
+.flow__empty p,
+.flow__who p,
+.flow__none {
+  margin: 0;
+  color: #4b6074;
+  font-size: 0.82rem;
+}
+
+.flow__rail {
+  display: grid;
+  gap: 0;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow__mark {
+  justify-self: start;
+  margin: 0.35rem 0 0.55rem 0.15rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.flow__mark--end {
+  margin-top: 0.7rem;
+  background: #22384c;
+}
+
+.flow__phase {
+  position: relative;
+  margin-left: 0.85rem;
+  padding: 1rem 1rem 1.05rem 1.15rem;
+}
+
+.flow__phase:not(:last-of-type) {
+  margin-bottom: 0.85rem;
+}
+
+.flow__phase::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  bottom: -0.85rem;
+  left: -0.85rem;
+  width: 2px;
+  background: #c5d6e8;
+}
+
+.flow__who {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.85rem;
+}
+
+.flow__who h2,
+.flow__lesson h3,
+.flow__group h4 {
+  margin: 0;
+}
+
+.flow__who h2 {
+  color: #22384c;
+  font-size: 1.05rem;
+}
+
+.flow__num {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.flow__lessons {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow__lesson {
+  padding: 0.85rem 0.9rem;
+  background: #f8fbfd;
+}
+
+.flow__lesson header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+}
+
+.flow__block {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.flow__block + .flow__block {
+  margin-top: 0.7rem;
+}
+
+.flow__block p,
+.flow__group h4 {
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flow__block ul,
+.flow__group ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow__group {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.55rem 0.65rem;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 0.55rem 0.55rem 0;
+  background: #fff;
+}

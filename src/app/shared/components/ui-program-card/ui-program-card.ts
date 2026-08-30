@@ -24,4 +24,5 @@ export class UiProgramCard {
   readonly variant = input<'course' | 'create'>('course');
   readonly standardsHref = input('');
   readonly standardsEnabled = input(true);
+  readonly flowHref = input('');
 }

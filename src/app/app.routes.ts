@@ -509,6 +509,16 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'programas/:id/flujo',
+        loadComponent: () => import('./features/catalog/program-flow.page').then((m) => m.ProgramFlowPage),
+        data: {
+          seo: {
+            title: 'Flujo del programa | SIGA',
+            description: 'Consulta visual del itinerario completo, sin modificar.',
+          },
+        },
+      },
+      {
         path: 'programas/:id/estandares',
         loadComponent: () => import('./features/catalog/program-standards.page').then((m) => m.ProgramStandardsPage),
         data: {

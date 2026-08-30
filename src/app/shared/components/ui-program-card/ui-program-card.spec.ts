@@ -48,6 +48,23 @@ describe('UiProgramCard', () => {
     expect(action?.classList.contains('btn--disabled')).toBe(false);
   });
 
+  it('pone Ver flujo al lado de Asignar estándares', () => {
+    const fixture = TestBed.createComponent(UiProgramCard);
+    fixture.componentRef.setInput('href', '/catalogo/programas/prg-ppl/editar');
+    fixture.componentRef.setInput('title', 'Piloto privado · ala fija');
+    fixture.componentRef.setInput('standardsHref', '/catalogo/programas/prg-ppl/estandares');
+    fixture.componentRef.setInput('flowHref', '/catalogo/programas/prg-ppl/flujo');
+    fixture.detectChanges();
+
+    const actions = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('.pcard__actions a.btn')];
+    expect(actions.map((node) => node.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
+      'Asignar estándares',
+      'Ver flujo',
+    ]);
+    expect(actions[1]?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/flujo');
+    expect(actions[1]?.classList.contains('btn--disabled')).toBe(false);
+  });
+
   it('pinta la variante para crear un plan', () => {
     const fixture = TestBed.createComponent(UiProgramCard);
     fixture.componentRef.setInput('href', '/catalogo/programas/nuevo');
