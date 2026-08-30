@@ -500,7 +500,12 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   }
 
   listPrograms(): Observable<ProgramEntity[]> {
-    return of(this.programs.map((item) => ({ ...item }))).pipe(delay(LATENCY));
+    return of(
+      this.programs.map((item) => ({
+        ...item,
+        standardIds: [...item.standardIds],
+      })),
+    ).pipe(delay(LATENCY));
   }
 
   listPhases(): Observable<PhaseEntity[]> {
@@ -588,10 +593,12 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       const programId = input.id ?? `prg-${this.seq++}`;
       this.assertUniqueCode(this.programs, input.program.code, 'Ya existe un programa con ese código.', programId);
       this.assertCurriculumRefs(input);
+      const previous = this.programs.find((item) => item.id === programId);
       const program: ProgramEntity = {
         id: programId,
         ...input.program,
         imageUrl: input.program.imageUrl ?? `/programs/${input.program.programType.toLowerCase()}.jpg`,
+        standardIds: [...(input.program.standardIds ?? previous?.standardIds ?? [])],
       };
       const nextPhases: PhaseEntity[] = [];
       const nextSubphases: SubphaseEntity[] = [];
@@ -630,10 +637,26 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         ...this.subphases.filter((item) => keepPhaseIds.has(item.phaseId)),
         ...nextSubphases,
       ];
-      return of({ ...program }).pipe(delay(LATENCY));
+      return of({ ...program, standardIds: [...program.standardIds] }).pipe(delay(LATENCY));
     } catch (error) {
       return throwError(() => error);
     }
+  }
+
+  assignProgramStandards(id: string, standardIds: string[]): Observable<ProgramEntity> {
+    const index = this.programs.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese programa.'));
+    }
+    const unique = [...new Set(standardIds.filter(Boolean))];
+    for (const standardId of unique) {
+      if (!this.standards.some((item) => item.id === standardId)) {
+        return throwError(() => new InvalidAdminCatalogError('Uno de los estándares indicados no existe.'));
+      }
+    }
+    const item: ProgramEntity = { ...this.programs[index], standardIds: unique };
+    this.programs[index] = item;
+    return of({ ...item, standardIds: [...item.standardIds] }).pipe(delay(LATENCY));
   }
 
   private assertCurriculumRefs(input: ProgramCurriculumWriteInput): void {

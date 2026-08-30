@@ -12,9 +12,9 @@
   @if (loadState() === 'loading' || creating()) {
     <ui-loading
       class="ap__loading"
-      [title]="creating() ? 'Creando el plan de estudios' : 'Cargando el programa'"
-      [subtitle]="creating() ? 'Estamos guardando el itinerario de la academia.' : 'Un momento.'"
-      [label]="creating() ? 'Creando programa' : 'Cargando programa'"
+      [title]="creating() ? 'Guardando el programa' : 'Cargando el programa'"
+      [subtitle]="creating() ? 'Estamos guardando el programa en la academia.' : 'Un momento.'"
+      [label]="creating() ? 'Guardando programa' : 'Cargando programa'"
     />
   } @else if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
@@ -273,7 +273,7 @@
       <div class="ap__actions">
         <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver a la academia' : 'Cancelar' }}</app-button>
         @if (!isView) {
-          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear programa' : 'Guardar plan' }}</app-button>
+          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear programa' : 'Guardar programa' }}</app-button>
         }
       </div>
     </form>

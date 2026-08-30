@@ -25,10 +25,27 @@ describe('UiProgramCard', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('a')?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/editar');
+    expect(root.querySelector('a.pcard__main')?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/editar');
     expect(root.textContent).toContain('Piloto privado · ala fija');
     expect(root.textContent).toContain('5 fases');
     expect(root.querySelector('img')?.getAttribute('src')).toBe('/programs/ppl.jpg');
+    expect(root.textContent).not.toContain('Asignar estándares');
+  });
+
+  it('habilita el botón para asignar estándares', () => {
+    const fixture = TestBed.createComponent(UiProgramCard);
+    fixture.componentRef.setInput('href', '/catalogo/programas/prg-ppl/editar');
+    fixture.componentRef.setInput('title', 'Piloto privado · ala fija');
+    fixture.componentRef.setInput('standardsHref', '/catalogo/programas/prg-ppl/estandares');
+    fixture.componentRef.setInput('standardsEnabled', true);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const action = root.querySelector('.pcard__actions a.btn') as HTMLAnchorElement | null;
+    expect(action).not.toBeNull();
+    expect(action?.textContent).toContain('Asignar estándares');
+    expect(action?.getAttribute('href')).toBe('/catalogo/programas/prg-ppl/estandares');
+    expect(action?.classList.contains('btn--disabled')).toBe(false);
   });
 
   it('pinta la variante para crear un plan', () => {

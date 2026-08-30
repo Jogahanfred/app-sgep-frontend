@@ -509,6 +509,16 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'programas/:id/estandares',
+        loadComponent: () => import('./features/catalog/program-standards.page').then((m) => m.ProgramStandardsPage),
+        data: {
+          seo: {
+            title: 'Asignar estándares | SIGA',
+            description: 'Asigna los estándares de evaluación de un programa.',
+          },
+        },
+      },
+      {
         path: 'programas/:id/editar',
         loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
         data: {

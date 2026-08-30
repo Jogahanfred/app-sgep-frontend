@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { EntityStatus } from '@core/domain/entities';
+import { Button } from '../button/button';
 
 @Component({
   selector: 'ui-program-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [Button, RouterLink],
   templateUrl: './ui-program-card.html',
   styleUrl: './ui-program-card.scss',
 })
@@ -21,4 +22,6 @@ export class UiProgramCard {
   readonly statusLabel = input('');
   readonly stats = input<readonly string[]>([]);
   readonly variant = input<'course' | 'create'>('course');
+  readonly standardsHref = input('');
+  readonly standardsEnabled = input(true);
 }

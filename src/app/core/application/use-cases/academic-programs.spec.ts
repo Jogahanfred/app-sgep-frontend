@@ -9,6 +9,7 @@ import { ListPhases } from './list-phases';
 import { ListPrograms } from './list-programs';
 import { ListSubphaseBanks } from './list-subphase-banks';
 import { ListSubphases } from './list-subphases';
+import { AssignProgramStandards } from './assign-program-standards';
 import { SaveProgramCurriculum } from './save-program-curriculum';
 import { UpdatePhaseBank } from './update-phase-bank';
 
@@ -16,6 +17,15 @@ describe('formación académica', () => {
   it('lista los programas de la academia', async () => {
     const items = await firstValueFrom(new ListPrograms(new MockAdminCatalogRepository()).execute());
     expect(items.map((item) => item.code)).toEqual(['PPL-AF', 'IR-ME', 'CPL-AF']);
+    expect(items[0].standardIds).toEqual(['std-toff', 'std-land']);
+  });
+
+  it('asigna estándares a un programa guardado', async () => {
+    const repo = new MockAdminCatalogRepository();
+    const updated = await firstValueFrom(new AssignProgramStandards(repo).execute('prg-cpl', ['std-crm']));
+    expect(updated.standardIds).toEqual(['std-crm']);
+    const listed = await firstValueFrom(new ListPrograms(repo).execute());
+    expect(listed.find((item) => item.id === 'prg-cpl')?.standardIds).toEqual(['std-crm']);
   });
 
   it('carga el itinerario PPL con fases y subfases', async () => {

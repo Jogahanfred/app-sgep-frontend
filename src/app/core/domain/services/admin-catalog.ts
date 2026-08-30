@@ -285,6 +285,10 @@ export function assertSubphaseBankWrite(input: SubphaseBankWriteInput): Subphase
   };
 }
 
+export function assertProgramStandardIds(ids: readonly string[]): string[] {
+  return [...new Set(ids.filter(Boolean))];
+}
+
 export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput {
   const programType = required(input.programType, 'El tipo de programa es obligatorio.') as ProgramType;
   if (!PROGRAM_TYPES.includes(programType)) {

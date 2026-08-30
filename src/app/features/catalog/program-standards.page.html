@@ -1,0 +1,52 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">Elige los estándares de evaluación que aplican a este programa.</p>
+    </div>
+    @if (!creating()) {
+      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+    }
+  </div>
+
+  @if (loadState() === 'loading' || creating()) {
+    <ui-loading
+      class="ap__loading"
+      [title]="creating() ? 'Guardando estándares' : 'Cargando estándares'"
+      [subtitle]="creating() ? 'Estamos asignando los estándares al programa.' : 'Un momento.'"
+      [label]="creating() ? 'Guardando estándares' : 'Cargando estándares'"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
+  } @else {
+    <div class="ap__form">
+      @if (error()) {
+        <app-alert tone="error">{{ error() }}</app-alert>
+      }
+      <ui-input
+        id="prg-std-search"
+        label="Buscar"
+        type="search"
+        icon="search"
+        placeholder="Código, nombre o descripción"
+        [field]="search"
+      />
+      <ui-table
+        heading="Estándares"
+        caption="Estándares del catálogo"
+        [columns]="columns"
+        [rows]="rows()"
+        [multiSelect]="true"
+        [checkedIds]="checkedIds()"
+        [initialPageSize]="8"
+        [pageSizeOptions]="[8]"
+        emptyTitle="No hay resultados con ese buscador."
+        (checkedIdsChange)="checkedIds.set($event)"
+      />
+      <div class="ap__actions">
+        <app-button variant="ghost" [href]="listHref">Cancelar</app-button>
+        <app-button type="button" [disabled]="saving()" (click)="save()">Guardar estándares</app-button>
+      </div>
+    </div>
+  }
+</div>

@@ -270,6 +270,7 @@ export interface ProgramEntity {
   description: string;
   status: EntityStatus;
   imageUrl: string;
+  standardIds: string[];
 }
 
 export interface ProgramWriteInput {
@@ -279,6 +280,7 @@ export interface ProgramWriteInput {
   description: string;
   status: EntityStatus;
   imageUrl?: string;
+  standardIds?: string[];
 }
 
 export interface PhaseEntity {

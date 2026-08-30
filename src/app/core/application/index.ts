@@ -48,6 +48,7 @@ export { ListSubphaseBanks } from './use-cases/list-subphase-banks';
 export { CreateSubphaseBank } from './use-cases/create-subphase-bank';
 export { UpdateSubphaseBank } from './use-cases/update-subphase-bank';
 export { SaveProgramCurriculum } from './use-cases/save-program-curriculum';
+export { AssignProgramStandards } from './use-cases/assign-program-standards';
 export { ChangeUserPassword } from './use-cases/change-user-password';
 export { GetCurrentUser } from './use-cases/get-current-user';
 export { UpdateUserAddress } from './use-cases/update-user-address';

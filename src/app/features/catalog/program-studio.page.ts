@@ -1087,18 +1087,23 @@ export class ProgramStudioPage {
       })),
     }));
     try {
-      if (this.isCreate) this.creating.set(true);
-      const saved = await firstValueFrom(
-        this.saveCurriculum.execute({
-          id: this.editingId ?? undefined,
-          program: this.form.getRawValue(),
-          phases,
-        }),
-      );
-      if (this.isCreate) await holdFor(CATALOG_CREATE_HOLD_MS);
+      this.creating.set(true);
+      await Promise.all([
+        firstValueFrom(
+          this.saveCurriculum.execute({
+            id: this.editingId ?? undefined,
+            program: this.form.getRawValue(),
+            phases,
+          }),
+        ),
+        holdFor(CATALOG_CREATE_HOLD_MS),
+      ]);
       if (this.left) return;
-      this.toast.show(this.isCreate ? 'Programa creado.' : 'Plan de estudios guardado.');
-      await this.router.navigateByUrl(`/catalogo/programas/${saved.id}/editar`);
+      this.toast.success(
+        this.isCreate ? 'Programa creado' : 'Programa guardado',
+        'El programa ya está en la academia.',
+      );
+      await this.router.navigateByUrl(this.listHref);
     } catch (err) {
       if (this.left) return;
       this.creating.set(false);

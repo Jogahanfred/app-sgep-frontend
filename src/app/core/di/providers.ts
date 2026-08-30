@@ -67,6 +67,7 @@ import {
   UpdateStandard,
   UpdateTemporaryCommission,
   UpdateUnit,
+  AssignProgramStandards,
   SaveProgramCurriculum,
   UpdateWeighting,
   UpdateUserRole,
@@ -448,6 +449,11 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: SaveProgramCurriculum,
     useFactory: (repo: AdminCatalogRepository) => new SaveProgramCurriculum(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: AssignProgramStandards,
+    useFactory: (repo: AdminCatalogRepository) => new AssignProgramStandards(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

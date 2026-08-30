@@ -1,7 +1,9 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { vi } from 'vitest';
 import { CORE_PROVIDERS } from '@core/di/providers';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
+import { CATALOG_CREATE_HOLD_MS } from './catalog-form';
 import { ProgramStudioPage } from './program-studio.page';
 
 vi.mock('lottie-web', () => ({
@@ -99,6 +101,38 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('.path ui-table')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('ui-input input[id^="hours-"]')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('label.lesson__hours')).toBeNull();
+    expect(text).toContain('Guardar programa');
+    expect(text).not.toContain('Guardar plan');
+  });
+
+  it('al guardar muestra el loading y vuelve a la lista', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot('prg-ppl', 'edit') }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
+
+    vi.useFakeTimers();
+    try {
+      const pending = fixture.componentInstance.save();
+      fixture.detectChanges();
+      const root = fixture.nativeElement as HTMLElement;
+      expect(fixture.componentInstance.creating()).toBe(true);
+      expect(root.textContent).toContain('Guardando el programa');
+      expect(root.querySelector('form')).toBeNull();
+      expect(root.querySelector('ui-loading.ap__loading')).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(CATALOG_CREATE_HOLD_MS);
+      await pending;
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(success).toHaveBeenCalledWith('Programa guardado', 'El programa ya está en la academia.');
+    expect(navigate).toHaveBeenCalledWith('/catalogo/programas');
   });
 
   it('permite empezar un programa vacío y añadir la primera fase', async () => {

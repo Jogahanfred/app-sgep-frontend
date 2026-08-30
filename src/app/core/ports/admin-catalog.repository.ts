@@ -100,4 +100,5 @@ export interface AdminCatalogRepository {
   createSubphaseBank(input: SubphaseBankWriteInput): Observable<SubphaseBankEntity>;
   updateSubphaseBank(id: string, input: SubphaseBankWriteInput): Observable<SubphaseBankEntity>;
   saveProgramCurriculum(input: ProgramCurriculumWriteInput): Observable<ProgramEntity>;
+  assignProgramStandards(id: string, standardIds: string[]): Observable<ProgramEntity>;
 }

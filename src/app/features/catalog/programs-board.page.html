@@ -45,6 +45,8 @@
           [status]="card.program.status"
           [statusLabel]="statusText(card.program.status)"
           [stats]="cardStats(card)"
+          [standardsHref]="'/catalogo/programas/' + card.program.id + '/estandares'"
+          [standardsEnabled]="true"
         />
       }
       <ui-program-card

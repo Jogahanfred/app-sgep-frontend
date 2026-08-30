@@ -731,6 +731,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     description: 'Plan de estudios para obtener la licencia PPL en ala fija: aula, vuelo básico, navegación y prueba.',
     status: 'active',
     imageUrl: '/programs/ppl.jpg',
+    standardIds: ['std-toff', 'std-land'],
   },
   {
     id: 'prg-ir',
@@ -740,6 +741,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     description: 'Itinerario IFR para tripulantes que ya tienen PPL o CPL.',
     status: 'active',
     imageUrl: '/programs/ir.jpg',
+    standardIds: ['std-hold'],
   },
   {
     id: 'prg-cpl',
@@ -749,6 +751,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     description: 'Continuación comercial sobre el PPL: precisión, travesía y pericia.',
     status: 'inactive',
     imageUrl: '/programs/cpl.jpg',
+    standardIds: [],
   },
 ];
 
