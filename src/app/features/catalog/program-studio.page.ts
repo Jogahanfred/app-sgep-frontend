@@ -295,7 +295,7 @@ export class ProgramStudioPage {
   ]);
 
   readonly maneuverBoardOperations = computed(() =>
-    this.operations().map((item) => ({ id: item.id, name: item.name })),
+    this.operations().map((item) => ({ id: item.id, name: item.name, description: item.description })),
   );
 
   readonly maneuverBoardItems = computed(() => {
@@ -486,7 +486,7 @@ export class ProgramStudioPage {
 
   showManeuverGroups(): void {
     if (!this.canGroupManeuvers()) return;
-    this.maneuverOperationOrder.set(this.operations().map((item) => item.id));
+    this.maneuverOperationOrder.set([]);
     this.maneuverAssignment.set({});
     this.maneuverPickerView.set('grouped');
   }

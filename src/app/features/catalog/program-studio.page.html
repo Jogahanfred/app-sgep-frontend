@@ -385,7 +385,7 @@
             @if (maneuverPickerView() === 'catalog') {
               Elige una maniobra del catálogo y añádela a esta subfase.
             } @else {
-              Arrastra las maniobras a una operación y ordena las operaciones. Vuelve al catálogo con las migas.
+              Primero busca las operaciones que estarán. Debajo tienes todas las maniobras para arrastrarlas.
             }
           </p>
           @if (maneuverPickerView() === 'catalog') {
@@ -420,7 +420,7 @@
             </app-button>
           } @else {
             <ui-operation-board
-              [operations]="maneuverBoardOperations()"
+              [catalog]="maneuverBoardOperations()"
               [maneuvers]="maneuverBoardItems()"
               [order]="maneuverOperationOrder()"
               [assignment]="maneuverAssignment()"

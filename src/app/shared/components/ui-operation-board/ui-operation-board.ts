@@ -4,6 +4,7 @@ import { Button } from '../button/button';
 export interface BoardOperation {
   id: string;
   name: string;
+  description?: string;
 }
 
 export interface BoardManeuver {
@@ -23,8 +24,28 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
       <section class="ob__box">
         <header class="ob__head">
           <h3>Operaciones</h3>
-          <p>Arrastra una operación para cambiar el orden. Suelta una maniobra dentro para agruparla.</p>
+          <p>Busca y elige las operaciones que estarán en el cuadro. Luego ordénalas.</p>
         </header>
+        <label class="ob__search">
+          <span>Buscar operación</span>
+          <input
+            type="search"
+            [value]="query()"
+            placeholder="Nombre o descripción"
+            (input)="onQuery($event)"
+          />
+        </label>
+        @if (suggestions().length) {
+          <ul class="ob__hits">
+            @for (op of suggestions(); track op.id) {
+              <li>
+                <button type="button" (click)="pickOperation(op.id)">{{ op.name }}</button>
+              </li>
+            }
+          </ul>
+        } @else if (query().trim()) {
+          <p class="ob__hint">No hay operaciones con ese buscador.</p>
+        }
         <ol class="ob__ops">
           @for (op of orderedOperations(); track op.id; let i = $index) {
             <li
@@ -53,6 +74,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                   >
                     ↓
                   </button>
+                  <button type="button" aria-label="Quitar operación" (click)="forgetOperation(op.id)">×</button>
                 </div>
               </header>
               <ul class="ob__drop">
@@ -72,6 +94,8 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                 }
               </ul>
             </li>
+          } @empty {
+            <li class="ob__hint">Busca arriba para elegir las operaciones que estarán.</li>
           }
         </ol>
       </section>
@@ -79,22 +103,27 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
       <section class="ob__box">
         <header class="ob__head">
           <h3>Maniobras</h3>
-          <p>Arrástralas a una operación para agruparlas.</p>
+          <p>Todas las seleccionadas. Arrástralas a una operación para agruparlas.</p>
         </header>
         <ul
           class="ob__pool"
           (dragover)="allowPool($event)"
           (drop)="dropOnPool($event)"
         >
-          @for (item of pool(); track item.id) {
-            <li class="ob__chip" draggable="true" (dragstart)="startDrag('maneuver', item.id, $event)">
+          @for (item of maneuvers(); track item.id) {
+            <li
+              class="ob__chip"
+              [class.ob__chip--used]="!!assignment()[item.id]"
+              draggable="true"
+              (dragstart)="startDrag('maneuver', item.id, $event)"
+            >
               <span>{{ item.label }}</span>
               <app-button type="button" size="xs" [disabled]="!!item.added" (click)="addManeuver.emit(item.id)">
                 Añadir
               </app-button>
             </li>
           } @empty {
-            <li class="ob__hint">Todas las maniobras están en una operación.</li>
+            <li class="ob__hint">No hay maniobras seleccionadas.</li>
           }
         </ul>
       </section>
@@ -103,10 +132,11 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
   styleUrl: './ui-operation-board.scss',
 })
 export class UiOperationBoard {
-  readonly operations = input.required<BoardOperation[]>();
+  readonly catalog = input.required<BoardOperation[]>();
   readonly maneuvers = input.required<BoardManeuver[]>();
   readonly order = input<readonly string[]>([]);
   readonly assignment = input<Readonly<Record<string, string>>>({});
+  readonly query = signal('');
   readonly orderChange = output<string[]>();
   readonly assignmentChange = output<Record<string, string>>();
   readonly addManeuver = output<string>();
@@ -115,27 +145,21 @@ export class UiOperationBoard {
   private drag: DragPayload | null = null;
 
   readonly orderedOperations = computed(() => {
-    const items = this.operations();
-    const order = this.order();
+    const items = this.catalog();
     const byId = new Map(items.map((item) => [item.id, item]));
-    const seen = new Set<string>();
-    const sorted: BoardOperation[] = [];
-    for (const id of order) {
-      const item = byId.get(id);
-      if (item) {
-        sorted.push(item);
-        seen.add(id);
-      }
-    }
-    for (const item of items) {
-      if (!seen.has(item.id)) sorted.push(item);
-    }
-    return sorted;
+    return this.order()
+      .map((id) => byId.get(id))
+      .filter((item): item is BoardOperation => !!item);
   });
 
-  readonly pool = computed(() => {
-    const assigned = this.assignment();
-    return this.maneuvers().filter((item) => !assigned[item.id]);
+  readonly suggestions = computed(() => {
+    const term = this.query().trim().toLowerCase();
+    if (!term) return [];
+    const chosen = new Set(this.order());
+    return this.catalog().filter((item) => {
+      if (chosen.has(item.id)) return false;
+      return `${item.name} ${item.description ?? ''}`.toLowerCase().includes(term);
+    });
   });
 
   maneuversIn(operationId: string): BoardManeuver[] {
@@ -191,6 +215,25 @@ export class UiOperationBoard {
   clearOver(): void {
     this.hoverOp.set(null);
     this.drag = null;
+  }
+
+  onQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
+  pickOperation(operationId: string): void {
+    if (this.order().includes(operationId)) return;
+    this.orderChange.emit([...this.order(), operationId]);
+    this.query.set('');
+  }
+
+  forgetOperation(operationId: string): void {
+    this.orderChange.emit(this.order().filter((id) => id !== operationId));
+    const next = { ...this.assignment() };
+    for (const [maneuverId, assigned] of Object.entries(next)) {
+      if (assigned === operationId) delete next[maneuverId];
+    }
+    this.assignmentChange.emit(next);
   }
 
   place(maneuverId: string, operationId: string | null): void {
