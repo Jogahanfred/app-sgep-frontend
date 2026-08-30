@@ -423,10 +423,12 @@
               [catalog]="maneuverBoardOperations()"
               [maneuvers]="maneuverBoardItems()"
               [order]="maneuverOperationOrder()"
+              [maneuverOrder]="maneuverBoardOrder()"
               [assignment]="maneuverAssignment()"
               (orderChange)="maneuverOperationOrder.set($event)"
+              (maneuverOrderChange)="maneuverBoardOrder.set($event)"
               (assignmentChange)="maneuverAssignment.set($event)"
-              (addManeuver)="addManeuverFromCatalog($event)"
+              (removeManeuver)="removeBoardManeuver($event)"
             />
             <app-button type="button" (click)="addGroupedManeuversInOrder()">Añadir en este orden</app-button>
           }

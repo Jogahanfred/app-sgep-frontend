@@ -22,8 +22,12 @@ describe('UiOperationBoard', () => {
 
     const assigned = vi.fn();
     const ordered = vi.fn();
+    const maneuverOrdered = vi.fn();
+    const removed = vi.fn();
     fixture.componentInstance.assignmentChange.subscribe(assigned);
     fixture.componentInstance.orderChange.subscribe(ordered);
+    fixture.componentInstance.maneuverOrderChange.subscribe(maneuverOrdered);
+    fixture.componentInstance.removeManeuver.subscribe(removed);
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('ui-select')).not.toBeNull();
@@ -31,6 +35,10 @@ describe('UiOperationBoard', () => {
     expect(root.querySelectorAll('[data-op]').length).toBe(0);
     expect(root.textContent).toContain('TOFF · Despegue');
     expect(root.textContent).toContain('STALL · Pérdida');
+    expect(root.textContent).not.toContain('Añadir');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Subir');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Bajar');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Quitar');
     expect(root.textContent).toContain('Busca arriba para elegir las operaciones');
 
     const trigger = root.querySelector('.sm__trigger') as HTMLButtonElement;
@@ -69,7 +77,14 @@ describe('UiOperationBoard', () => {
     fixture.componentRef.setInput('assignment', { 'man-toff': 'op-vfr' });
     fixture.detectChanges();
     expect(root.textContent).toContain('TOFF · Despegue');
-    expect(root.querySelector('.ob__chip--used')).not.toBeNull();
+    expect(root.querySelector('.ob__man--used')).not.toBeNull();
+    expect(root.textContent).not.toContain('Añadir');
+
+    fixture.componentInstance.shiftManeuver('man-toff', 1);
+    expect(maneuverOrdered).toHaveBeenCalledWith(['man-stall', 'man-toff']);
+    fixture.componentInstance.forgetManeuver('man-stall');
+    expect(removed).toHaveBeenCalledWith('man-stall');
+    expect(maneuverOrdered).toHaveBeenCalledWith(['man-toff']);
 
     fixture.componentInstance.forgetOperation('op-vfr');
     expect(ordered).toHaveBeenCalledWith([]);

@@ -169,6 +169,7 @@ export class ProgramStudioPage {
   readonly maneuverCheckedIds = signal<string[]>([]);
   readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
   readonly maneuverOperationOrder = signal<string[]>([]);
+  readonly maneuverBoardOrder = signal<string[]>([]);
   readonly maneuverAssignment = signal<Record<string, string>>({});
   readonly maneuverPickerPageSizes = [8] as const;
   readonly maneuverPickerColumns: UiTableColumn[] = [
@@ -461,6 +462,7 @@ export class ProgramStudioPage {
     this.maneuverCheckedIds.set([]);
     this.maneuverPickerView.set('catalog');
     this.maneuverOperationOrder.set([]);
+    this.maneuverBoardOrder.set([]);
     this.maneuverAssignment.set({});
     this.maneuverSearch.setValue('');
     this.maneuverQuery.set('');
@@ -471,6 +473,7 @@ export class ProgramStudioPage {
     this.maneuverCheckedIds.set([]);
     this.maneuverPickerView.set('catalog');
     this.maneuverOperationOrder.set([]);
+    this.maneuverBoardOrder.set([]);
     this.maneuverAssignment.set({});
   }
 
@@ -487,20 +490,30 @@ export class ProgramStudioPage {
   showManeuverGroups(): void {
     if (!this.canGroupManeuvers()) return;
     this.maneuverOperationOrder.set([]);
+    this.maneuverBoardOrder.set([...this.maneuverCheckedIds()]);
     this.maneuverAssignment.set({});
     this.maneuverPickerView.set('grouped');
   }
 
+  removeBoardManeuver(maneuverId: string): void {
+    this.maneuverCheckedIds.update((ids) => ids.filter((id) => id !== maneuverId));
+    this.maneuverBoardOrder.update((ids) => ids.filter((id) => id !== maneuverId));
+    const next = { ...this.maneuverAssignment() };
+    delete next[maneuverId];
+    this.maneuverAssignment.set(next);
+  }
+
   addGroupedManeuversInOrder(): void {
     const assignment = this.maneuverAssignment();
+    const items = this.maneuverBoardOrder().length ? this.maneuverBoardOrder() : this.maneuverCheckedIds();
     const queued: string[] = [];
     for (const operationId of this.maneuverOperationOrder()) {
-      for (const item of this.maneuverBoardItems()) {
-        if (assignment[item.id] === operationId) queued.push(item.id);
+      for (const id of items) {
+        if (assignment[id] === operationId) queued.push(id);
       }
     }
-    for (const item of this.maneuverBoardItems()) {
-      if (!assignment[item.id]) queued.push(item.id);
+    for (const id of items) {
+      if (!assignment[id]) queued.push(id);
     }
     for (const id of queued) this.addManeuverFromCatalog(id);
   }

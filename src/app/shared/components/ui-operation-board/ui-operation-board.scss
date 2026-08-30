@@ -3,6 +3,9 @@
 }
 
 .ob {
+  --chip-size: 1.7rem;
+  --chip-font: 0.72rem;
+  --chip-pad-x: 0.55rem;
   display: grid;
   gap: 0.85rem;
 }
@@ -46,8 +49,9 @@
   margin-bottom: 0.55rem;
 }
 
-.ob__chip--used {
+.ob__man--used ui-chip {
   outline: 1px solid var(--color-primary);
+  border-radius: 999px;
 }
 
 .ob__ops {
@@ -121,26 +125,33 @@
 
 .ob__drop,
 .ob__pool {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: grid;
+  gap: 0.45rem;
   margin: 0;
   padding: 0;
   list-style: none;
   min-height: 2.4rem;
 }
 
-.ob__chip {
-  display: inline-flex;
+.ob__chip,
+.ob__man {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.3rem 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #eef4fa;
-  color: #35506a;
-  font-size: 0.72rem;
-  font-weight: 700;
+  justify-content: space-between;
+  gap: 0.45rem 0.75rem;
+  min-height: 2.4rem;
+  padding: 0.2rem 0;
   cursor: grab;
+}
+
+.ob__man {
+  padding: 0.35rem 0.15rem;
+  border-bottom: 1px solid #e6eef6;
+}
+
+.ob__man:last-child {
+  border-bottom: 0;
 }
 
 .ob__hint {

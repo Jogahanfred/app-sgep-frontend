@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { Button } from '../button/button';
+import { UiChip } from '../ui-chip/ui-chip';
 import { UiSelect } from '../ui-select/ui-select';
 
 export interface BoardOperation {
@@ -20,7 +21,7 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
 @Component({
   selector: 'ui-operation-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, UiSelect],
+  imports: [Button, UiChip, UiSelect],
   template: `
     <div class="ob">
       <section class="ob__box">
@@ -84,10 +85,8 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
                     draggable="true"
                     (dragstart)="startDrag('maneuver', item.id, $event)"
                   >
-                    <span>{{ item.label }}</span>
-                    <app-button type="button" size="xs" [disabled]="!!item.added" (click)="addManeuver.emit(item.id)">
-                      Añadir
-                    </app-button>
+                    <ui-chip [label]="item.label" />
+                    <app-button type="button" variant="ghost" size="sm" (click)="place(item.id, null)">Quitar</app-button>
                   </li>
                 } @empty {
                   <li class="ob__hint">Suelta aquí una maniobra</li>
@@ -103,29 +102,45 @@ type DragPayload = { kind: 'maneuver' | 'operation'; id: string };
       <section class="ob__box">
         <header class="ob__head">
           <h3>Maniobras</h3>
-          <p>Todas las seleccionadas. Arrástralas a una operación para agruparlas.</p>
+          <p>Ordénalas o quítalas. Arrástralas a una operación para agruparlas.</p>
         </header>
-        <ul
+        <ol
           class="ob__pool"
           (dragover)="allowPool($event)"
           (drop)="dropOnPool($event)"
         >
-          @for (item of maneuvers(); track item.id) {
+          @for (item of orderedManeuvers(); track item.id; let i = $index) {
             <li
-              class="ob__chip"
-              [class.ob__chip--used]="!!assignment()[item.id]"
+              class="ob__man"
+              [class.ob__man--used]="!!assignment()[item.id]"
+              [attr.data-man]="item.id"
               draggable="true"
               (dragstart)="startDrag('maneuver', item.id, $event)"
+              (dragover)="allowMan($event)"
+              (drop)="dropOnMan(item.id, $event)"
             >
-              <span>{{ item.label }}</span>
-              <app-button type="button" size="xs" [disabled]="!!item.added" (click)="addManeuver.emit(item.id)">
-                Añadir
-              </app-button>
+              <span class="ob__num">{{ i + 1 }}</span>
+              <ui-chip [label]="item.label" />
+              <div class="ob__sort">
+                <app-button type="button" variant="secondary" size="sm" [disabled]="i === 0" (click)="shiftManeuver(item.id, -1)">
+                  Subir
+                </app-button>
+                <app-button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  [disabled]="i === orderedManeuvers().length - 1"
+                  (click)="shiftManeuver(item.id, 1)"
+                >
+                  Bajar
+                </app-button>
+                <app-button type="button" variant="ghost" size="sm" (click)="forgetManeuver(item.id)">Quitar</app-button>
+              </div>
             </li>
           } @empty {
             <li class="ob__hint">No hay maniobras seleccionadas.</li>
           }
-        </ul>
+        </ol>
       </section>
     </div>
   `,
@@ -135,10 +150,12 @@ export class UiOperationBoard {
   readonly catalog = input.required<BoardOperation[]>();
   readonly maneuvers = input.required<BoardManeuver[]>();
   readonly order = input<readonly string[]>([]);
+  readonly maneuverOrder = input<readonly string[]>([]);
   readonly assignment = input<Readonly<Record<string, string>>>({});
   readonly orderChange = output<string[]>();
+  readonly maneuverOrderChange = output<string[]>();
   readonly assignmentChange = output<Record<string, string>>();
-  readonly addManeuver = output<string>();
+  readonly removeManeuver = output<string>();
 
   readonly hoverOp = signal<string | null>(null);
   private drag: DragPayload | null = null;
@@ -161,9 +178,29 @@ export class UiOperationBoard {
       }));
   });
 
+  readonly orderedManeuvers = computed(() => {
+    const items = this.maneuvers();
+    const byId = new Map(items.map((item) => [item.id, item]));
+    const order = this.maneuverOrder();
+    if (!order.length) return items;
+    const seen = new Set<string>();
+    const sorted: BoardManeuver[] = [];
+    for (const id of order) {
+      const item = byId.get(id);
+      if (item) {
+        sorted.push(item);
+        seen.add(id);
+      }
+    }
+    for (const item of items) {
+      if (!seen.has(item.id)) sorted.push(item);
+    }
+    return sorted;
+  });
+
   maneuversIn(operationId: string): BoardManeuver[] {
     const assigned = this.assignment();
-    return this.maneuvers().filter((item) => assigned[item.id] === operationId);
+    return this.orderedManeuvers().filter((item) => assigned[item.id] === operationId);
   }
 
   startDrag(kind: DragPayload['kind'], id: string, event: DragEvent): void {
@@ -192,6 +229,11 @@ export class UiOperationBoard {
     event.preventDefault();
   }
 
+  allowMan(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   dropOnOp(operationId: string, event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -209,6 +251,20 @@ export class UiOperationBoard {
     event.preventDefault();
     const payload = this.readPayload(event);
     if (payload?.kind === 'maneuver') this.place(payload.id, null);
+  }
+
+  dropOnMan(beforeId: string, event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const payload = this.readPayload(event);
+    if (payload?.kind !== 'maneuver' || payload.id === beforeId) return;
+    const ids = this.orderedManeuvers().map((item) => item.id);
+    const from = ids.indexOf(payload.id);
+    const to = ids.indexOf(beforeId);
+    if (from < 0 || to < 0) return;
+    ids.splice(from, 1);
+    ids.splice(to, 0, payload.id);
+    this.maneuverOrderChange.emit(ids);
   }
 
   clearOver(): void {
@@ -256,6 +312,24 @@ export class UiOperationBoard {
     const [item] = ids.splice(from, 1);
     ids.splice(to, 0, item);
     this.orderChange.emit(ids);
+  }
+
+  shiftManeuver(maneuverId: string, delta: number): void {
+    const ids = this.orderedManeuvers().map((item) => item.id);
+    const from = ids.indexOf(maneuverId);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= ids.length) return;
+    const [item] = ids.splice(from, 1);
+    ids.splice(to, 0, item);
+    this.maneuverOrderChange.emit(ids);
+  }
+
+  forgetManeuver(maneuverId: string): void {
+    this.maneuverOrderChange.emit(this.orderedManeuvers().map((item) => item.id).filter((id) => id !== maneuverId));
+    const next = { ...this.assignment() };
+    delete next[maneuverId];
+    this.assignmentChange.emit(next);
+    this.removeManeuver.emit(maneuverId);
   }
 
   private readPayload(event: DragEvent): DragPayload | null {
