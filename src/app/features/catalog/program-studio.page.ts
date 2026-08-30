@@ -35,6 +35,7 @@ import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
+import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
@@ -90,6 +91,7 @@ interface GeneratedMission {
     UiInput,
     UiLoading,
     UiRadioCardGroup,
+    UiSegmentedControl,
     UiSelect,
     UiTable,
     UiTextarea,
@@ -385,6 +387,14 @@ export class ProgramStudioPage {
   startAddingMissions(): void {
     this.missionAdding.set(true);
     this.missionCreateMode.set('manual');
+  }
+
+  setMissionCreateMode(mode: string): void {
+    if (mode === 'automatic') {
+      this.createMissionsAutomatic();
+      return;
+    }
+    this.createMissionsManual();
   }
 
   createMissionsManual(): void {

@@ -318,16 +318,12 @@
           }
 
           @if (missionAdding()) {
-            <div class="chips" role="radiogroup" aria-label="Modo de misión">
-              @for (option of missionModeOptions; track option.value) {
-                <ui-chip
-                  [label]="option.label"
-                  [selectable]="true"
-                  [selected]="missionCreateMode() === option.value"
-                  (selectedChange)="option.value === 'automatic' ? createMissionsAutomatic() : createMissionsManual()"
-                />
-              }
-            </div>
+            <ui-segmented-control
+              label="Modo de misión"
+              [options]="missionModeOptions"
+              [value]="missionCreateMode()"
+              (valueChange)="setMissionCreateMode($event)"
+            />
             @if (currentPickerSub(); as sub) {
               @if (missionCreateMode() === 'manual') {
                 <div class="missions__custom">
