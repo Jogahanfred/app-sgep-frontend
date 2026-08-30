@@ -15,6 +15,24 @@
   font-weight: 700;
 }
 
+button.chip {
+  border: 1px solid transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.chip--choice {
+  border-color: #c9d6e4;
+  background: #fff;
+  color: #35506a;
+}
+
+.chip--choice.chip--on {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
 .chip__remove {
   border: 0;
   background: transparent;

@@ -171,6 +171,10 @@ describe('ProgramStudioPage', () => {
     modalText = modal?.textContent ?? '';
     expect(modalText).toContain('Manual');
     expect(modalText).toContain('Automático');
+    const modeChips = modal?.querySelectorAll('ui-chip button.chip') ?? [];
+    expect(modeChips.length).toBe(2);
+    expect(modeChips[0].classList.contains('chip--on')).toBe(true);
+    expect(modeChips[1].classList.contains('chip--on')).toBe(false);
     expect(modal?.querySelector('#pick-mision-buscar')).toBeNull();
     fixture.componentInstance.draftMissionName.update((map) => ({ ...map, [dual.key]: 'Circuito bajo' }));
     fixture.componentInstance.addCustomMission(fixture.componentInstance.phases()[1].key, dual.key);

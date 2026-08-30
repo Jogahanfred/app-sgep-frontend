@@ -44,6 +44,7 @@ import {
   CATALOG_CREATE_HOLD_MS,
   academicProgramTypeOptions,
   entityStatusOptions,
+  missionAssignModeOptions,
   holdFor,
   touchedError,
 } from './catalog-form';
@@ -123,6 +124,7 @@ export class ProgramStudioPage {
   readonly listHref = '/catalogo/programas';
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
+  readonly missionModeOptions = missionAssignModeOptions;
   readonly draftMissionName = signal<Record<string, string>>({});
   readonly phaseBanks = signal<PhaseBankEntity[]>([]);
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);

@@ -22,4 +22,20 @@ describe('UiChip', () => {
     root.querySelector('button')?.click();
     expect(removed).toHaveBeenCalled();
   });
+
+  it('marca el chip activo al elegirlo', () => {
+    const fixture = TestBed.createComponent(UiChip);
+    fixture.componentRef.setInput('label', 'Manual');
+    fixture.componentRef.setInput('selectable', true);
+    fixture.componentRef.setInput('selected', true);
+    fixture.detectChanges();
+
+    const picked = vi.fn();
+    fixture.componentInstance.selectedChange.subscribe(picked);
+    const button = (fixture.nativeElement as HTMLElement).querySelector('button.chip') as HTMLButtonElement;
+    expect(button.classList.contains('chip--on')).toBe(true);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    button.click();
+    expect(picked).toHaveBeenCalled();
+  });
 });

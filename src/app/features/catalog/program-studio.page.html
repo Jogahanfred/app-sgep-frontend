@@ -318,13 +318,15 @@
           }
 
           @if (missionAdding()) {
-            <div class="station__tools">
-              <app-button type="button" variant="secondary" size="sm" (click)="createMissionsManual()">
-                Manual
-              </app-button>
-              <app-button type="button" variant="secondary" size="sm" (click)="createMissionsAutomatic()">
-                Automático
-              </app-button>
+            <div class="chips" role="radiogroup" aria-label="Modo de misión">
+              @for (option of missionModeOptions; track option.value) {
+                <ui-chip
+                  [label]="option.label"
+                  [selectable]="true"
+                  [selected]="missionCreateMode() === option.value"
+                  (selectedChange)="option.value === 'automatic' ? createMissionsAutomatic() : createMissionsManual()"
+                />
+              }
             </div>
             @if (currentPickerSub(); as sub) {
               @if (missionCreateMode() === 'manual') {
