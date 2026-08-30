@@ -49,9 +49,14 @@
   margin-bottom: 0.55rem;
 }
 
-.ob__man--used ui-chip {
-  outline: 1px solid var(--color-primary);
-  border-radius: 999px;
+.ob__pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 2.4rem;
 }
 
 .ob__ops {
@@ -123,8 +128,7 @@
   gap: 0.4rem;
 }
 
-.ob__drop,
-.ob__pool {
+.ob__drop {
   display: grid;
   gap: 0.45rem;
   margin: 0;
@@ -133,25 +137,17 @@
   min-height: 2.4rem;
 }
 
-.ob__chip,
-.ob__man {
+.ob__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.45rem 0.75rem;
-  min-height: 2.4rem;
-  padding: 0.2rem 0;
+}
+
+.ob__chip {
+  display: inline-flex;
   cursor: grab;
-}
-
-.ob__man {
-  padding: 0.35rem 0.15rem;
-  border-bottom: 1px solid #e6eef6;
-}
-
-.ob__man:last-child {
-  border-bottom: 0;
 }
 
 .ob__hint {

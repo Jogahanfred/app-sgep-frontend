@@ -36,9 +36,9 @@ describe('UiOperationBoard', () => {
     expect(root.textContent).toContain('TOFF · Despegue');
     expect(root.textContent).toContain('STALL · Pérdida');
     expect(root.textContent).not.toContain('Añadir');
-    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Subir');
-    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Bajar');
-    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('Quitar');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).toContain('TOFF');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).not.toContain('Subir');
+    expect(root.querySelector('[data-man="man-toff"]')?.textContent).not.toContain('Quitar');
     expect(root.textContent).toContain('Busca arriba para elegir las operaciones');
 
     const trigger = root.querySelector('.sm__trigger') as HTMLButtonElement;
@@ -74,17 +74,16 @@ describe('UiOperationBoard', () => {
 
     fixture.componentInstance.place('man-toff', 'op-vfr');
     expect(assigned).toHaveBeenCalledWith({ 'man-toff': 'op-vfr' });
-    fixture.componentRef.setInput('assignment', { 'man-toff': 'op-vfr' });
+    fixture.componentRef.setInput('assignment', { 'man-toff': 'op-vfr', 'man-stall': 'op-vfr' });
     fixture.detectChanges();
-    expect(root.textContent).toContain('TOFF · Despegue');
-    expect(root.querySelector('.ob__man--used')).not.toBeNull();
+    expect(root.querySelector('[data-assigned="man-toff"]')?.textContent).toContain('Subir');
+    expect(root.querySelector('[data-assigned="man-toff"]')?.textContent).toContain('Bajar');
+    expect(root.querySelector('[data-assigned="man-toff"]')?.textContent).toContain('Quitar');
+    expect(root.querySelector('[data-man="man-toff"]')).toBeNull();
     expect(root.textContent).not.toContain('Añadir');
 
-    fixture.componentInstance.shiftManeuver('man-toff', 1);
+    fixture.componentInstance.shiftAssigned('op-vfr', 'man-toff', 1);
     expect(maneuverOrdered).toHaveBeenCalledWith(['man-stall', 'man-toff']);
-    fixture.componentInstance.forgetManeuver('man-stall');
-    expect(removed).toHaveBeenCalledWith('man-stall');
-    expect(maneuverOrdered).toHaveBeenCalledWith(['man-toff']);
 
     fixture.componentInstance.forgetOperation('op-vfr');
     expect(ordered).toHaveBeenCalledWith([]);

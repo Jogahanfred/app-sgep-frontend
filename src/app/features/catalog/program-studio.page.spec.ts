@@ -244,9 +244,9 @@ describe('ProgramStudioPage', () => {
     expect(modal?.textContent).toContain('HOLD · Espera');
     expect(modal?.textContent).toContain('STALL · Pérdida');
     expect(modal?.querySelector('ui-operation-board')?.textContent).not.toContain('Añadir');
-    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).toContain('Quitar');
-    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).toContain('Subir');
-    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).toContain('Bajar');
+    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).toContain('HOLD');
+    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).not.toContain('Subir');
+    expect(modal?.querySelector('ui-operation-board [data-man="man-hold"]')?.textContent).not.toContain('Quitar');
     fixture.componentInstance.maneuverOperationOrder.set(['op-vfr']);
     fixture.detectChanges();
     expect(modal?.textContent).toContain('Vuelo visual');
