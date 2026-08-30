@@ -79,6 +79,12 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.chips ui-chip').length).toBeGreaterThanOrEqual(17);
     expect(text).toContain('TOFF · Despegue');
     expect(text).toContain('LAND · Aterrizaje');
+    const orderBtns = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.ab__bar app-button')].filter((node) =>
+      (node.textContent ?? '').includes('Ver orden'),
+    );
+    expect(orderBtns.length).toBeGreaterThan(0);
+    expect(orderBtns.some((node) => !node.querySelector('button')?.disabled)).toBe(true);
+    expect(orderBtns.some((node) => !!node.querySelector('button')?.disabled)).toBe(true);
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="mn-"]')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('fieldset.picks')).toBeNull();
@@ -251,7 +257,14 @@ describe('ProgramStudioPage', () => {
     fixture.detectChanges();
     expect(modal?.textContent).toContain('Vuelo visual');
     expect(modal?.querySelectorAll('ui-operation-board [data-op]').length).toBe(1);
+    expect(modal?.textContent).not.toContain('Añadir en este orden');
     expect(modal?.querySelector('app-breadcrumb')).not.toBeNull();
+    fixture.componentInstance.showManeuverOrder(phase.key, dual.key);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.maneuverPickerView()).toBe('grouped');
+    expect(modal?.textContent).toContain('TOFF · Despegue');
+    expect(modal?.textContent).toContain('LAND · Aterrizaje');
+    expect(modal?.textContent).not.toContain('Añadir en este orden');
     fixture.componentInstance.onManeuverCrumb('catalog');
     fixture.detectChanges();
     expect(fixture.componentInstance.maneuverPickerView()).toBe('catalog');

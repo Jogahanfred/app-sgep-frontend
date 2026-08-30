@@ -489,10 +489,43 @@ export class ProgramStudioPage {
 
   showManeuverGroups(): void {
     if (!this.canGroupManeuvers()) return;
+    const existing = this.currentManeuverSub()?.maneuverIds ?? [];
+    const merged = [...new Set([...existing, ...this.maneuverCheckedIds()])];
+    this.maneuverCheckedIds.set(merged);
     this.maneuverOperationOrder.set([]);
-    this.maneuverBoardOrder.set([...this.maneuverCheckedIds()]);
+    this.maneuverBoardOrder.set(merged);
     this.maneuverAssignment.set({});
     this.maneuverPickerView.set('grouped');
+    this.syncManeuversFromBoard();
+  }
+
+  showManeuverOrder(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub?.maneuverIds.length) return;
+    this.maneuverPickerTarget.set({ phaseKey, subKey });
+    this.maneuverCheckedIds.set([...sub.maneuverIds]);
+    this.maneuverBoardOrder.set([...sub.maneuverIds]);
+    this.maneuverOperationOrder.set([]);
+    this.maneuverAssignment.set({});
+    this.maneuverPickerView.set('grouped');
+  }
+
+  onOperationOrder(ids: string[]): void {
+    this.maneuverOperationOrder.set(ids);
+    this.syncManeuversFromBoard();
+  }
+
+  onManeuverBoardOrder(ids: string[]): void {
+    this.maneuverBoardOrder.set(ids);
+    this.syncManeuversFromBoard();
+  }
+
+  onManeuverAssignment(next: Record<string, string>): void {
+    this.maneuverAssignment.set(next);
+    this.syncManeuversFromBoard();
   }
 
   removeBoardManeuver(maneuverId: string): void {
@@ -501,11 +534,14 @@ export class ProgramStudioPage {
     const next = { ...this.maneuverAssignment() };
     delete next[maneuverId];
     this.maneuverAssignment.set(next);
+    this.syncManeuversFromBoard();
   }
 
-  addGroupedManeuversInOrder(): void {
-    const assignment = this.maneuverAssignment();
+  private syncManeuversFromBoard(): void {
+    const target = this.maneuverPickerTarget();
+    if (!target) return;
     const items = this.maneuverBoardOrder().length ? this.maneuverBoardOrder() : this.maneuverCheckedIds();
+    const assignment = this.maneuverAssignment();
     const queued: string[] = [];
     for (const operationId of this.maneuverOperationOrder()) {
       for (const id of items) {
@@ -515,7 +551,23 @@ export class ProgramStudioPage {
     for (const id of items) {
       if (!assignment[id]) queued.push(id);
     }
-    for (const id of queued) this.addManeuverFromCatalog(id);
+    this.setSubphaseManeuverIds(target.phaseKey, target.subKey, queued);
+  }
+
+  private setSubphaseManeuverIds(phaseKey: string, subKey: string, ids: string[]): void {
+    const unique = [...new Set(ids.filter(Boolean))];
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) =>
+                sub.key !== subKey ? sub : { ...sub, maneuverIds: unique },
+              ),
+            },
+      ),
+    );
   }
 
   onManeuverCrumb(action: string): void {

@@ -191,18 +191,28 @@
                             hint="Los ejercicios que se trabajan o evalúan en esas sesiones."
                             [countLabel]="maneuverCountLabel(sub)"
                           >
-                            @if (!isView) {
-                              <app-button
-                                blockAction
-                                type="button"
-                                variant="secondary"
-                                size="xs"
-                                icon="plus"
-                                (click)="openManeuverPicker(phase.key, sub.key)"
-                              >
-                                Añadir
-                              </app-button>
-                            }
+                            <ng-container blockAction>
+                              @if (!isView) {
+                                <app-button
+                                  type="button"
+                                  variant="secondary"
+                                  size="xs"
+                                  icon="plus"
+                                  (click)="openManeuverPicker(phase.key, sub.key)"
+                                >
+                                  Añadir
+                                </app-button>
+                                <app-button
+                                  type="button"
+                                  variant="secondary"
+                                  size="xs"
+                                  [disabled]="!sub.maneuverIds.length"
+                                  (click)="showManeuverOrder(phase.key, sub.key)"
+                                >
+                                  Ver orden
+                                </app-button>
+                              }
+                            </ng-container>
                             @if (maneuverLabels(sub).length) {
                               <ul class="chips">
                                 @for (name of maneuverLabels(sub); track name) {
@@ -425,12 +435,11 @@
               [order]="maneuverOperationOrder()"
               [maneuverOrder]="maneuverBoardOrder()"
               [assignment]="maneuverAssignment()"
-              (orderChange)="maneuverOperationOrder.set($event)"
-              (maneuverOrderChange)="maneuverBoardOrder.set($event)"
-              (assignmentChange)="maneuverAssignment.set($event)"
+              (orderChange)="onOperationOrder($event)"
+              (maneuverOrderChange)="onManeuverBoardOrder($event)"
+              (assignmentChange)="onManeuverAssignment($event)"
               (removeManeuver)="removeBoardManeuver($event)"
             />
-            <app-button type="button" (click)="addGroupedManeuversInOrder()">Añadir en este orden</app-button>
           }
         </div>
       </app-modal>
