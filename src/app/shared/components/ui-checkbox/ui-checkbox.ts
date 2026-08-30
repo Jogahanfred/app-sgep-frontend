@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { RippleDirective } from '@shared/directives/ripple.directive';
 
 @Component({
   selector: 'ui-checkbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RippleDirective],
   template: `
-    <label class="ck" [attr.for]="id()">
+    <label class="ck" [attr.for]="id()" appRipple [appRippleDisabled]="disabled()">
       <input
         class="ck__native"
         type="checkbox"

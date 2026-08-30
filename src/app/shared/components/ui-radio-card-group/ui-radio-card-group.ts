@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { ChoiceOption } from '@shared/models/choice.model';
+import { RippleDirective } from '@shared/directives/ripple.directive';
 import { UiFieldLabel } from '../ui-field-label/ui-field-label';
 
 @Component({
   selector: 'ui-radio-card-group',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [UiFieldLabel],
+  imports: [UiFieldLabel, RippleDirective],
   templateUrl: './ui-radio-card-group.html',
   styleUrl: './ui-radio-card-group.scss',
 })

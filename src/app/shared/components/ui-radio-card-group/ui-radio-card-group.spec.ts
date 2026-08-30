@@ -27,6 +27,22 @@ describe('UiRadioCardGroup', () => {
     expect(emitted).toEqual(['searching']);
   });
 
+  it('lanza la onda de agua al pulsar una tarjeta', () => {
+    const fixture = TestBed.createComponent(UiRadioCardGroup);
+    fixture.componentRef.setInput('id', 'prg-type');
+    fixture.componentRef.setInput('question', 'Tipo');
+    fixture.componentRef.setInput('options', [{ value: 'PPL', label: 'PPL' }]);
+    fixture.componentRef.setInput('value', 'PPL');
+    fixture.detectChanges();
+
+    const option = (fixture.nativeElement as HTMLElement).querySelector('.cg__opt') as HTMLElement;
+    option.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 240, height: 40, right: 240, bottom: 40, x: 0, y: 0, toJSON: () => undefined }) as DOMRect;
+    option.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 40, clientY: 18, bubbles: true }));
+
+    expect(option.querySelectorAll('.app-ripple, .app-ripple--wash').length).toBe(3);
+  });
+
   it('usa el mismo alto que ui-input', () => {
     const fixture = TestBed.createComponent(UiRadioCardGroup);
     fixture.componentRef.setInput('id', 'prg-type');

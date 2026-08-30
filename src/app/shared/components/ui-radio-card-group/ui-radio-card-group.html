@@ -10,6 +10,7 @@
         [id]="optionId(option)"
         [attr.aria-checked]="value() === option.value"
         [class.cg__opt--on]="value() === option.value"
+        appRipple
         (click)="select(option.value)"
       >
         <span class="cg__label">{{ option.label }}</span>
