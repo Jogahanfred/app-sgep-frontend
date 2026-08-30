@@ -18,7 +18,7 @@ import type {
   SubphaseBankEntity,
   SubphaseEntity,
 } from '@core/domain/entities';
-import { curriculumHours, expandAutoMissions, programTypeLabel } from '@core/domain/services/admin-catalog';
+import { expandAutoMissions } from '@core/domain/services/admin-catalog';
 import { forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -107,13 +107,6 @@ export class ProgramFlowPage {
     return name ? `Flujo de ${name}` : 'Flujo del programa';
   });
 
-  readonly typeName = computed(() => {
-    const type = this.program()?.programType;
-    return type ? programTypeLabel(type) : '';
-  });
-
-  readonly totalHours = computed(() => curriculumHours(this.phases().map((phase) => ({ subphases: phase.lessons }))));
-  readonly lessonCount = computed(() => this.phases().reduce((sum, phase) => sum + phase.lessons.length, 0));
   readonly stop = computed(() => this.stops()[this.cursor()] ?? null);
   readonly phaseIndex = computed(() => this.stop()?.phaseIndex ?? -1);
   readonly lessonIndex = computed(() => this.stop()?.lessonIndex ?? -1);

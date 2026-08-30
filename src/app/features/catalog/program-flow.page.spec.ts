@@ -78,6 +78,10 @@ describe('ProgramFlowPage', () => {
 
     expect(text).toContain('Flujo de Piloto privado · ala fija');
     expect(text).toContain('Solo consulta');
+    expect(text).not.toContain('PPL-AF');
+    expect(text).not.toContain('89 h');
+    expect(root.querySelector('.flow__summary')).toBeNull();
+    expect(root.querySelector('.flow__time span')).toBeNull();
     expect(text).toContain('Inicio');
     expect(page.depth()).toBe('start');
     expect(root.querySelector('.flow__on')).toBeNull();
@@ -194,6 +198,7 @@ describe('ProgramFlowPage', () => {
 
     expect(page.tourOpen()).toBe(true);
     expect(page.tourStep()?.kind).toBe('intro');
+    expect(root.querySelector('.modal--roomy')).not.toBeNull();
     expect(root.textContent).toContain('Comenzar');
     expect(root.textContent).not.toContain('Omitir');
     expect(page.tourSteps().filter((step) => step.kind === 'matrix')).toHaveLength(1);

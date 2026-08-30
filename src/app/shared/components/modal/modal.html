@@ -4,6 +4,7 @@
   [class.modal--lg]="size() === 'lg'"
   [class.modal--xl]="size() === 'xl'"
   [class.modal--full]="size() === 'full'"
+  [class.modal--roomy]="roomy()"
   (cancel)="onCancel($event)"
   [attr.aria-labelledby]="'modal-title'"
 >

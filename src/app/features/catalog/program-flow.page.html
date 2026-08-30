@@ -23,14 +23,6 @@
   } @else if (loadState() === 'error') {
     <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
   } @else {
-    <div class="flow__summary">
-      <span>{{ program()?.code }}</span>
-      <span>{{ typeName() }}</span>
-      <span>{{ phases().length }} {{ phases().length === 1 ? 'fase' : 'fases' }}</span>
-      <span>{{ lessonCount() }} {{ lessonCount() === 1 ? 'subfase' : 'subfases' }}</span>
-      <span>{{ totalHours() }} h</span>
-    </div>
-
     @if (phases().length === 0) {
       <div class="flow__empty">
         <p>Este programa aún no tiene fases. El flujo aparecerá cuando se diseñe el itinerario.</p>
@@ -48,10 +40,7 @@
       <ol class="flow__time" aria-label="Línea de tiempo del programa">
         @for (phase of phases(); track phase.name; let i = $index) {
           <li [class.flow__dot--on]="i === phaseIndex()" [class.flow__dot--done]="i < phaseIndex()">
-            <button type="button" (click)="goTo(i)">
-              <span>{{ i + 1 }}</span>
-              {{ phase.name }}
-            </button>
+            <button type="button" (click)="goTo(i)">{{ phase.name }}</button>
           </li>
         }
       </ol>
@@ -111,7 +100,7 @@
               @if (depth() === 'matrix') {
                 <div class="flow__grid" data-tour="matrix">
                   @if (!lesson.missions.length && !lesson.maneuvers.length) {
-                    <p class="flow__none">Esta subfase no tiene misiones ni maniobras.</p>
+                    <p class="flow__hint">Esta subfase no tiene misiones ni maniobras.</p>
                   } @else {
                     <table>
                       <caption>Misiones</caption>
@@ -153,8 +142,8 @@
   }
 </div>
 
-<app-modal [open]="tourIntro()" title="Recorrido del programa" (closed)="tourNext()">
-  <p class="flow__none">
+<app-modal [open]="tourIntro()" [roomy]="true" title="Recorrido del programa" (closed)="tourNext()">
+  <p class="flow__sheet">
     En este recorrido conocerás cómo está organizado el programa y cómo avanzar por sus diferentes niveles de
     entrenamiento.
   </p>
@@ -163,8 +152,8 @@
   </div>
 </app-modal>
 
-<app-modal [open]="tourFinish()" title="Ya conoces la estructura" (closed)="finishTour()">
-  <p class="flow__none">
+<app-modal [open]="tourFinish()" [roomy]="true" title="Ya conoces la estructura" (closed)="finishTour()">
+  <p class="flow__sheet">
     El programa se organiza así: Programa → Fase → Subfase → Matriz de misiones y maniobras. Ya puedes recorrer el
     itinerario por tu cuenta.
   </p>
