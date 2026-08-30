@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.pfld {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.pfld__label {
+  margin: 0;
+  color: #35506a;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.pfld__box {
+  overflow: hidden;
+  border: 1px dashed #b7c9db;
+  border-radius: 0.75rem;
+  background: #f4f8fb;
+}
+
+.pfld__box--over {
+  border-color: var(--color-primary);
+  background: #eef6fc;
+}
+
+.pfld__box--off {
+  border-style: solid;
+}
+
+.pfld__box img {
+  display: block;
+  width: 100%;
+  max-height: 14rem;
+  object-fit: cover;
+}
+
+.pfld__box--empty {
+  display: grid;
+  place-items: center;
+  min-height: 10.5rem;
+  padding: 1.1rem 1.1rem 0;
+}
+
+.pfld__box--empty p {
+  margin: 0;
+  color: #4b6074;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.pfld__pick {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-top: 1px dashed #b7c9db;
+  background: #fff;
+  color: var(--color-primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pfld__pick input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.pfld__hint {
+  margin: 0;
+  color: #5a6b7c;
+  font-size: 0.75rem;
+}
+
+.pfld__hint:empty {
+  display: none;
+}

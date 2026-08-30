@@ -38,6 +38,7 @@ import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiOperationBoard } from '@shared/components/ui-operation-board/ui-operation-board';
+import { UiPosterField } from '@shared/components/ui-poster-field/ui-poster-field';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
@@ -97,6 +98,7 @@ interface GeneratedMission {
     UiInput,
     UiLoading,
     UiOperationBoard,
+    UiPosterField,
     UiRadioCardGroup,
     UiSegmentedControl,
     UiSelect,
@@ -188,6 +190,7 @@ export class ProgramStudioPage {
     programType: new FormControl<ProgramType>('PPL', { nonNullable: true }),
     description: new FormControl('', { nonNullable: true }),
     status: new FormControl<EntityStatus>('active', { nonNullable: true }),
+    imageUrl: new FormControl('', { nonNullable: true }),
   });
 
   readonly title = computed(() => {
@@ -361,6 +364,7 @@ export class ProgramStudioPage {
               programType: program.programType,
               description: program.description,
               status: program.status,
+              imageUrl: program.imageUrl,
             });
             const programPhases = bundle.phases
               .filter((item) => item.programId === program.id)
@@ -419,6 +423,17 @@ export class ProgramStudioPage {
   setStatus(value: string): void {
     if (this.isView) return;
     this.form.controls.status.setValue(value === 'inactive' ? 'inactive' : 'active');
+  }
+
+  setPoster(value: string): void {
+    if (this.isView) return;
+    this.form.controls.imageUrl.setValue(value);
+    this.form.controls.imageUrl.markAsTouched();
+    this.error.set(null);
+  }
+
+  onPosterReject(message: string): void {
+    this.error.set(message);
   }
 
   openPhaseBankPicker(key: string): void {

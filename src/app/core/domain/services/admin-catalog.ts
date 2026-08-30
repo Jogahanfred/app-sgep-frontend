@@ -262,9 +262,22 @@ export function programTypeLabel(type: ProgramType): string {
 }
 
 export function programCoverUrl(type: ProgramType, imageUrl?: string): string {
-  const custom = imageUrl?.trim();
+  const custom = assertOptionalProgramImage(imageUrl);
   if (custom) return custom;
   return `/programs/${type.toLowerCase()}.jpg`;
+}
+
+function assertOptionalProgramImage(value?: string): string {
+  const imageUrl = value?.trim() ?? '';
+  if (!imageUrl) return '';
+  if (imageUrl.startsWith('data:image/')) {
+    if (imageUrl.length > 2_800_000) {
+      throw new InvalidAdminCatalogError('La imagen no puede superar 2 MB.');
+    }
+    return imageUrl;
+  }
+  if (imageUrl.startsWith('/')) return imageUrl;
+  throw new InvalidAdminCatalogError('La imagen debe ser un archivo JPEG, PNG o WebP.');
 }
 
 export function assertPhaseBankWrite(input: PhaseBankWriteInput): PhaseBankWriteInput {

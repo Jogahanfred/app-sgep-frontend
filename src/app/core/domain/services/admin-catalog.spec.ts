@@ -78,6 +78,16 @@ describe('admin-catalog domain', () => {
     expect(result.description).toBe('');
     expect(result.imageUrl).toBe('/programs/ppl.jpg');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
+    expect(
+      assertProgramWrite({
+        code: 'ppl-af',
+        name: 'Piloto privado',
+        programType: 'PPL',
+        description: '',
+        status: 'active',
+        imageUrl: '/programs/custom.jpg',
+      }).imageUrl,
+    ).toBe('/programs/custom.jpg');
   });
 
   it('normaliza el código del banco de fase', () => {

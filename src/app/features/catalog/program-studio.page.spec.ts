@@ -103,6 +103,12 @@ describe('ProgramStudioPage', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('label.lesson__hours')).toBeNull();
     expect(text).toContain('Guardar programa');
     expect(text).not.toContain('Guardar plan');
+    expect(text).toContain('Póster del programa');
+    expect(text).toContain('Cambiar póster');
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-poster-field input[type="file"]')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('ui-poster-field img')?.getAttribute('src')).toBe(
+      '/programs/ppl.jpg',
+    );
   });
 
   it('al guardar muestra el loading y vuelve a la lista', async () => {
@@ -149,6 +155,7 @@ describe('ProgramStudioPage', () => {
     expect(fixture.componentInstance.phases().length).toBe(1);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Fase 1');
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Subfase 1');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Subir imagen o póster');
   });
 
   it('permite editar la fase del programa y cambiarla por otra que aún no usa', async () => {

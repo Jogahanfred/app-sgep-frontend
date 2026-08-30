@@ -20,6 +20,7 @@ export { UiSegmentedControl } from '../ui-segmented-control/ui-segmented-control
 export { UiOperationBoard, type BoardManeuver, type BoardOperation } from '../ui-operation-board/ui-operation-board';
 export { UiPickList, type UiPickItem } from '../ui-pick-list/ui-pick-list';
 export { UiLoading } from '../ui-loading/ui-loading';
+export { UiPosterField } from '../ui-poster-field/ui-poster-field';
 export { UiProgramCard } from '../ui-program-card/ui-program-card';
 export { UiSigaLoader } from '../ui-siga-loader/ui-siga-loader';
 export { UiSelect } from '../ui-select/ui-select';

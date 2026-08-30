@@ -1,0 +1,25 @@
+<div class="pfld">
+  <p class="pfld__label">{{ label() }}</p>
+  <div
+    class="pfld__box"
+    [class.pfld__box--empty]="!value()"
+    [class.pfld__box--over]="over()"
+    [class.pfld__box--off]="disabled()"
+    (dragover)="allowDrop($event)"
+    (dragleave)="leave()"
+    (drop)="onDrop($event)"
+  >
+    @if (value()) {
+      <img [src]="value()" [alt]="alt()" />
+    } @else {
+      <p>{{ emptyText() }}</p>
+    }
+    @if (!disabled()) {
+      <label class="pfld__pick">
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onFile($event)" />
+        {{ value() ? 'Cambiar póster' : 'Subir imagen o póster' }}
+      </label>
+    }
+  </div>
+  <p class="pfld__hint">{{ error() || hint() }}</p>
+</div>

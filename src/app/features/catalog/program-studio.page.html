@@ -44,6 +44,15 @@
               [error]="requiredError('name', 'Escribe el nombre.')"
             />
           </div>
+          <ui-poster-field
+            label="Póster del programa"
+            emptyText="Arrastra una imagen o elige un archivo para el póster de la tarjeta."
+            [value]="form.controls.imageUrl.value"
+            [alt]="form.controls.name.value || 'Póster del programa'"
+            [disabled]="isView"
+            (valueChange)="setPoster($event)"
+            (reject)="onPosterReject($event)"
+          />
           <ui-radio-card-group
             id="prg-type"
             question="Tipo"
