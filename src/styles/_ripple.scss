@@ -22,12 +22,12 @@
   filter: blur(14px);
   background: linear-gradient(
     90deg,
-    rgb(130 130 130 / 0%) 0%,
-    rgb(120 120 120 / 5%) 18%,
-    rgb(120 120 120 / 11%) 42%,
-    rgb(120 120 120 / 11%) 70%,
-    rgb(120 120 120 / 6%) 88%,
-    rgb(130 130 130 / 0%) 100%
+    rgb(160 160 160 / 0%) 0%,
+    rgb(150 150 150 / 3%) 18%,
+    rgb(150 150 150 / 6%) 42%,
+    rgb(150 150 150 / 6%) 70%,
+    rgb(150 150 150 / 3%) 88%,
+    rgb(160 160 160 / 0%) 100%
   );
   transform: translateX(-88%);
   animation: app-ripple-ltr 0.65s var(--ease-out) forwards;
