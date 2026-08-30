@@ -385,7 +385,7 @@
             @if (maneuverPickerView() === 'catalog') {
               Elige una maniobra del catálogo y añádela a esta subfase.
             } @else {
-              Las seleccionadas, agrupadas por operación. Vuelve al catálogo con las migas.
+              Arrastra las maniobras a una operación y ordena las operaciones. Vuelve al catálogo con las migas.
             }
           </p>
           @if (maneuverPickerView() === 'catalog') {
@@ -419,19 +419,16 @@
               Agrupar por operaciones
             </app-button>
           } @else {
-            @for (section of groupedManeuverSections(); track section.operationId) {
-              <ui-table
-                [heading]="section.operationName"
-                caption="Maniobras de la operación"
-                [columns]="maneuverPickerColumns"
-                [rows]="section.rows"
-                rowAction="Añadir"
-                [initialPageSize]="8"
-                [pageSizeOptions]="maneuverPickerPageSizes"
-                emptyTitle="Esta operación no tiene seleccionadas."
-                (rowActionClick)="addManeuverFromCatalog($event)"
-              />
-            }
+            <ui-operation-board
+              [operations]="maneuverBoardOperations()"
+              [maneuvers]="maneuverBoardItems()"
+              [order]="maneuverOperationOrder()"
+              [assignment]="maneuverAssignment()"
+              (orderChange)="maneuverOperationOrder.set($event)"
+              (assignmentChange)="maneuverAssignment.set($event)"
+              (addManeuver)="addManeuverFromCatalog($event)"
+            />
+            <app-button type="button" (click)="addGroupedManeuversInOrder()">Añadir en este orden</app-button>
           }
         </div>
       </app-modal>

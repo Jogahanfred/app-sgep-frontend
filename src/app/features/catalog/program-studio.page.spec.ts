@@ -236,8 +236,13 @@ describe('ProgramStudioPage', () => {
     fixture.componentInstance.showManeuverGroups();
     fixture.detectChanges();
     expect(modal?.textContent).toContain('Por operaciones');
+    expect(modal?.querySelector('ui-operation-board')).not.toBeNull();
+    expect(modal?.querySelector('ui-operation-board table')).toBeNull();
+    expect(modal?.textContent).toContain('Vuelo visual');
     expect(modal?.textContent).toContain('Vuelo instrumental');
+    expect(modal?.textContent).toContain('Navegación');
     expect(modal?.textContent).toContain('Emergencias');
+    expect(modal?.textContent).toContain('Arrastra las maniobras');
     expect(modal?.querySelector('app-breadcrumb')).not.toBeNull();
     fixture.componentInstance.onManeuverCrumb('catalog');
     fixture.detectChanges();

@@ -1,0 +1,145 @@
+:host {
+  display: block;
+}
+
+.ob {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ob__box {
+  padding: 0.75rem 0.8rem 0.85rem;
+  border: 1px solid #d5e1ed;
+  border-radius: 0.75rem;
+  background: #f8fbfd;
+}
+
+.ob__head {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.7rem;
+}
+
+.ob__head h3,
+.ob__op-head h4 {
+  margin: 0;
+}
+
+.ob__head h3 {
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ob__head p,
+.ob__hint {
+  margin: 0;
+  color: #4b6074;
+  font-size: 0.75rem;
+}
+
+.ob__ops {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .ob__ops {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ob__op {
+  display: grid;
+  gap: 0.5rem;
+  min-height: 7.5rem;
+  padding: 0.65rem;
+  border: 1px dashed #c5d6e8;
+  border-radius: 0.65rem;
+  background: #fff;
+  cursor: grab;
+}
+
+.ob__op--over {
+  border-color: var(--color-primary);
+  background: #f3f8fd;
+}
+
+.ob__op-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ob__op-head h4 {
+  color: #22384c;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.ob__num {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.ob__sort {
+  display: inline-flex;
+  gap: 0.15rem;
+}
+
+.ob__sort button {
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid #d5e1ed;
+  border-radius: 0.35rem;
+  background: #fff;
+  color: #35506a;
+  cursor: pointer;
+}
+
+.ob__sort button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ob__drop,
+.ob__pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 2.4rem;
+}
+
+.ob__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: #35506a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: grab;
+}
+
+.ob__hint {
+  width: 100%;
+  font-weight: 600;
+}

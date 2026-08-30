@@ -37,6 +37,7 @@ import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
 import { UiInput } from '@shared/components/ui-input/ui-input';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+import { UiOperationBoard } from '@shared/components/ui-operation-board/ui-operation-board';
 import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
 import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
@@ -93,6 +94,7 @@ interface GeneratedMission {
     UiFormCard,
     UiInput,
     UiLoading,
+    UiOperationBoard,
     UiRadioCardGroup,
     UiSegmentedControl,
     UiSelect,
@@ -166,6 +168,8 @@ export class ProgramStudioPage {
   readonly maneuverQuery = signal('');
   readonly maneuverCheckedIds = signal<string[]>([]);
   readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
+  readonly maneuverOperationOrder = signal<string[]>([]);
+  readonly maneuverAssignment = signal<Record<string, string>>({});
   readonly maneuverPickerPageSizes = [8] as const;
   readonly maneuverPickerColumns: UiTableColumn[] = [
     { id: 'code', header: 'Código' },
@@ -290,22 +294,20 @@ export class ProgramStudioPage {
     { label: 'Por operaciones' },
   ]);
 
-  readonly groupedManeuverSections = computed(() => {
+  readonly maneuverBoardOperations = computed(() =>
+    this.operations().map((item) => ({ id: item.id, name: item.name })),
+  );
+
+  readonly maneuverBoardItems = computed(() => {
     const selected = new Set(this.maneuverCheckedIds());
-    const items = this.maneuvers().filter((item) => selected.has(item.id));
-    const groups = new Map<string, ManeuverBankEntity[]>();
-    for (const item of items) {
-      const list = groups.get(item.operationId) ?? [];
-      list.push(item);
-      groups.set(item.operationId, list);
-    }
-    return [...groups.entries()]
-      .map(([operationId, maneuvers]) => ({
-        operationId,
-        operationName: this.operations().find((item) => item.id === operationId)?.name ?? 'Sin operación',
-        rows: this.toManeuverRows(maneuvers),
-      }))
-      .sort((a, b) => a.operationName.localeCompare(b.operationName, 'es'));
+    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
+    return this.maneuvers()
+      .filter((item) => selected.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        label: `${item.code} · ${item.name}`,
+        added: assigned.has(item.id),
+      }));
   });
 
   readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
@@ -458,6 +460,8 @@ export class ProgramStudioPage {
     this.maneuverPickerTarget.set({ phaseKey, subKey });
     this.maneuverCheckedIds.set([]);
     this.maneuverPickerView.set('catalog');
+    this.maneuverOperationOrder.set([]);
+    this.maneuverAssignment.set({});
     this.maneuverSearch.setValue('');
     this.maneuverQuery.set('');
   }
@@ -466,6 +470,8 @@ export class ProgramStudioPage {
     this.maneuverPickerTarget.set(null);
     this.maneuverCheckedIds.set([]);
     this.maneuverPickerView.set('catalog');
+    this.maneuverOperationOrder.set([]);
+    this.maneuverAssignment.set({});
   }
 
   addManeuverFromCatalog(maneuverId: string): void {
@@ -480,7 +486,23 @@ export class ProgramStudioPage {
 
   showManeuverGroups(): void {
     if (!this.canGroupManeuvers()) return;
+    this.maneuverOperationOrder.set(this.operations().map((item) => item.id));
+    this.maneuverAssignment.set({});
     this.maneuverPickerView.set('grouped');
+  }
+
+  addGroupedManeuversInOrder(): void {
+    const assignment = this.maneuverAssignment();
+    const queued: string[] = [];
+    for (const operationId of this.maneuverOperationOrder()) {
+      for (const item of this.maneuverBoardItems()) {
+        if (assignment[item.id] === operationId) queued.push(item.id);
+      }
+    }
+    for (const item of this.maneuverBoardItems()) {
+      if (!assignment[item.id]) queued.push(item.id);
+    }
+    for (const id of queued) this.addManeuverFromCatalog(id);
   }
 
   onManeuverCrumb(action: string): void {
