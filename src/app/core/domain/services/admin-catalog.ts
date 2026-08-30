@@ -25,6 +25,7 @@ import type {
   UserWriteInput,
 } from '../entities/admin-catalog';
 import {
+  AUTO_MISSION_COUNT_MAX,
   COMMISSION_WORKFLOW,
   FLEET_TYPES,
   INSTRUCTION_PROGRAMS,
@@ -303,7 +304,8 @@ export function expandAutoMissions(code: string, count: number): string[] {
   const raw = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   const letter = raw.match(/[A-Z]/)?.[0];
   if (!letter || !Number.isInteger(count) || count < 1) return [];
-  return Array.from({ length: count }, (_, index) => `${letter}${index + 1}`);
+  const limited = Math.min(count, AUTO_MISSION_COUNT_MAX);
+  return Array.from({ length: limited }, (_, index) => `${letter}${index + 1}`);
 }
 
 export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInput {
@@ -336,8 +338,8 @@ export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInp
       throw new InvalidAdminCatalogError('El código automático debe incluir al menos una letra. Ejemplo: CER.');
     }
     autoMissionCount = Number(input.autoMissionCount);
-    if (!Number.isInteger(autoMissionCount) || autoMissionCount < 1 || autoMissionCount > 80) {
-      throw new InvalidAdminCatalogError('La cantidad automática debe ser un entero entre 1 y 80.');
+    if (!Number.isInteger(autoMissionCount) || autoMissionCount < 1 || autoMissionCount > AUTO_MISSION_COUNT_MAX) {
+      throw new InvalidAdminCatalogError(`La cantidad automática debe ser un entero entre 1 y ${AUTO_MISSION_COUNT_MAX}.`);
     }
     missionTypeIds = [];
   }

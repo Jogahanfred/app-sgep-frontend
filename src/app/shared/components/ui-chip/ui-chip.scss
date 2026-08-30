@@ -41,7 +41,7 @@ button.chip {
   --chip-remove: #c62828;
   position: relative;
   isolation: isolate;
-  min-width: 3.35rem;
+  min-width: 4.25rem;
   padding: 0;
   overflow: hidden;
   perspective: 860px;
@@ -84,6 +84,8 @@ button.chip {
   position: absolute;
   inset: 0;
   color: var(--chip-remove);
+  font-size: 1rem;
+  font-weight: 700;
   pointer-events: none;
   transform: rotateY(180deg);
   visibility: hidden;

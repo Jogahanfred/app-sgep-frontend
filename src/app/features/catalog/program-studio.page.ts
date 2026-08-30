@@ -13,15 +13,16 @@ import {
   SaveProgramCurriculum,
 } from '@core/application';
 import { DomainError } from '@core/domain/errors/domain-error';
-import type {
-  EntityStatus,
-  ManeuverBankEntity,
-  MissionTypeEntity,
-  PhaseBankEntity,
-  MissionAssignMode,
-  PhaseDraftInput,
-  ProgramType,
-  SubphaseBankEntity,
+import {
+  AUTO_MISSION_COUNT_MAX,
+  type EntityStatus,
+  type ManeuverBankEntity,
+  type MissionTypeEntity,
+  type PhaseBankEntity,
+  type MissionAssignMode,
+  type PhaseDraftInput,
+  type ProgramType,
+  type SubphaseBankEntity,
 } from '@core/domain/entities';
 import { curriculumHours, expandAutoMissions, matchesAdminSearch } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
@@ -127,6 +128,7 @@ export class ProgramStudioPage {
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
   readonly missionModeOptions = missionAssignModeOptions;
+  readonly autoMissionCountMax = AUTO_MISSION_COUNT_MAX;
   readonly draftMissionName = signal<Record<string, string>>({});
   readonly phaseBanks = signal<PhaseBankEntity[]>([]);
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
@@ -569,7 +571,11 @@ export class ProgramStudioPage {
 
   countField(phaseKey: string, subKey: string, count: number): FormControl<number> {
     return this.numberField(`count:${phaseKey}:${subKey}`, count, (value) => {
-      this.patchSubphase(phaseKey, subKey, { autoMissionCount: Number.isFinite(value) ? value : 0 });
+      const raw = Number(value);
+      const next = Number.isFinite(raw)
+        ? Math.min(AUTO_MISSION_COUNT_MAX, Math.max(0, Math.trunc(raw)))
+        : 0;
+      this.patchSubphase(phaseKey, subKey, { autoMissionCount: next });
     });
   }
 

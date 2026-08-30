@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidAdminCatalogError } from '../errors/domain-error';
+import { AUTO_MISSION_COUNT_MAX } from '../entities/admin-catalog';
 import {
   assertCatalogWrite,
   assertPhaseBankWrite,
+  assertSubphaseDraft,
   expandAutoMissions,
   assertProgramWrite,
   assertUserWrite,
@@ -95,5 +97,22 @@ describe('admin-catalog domain', () => {
     expect(items[1]).toBe('C2');
     expect(items[16]).toBe('C17');
     expect(items).toHaveLength(17);
+  });
+
+  it('limita la serie automática a 20 misiones', () => {
+    expect(expandAutoMissions('CER', 50)).toHaveLength(AUTO_MISSION_COUNT_MAX);
+    expect(() =>
+      assertSubphaseDraft({
+        subphaseBankId: 'sub-1',
+        hours: 1,
+        missionMode: 'automatic',
+        missionTypeIds: [],
+        customMissionNames: [],
+        autoMissionCode: 'CER',
+        autoMissionCount: 21,
+        maneuverIds: [],
+        sortOrder: 1,
+      }),
+    ).toThrow(InvalidAdminCatalogError);
   });
 });

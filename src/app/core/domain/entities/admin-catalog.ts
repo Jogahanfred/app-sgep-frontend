@@ -290,6 +290,7 @@ export interface PhaseEntity {
 
 export const MISSION_ASSIGN_MODES = ['manual', 'automatic'] as const;
 export type MissionAssignMode = (typeof MISSION_ASSIGN_MODES)[number];
+export const AUTO_MISSION_COUNT_MAX = 20;
 
 export interface SubphaseEntity {
   id: string;
