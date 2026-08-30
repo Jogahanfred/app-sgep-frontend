@@ -68,7 +68,7 @@ describe('ProgramStudioPage', () => {
     const chips = (fixture.nativeElement as HTMLElement).querySelector('.chips') as HTMLElement | null;
     expect(chips).not.toBeNull();
     expect(getComputedStyle(chips!).justifyContent).toBe('center');
-    const addMission = (fixture.nativeElement as HTMLElement).querySelector('.ab__title-row app-button');
+    const addMission = (fixture.nativeElement as HTMLElement).querySelector('.ab__bar app-button');
     expect(addMission?.textContent).toContain('Añadir');
     expect(addMission?.querySelector('.btn--xs')).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('.ab__body app-button')).toBeNull();

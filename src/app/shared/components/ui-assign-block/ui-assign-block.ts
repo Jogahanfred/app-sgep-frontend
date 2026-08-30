@@ -6,17 +6,15 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   template: `
     <section class="ab">
       <header class="ab__head">
-        <div>
-          <div class="ab__title-row">
-            <h3 class="ab__title">{{ title() }}</h3>
-            <ng-content select="[blockAction]" />
-          </div>
-          @if (hint()) {
-            <p class="ab__hint">{{ hint() }}</p>
+        <div class="ab__bar">
+          <h3 class="ab__title">{{ title() }}</h3>
+          <ng-content select="[blockAction]" />
+          @if (countLabel()) {
+            <p class="ab__count">{{ countLabel() }}</p>
           }
         </div>
-        @if (countLabel()) {
-          <p class="ab__count">{{ countLabel() }}</p>
+        @if (hint()) {
+          <p class="ab__hint">{{ hint() }}</p>
         }
       </header>
       <div class="ab__body">

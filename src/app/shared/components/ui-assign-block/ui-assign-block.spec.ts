@@ -34,8 +34,10 @@ describe('UiAssignBlock', () => {
     const fixture = TestBed.createComponent(AssignHost);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    const action = root.querySelector('.ab__title-row app-button');
+    const action = root.querySelector('.ab__bar app-button');
     expect(action?.textContent).toContain('Añadir');
     expect(root.querySelector('.ab__body app-button')).toBeNull();
+    const empty = root.querySelector('.ab__body p') as HTMLElement;
+    expect(getComputedStyle(empty).textAlign).toBe('center');
   });
 });
