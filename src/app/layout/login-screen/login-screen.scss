@@ -5,10 +5,10 @@
 .login-screen {
   width: min(100% - 1.5rem, 86rem);
   max-width: none;
-  height: min(100dvh - 1.5rem, 54rem);
+  max-height: min(100dvh - 1.5rem, 54rem);
   margin: auto;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
   border: 0;
   border-radius: var(--radius-lg);
   background: transparent;
@@ -21,9 +21,8 @@
 
 .login-screen__frame {
   display: grid;
-  grid-template-rows: minmax(14rem, 38%) 1fr;
-  height: 100%;
-  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100%;
   overflow: hidden;
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
@@ -325,11 +324,14 @@
   .login-screen {
     width: min(100% - 2rem, 90rem);
     height: min(100dvh - 2rem, 56rem);
+    max-height: none;
+    overflow: hidden;
   }
 
   .login-screen__frame {
     grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 0.9fr);
     grid-template-rows: 1fr;
+    height: 100%;
   }
 
   .login-screen__showcase {
@@ -348,12 +350,17 @@
 @media (max-width: 640px) {
   .login-screen {
     width: 100vw;
+    max-height: 100dvh;
     height: 100dvh;
     border-radius: 0;
   }
 
   .login-screen__metrics {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-screen__metric:last-child {
+    grid-column: 1 / -1;
   }
 }
 
