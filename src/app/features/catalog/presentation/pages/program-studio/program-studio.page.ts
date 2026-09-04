@@ -1,0 +1,1146 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  ListManeuvers,
+  ListMissionTypes,
+  ListOperations,
+  ListPhaseBanks,
+  ListPhases,
+  ListPrograms,
+  ListSubphaseBanks,
+  ListSubphases,
+  SaveProgramCurriculum,
+} from '@core/application';
+import { DomainError } from '@core/domain/errors/domain-error';
+import {
+  AUTO_MISSION_COUNT_MAX,
+  type EntityStatus,
+  type ManeuverBankEntity,
+  type ManeuverStandardAssignment,
+  type MissionTypeEntity,
+  type OperationEntity,
+  type PhaseBankEntity,
+  type MissionAssignMode,
+  type PhaseDraftInput,
+  type ProgramType,
+  type SubphaseBankEntity,
+} from '@core/domain/entities';
+import { curriculumHours, expandAutoMissions, matchesAdminSearch } from '@core/domain/services/admin-catalog';
+import { firstValueFrom, forkJoin } from 'rxjs';
+import { Alert } from '@shared/components/alert/alert';
+import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
+import { Button } from '@shared/components/button/button';
+import { Modal } from '@shared/components/modal/modal';
+import { UiAssignBlock } from '@shared/components/ui-assign-block/ui-assign-block';
+import { UiChip } from '@shared/components/ui-chip/ui-chip';
+import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
+import { UiInput } from '@shared/components/ui-input/ui-input';
+import { UiLoading } from '@shared/components/ui-loading/ui-loading';
+import { UiOperationBoard } from '@shared/components/ui-operation-board/ui-operation-board';
+import { UiPosterField } from '@shared/components/ui-poster-field/ui-poster-field';
+import { UiRadioCardGroup } from '@shared/components/ui-radio-card-group/ui-radio-card-group';
+import { UiSegmentedControl } from '@shared/components/ui-segmented-control/ui-segmented-control';
+import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
+import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
+import type { ChoiceOption } from '@shared/models/choice.model';
+import {
+  CATALOG_CREATE_HOLD_MS,
+  academicProgramTypeOptions,
+  entityStatusOptions,
+  missionAssignModeOptions,
+  holdFor,
+  touchedError,
+} from '../../shared/forms/catalog-form';
+
+interface StudioSubphase {
+  key: string;
+  subphaseBankId: string;
+  hours: number;
+  missionMode: MissionAssignMode;
+  missionTypeIds: string[];
+  customMissionNames: string[];
+  autoMissionCode: string;
+  autoMissionCount: number;
+  maneuverIds: string[];
+  maneuverOperationIds: string[];
+  maneuverAssignment: Record<string, string>;
+  standardAssignments: ManeuverStandardAssignment[];
+}
+
+interface StudioPhase {
+  key: string;
+  phaseBankId: string;
+  subphases: StudioSubphase[];
+}
+
+interface GeneratedMission {
+  key: string;
+  label: string;
+  kind: 'catalog' | 'custom' | 'series';
+  origin: string;
+  value: string;
+}
+
+@Component({
+  selector: 'app-program-studio-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    Alert,
+    Breadcrumb,
+    Button,
+    Modal,
+    UiAssignBlock,
+    UiChip,
+    UiFormCard,
+    UiInput,
+    UiLoading,
+    UiOperationBoard,
+    UiPosterField,
+    UiRadioCardGroup,
+    UiSegmentedControl,
+    UiSelect,
+    UiTable,
+    UiTextarea,
+  ],
+  templateUrl: './program-studio.page.html',
+  styleUrl: './program-studio.page.scss',
+})
+export class ProgramStudioPage {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly listPrograms = inject(ListPrograms);
+  private readonly listPhases = inject(ListPhases);
+  private readonly listSubphases = inject(ListSubphases);
+  private readonly listPhaseBanks = inject(ListPhaseBanks);
+  private readonly listSubphaseBanks = inject(ListSubphaseBanks);
+  private readonly listMissionTypes = inject(ListMissionTypes);
+  private readonly listManeuvers = inject(ListManeuvers);
+  private readonly listOperations = inject(ListOperations);
+  private readonly saveCurriculum = inject(SaveProgramCurriculum);
+  private readonly toast = inject(ToastService);
+  private draftSeq = 1;
+  private left = false;
+  private readonly fieldControls = new Map<string, FormControl<string> | FormControl<number>>();
+
+  readonly editingId = this.route.snapshot.paramMap.get('id');
+  readonly isCreate = !this.editingId;
+  readonly isView = this.route.snapshot.data['mode'] === 'view';
+  readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
+  readonly saving = signal(false);
+  readonly creating = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly listHref = '/catalogo/programas';
+  readonly entityStatusOptions = entityStatusOptions;
+  readonly typeOptions = academicProgramTypeOptions;
+  readonly missionModeOptions = missionAssignModeOptions;
+  readonly autoMissionCountMax = AUTO_MISSION_COUNT_MAX;
+  readonly draftMissionName = signal<Record<string, string>>({});
+  readonly phaseBanks = signal<PhaseBankEntity[]>([]);
+  readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
+  readonly missions = signal<MissionTypeEntity[]>([]);
+  readonly maneuvers = signal<ManeuverBankEntity[]>([]);
+  readonly operations = signal<OperationEntity[]>([]);
+  readonly phases = signal<StudioPhase[]>([]);
+  readonly nextPhaseBankId = signal('');
+  readonly nextSubphaseBankId = signal<Record<string, string>>({});
+  readonly phaseBankPickerKey = signal<string | null>(null);
+  readonly phaseBankSearch = new FormControl('', { nonNullable: true });
+  readonly phaseBankQuery = signal('');
+  readonly pickerSelectedId = signal<string | null>(null);
+  readonly phasePickerPageSizes = [4] as const;
+  readonly phasePickerColumns: UiTableColumn[] = [
+    { id: 'code', header: 'Código' },
+    { id: 'name', header: 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'use', header: 'Uso' },
+  ];
+  readonly missionPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
+  readonly generatedSelectedId = signal<string | null>(null);
+  readonly missionCreateMode = signal<MissionAssignMode>('manual');
+  readonly missionAdding = signal(false);
+  readonly missionPickerPageSizes = [4] as const;
+  readonly generatedMissionColumns: UiTableColumn[] = [
+    { id: 'mission', header: 'Misión' },
+    { id: 'origin', header: 'Modo' },
+  ];
+  readonly maneuverPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
+  readonly maneuverSearch = new FormControl('', { nonNullable: true });
+  readonly maneuverQuery = signal('');
+  readonly maneuverCheckedIds = signal<string[]>([]);
+  readonly maneuverPickerMode = signal<'add' | 'order'>('add');
+  readonly maneuverPickerView = signal<'catalog' | 'grouped'>('catalog');
+  readonly maneuverOperationOrder = signal<string[]>([]);
+  readonly maneuverBoardOrder = signal<string[]>([]);
+  readonly maneuverAssignment = signal<Record<string, string>>({});
+  readonly maneuverPickerPageSizes = [8] as const;
+  readonly maneuverPickerColumns: UiTableColumn[] = [
+    { id: 'code', header: 'Código' },
+    { id: 'name', header: 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'use', header: 'Uso' },
+  ];
+
+  readonly form = new FormGroup({
+    code: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    programType: new FormControl<ProgramType>('PPL', { nonNullable: true }),
+    description: new FormControl('', { nonNullable: true }),
+    status: new FormControl<EntityStatus>('active', { nonNullable: true }),
+    imageUrl: new FormControl('', { nonNullable: true }),
+  });
+
+  readonly title = computed(() => {
+    if (this.isCreate) return 'Nuevo plan de estudios';
+    if (this.isView) return 'Itinerario del programa';
+    return 'Diseñar plan de estudios';
+  });
+
+  readonly lead = computed(() =>
+    this.isView
+      ? 'Consulta el itinerario del programa: fases, lecciones, horas y misiones.'
+      : 'Elige o cambia la fase de cada etapa. Horas, misiones y maniobras son de este programa.',
+  );
+
+  readonly totalHours = computed(() => curriculumHours(this.phases()));
+  readonly phaseCount = computed(() => this.phases().length);
+
+  readonly usedPhaseBankIds = computed(() => new Set(this.phases().map((item) => item.phaseBankId)));
+
+  readonly unusedPhaseBanks = computed(() =>
+    this.phaseBanks().filter((item) => item.status === 'active' && !this.usedPhaseBankIds().has(item.id)),
+  );
+
+  readonly phaseBankOptions = computed<ChoiceOption[]>(() =>
+    this.unusedPhaseBanks().map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
+  );
+
+  readonly currentPickerBankId = computed(() => {
+    const key = this.phaseBankPickerKey();
+    return this.phases().find((item) => item.key === key)?.phaseBankId ?? '';
+  });
+
+  readonly pickerPhaseBanks = computed(() =>
+    this.phaseBanks()
+      .filter((item) => item.status === 'active')
+      .filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.phaseBankQuery())),
+  );
+
+  readonly pickerTableRows = computed<UiTableRow[]>(() => {
+    const currentId = this.currentPickerBankId();
+    const used = this.usedPhaseBankIds();
+    return this.pickerPhaseBanks().map((item) => ({
+      id: item.id,
+      cells: {
+        code: item.code,
+        name: item.name,
+        description: item.description || '—',
+        use: item.id === currentId ? 'En el programa' : used.has(item.id) ? 'En uso' : 'Disponible',
+      },
+    }));
+  });
+
+  readonly canApplyPickerPhase = computed(() => {
+    const id = this.pickerSelectedId();
+    if (!id) return false;
+    return id === this.currentPickerBankId() || !this.usedPhaseBankIds().has(id);
+  });
+
+  readonly nextAvailablePhaseBankId = computed(() => {
+    const chosen = this.nextPhaseBankId();
+    const unused = this.unusedPhaseBanks();
+    if (unused.some((item) => item.id === chosen)) return chosen;
+    return unused[0]?.id ?? '';
+  });
+
+  readonly phaseBankOpen = computed(() => this.phaseBankPickerKey() !== null);
+
+  readonly missionPickerOpen = computed(() => this.missionPickerTarget() !== null);
+  readonly currentMissionPhaseKey = computed(() => this.missionPickerTarget()?.phaseKey ?? '');
+
+  readonly currentPickerSub = computed(() => {
+    const target = this.missionPickerTarget();
+    if (!target) return null;
+    const phase = this.phases().find((item) => item.key === target.phaseKey);
+    return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
+  });
+
+  readonly generatedMissions = computed(() => this.buildGeneratedMissions(this.currentPickerSub()));
+
+  readonly generatedMissionRows = computed<UiTableRow[]>(() =>
+    this.generatedMissions().map((item) => ({
+      id: item.key,
+      cells: { mission: item.label, origin: item.origin },
+    })),
+  );
+
+  readonly maneuverPickerOpen = computed(() => this.maneuverPickerTarget() !== null);
+
+  readonly currentManeuverSub = computed(() => {
+    const target = this.maneuverPickerTarget();
+    if (!target) return null;
+    const phase = this.phases().find((item) => item.key === target.phaseKey);
+    return phase?.subphases.find((item) => item.key === target.subKey) ?? null;
+  });
+
+  readonly maneuverPickerRows = computed<UiTableRow[]>(() =>
+    this.toManeuverRows(
+      this.maneuvers().filter((item) =>
+        matchesAdminSearch([item.code, item.name, item.description], this.maneuverQuery()),
+      ),
+    ),
+  );
+
+  readonly canGroupManeuvers = computed(() => this.maneuverCheckedIds().length > 0);
+
+  readonly maneuverCrumbs = computed(() => [
+    { label: 'Catálogo', action: 'catalog' },
+    { label: 'Por operaciones' },
+  ]);
+
+  readonly maneuverBoardOperations = computed(() =>
+    this.operations().map((item) => ({ id: item.id, name: item.name, description: item.description })),
+  );
+
+  readonly maneuverBoardItems = computed(() => {
+    const selected = new Set(this.maneuverCheckedIds());
+    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
+    return this.maneuvers()
+      .filter((item) => selected.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        label: `${item.code} · ${item.name}`,
+        added: assigned.has(item.id),
+      }));
+  });
+
+  readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
+    this.subphaseBanks()
+      .filter((item) => item.status === 'active')
+      .map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
+  );
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.left = true;
+    });
+    this.phaseBankSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.phaseBankQuery.set(value);
+    });
+    this.maneuverSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.maneuverQuery.set(value);
+    });
+    forkJoin({
+      programs: this.listPrograms.execute(),
+      phases: this.listPhases.execute(),
+      subphases: this.listSubphases.execute(),
+      phaseBanks: this.listPhaseBanks.execute(),
+      subphaseBanks: this.listSubphaseBanks.execute(),
+      missions: this.listMissionTypes.execute(),
+      maneuvers: this.listManeuvers.execute(),
+      operations: this.listOperations.execute(),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (bundle) => {
+          this.phaseBanks.set(bundle.phaseBanks);
+          this.subphaseBanks.set(bundle.subphaseBanks);
+          this.missions.set(bundle.missions);
+          this.maneuvers.set(bundle.maneuvers);
+          this.operations.set(bundle.operations);
+          this.nextPhaseBankId.set(bundle.phaseBanks.find((item) => item.status === 'active')?.id ?? '');
+          if (this.editingId) {
+            const program = bundle.programs.find((item) => item.id === this.editingId);
+            if (!program) {
+              this.loadState.set('error');
+              return;
+            }
+            this.form.reset({
+              code: program.code,
+              name: program.name,
+              programType: program.programType,
+              description: program.description,
+              status: program.status,
+              imageUrl: program.imageUrl,
+            });
+            const programPhases = bundle.phases
+              .filter((item) => item.programId === program.id)
+              .sort((a, b) => a.sortOrder - b.sortOrder);
+            this.phases.set(
+              programPhases.map((phase) => ({
+                key: phase.id,
+                phaseBankId: phase.phaseBankId,
+                subphases: bundle.subphases
+                  .filter((item) => item.phaseId === phase.id)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({
+                    key: item.id,
+                    subphaseBankId: item.subphaseBankId,
+                    hours: item.hours,
+                    missionMode: item.missionMode,
+                    missionTypeIds: [...item.missionTypeIds],
+                    customMissionNames: [...item.customMissionNames],
+                    autoMissionCode: item.autoMissionCode,
+                    autoMissionCount: item.autoMissionCount,
+                    maneuverIds: [...item.maneuverIds],
+                    maneuverOperationIds: [...item.maneuverOperationIds],
+                    maneuverAssignment: { ...item.maneuverAssignment },
+                    standardAssignments: item.standardAssignments.map((assignment) => ({
+                      ...assignment,
+                      standardIds: [...assignment.standardIds],
+                    })),
+                  })),
+              })),
+            );
+            if (this.isView) this.form.disable({ emitEvent: false });
+          }
+          this.loadState.set('ready');
+        },
+        error: () => this.loadState.set('error'),
+      });
+  }
+
+  requiredError(name: 'code' | 'name', fallback: string): string | undefined {
+    return touchedError(this.form.controls[name], fallback);
+  }
+
+  phaseName(phaseBankId: string): string {
+    const bank = this.phaseBanks().find((item) => item.id === phaseBankId);
+    return bank ? `${bank.code} · ${bank.name}` : 'Fase';
+  }
+
+  subphaseName(subphaseBankId: string): string {
+    const bank = this.subphaseBanks().find((item) => item.id === subphaseBankId);
+    return bank ? `${bank.code} · ${bank.name}` : 'Subfase';
+  }
+
+  setType(value: string): void {
+    if (this.isView) return;
+    if (
+      value === 'PPL' ||
+      value === 'CPL' ||
+      value === 'ATPL' ||
+      value === 'IR' ||
+      value === 'FI' ||
+      value === 'HELI'
+    ) {
+      this.form.controls.programType.setValue(value);
+    }
+  }
+
+  setStatus(value: string): void {
+    if (this.isView) return;
+    this.form.controls.status.setValue(value === 'inactive' ? 'inactive' : 'active');
+  }
+
+  setPoster(value: string): void {
+    if (this.isView) return;
+    this.form.controls.imageUrl.setValue(value);
+    this.form.controls.imageUrl.markAsTouched();
+    this.error.set(null);
+  }
+
+  onPosterReject(message: string): void {
+    this.error.set(message);
+  }
+
+  openPhaseBankPicker(key: string): void {
+    if (this.isView) return;
+    this.phaseBankSearch.setValue('');
+    this.phaseBankQuery.set('');
+    this.phaseBankPickerKey.set(key);
+    this.pickerSelectedId.set(this.phases().find((item) => item.key === key)?.phaseBankId ?? null);
+  }
+
+  closePhaseBankPicker(): void {
+    this.phaseBankPickerKey.set(null);
+    this.pickerSelectedId.set(null);
+  }
+
+  applyPickerPhase(): void {
+    const id = this.pickerSelectedId();
+    if (id) this.pickPhaseBank(id);
+  }
+
+  openMissionPicker(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub) return;
+    this.missionPickerTarget.set({ phaseKey, subKey });
+    this.generatedSelectedId.set(null);
+    this.missionCreateMode.set(sub.missionMode === 'automatic' ? 'automatic' : 'manual');
+    this.missionAdding.set(this.buildGeneratedMissions(sub).length === 0);
+  }
+
+  closeMissionPicker(): void {
+    this.missionPickerTarget.set(null);
+    this.generatedSelectedId.set(null);
+    this.missionAdding.set(false);
+  }
+
+  openManeuverPicker(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub) return;
+    this.maneuverPickerTarget.set({ phaseKey, subKey });
+    this.maneuverPickerMode.set('add');
+    this.maneuverPickerView.set('catalog');
+    this.applySubphaseManeuvers(sub);
+    this.maneuverSearch.setValue('');
+    this.maneuverQuery.set('');
+  }
+
+  closeManeuverPicker(): void {
+    this.maneuverPickerTarget.set(null);
+    this.maneuverPickerMode.set('add');
+    this.maneuverCheckedIds.set([]);
+    this.maneuverPickerView.set('catalog');
+    this.maneuverOperationOrder.set([]);
+    this.maneuverBoardOrder.set([]);
+    this.maneuverAssignment.set({});
+  }
+
+  addManeuverFromCatalog(maneuverId: string): void {
+    const target = this.maneuverPickerTarget();
+    const sub = this.currentManeuverSub();
+    if (!target || !sub || sub.maneuverIds.includes(maneuverId)) return;
+    this.toggleManeuver(target.phaseKey, target.subKey, maneuverId, true);
+    if (!this.maneuverCheckedIds().includes(maneuverId)) {
+      this.maneuverCheckedIds.update((ids) => [...ids, maneuverId]);
+    }
+  }
+
+  showManeuverGroups(): void {
+    if (!this.canGroupManeuvers() || this.maneuverPickerMode() === 'order') return;
+    const existing = this.currentManeuverSub()?.maneuverIds ?? [];
+    const merged = [...new Set([...existing, ...this.maneuverCheckedIds()])];
+    this.maneuverCheckedIds.set(merged);
+    this.maneuverBoardOrder.set(this.mergeManeuverOrder(this.maneuverBoardOrder(), merged));
+    this.maneuverAssignment.set(this.filterManeuverAssignment(this.maneuverAssignment(), merged));
+    this.maneuverPickerView.set('grouped');
+    this.syncManeuversFromBoard();
+  }
+
+  showManeuverOrder(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub?.maneuverIds.length) return;
+    this.maneuverPickerTarget.set({ phaseKey, subKey });
+    this.maneuverPickerMode.set('order');
+    this.applySubphaseManeuvers(sub);
+    this.maneuverPickerView.set('grouped');
+  }
+
+  onOperationOrder(ids: string[]): void {
+    if (this.maneuverPickerMode() === 'order') return;
+    this.maneuverOperationOrder.set(ids);
+    this.syncManeuversFromBoard();
+  }
+
+  onManeuverBoardOrder(ids: string[]): void {
+    if (this.maneuverPickerMode() === 'order') return;
+    this.maneuverBoardOrder.set(ids);
+    this.syncManeuversFromBoard();
+  }
+
+  onManeuverAssignment(next: Record<string, string>): void {
+    if (this.maneuverPickerMode() === 'order') return;
+    this.maneuverAssignment.set(next);
+    this.syncManeuversFromBoard();
+  }
+
+  removeBoardManeuver(maneuverId: string): void {
+    this.maneuverCheckedIds.update((ids) => ids.filter((id) => id !== maneuverId));
+    this.maneuverBoardOrder.update((ids) => ids.filter((id) => id !== maneuverId));
+    const next = { ...this.maneuverAssignment() };
+    delete next[maneuverId];
+    this.maneuverAssignment.set(next);
+    this.syncManeuversFromBoard();
+  }
+
+  private syncManeuversFromBoard(): void {
+    const target = this.maneuverPickerTarget();
+    if (!target || this.maneuverPickerMode() === 'order') return;
+    const items = this.maneuverBoardOrder().length ? this.maneuverBoardOrder() : this.maneuverCheckedIds();
+    const assignment = this.maneuverAssignment();
+    const queued: string[] = [];
+    for (const operationId of this.maneuverOperationOrder()) {
+      for (const id of items) {
+        if (assignment[id] === operationId) queued.push(id);
+      }
+    }
+    for (const id of items) {
+      if (!assignment[id]) queued.push(id);
+    }
+    this.setSubphaseManeuverState(target.phaseKey, target.subKey, queued, this.maneuverOperationOrder(), assignment);
+  }
+
+  private applySubphaseManeuvers(sub: StudioSubphase): void {
+    this.maneuverCheckedIds.set([...sub.maneuverIds]);
+    this.maneuverBoardOrder.set([...sub.maneuverIds]);
+    this.maneuverOperationOrder.set([...sub.maneuverOperationIds]);
+    this.maneuverAssignment.set({ ...sub.maneuverAssignment });
+  }
+
+  private mergeManeuverOrder(current: readonly string[], next: readonly string[]): string[] {
+    const wanted = new Set(next);
+    const kept = current.filter((id) => wanted.has(id));
+    const seen = new Set(kept);
+    return [...kept, ...next.filter((id) => !seen.has(id))];
+  }
+
+  private filterManeuverAssignment(
+    assignment: Record<string, string>,
+    maneuverIds: readonly string[],
+  ): Record<string, string> {
+    const wanted = new Set(maneuverIds);
+    const next: Record<string, string> = {};
+    for (const [maneuverId, operationId] of Object.entries(assignment)) {
+      if (wanted.has(maneuverId)) next[maneuverId] = operationId;
+    }
+    return next;
+  }
+
+  private setSubphaseManeuverState(
+    phaseKey: string,
+    subKey: string,
+    ids: string[],
+    operationIds: readonly string[],
+    assignment: Record<string, string>,
+  ): void {
+    const unique = [...new Set(ids.filter(Boolean))];
+    const ops = [...new Set(operationIds.filter(Boolean))];
+    this.patchSubphase(phaseKey, subKey, {
+      maneuverIds: unique,
+      maneuverOperationIds: ops,
+      maneuverAssignment: this.filterManeuverAssignment(assignment, unique),
+    });
+  }
+
+  onManeuverCrumb(action: string): void {
+    if (action === 'catalog' && this.maneuverPickerMode() === 'add') {
+      this.maneuverPickerView.set('catalog');
+    }
+  }
+
+  private toManeuverRows(items: ManeuverBankEntity[]): UiTableRow[] {
+    const assigned = new Set(this.currentManeuverSub()?.maneuverIds ?? []);
+    return items.map((item) => ({
+      id: item.id,
+      actionDisabled: assigned.has(item.id),
+      cells: {
+        code: item.code,
+        name: item.name,
+        description: item.description || '—',
+        use: assigned.has(item.id) ? 'En la subfase' : 'Catálogo',
+      },
+    }));
+  }
+
+  startAddingMissions(): void {
+    this.missionAdding.set(true);
+    this.missionCreateMode.set('manual');
+  }
+
+  setMissionCreateMode(mode: string): void {
+    if (mode === 'automatic') {
+      this.createMissionsAutomatic();
+      return;
+    }
+    this.createMissionsManual();
+  }
+
+  createMissionsManual(): void {
+    const target = this.missionPickerTarget();
+    if (!target) return;
+    this.missionCreateMode.set('manual');
+    this.promoteSeriesToCustom(target.phaseKey, target.subKey);
+    this.setMissionMode(target.phaseKey, target.subKey, 'manual');
+  }
+
+  createMissionsAutomatic(): void {
+    const target = this.missionPickerTarget();
+    if (!target) return;
+    this.missionCreateMode.set('automatic');
+  }
+
+  addAutomaticSeries(): void {
+    const target = this.missionPickerTarget();
+    const sub = this.currentPickerSub();
+    if (!target || !sub) return;
+    const generated = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    if (!generated.length) return;
+    this.patchSubphase(target.phaseKey, target.subKey, {
+      missionMode: 'automatic',
+      missionTypeIds: [],
+      customMissionNames: [],
+    });
+    this.missionAdding.set(false);
+  }
+
+  removeGeneratedMission(): void {
+    const target = this.missionPickerTarget();
+    const key = this.generatedSelectedId();
+    const item = this.generatedMissions().find((row) => row.key === key);
+    if (!target || !item) return;
+    if (item.kind === 'catalog') {
+      const ids = (this.currentPickerSub()?.missionTypeIds ?? []).filter((id) => id !== item.value);
+      this.patchSubphase(target.phaseKey, target.subKey, { missionTypeIds: ids });
+    } else if (item.kind === 'custom') {
+      this.removeCustomMission(target.phaseKey, target.subKey, item.value);
+    } else {
+      const remaining = this.generatedMissions()
+        .filter((row) => row.kind === 'series' && row.value !== item.value)
+        .map((row) => row.label);
+      this.patchSubphase(target.phaseKey, target.subKey, {
+        missionMode: 'manual',
+        customMissionNames: remaining,
+        autoMissionCode: '',
+        autoMissionCount: 0,
+      });
+    }
+    this.generatedSelectedId.set(null);
+  }
+
+  pickPhaseBank(phaseBankId: string): void {
+    const key = this.phaseBankPickerKey();
+    if (!key || this.isView) return;
+    const currentId = this.currentPickerBankId();
+    if (phaseBankId !== currentId && this.usedPhaseBankIds().has(phaseBankId)) return;
+    this.phases.update((items) => items.map((item) => (item.key === key ? { ...item, phaseBankId } : item)));
+    this.closePhaseBankPicker();
+  }
+
+  addPhase(): void {
+    const phaseBankId = this.nextAvailablePhaseBankId();
+    if (!phaseBankId || this.isView) return;
+    const defaultSub = this.subphaseBanks().find((item) => item.status === 'active')?.id ?? '';
+    this.phases.update((items) => [
+      ...items,
+      {
+        key: `draft-ph-${this.draftSeq++}`,
+        phaseBankId,
+        subphases: defaultSub
+          ? [
+              {
+                key: `draft-sp-${this.draftSeq++}`,
+                subphaseBankId: defaultSub,
+                hours: 2,
+                missionMode: 'manual',
+                missionTypeIds: [],
+                customMissionNames: [],
+                autoMissionCode: '',
+                autoMissionCount: 0,
+                maneuverIds: [],
+                maneuverOperationIds: [],
+                maneuverAssignment: {},
+                standardAssignments: [],
+              },
+            ]
+          : [],
+      },
+    ]);
+  }
+
+  removePhase(key: string): void {
+    if (this.isView) return;
+    this.phases.update((items) => items.filter((item) => item.key !== key));
+  }
+
+  movePhase(key: string, delta: number): void {
+    if (this.isView) return;
+    this.phases.update((items) => {
+      const index = items.findIndex((item) => item.key === key);
+      const next = index + delta;
+      if (index < 0 || next < 0 || next >= items.length) return items;
+      const copy = [...items];
+      const [row] = copy.splice(index, 1);
+      copy.splice(next, 0, row);
+      return copy;
+    });
+  }
+
+  setNextSubphase(phaseKey: string, value: string): void {
+    this.nextSubphaseBankId.update((map) => ({ ...map, [phaseKey]: value }));
+  }
+
+  addSubphase(phaseKey: string): void {
+    if (this.isView) return;
+    const bankId =
+      this.nextSubphaseBankId()[phaseKey] || this.subphaseBanks().find((item) => item.status === 'active')?.id || '';
+    if (!bankId) return;
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key === phaseKey
+          ? {
+              ...phase,
+              subphases: [
+                ...phase.subphases,
+                {
+                  key: `draft-sp-${this.draftSeq++}`,
+                  subphaseBankId: bankId,
+                  hours: 2,
+                  missionMode: 'manual',
+                  missionTypeIds: [],
+                  customMissionNames: [],
+                  autoMissionCode: '',
+                  autoMissionCount: 0,
+                  maneuverIds: [],
+                  maneuverOperationIds: [],
+                  maneuverAssignment: {},
+                  standardAssignments: [],
+                },
+              ],
+            }
+          : phase,
+      ),
+    );
+  }
+
+  removeSubphase(phaseKey: string, subKey: string): void {
+    if (this.isView) return;
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key === phaseKey
+          ? { ...phase, subphases: phase.subphases.filter((item) => item.key !== subKey) }
+          : phase,
+      ),
+    );
+  }
+
+  hoursField(phaseKey: string, subKey: string, hours: number): FormControl<number> {
+    return this.numberField(`hours:${phaseKey}:${subKey}`, hours, (value) => {
+      this.patchSubphase(phaseKey, subKey, { hours: Number.isFinite(value) ? value : 0 });
+    });
+  }
+
+  nameField(subKey: string, value: string): FormControl<string> {
+    return this.textField(`name:${subKey}`, value, (next) => {
+      this.draftMissionName.update((map) => ({ ...map, [subKey]: next }));
+    });
+  }
+
+  codeField(phaseKey: string, subKey: string, value: string): FormControl<string> {
+    return this.textField(`code:${phaseKey}:${subKey}`, value, (next) => {
+      this.patchSubphase(phaseKey, subKey, { autoMissionCode: next });
+    });
+  }
+
+  countField(phaseKey: string, subKey: string, count: number): FormControl<number> {
+    return this.numberField(`count:${phaseKey}:${subKey}`, count, (value) => {
+      const raw = Number(value);
+      const next = Number.isFinite(raw)
+        ? Math.min(AUTO_MISSION_COUNT_MAX, Math.max(0, Math.trunc(raw)))
+        : 0;
+      this.patchSubphase(phaseKey, subKey, { autoMissionCount: next });
+    });
+  }
+
+  setMissionMode(phaseKey: string, subKey: string, value: string): void {
+    if (value !== 'manual' && value !== 'automatic') return;
+    this.patchSubphase(phaseKey, subKey, { missionMode: value });
+  }
+
+  addCustomMission(phaseKey: string, subKey: string): void {
+    const name = (this.draftMissionName()[subKey] ?? '').trim();
+    if (!name || this.isView) return;
+    this.promoteSeriesToCustom(phaseKey, subKey);
+    this.setMissionMode(phaseKey, subKey, 'manual');
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) =>
+                sub.key !== subKey || sub.customMissionNames.some((item) => item.toLowerCase() === name.toLowerCase())
+                  ? sub
+                  : { ...sub, customMissionNames: [...sub.customMissionNames, name] },
+              ),
+            },
+      ),
+    );
+    this.draftMissionName.update((map) => ({ ...map, [subKey]: '' }));
+    this.nameField(subKey, '');
+    this.missionAdding.set(false);
+  }
+
+  removeCustomMission(phaseKey: string, subKey: string, name: string): void {
+    this.patchSubphase(phaseKey, subKey, {
+      customMissionNames: this.phases()
+        .flatMap((phase) => phase.subphases)
+        .find((sub) => sub.key === subKey)
+        ?.customMissionNames.filter((item) => item !== name) ?? [],
+    });
+  }
+
+  removeMission(phaseKey: string, subKey: string, name: string): void {
+    const sub = this.phases()
+      .flatMap((phase) => phase.subphases)
+      .find((item) => item.key === subKey);
+    if (!sub) return;
+    if (sub.missionMode === 'automatic') {
+      const remaining = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0).filter(
+        (item) => item !== name,
+      );
+      this.patchSubphase(phaseKey, subKey, {
+        missionMode: 'manual',
+        customMissionNames: remaining,
+        autoMissionCode: '',
+        autoMissionCount: 0,
+      });
+      return;
+    }
+    if (sub.customMissionNames.includes(name)) {
+      this.removeCustomMission(phaseKey, subKey, name);
+      return;
+    }
+    const mission = this.missions().find((item) => `${item.code} · ${item.name}` === name);
+    if (mission) {
+      this.toggleMission(phaseKey, subKey, mission.id, false);
+    }
+  }
+
+  autoPreview(sub: StudioSubphase): string {
+    const items = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    if (!items.length) return 'Ejemplo: CER y 17 generan C1, C2, C3 … C17.';
+    if (items.length <= 8) return items.join(', ');
+    return `${items.slice(0, 4).join(', ')} … ${items[items.length - 1]}`;
+  }
+
+  missionLabels(sub: StudioSubphase): string[] {
+    if (sub.missionMode === 'automatic') {
+      return expandAutoMissions(sub.autoMissionCode, sub.autoMissionCount);
+    }
+    const fromCatalog = sub.missionTypeIds.map((id) => {
+      const mission = this.missions().find((item) => item.id === id);
+      return mission ? `${mission.code} · ${mission.name}` : id;
+    });
+    return [...fromCatalog, ...sub.customMissionNames];
+  }
+
+  maneuverLabels(sub: StudioSubphase): string[] {
+    return sub.maneuverIds.map((id) => {
+      const maneuver = this.maneuvers().find((item) => item.id === id);
+      return maneuver ? `${maneuver.code} · ${maneuver.name}` : id;
+    });
+  }
+
+  missionCountLabel(sub: StudioSubphase): string {
+    const count = this.missionLabels(sub).length;
+    if (!count) return 'Ninguna';
+    return count === 1 ? '1 misión' : `${count} misiones`;
+  }
+
+  maneuverCountLabel(sub: StudioSubphase): string {
+    const count = sub.maneuverIds.length;
+    if (!count) return 'Ninguna';
+    return count === 1 ? '1 maniobra' : `${count} maniobras`;
+  }
+
+  removeManeuver(phaseKey: string, subKey: string, name: string): void {
+    const maneuver = this.maneuvers().find((item) => `${item.code} · ${item.name}` === name);
+    if (maneuver) this.toggleManeuver(phaseKey, subKey, maneuver.id, false);
+  }
+
+  toggleMission(phaseKey: string, subKey: string, missionId: string, checked: boolean): void {
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) =>
+                sub.key !== subKey
+                  ? sub
+                  : {
+                      ...sub,
+                      missionTypeIds: checked
+                        ? [...sub.missionTypeIds, missionId]
+                        : sub.missionTypeIds.filter((id) => id !== missionId),
+                    },
+              ),
+            },
+      ),
+    );
+  }
+
+  toggleManeuver(phaseKey: string, subKey: string, maneuverId: string, checked: boolean): void {
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) =>
+                sub.key !== subKey
+                  ? sub
+                  : {
+                      ...sub,
+                      maneuverIds: checked
+                        ? [...sub.maneuverIds, maneuverId]
+                        : sub.maneuverIds.filter((id) => id !== maneuverId),
+                      maneuverAssignment: checked
+                        ? sub.maneuverAssignment
+                        : this.filterManeuverAssignment(sub.maneuverAssignment, sub.maneuverIds.filter((id) => id !== maneuverId)),
+                    },
+              ),
+            },
+      ),
+    );
+  }
+
+  private textField(key: string, value: string, apply: (value: string) => void): FormControl<string> {
+    const existing = this.fieldControls.get(key);
+    if (existing instanceof FormControl) {
+      const control = existing as FormControl<string>;
+      if (control.value !== value) control.setValue(value, { emitEvent: false });
+      return control;
+    }
+    const control = new FormControl(value, { nonNullable: true });
+    control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(apply);
+    this.fieldControls.set(key, control);
+    return control;
+  }
+
+  private numberField(key: string, value: number, apply: (value: number) => void): FormControl<number> {
+    const existing = this.fieldControls.get(key);
+    if (existing instanceof FormControl) {
+      const control = existing as FormControl<number>;
+      if (Number(control.value) !== value) control.setValue(value, { emitEvent: false });
+      return control;
+    }
+    const control = new FormControl(value, { nonNullable: true });
+    control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((next) => apply(Number(next)));
+    this.fieldControls.set(key, control);
+    return control;
+  }
+
+  private buildGeneratedMissions(sub: StudioSubphase | null): GeneratedMission[] {
+    if (!sub) return [];
+    if (sub.missionMode === 'automatic') {
+      return expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0).map((label) => ({
+        key: `series:${label}`,
+        label,
+        kind: 'series',
+        origin: 'Automático',
+        value: label,
+      }));
+    }
+    const catalog = sub.missionTypeIds.map((id) => {
+      const mission = this.missions().find((item) => item.id === id);
+      return {
+        key: `catalog:${id}`,
+        label: mission ? `${mission.code} · ${mission.name}` : id,
+        kind: 'catalog' as const,
+        origin: 'Manual',
+        value: id,
+      };
+    });
+    const custom = sub.customMissionNames.map((name) => ({
+      key: `custom:${name}`,
+      label: name,
+      kind: 'custom' as const,
+      origin: 'Manual',
+      value: name,
+    }));
+    return [...catalog, ...custom];
+  }
+
+  private promoteSeriesToCustom(phaseKey: string, subKey: string): void {
+    const sub = this.phases()
+      .find((item) => item.key === phaseKey)
+      ?.subphases.find((item) => item.key === subKey);
+    if (!sub || sub.missionMode !== 'automatic') return;
+    const series = expandAutoMissions(sub.autoMissionCode, Number(sub.autoMissionCount) || 0);
+    const names = [...sub.customMissionNames];
+    for (const label of series) {
+      if (!names.some((item) => item.toLowerCase() === label.toLowerCase())) names.push(label);
+    }
+    this.patchSubphase(phaseKey, subKey, {
+      missionMode: 'manual',
+      customMissionNames: names,
+      autoMissionCode: '',
+      autoMissionCount: 0,
+    });
+  }
+
+  private patchSubphase(phaseKey: string, subKey: string, patch: Partial<StudioSubphase>): void {
+    if (this.isView) return;
+    this.phases.update((items) =>
+      items.map((phase) =>
+        phase.key !== phaseKey
+          ? phase
+          : {
+              ...phase,
+              subphases: phase.subphases.map((sub) => (sub.key === subKey ? { ...sub, ...patch } : sub)),
+            },
+      ),
+    );
+  }
+
+  async save(): Promise<void> {
+    if (this.isView || this.saving()) return;
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      this.error.set('Completa el código y el nombre del programa.');
+      return;
+    }
+    this.error.set(null);
+    this.saving.set(true);
+    const phases: PhaseDraftInput[] = this.phases().map((phase, index) => ({
+      phaseBankId: phase.phaseBankId,
+      sortOrder: index + 1,
+      subphases: phase.subphases.map((sub, subIndex) => ({
+        subphaseBankId: sub.subphaseBankId,
+        hours: sub.hours,
+        missionMode: sub.missionMode,
+        missionTypeIds: sub.missionTypeIds,
+        customMissionNames: sub.customMissionNames,
+        autoMissionCode: sub.autoMissionCode,
+        autoMissionCount: sub.autoMissionCount,
+        maneuverIds: sub.maneuverIds,
+        maneuverOperationIds: sub.maneuverOperationIds,
+        maneuverAssignment: sub.maneuverAssignment,
+        standardAssignments: sub.standardAssignments,
+        sortOrder: subIndex + 1,
+      })),
+    }));
+    try {
+      this.creating.set(true);
+      await Promise.all([
+        firstValueFrom(
+          this.saveCurriculum.execute({
+            id: this.editingId ?? undefined,
+            program: this.form.getRawValue(),
+            phases,
+          }),
+        ),
+        holdFor(CATALOG_CREATE_HOLD_MS),
+      ]);
+      if (this.left) return;
+      this.toast.success(
+        this.isCreate ? 'Programa creado' : 'Programa guardado',
+        'El programa ya está en la academia.',
+      );
+      await this.router.navigateByUrl(this.listHref);
+    } catch (err) {
+      if (this.left) return;
+      this.creating.set(false);
+      this.error.set(err instanceof DomainError ? err.message : 'No hemos podido guardar el programa.');
+    } finally {
+      if (!this.left) this.saving.set(false);
+    }
+  }
+}

@@ -1,0 +1,99 @@
+<section class="psn" aria-labelledby="psn-title">
+  <header class="psn__head">
+    <div>
+      <p class="psn__eyebrow">Estructura</p>
+      <h2 id="psn-title">Mapa del programa</h2>
+      <p>Abre una fase y elige la subfase que deseas configurar.</p>
+    </div>
+    <span class="psn__overall">{{ totalProgress().percentage }}%</span>
+  </header>
+
+  <div
+    class="psn__overall-track"
+    role="progressbar"
+    aria-label="Avance total de configuración"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    [attr.aria-valuenow]="totalProgress().percentage"
+  >
+    <span [style.width.%]="totalProgress().percentage"></span>
+  </div>
+  <p class="psn__overall-copy">
+    {{ totalProgress().configuredCells }} de {{ totalProgress().totalCells }} niveles definidos
+  </p>
+
+  <ol class="psn__phases">
+    @for (phase of phases(); track phase.id; let phaseIndex = $index) {
+      <li class="psn__phase" [class.psn__phase--active]="phase.id === activePhaseId()">
+        <button
+          type="button"
+          class="psn__phase-trigger"
+          [attr.aria-expanded]="phase.id === activePhaseId()"
+          [attr.aria-controls]="'psn-phase-' + phase.id"
+          (click)="phaseSelected.emit(phase.id)"
+        >
+          <span class="psn__number">{{ phaseIndex + 1 }}</span>
+          <span class="psn__phase-copy">
+            <strong>{{ phase.label }}</strong>
+            <small>
+              {{ phase.subphases.length }} {{ phase.subphases.length === 1 ? 'subfase' : 'subfases' }} ·
+              {{ phase.configuredCells }}/{{ phase.totalCells }} niveles
+            </small>
+          </span>
+          <span
+            class="psn__status"
+            [class.psn__status--dirty]="isPhaseDirty(phase)"
+            [class.psn__status--done]="!isPhaseDirty(phase) && phase.totalCells > 0 && phase.configuredCells === phase.totalCells"
+          >
+            {{ phaseStatus(phase) }}
+          </span>
+          <app-icon name="chevron" />
+        </button>
+
+        @if (phase.id === activePhaseId()) {
+          <div class="psn__subphases" [id]="'psn-phase-' + phase.id">
+            @for (subphase of phase.subphases; track subphase.id) {
+              <button
+                type="button"
+                class="psn__subphase"
+                [class.psn__subphase--active]="subphase.id === activeSubphaseId()"
+                (click)="subphaseSelected.emit(subphase.id)"
+              >
+                <span
+                  class="psn__dot"
+                  [class.psn__dot--dirty]="isDirty(subphase.id)"
+                  [class.psn__dot--progress]="!isDirty(subphase.id) && subphase.configuredCells > 0 && subphase.configuredCells < subphase.totalCells"
+                  [class.psn__dot--done]="!isDirty(subphase.id) && subphase.totalCells > 0 && subphase.configuredCells === subphase.totalCells"
+                ></span>
+                <span class="psn__subphase-copy">
+                  <strong>{{ subphase.label }}</strong>
+                  <small>
+                    {{ subphase.hours }} h · {{ missionLabel(subphase.missions.length) }} ·
+                    {{ maneuverLabel(subphase.maneuvers.length) }}
+                  </small>
+                  @if (subphase.hasMatrix) {
+                    <span class="psn__mini-track" aria-hidden="true">
+                      <span [style.width.%]="subphase.percentage"></span>
+                    </span>
+                  } @else {
+                    <em>{{ subphase.matrixHint }}</em>
+                  }
+                </span>
+                <span
+                  class="psn__substatus"
+                  [class.psn__substatus--dirty]="isDirty(subphase.id)"
+                  [class.psn__substatus--done]="!isDirty(subphase.id) && subphase.totalCells > 0 && subphase.configuredCells === subphase.totalCells"
+                >{{ subphaseStatus(subphase) }}</span>
+                <app-icon name="chevron-right" />
+              </button>
+            } @empty {
+              <p class="psn__empty">Esta fase todavía no tiene subfases.</p>
+            }
+          </div>
+        }
+      </li>
+    } @empty {
+      <li class="psn__empty">El programa todavía no tiene fases.</li>
+    }
+  </ol>
+</section>

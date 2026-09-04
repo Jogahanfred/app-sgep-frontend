@@ -1,0 +1,53 @@
+<div class="ap">
+  <div class="ap__head">
+    <div><h1>{{ title() }}</h1><p class="ap__lead">Define el grupo y asigna sus alumnos en un solo lugar.</p></div>
+    <app-button variant="ghost" [href]="listHref">Volver al listado</app-button>
+  </div>
+
+  @if (loading()) { <ui-loading title="Cargando promoción" subtitle="Un momento." label="Cargando promoción" /> }
+  @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (error()) { <app-alert tone="error">{{ error() }}</app-alert> }
+        <div class="ap__grid ap__grid--two">
+          <ui-input id="promotion-code" label="Código" icon="id-card" placeholder="PROM-26-A" [field]="form.controls.code" [error]="requiredError(form.controls.code)" />
+          <ui-input id="promotion-name" label="Nombre" icon="user" placeholder="Promoción Alfa 2026" [field]="form.controls.name" [error]="requiredError(form.controls.name)" />
+          <ui-input id="promotion-year" label="Año" type="number" icon="calendar" [field]="form.controls.year" [error]="requiredError(form.controls.year)" />
+          <ui-select id="promotion-unit" label="Unidad" [uppercase]="false" [options]="unitOptions()" [value]="form.controls.unitId.value" [error]="requiredError(form.controls.unitId)" (valueChange)="form.controls.unitId.setValue($event)" />
+          <ui-select id="promotion-squadron" label="Escuadrón" [uppercase]="false" [options]="squadronOptions()" [value]="form.controls.squadronId.value" [disabled]="!form.controls.unitId.value" [error]="requiredError(form.controls.squadronId)" (valueChange)="form.controls.squadronId.setValue($event)" />
+          <ui-date-picker id="promotion-start" label="Fecha inicio" [field]="form.controls.startDate" [error]="requiredError(form.controls.startDate)" />
+          <ui-date-picker id="promotion-end" label="Fecha fin" [field]="form.controls.endDate" [error]="requiredError(form.controls.endDate)" />
+        </div>
+
+        <section class="members" aria-labelledby="members-title">
+          <div class="members__heading"><div><h2 id="members-title">Miembros de promoción</h2><p>Busca alumnos y muévelos entre las dos listas.</p></div><strong>{{ assignedIds().length }} asignados</strong></div>
+          <div class="members__boards">
+            <app-card class="member-board" [interactive]="false">
+              <div class="member-board__content">
+                <div class="member-board__head"><h3>Usuarios disponibles</h3><span>{{ availableIds().length }}</span></div>
+                <ui-input id="available-search" label="Buscar disponibles" type="search" icon="search" placeholder="Nombre o documento" [field]="availableSearch" />
+                <ul>
+                  @for (user of availableUsers(); track user.id) {
+                    <li><span>{{ user.firstName }} {{ user.lastName }}<small>{{ user.documentNumber }}</small></span><app-button variant="secondary" size="xs" icon="arrow-right" ariaLabel="Asignar alumno" [disabled]="isView" (click)="moveToAssigned(user.id)"></app-button></li>
+                  } @empty { <li class="empty">No hay usuarios disponibles.</li> }
+                </ul>
+              </div>
+            </app-card>
+            <app-card class="member-board member-board--assigned" [interactive]="false">
+              <div class="member-board__content">
+                <div class="member-board__head"><h3>Usuarios asignados</h3><span>{{ assignedIds().length }}</span></div>
+                <ui-input id="assigned-search" label="Buscar asignados" type="search" icon="search" placeholder="Nombre o documento" [field]="assignedSearch" />
+                <ul>
+                  @for (user of assignedUsers(); track user.id) {
+                    <li><span>{{ user.firstName }} {{ user.lastName }}<small>{{ user.documentNumber }}</small></span><app-button variant="secondary" size="xs" icon="chevron-left" ariaLabel="Quitar alumno" [disabled]="isView" (click)="moveToAvailable(user.id)"></app-button></li>
+                  } @empty { <li class="empty">Aún no hay alumnos asignados.</li> }
+                </ul>
+              </div>
+            </app-card>
+          </div>
+        </section>
+        <div class="ap__actions"><app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver' : 'Cancelar' }}</app-button>@if (!isView) { <app-button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando...' : 'Guardar promoción' }}</app-button> }</div>
+      </form>
+    </ui-form-card>
+  }
+</div>

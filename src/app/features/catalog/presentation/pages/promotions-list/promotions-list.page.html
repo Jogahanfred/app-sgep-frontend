@@ -1,0 +1,30 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>Promociones y grupos</h1>
+      <p class="ap__lead">Organiza las promociones de alumnos por unidad, escuadrón y periodo académico.</p>
+    </div>
+    <app-button href="/catalogo/promociones/nuevo" icon="plus">Nueva promoción</app-button>
+  </div>
+
+  <ui-input id="promotion-search" label="Buscar promoción" type="search" icon="search" placeholder="Código, nombre o año" [field]="search" />
+
+  @if (loading()) {
+    <p class="ap__status">Cargando promociones...</p>
+  } @else if (!promotions().length) {
+    <app-alert tone="empty">Todavía no hay promociones registradas.</app-alert>
+  } @else {
+    <ui-table
+      heading="Promociones"
+      caption="Promociones y grupos de alumnos"
+      [columns]="columns"
+      [rows]="rows()"
+      [selectedId]="selectedId()"
+      emptyTitle="No hay promociones que coincidan con la búsqueda."
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="detail()">Detalle</app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!selectedId()" (click)="edit()">Modificar</app-button>
+    </ui-table>
+  }
+</div>

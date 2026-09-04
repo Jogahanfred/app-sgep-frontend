@@ -48,6 +48,131 @@ export interface UserWriteInput {
   specialtyIds: string[];
 }
 
+export interface PromotionEntity {
+  id: string;
+  code: string;
+  name: string;
+  year: number;
+  unitId: string;
+  squadronId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface PromotionWriteInput {
+  code: string;
+  name: string;
+  year: number;
+  unitId: string;
+  squadronId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface PromotionMemberEntity {
+  id: string;
+  promotionId: string;
+  userId: string;
+  entryDate: string;
+}
+
+export type TrainingAssignmentStatus = 'scheduled' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+export const TRAINING_ASSIGNMENT_WORKFLOW: TrainingAssignmentStatus[] = ['scheduled', 'assigned', 'in-progress', 'completed'];
+
+export interface GroupMissionAssignmentEntity {
+  id: string;
+  promotionId: string;
+  programId: string;
+  scheduledDate: string;
+  trainingLeadId: string;
+  status: TrainingAssignmentStatus;
+  participantIds: string[];
+  cancellationReason?: string;
+}
+
+export interface GroupMissionAssignmentWriteInput {
+  promotionId: string;
+  programId: string;
+  scheduledDate: string;
+  trainingLeadId: string;
+  status: TrainingAssignmentStatus;
+  participantIds: string[];
+  cancellationReason?: string;
+}
+
+export type IndividualAssignmentCase = 'pdi' | 'pde' | 'commission';
+
+export interface IndividualMissionAssignmentEntity {
+  id: string;
+  assignmentCase: IndividualAssignmentCase;
+  studentId: string | null;
+  externalPerson: string | null;
+  programId: string | null;
+  missionId: string;
+  instructorId: string | null;
+  date: string;
+  status: TrainingAssignmentStatus;
+  cancellationReason?: string;
+}
+
+export interface IndividualMissionAssignmentWriteInput {
+  assignmentCase: IndividualAssignmentCase;
+  studentId: string | null;
+  externalPerson: string | null;
+  programId: string | null;
+  missionId: string;
+  instructorId: string | null;
+  date: string;
+  status: TrainingAssignmentStatus;
+  cancellationReason?: string;
+}
+
+export type MissionExecutionStatus = 'scheduled' | 'in-progress' | 'completed';
+export type ManeuverGrade = 'D' | 'I' | 'R' | 'B' | 'E' | 'NC' | 'P';
+export type MissionResult = 'approved' | 'approved-observations' | 'reinforcement' | 'failed';
+
+export interface ManeuverEvaluationEntity {
+  id: string;
+  maneuverId: string;
+  grade: ManeuverGrade | null;
+  observation: string;
+  evidenceName: string | null;
+}
+
+export interface MissionExecutionEntity {
+  id: string;
+  individualAssignmentId: string;
+  status: MissionExecutionStatus;
+  startDate: string | null;
+  startTime: string | null;
+  takeoffTime: string;
+  landingTime: string;
+  executedHours: number;
+  aircraftId: string | null;
+  observations: string;
+  strengths: string;
+  improvements: string;
+  recommendations: string;
+  evaluations: ManeuverEvaluationEntity[];
+  result: MissionResult | null;
+}
+
+export interface MissionExecutionWriteInput {
+  status: MissionExecutionStatus;
+  startDate: string | null;
+  startTime: string | null;
+  takeoffTime: string;
+  landingTime: string;
+  executedHours: number;
+  aircraftId: string | null;
+  observations: string;
+  strengths: string;
+  improvements: string;
+  recommendations: string;
+  evaluations: ManeuverEvaluationEntity[];
+  result: MissionResult | null;
+}
+
 export interface CatalogWriteInput {
   name: string;
   description: string;
@@ -229,7 +354,7 @@ export interface AircraftWriteInput {
   imageUrl: string;
 }
 
-export const PROGRAM_TYPES = ['PPL', 'CPL', 'ATPL', 'IR', 'FI'] as const;
+export const PROGRAM_TYPES = ['PPL', 'CPL', 'ATPL', 'IR', 'FI', 'HELI'] as const;
 export type ProgramType = (typeof PROGRAM_TYPES)[number];
 
 export interface PhaseBankEntity {
@@ -294,6 +419,16 @@ export const MISSION_ASSIGN_MODES = ['manual', 'automatic'] as const;
 export type MissionAssignMode = (typeof MISSION_ASSIGN_MODES)[number];
 export const AUTO_MISSION_COUNT_MAX = 20;
 
+export const DIRBE_LEVELS = ['D', 'I', 'R', 'B', 'E'] as const;
+export type DirbeLevel = (typeof DIRBE_LEVELS)[number];
+
+export interface ManeuverStandardAssignment {
+  missionKey: string;
+  maneuverId: string;
+  standardIds: string[];
+  dirbeLevel?: DirbeLevel;
+}
+
 export interface SubphaseEntity {
   id: string;
   phaseId: string;
@@ -307,6 +442,7 @@ export interface SubphaseEntity {
   maneuverIds: string[];
   maneuverOperationIds: string[];
   maneuverAssignment: Record<string, string>;
+  standardAssignments: ManeuverStandardAssignment[];
   sortOrder: number;
 }
 
@@ -321,7 +457,17 @@ export interface SubphaseDraftInput {
   maneuverIds: string[];
   maneuverOperationIds?: string[];
   maneuverAssignment?: Record<string, string>;
+  standardAssignments?: ManeuverStandardAssignment[];
   sortOrder: number;
+}
+
+export interface SubphaseStandardMatrixWriteInput {
+  subphaseId: string;
+  assignments: ManeuverStandardAssignment[];
+}
+
+export interface ProgramStandardMatrixWriteInput {
+  subphases: SubphaseStandardMatrixWriteInput[];
 }
 
 export interface PhaseDraftInput {

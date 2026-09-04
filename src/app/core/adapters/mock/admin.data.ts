@@ -1,5 +1,6 @@
 import type {
   AircraftEntity,
+  DirbeLevel,
   FleetEntity,
   ManeuverBankEntity,
   MissionTypeEntity,
@@ -7,6 +8,11 @@ import type {
   PhaseBankEntity,
   PhaseEntity,
   ProgramEntity,
+  PromotionEntity,
+  PromotionMemberEntity,
+  GroupMissionAssignmentEntity,
+  IndividualMissionAssignmentEntity,
+  MissionExecutionEntity,
   SquadronEntity,
   SpecialtyEntity,
   SpecialtyUserEntity,
@@ -19,6 +25,46 @@ import type {
   UserEntity,
   UserRoleEntity,
 } from '../../domain/entities/admin-catalog';
+import {
+  automaticMissionKey,
+  catalogMissionKey,
+  customMissionKey,
+  expandAutoMissions,
+} from '../../domain/services/admin-catalog';
+import {
+  HELICOPTER_MANEUVERS,
+  HELICOPTER_MISSION_TYPES,
+  HELICOPTER_OPERATIONS,
+  HELICOPTER_PHASE_BANKS,
+  HELICOPTER_PHASES,
+  HELICOPTER_PROGRAMS,
+  HELICOPTER_SUBPHASE_BANKS,
+  HELICOPTER_SUBPHASES,
+} from './helicopter-program.data';
+
+function seededDirbeLevel(missionIndex: number, missionCount: number): DirbeLevel {
+  if (missionCount <= 1) return 'B';
+  const progress = missionIndex / Math.max(1, missionCount - 1);
+  if (progress === 0) return 'D';
+  if (progress <= 0.25) return 'I';
+  if (progress <= 0.55) return 'R';
+  if (progress < 1) return 'B';
+  return 'E';
+}
+
+function standardAssignmentsFor(
+  missionKeys: readonly string[],
+  standardsByManeuver: Readonly<Record<string, readonly string[]>>,
+): SubphaseEntity['standardAssignments'] {
+  return missionKeys.flatMap((missionKey, missionIndex) =>
+    Object.entries(standardsByManeuver).map(([maneuverId, standardIds]) => ({
+      missionKey,
+      maneuverId,
+      standardIds: [...standardIds],
+      dirbeLevel: seededDirbeLevel(missionIndex, missionKeys.length),
+    })),
+  );
+}
 
 export const SEED_ROLES: UserRoleEntity[] = [
   {
@@ -309,6 +355,53 @@ export const SEED_SQUADRONS: SquadronEntity[] = [
   },
 ];
 
+export const SEED_PROMOTIONS: PromotionEntity[] = [
+  {
+    id: 'promotion-2025-alfa',
+    code: 'PROM-25-A',
+    name: 'Promoción Alfa 2025',
+    year: 2025,
+    unitId: 'unit-academia',
+    squadronId: 'sq-formacion',
+    startDate: '2025-09-08',
+    endDate: '2026-06-30',
+  },
+  {
+    id: 'promotion-2024-bravo',
+    code: 'PROM-24-B',
+    name: 'Promoción Bravo 2024',
+    year: 2024,
+    unitId: 'unit-academia',
+    squadronId: 'sq-formacion',
+    startDate: '2024-09-09',
+    endDate: '2025-06-27',
+  },
+];
+
+export const SEED_PROMOTION_MEMBERS: PromotionMemberEntity[] = [
+  { id: 'promotion-member-1', promotionId: 'promotion-2025-alfa', userId: 'usr-sofia-vidal', entryDate: '2025-09-08' },
+  { id: 'promotion-member-2', promotionId: 'promotion-2025-alfa', userId: 'usr-mario-castillo', entryDate: '2025-09-08' },
+];
+
+export const SEED_GROUP_ASSIGNMENTS: GroupMissionAssignmentEntity[] = [
+  { id: 'group-assignment-1', promotionId: 'promotion-2025-alfa', programId: 'prg-heli', scheduledDate: '2026-02-10', trainingLeadId: 'usr-carmen-lopez', status: 'assigned', participantIds: ['usr-sofia-vidal'] },
+];
+
+export const SEED_INDIVIDUAL_ASSIGNMENTS: IndividualMissionAssignmentEntity[] = [
+  { id: 'individual-assignment-1', assignmentCase: 'pdi', studentId: 'usr-sofia-vidal', externalPerson: null, programId: 'prg-heli', missionId: 'mt-vfr', instructorId: 'usr-pablo-nunez', date: '2026-02-12', status: 'scheduled' },
+];
+
+export const SEED_MISSION_EXECUTIONS: MissionExecutionEntity[] = [
+  {
+    id: 'execution-1', individualAssignmentId: 'individual-assignment-1', status: 'scheduled', startDate: null, startTime: null,
+    takeoffTime: '', landingTime: '', executedHours: 0, aircraftId: null, observations: '', strengths: '', improvements: '', recommendations: '', result: null,
+    evaluations: [
+      { id: 'evaluation-1', maneuverId: 'man-toff', grade: null, observation: '', evidenceName: null },
+      { id: 'evaluation-2', maneuverId: 'man-land', grade: null, observation: '', evidenceName: null },
+    ],
+  },
+];
+
 export const SEED_COMMISSIONS: TemporaryCommissionEntity[] = [
   {
     id: 'com-elena-norte',
@@ -377,6 +470,7 @@ export const SEED_OPERATIONS: OperationEntity[] = [
     description: 'Pérdida, motor, fuego y toma forzosa. Solo en instrucción supervisada.',
     status: 'inactive',
   },
+  ...HELICOPTER_OPERATIONS,
 ];
 
 export const SEED_MISSION_TYPES: MissionTypeEntity[] = [
@@ -398,6 +492,7 @@ export const SEED_MISSION_TYPES: MissionTypeEntity[] = [
     name: 'Instrumental',
     description: 'Salida, espera y aproximación por instrumentos.',
   },
+  ...HELICOPTER_MISSION_TYPES,
 ];
 
 export const SEED_MANEUVERS: ManeuverBankEntity[] = [
@@ -429,6 +524,7 @@ export const SEED_MANEUVERS: ManeuverBankEntity[] = [
     name: 'Pérdida',
     description: 'Reconocimiento, recuperación y control de altitud.',
   },
+  ...HELICOPTER_MANEUVERS,
 ];
 
 export const SEED_STANDARDS: StandardEntity[] = [
@@ -675,6 +771,7 @@ export const SEED_PHASE_BANKS: PhaseBankEntity[] = [
     description: 'Evaluación final ante examinador.',
     status: 'active',
   },
+  ...HELICOPTER_PHASE_BANKS,
 ];
 
 export const SEED_SUBPHASE_BANKS: SubphaseBankEntity[] = [
@@ -720,9 +817,11 @@ export const SEED_SUBPHASE_BANKS: SubphaseBankEntity[] = [
     description: 'Vuelo o prueba de evaluación.',
     status: 'active',
   },
+  ...HELICOPTER_SUBPHASE_BANKS,
 ];
 
 export const SEED_PROGRAMS: ProgramEntity[] = [
+  ...HELICOPTER_PROGRAMS,
   {
     id: 'prg-ppl',
     code: 'PPL-AF',
@@ -756,6 +855,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
 ];
 
 export const SEED_PHASES: PhaseEntity[] = [
+  ...HELICOPTER_PHASES,
   { id: 'ph-ppl-teo', programId: 'prg-ppl', phaseBankId: 'pb-teo', sortOrder: 1 },
   { id: 'ph-ppl-bas', programId: 'prg-ppl', phaseBankId: 'pb-bas', sortOrder: 2 },
   { id: 'ph-ppl-nav', programId: 'prg-ppl', phaseBankId: 'pb-nav', sortOrder: 3 },
@@ -769,6 +869,7 @@ export const SEED_PHASES: PhaseEntity[] = [
 ];
 
 export const SEED_SUBPHASES: SubphaseEntity[] = [
+  ...HELICOPTER_SUBPHASES,
   {
     id: 'sp-ppl-aula',
     phaseId: 'ph-ppl-teo',
@@ -782,6 +883,7 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: [],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: [],
     sortOrder: 1,
   },
   {
@@ -797,6 +899,10 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-local')], {
+      'man-toff': ['std-toff'],
+      'man-land': ['std-land'],
+    }),
     sortOrder: 1,
   },
   {
@@ -812,6 +918,10 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: ['op-vfr'],
     maneuverAssignment: { 'man-toff': 'op-vfr', 'man-land': 'op-vfr' },
+    standardAssignments: standardAssignmentsFor(
+      [catalogMissionKey('mt-local'), customMissionKey('Circuito corto'), customMissionKey('Circuito largo')],
+      { 'man-toff': ['std-toff'], 'man-land': ['std-land'] },
+    ),
     sortOrder: 2,
   },
   {
@@ -827,6 +937,10 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-nav')], {
+      'man-toff': ['std-toff'],
+      'man-land': ['std-land'],
+    }),
     sortOrder: 1,
   },
   {
@@ -842,6 +956,10 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: standardAssignmentsFor(
+      expandAutoMissions('CER', 17).map(automaticMissionKey),
+      { 'man-toff': ['std-toff'], 'man-land': ['std-land'] },
+    ),
     sortOrder: 1,
   },
   {
@@ -857,6 +975,10 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-local')], {
+      'man-toff': ['std-toff'],
+      'man-land': ['std-land'],
+    }),
     sortOrder: 1,
   },
   {
@@ -872,6 +994,7 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: [],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: [],
     sortOrder: 1,
   },
   {
@@ -887,6 +1010,9 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-hold'],
     maneuverOperationIds: ['op-ifr'],
     maneuverAssignment: { 'man-hold': 'op-ifr' },
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-ifr')], {
+      'man-hold': ['std-hold'],
+    }),
     sortOrder: 1,
   },
   {
@@ -902,6 +1028,9 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-hold'],
     maneuverOperationIds: ['op-ifr'],
     maneuverAssignment: { 'man-hold': 'op-ifr' },
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-ifr')], {
+      'man-hold': ['std-hold'],
+    }),
     sortOrder: 2,
   },
   {
@@ -917,6 +1046,9 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-hold'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: standardAssignmentsFor([catalogMissionKey('mt-ifr')], {
+      'man-hold': ['std-hold'],
+    }),
     sortOrder: 1,
   },
   {
@@ -932,6 +1064,7 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: [],
     sortOrder: 1,
   },
   {
@@ -947,6 +1080,7 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
+    standardAssignments: [],
     sortOrder: 1,
   },
 ];

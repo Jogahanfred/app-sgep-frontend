@@ -13,7 +13,19 @@ import { ListStandards } from './list-standards';
 describe('catálogos de instrucción', () => {
   it('lista las operaciones de ejemplo', async () => {
     const items = await firstValueFrom(new ListOperations(new MockAdminCatalogRepository()).execute());
-    expect(items.map((item) => item.name)).toEqual(['Vuelo visual', 'Vuelo instrumental', 'Navegación', 'Emergencias']);
+    expect(items.map((item) => item.name)).toEqual([
+      'Vuelo visual',
+      'Vuelo instrumental',
+      'Navegación',
+      'Emergencias',
+      'Operación en tierra',
+      'Operación en el aire',
+      'Emergencias de helicóptero',
+      'Navegación e instrumentos',
+      'Formación',
+      'Operaciones especiales',
+      'Consideraciones generales',
+    ]);
   });
 
   it('crea una operación y rechaza un nombre repetido', async () => {

@@ -1,0 +1,9 @@
+<div class="ap">
+  <div class="ap__head"><div><h1>Bandeja de misiones</h1><p class="ap__lead">Inicia, califica y cierra las misiones pendientes desde un único workspace.</p></div></div>
+  <div class="inbox__filters"><ui-input id="mission-search" label="Buscar misión" type="search" icon="search" placeholder="Alumno, programa o misión" [field]="search" /><ui-select id="mission-status" label="Estado" [uppercase]="false" [options]="statusOptions" [value]="status()" (valueChange)="status.set($event)" /></div>
+  <div class="mission-grid">
+    @for (assignment of visible(); track assignment.id) {
+      <app-card class="mission-card" [interactive]="true" [padded]="true"><div class="mission-card__top"><span class="mission-card__eyebrow">{{ mission(assignment.missionId) }}</span><span class="mission-card__status">{{ label(executionFor(assignment.id)?.status ?? 'scheduled') }}</span></div><h2>{{ person(assignment) }}</h2><dl><div><dt>Programa</dt><dd>{{ program(assignment.programId) }}</dd></div><div><dt>Fecha</dt><dd>{{ date(assignment.date) }}</dd></div><div><dt>Instructor</dt><dd>{{ userName(assignment.instructorId) }}</dd></div></dl><app-button icon="arrow-right" (click)="open(assignment.id)">Abrir misión</app-button></app-card>
+    } @empty { <p class="empty-state">No hay misiones que coincidan con los filtros.</p> }
+  </div>
+</div>

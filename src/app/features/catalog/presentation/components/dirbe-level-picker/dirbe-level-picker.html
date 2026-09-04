@@ -1,0 +1,89 @@
+<app-modal
+  [open]="open()"
+  title="Configurar estándar DIRBE"
+  size="lg"
+  [roomy]="true"
+  (closed)="cancel()"
+>
+  <div class="dlp">
+    @if (mission(); as currentMission) {
+      @if (maneuver(); as currentManeuver) {
+        <section class="dlp__context" aria-label="Cruce de la matriz que se está configurando">
+          <span class="dlp__eyebrow">Misión y maniobra</span>
+          <div class="dlp__context-grid">
+            <div>
+              <small>Misión</small>
+              <strong>{{ currentMission.code }} · {{ currentMission.name }}</strong>
+              <p>{{ currentMission.detail }}</p>
+            </div>
+            <div>
+              <small>Maniobra</small>
+              <strong>{{ currentManeuver.code }} · {{ currentManeuver.name }}</strong>
+              <p>{{ currentManeuver.description || 'Sin descripción.' }}</p>
+            </div>
+          </div>
+        </section>
+      }
+    }
+
+    <section class="dlp__selection" aria-labelledby="dlp-options-title">
+      <header class="dlp__selection-head">
+        <div>
+          <span class="dlp__eyebrow">Estándares de evaluación</span>
+          <h3 id="dlp-options-title">Elige el nivel que deberá calificar el instructor</h3>
+        </div>
+        @if (selectedOption(); as selected) {
+          <span class="dlp__current">{{ selected.value }} · {{ selected.label }}</span>
+        } @else {
+          <span class="dlp__current dlp__current--empty">Sin asignar</span>
+        }
+      </header>
+
+      <div class="dlp__cards" role="radiogroup" aria-label="Estándares DIRBE disponibles">
+        @for (option of options; track option.value) {
+          <button
+            type="button"
+            class="dlp__card"
+            [class.dlp__card--selected]="selectedLevel() === option.value"
+            [class.dlp__card--d]="option.value === 'D'"
+            [class.dlp__card--i]="option.value === 'I'"
+            [class.dlp__card--r]="option.value === 'R'"
+            [class.dlp__card--b]="option.value === 'B'"
+            [class.dlp__card--e]="option.value === 'E'"
+            [disabled]="disabled()"
+            [appRippleDisabled]="disabled()"
+            [attr.aria-checked]="selectedLevel() === option.value"
+            role="radio"
+            appRipple
+            (click)="select(option.value)"
+          >
+            <span class="dlp__badge">{{ option.value }}</span>
+            <span class="dlp__card-copy">
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.description }}</small>
+            </span>
+            <span class="dlp__check" aria-hidden="true"><app-icon name="check" /></span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <footer class="dlp__actions">
+      <div>
+        @if (value() || selectedLevel()) {
+          <app-button variant="ghost" size="sm" type="button" [disabled]="disabled()" (click)="clear()">
+            Quitar asignación
+          </app-button>
+        }
+      </div>
+      <div class="dlp__actions-main">
+        <app-button variant="ghost" type="button" [disabled]="disabled()" (click)="cancel()">
+          Cancelar
+        </app-button>
+        <app-button type="button" [disabled]="disabled()" (click)="apply()">
+          Aplicar estándar
+        </app-button>
+      </div>
+    </footer>
+  </div>
+</app-modal>

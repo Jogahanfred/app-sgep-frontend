@@ -22,20 +22,39 @@
 }
 
 .modal.modal--full {
-  width: min(100% - 8rem, 52rem);
-  height: min(72vh, 38rem);
-  max-height: 72vh;
+  width: calc(100vw - 2rem);
+  max-width: none;
+  height: calc(100dvh - 2rem);
+  max-height: none;
+  overflow: hidden;
 }
 
 .modal.modal--full .modal__card {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.modal.modal--full .modal__head {
+  flex: 0 0 auto;
+  padding: 1rem 1.2rem 0.75rem;
+  border-bottom: 1px solid #e2e9ef;
+}
+
+.modal.modal--full .modal__head h2 {
+  color: #243f55;
+  font-size: 1rem;
 }
 
 .modal.modal--full .modal__body {
+  display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
+  padding: 1rem;
 }
 
 .modal::backdrop {
@@ -85,4 +104,20 @@
 
 .modal__body {
   padding: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+  .modal.modal--full {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .modal.modal--full .modal__card {
+    border-radius: 0;
+  }
+
+  .modal.modal--full .modal__body {
+    padding: 0.75rem;
+  }
 }

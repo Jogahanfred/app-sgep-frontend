@@ -3,16 +3,19 @@ import type {
   AircraftWriteInput,
   CatalogWriteInput,
   CommissionWorkflowStatus,
+  DirbeLevel,
   EntityStatus,
   FleetType,
   FleetWriteInput,
   InstructionProgram,
   ManeuverBankWriteInput,
+  ManeuverStandardAssignment,
   MissionAssignMode,
   MissionTypeWriteInput,
   PhaseBankWriteInput,
   PhaseDraftInput,
   ProgramCurriculumWriteInput,
+  ProgramStandardMatrixWriteInput,
   ProgramType,
   ProgramWriteInput,
   SubphaseBankWriteInput,
@@ -27,6 +30,7 @@ import type {
 import {
   AUTO_MISSION_COUNT_MAX,
   COMMISSION_WORKFLOW,
+  DIRBE_LEVELS,
   FLEET_TYPES,
   INSTRUCTION_PROGRAMS,
   MISSION_ASSIGN_MODES,
@@ -133,6 +137,16 @@ function assertCode(value: string, label: string): string {
   return code;
 }
 
+function assertAcademicCode(value: string, label: string): string {
+  const code = required(value, `El código ${label} es obligatorio.`).toUpperCase();
+  if (!/^[A-Z0-9/-]{2,16}$/.test(code)) {
+    throw new InvalidAdminCatalogError(
+      `El código ${label} solo admite letras, números, guiones y diagonales (2 a 16).`,
+    );
+  }
+  return code;
+}
+
 export function assertUnitWrite(input: UnitWriteInput): UnitWriteInput {
   const abbreviation = required(input.abbreviation, 'La abreviatura es obligatoria.').toUpperCase();
   if (!/^[A-Z0-9-]{1,8}$/.test(abbreviation)) {
@@ -190,7 +204,7 @@ export function assertCommissionWrite(input: TemporaryCommissionWriteInput): Tem
 
 export function assertMissionTypeWrite(input: MissionTypeWriteInput): MissionTypeWriteInput {
   return {
-    code: assertCode(input.code, 'del tipo de misión'),
+    code: assertAcademicCode(input.code, 'del tipo de misión'),
     name: required(input.name, 'El nombre del tipo de misión es obligatorio.'),
     description: input.description.trim(),
   };
@@ -257,6 +271,7 @@ export function programTypeLabel(type: ProgramType): string {
     ATPL: 'ATPL · Transporte de línea',
     IR: 'IR · Habilitación instrumental',
     FI: 'FI · Instructor de vuelo',
+    HELI: 'HELI · Piloto de helicóptero',
   };
   return labels[type];
 }
@@ -282,7 +297,7 @@ function assertOptionalProgramImage(value?: string): string {
 
 export function assertPhaseBankWrite(input: PhaseBankWriteInput): PhaseBankWriteInput {
   return {
-    code: assertCode(input.code, 'del banco de fase'),
+    code: assertAcademicCode(input.code, 'del banco de fase'),
     name: required(input.name, 'El nombre del banco de fase es obligatorio.'),
     description: input.description.trim(),
     status: assertStatus(input.status),
@@ -291,7 +306,7 @@ export function assertPhaseBankWrite(input: PhaseBankWriteInput): PhaseBankWrite
 
 export function assertSubphaseBankWrite(input: SubphaseBankWriteInput): SubphaseBankWriteInput {
   return {
-    code: assertCode(input.code, 'del banco de subfase'),
+    code: assertAcademicCode(input.code, 'del banco de subfase'),
     name: required(input.name, 'El nombre del banco de subfase es obligatorio.'),
     description: input.description.trim(),
     status: assertStatus(input.status),
@@ -305,7 +320,7 @@ export function assertProgramStandardIds(ids: readonly string[]): string[] {
 export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput {
   const programType = required(input.programType, 'El tipo de programa es obligatorio.') as ProgramType;
   if (!PROGRAM_TYPES.includes(programType)) {
-    throw new InvalidAdminCatalogError('El tipo debe ser PPL, CPL, ATPL, IR o FI.');
+    throw new InvalidAdminCatalogError('El tipo debe ser PPL, CPL, ATPL, IR, FI o HELI.');
   }
   return {
     code: assertCode(input.code, 'del programa'),
@@ -323,6 +338,106 @@ export function expandAutoMissions(code: string, count: number): string[] {
   if (!letter || !Number.isInteger(count) || count < 1) return [];
   const limited = Math.min(count, AUTO_MISSION_COUNT_MAX);
   return Array.from({ length: limited }, (_, index) => `${letter}${index + 1}`);
+}
+
+export type CurriculumMissionKind = 'catalog' | 'custom' | 'automatic';
+
+export interface CurriculumMissionRef {
+  key: string;
+  kind: CurriculumMissionKind;
+  value: string;
+}
+
+function normalizedMissionToken(value: string): string {
+  return encodeURIComponent(value.trim().normalize('NFKC').toLowerCase());
+}
+
+export function catalogMissionKey(missionTypeId: string): string {
+  return `catalog:${missionTypeId.trim()}`;
+}
+
+export function customMissionKey(name: string): string {
+  return `custom:${normalizedMissionToken(name)}`;
+}
+
+export function automaticMissionKey(label: string): string {
+  return `automatic:${label.trim().toUpperCase()}`;
+}
+
+export function curriculumMissionRefs(input: {
+  missionMode: MissionAssignMode;
+  missionTypeIds: readonly string[];
+  customMissionNames: readonly string[];
+  autoMissionCode: string;
+  autoMissionCount: number;
+}): CurriculumMissionRef[] {
+  if (input.missionMode === 'automatic') {
+    return expandAutoMissions(input.autoMissionCode, input.autoMissionCount).map((label) => ({
+      key: automaticMissionKey(label),
+      kind: 'automatic' as const,
+      value: label,
+    }));
+  }
+  const catalog = input.missionTypeIds.filter(Boolean).map((id) => ({
+    key: catalogMissionKey(id),
+    kind: 'catalog' as const,
+    value: id,
+  }));
+  const custom = input.customMissionNames.map((name) => ({
+    key: customMissionKey(name),
+    kind: 'custom' as const,
+    value: name,
+  }));
+  return [...catalog, ...custom];
+}
+
+function normalizeDirbeLevel(value: unknown): DirbeLevel | undefined {
+  return DIRBE_LEVELS.includes(value as DirbeLevel) ? (value as DirbeLevel) : undefined;
+}
+
+function sanitizeStandardAssignments(
+  assignments: readonly ManeuverStandardAssignment[],
+  missionKeys?: ReadonlySet<string>,
+  maneuverIds?: ReadonlySet<string>,
+): ManeuverStandardAssignment[] {
+  const cells = new Map<string, ManeuverStandardAssignment>();
+  for (const item of assignments ?? []) {
+    const missionKey = item.missionKey?.trim();
+    const maneuverId = item.maneuverId?.trim();
+    if (!missionKey || !maneuverId) continue;
+    if (missionKeys && !missionKeys.has(missionKey)) continue;
+    if (maneuverIds && !maneuverIds.has(maneuverId)) continue;
+    const standardIds = [...new Set((item.standardIds ?? []).map((id) => id.trim()).filter(Boolean))];
+    const dirbeLevel = normalizeDirbeLevel(item.dirbeLevel);
+    if (!standardIds.length && !dirbeLevel) continue;
+    const cellKey = `${missionKey}\u001f${maneuverId}`;
+    const previous = cells.get(cellKey);
+    const mergedStandardIds = previous
+      ? [...new Set([...previous.standardIds, ...standardIds])]
+      : standardIds;
+    const mergedDirbeLevel = dirbeLevel ?? previous?.dirbeLevel;
+    cells.set(cellKey, {
+      missionKey,
+      maneuverId,
+      standardIds: mergedStandardIds,
+      ...(mergedDirbeLevel ? { dirbeLevel: mergedDirbeLevel } : {}),
+    });
+  }
+  return [...cells.values()];
+}
+
+export function assertProgramStandardMatrixWrite(
+  input: ProgramStandardMatrixWriteInput,
+): ProgramStandardMatrixWriteInput {
+  const subphases = new Map<string, ManeuverStandardAssignment[]>();
+  for (const item of input.subphases ?? []) {
+    const subphaseId = required(item.subphaseId, 'La subfase de la matriz es obligatoria.');
+    const previous = subphases.get(subphaseId) ?? [];
+    subphases.set(subphaseId, sanitizeStandardAssignments([...previous, ...(item.assignments ?? [])]));
+  }
+  return {
+    subphases: [...subphases.entries()].map(([subphaseId, assignments]) => ({ subphaseId, assignments })),
+  };
 }
 
 export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInput {
@@ -360,20 +475,40 @@ export function assertSubphaseDraft(input: SubphaseDraftInput): SubphaseDraftInp
     }
     missionTypeIds = [];
   }
+  const normalizedManeuverIds = [...new Set(input.maneuverIds.filter(Boolean))];
+  const normalizedOperationIds = [...new Set((input.maneuverOperationIds ?? []).filter(Boolean))];
+  const normalizedMissionTypeIds = missionTypeIds;
+  const normalizedCustomNames = missionMode === 'manual' ? customMissionNames : [];
+  const normalizedAutoCode = missionMode === 'automatic' ? autoMissionCode : '';
+  const normalizedAutoCount = missionMode === 'automatic' ? autoMissionCount : 0;
+  const missionKeys = new Set(
+    curriculumMissionRefs({
+      missionMode,
+      missionTypeIds: normalizedMissionTypeIds,
+      customMissionNames: normalizedCustomNames,
+      autoMissionCode: normalizedAutoCode,
+      autoMissionCount: normalizedAutoCount,
+    }).map((item) => item.key),
+  );
   return {
     subphaseBankId: required(input.subphaseBankId, 'El banco de subfase es obligatorio.'),
     hours: Math.round(hours * 10) / 10,
     missionMode,
-    missionTypeIds,
-    customMissionNames: missionMode === 'manual' ? customMissionNames : [],
-    autoMissionCode: missionMode === 'automatic' ? autoMissionCode : '',
-    autoMissionCount: missionMode === 'automatic' ? autoMissionCount : 0,
-    maneuverIds: [...new Set(input.maneuverIds.filter(Boolean))],
-    maneuverOperationIds: [...new Set((input.maneuverOperationIds ?? []).filter(Boolean))],
+    missionTypeIds: normalizedMissionTypeIds,
+    customMissionNames: normalizedCustomNames,
+    autoMissionCode: normalizedAutoCode,
+    autoMissionCount: normalizedAutoCount,
+    maneuverIds: normalizedManeuverIds,
+    maneuverOperationIds: normalizedOperationIds,
     maneuverAssignment: sanitizeManeuverAssignment(
       input.maneuverAssignment ?? {},
-      [...new Set(input.maneuverIds.filter(Boolean))],
-      [...new Set((input.maneuverOperationIds ?? []).filter(Boolean))],
+      normalizedManeuverIds,
+      normalizedOperationIds,
+    ),
+    standardAssignments: sanitizeStandardAssignments(
+      input.standardAssignments ?? [],
+      missionKeys,
+      new Set(normalizedManeuverIds),
     ),
     sortOrder,
   };

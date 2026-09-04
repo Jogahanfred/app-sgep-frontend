@@ -14,7 +14,17 @@ import type {
   PhaseBankWriteInput,
   PhaseEntity,
   ProgramCurriculumWriteInput,
+  ProgramStandardMatrixWriteInput,
   ProgramEntity,
+  PromotionEntity,
+  PromotionMemberEntity,
+  PromotionWriteInput,
+  GroupMissionAssignmentEntity,
+  GroupMissionAssignmentWriteInput,
+  IndividualMissionAssignmentEntity,
+  IndividualMissionAssignmentWriteInput,
+  MissionExecutionEntity,
+  MissionExecutionWriteInput,
   SubphaseBankEntity,
   SubphaseBankWriteInput,
   SubphaseEntity,
@@ -40,6 +50,23 @@ export interface AdminCatalogRepository {
   getUser(id: string): Observable<UserEntity>;
   createUser(input: UserWriteInput): Observable<UserEntity>;
   updateUser(id: string, input: UserWriteInput): Observable<UserEntity>;
+
+  listPromotions(): Observable<PromotionEntity[]>;
+  getPromotion(id: string): Observable<PromotionEntity>;
+  createPromotion(input: PromotionWriteInput): Observable<PromotionEntity>;
+  updatePromotion(id: string, input: PromotionWriteInput): Observable<PromotionEntity>;
+  listPromotionMembers(promotionId: string): Observable<PromotionMemberEntity[]>;
+  savePromotionMembers(promotionId: string, userIds: string[], entryDate: string): Observable<PromotionMemberEntity[]>;
+
+  listGroupAssignments(): Observable<GroupMissionAssignmentEntity[]>;
+  createGroupAssignment(input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity>;
+  updateGroupAssignment(id: string, input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity>;
+  listIndividualAssignments(): Observable<IndividualMissionAssignmentEntity[]>;
+  createIndividualAssignment(input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity>;
+  updateIndividualAssignment(id: string, input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity>;
+  listMissionExecutions(): Observable<MissionExecutionEntity[]>;
+  getMissionExecution(id: string): Observable<MissionExecutionEntity>;
+  updateMissionExecution(id: string, input: MissionExecutionWriteInput): Observable<MissionExecutionEntity>;
 
   listRoles(): Observable<UserRoleEntity[]>;
   createRole(input: CatalogWriteInput): Observable<UserRoleEntity>;
@@ -101,4 +128,5 @@ export interface AdminCatalogRepository {
   updateSubphaseBank(id: string, input: SubphaseBankWriteInput): Observable<SubphaseBankEntity>;
   saveProgramCurriculum(input: ProgramCurriculumWriteInput): Observable<ProgramEntity>;
   assignProgramStandards(id: string, standardIds: string[]): Observable<ProgramEntity>;
+  saveProgramStandardMatrix(id: string, input: ProgramStandardMatrixWriteInput): Observable<ProgramEntity>;
 }

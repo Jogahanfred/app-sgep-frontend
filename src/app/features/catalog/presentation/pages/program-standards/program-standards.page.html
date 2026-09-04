@@ -1,0 +1,78 @@
+<div class="ap ps">
+  <div class="ap__head ps__head">
+    <header class="ps__intro">
+      <h1 class="ps__title">{{ title() }}</h1>
+      <p class="ps__lead">
+        Selecciona una subfase y define el nivel de calificación esperado para cada cruce entre misión y maniobra.
+      </p>
+    </header>
+    <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
+  </div>
+
+  @if (loadState() === 'loading') {
+    <ui-loading
+      class="ap__loading"
+      title="Cargando estructura del programa"
+      subtitle="Estamos preparando las fases, subfases, misiones y maniobras."
+      label="Cargando estructura"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar la estructura de este programa.</app-alert>
+  } @else {
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+
+    <div class="ps__layout">
+      <aside class="ps__navigator">
+        <app-program-standard-navigator
+          [phases]="phases()"
+          [activePhaseId]="activePhaseId()"
+          [activeSubphaseId]="activeSubphaseId()"
+          [dirtySubphaseIds]="dirtySubphaseIds()"
+          (phaseSelected)="selectPhase($event)"
+          (subphaseSelected)="selectSubphase($event)"
+        />
+      </aside>
+
+      <section class="ps__workspace">
+        @if (activeSubphase(); as subphase) {
+          <app-standard-assignment-workspace
+            [phaseLabel]="activePhase()?.label ?? 'Fase'"
+            [subphase]="subphase"
+            [assignmentMap]="activeAssignmentMap()"
+            [editProgramHref]="editProgramHref"
+            [dirty]="activeSubphaseDirty()"
+            [saving]="activeSubphaseSaving()"
+            (levelChange)="updateDirbeLevel($event)"
+            (saveRequested)="saveSubphase($event)"
+          />
+        } @else {
+          <section class="ps__welcome" aria-labelledby="welcome-title">
+            <div class="ps__welcome-visual" aria-hidden="true">
+              <span class="ps__welcome-ring ps__welcome-ring--one">1</span>
+              <app-icon name="chevron-right" />
+              <span class="ps__welcome-ring">2</span>
+              <app-icon name="chevron-right" />
+              <span class="ps__welcome-ring">3</span>
+            </div>
+            <span class="ps__welcome-kicker">Configura por subfase</span>
+            <h2 id="welcome-title">Selecciona una subfase del programa</h2>
+            <p>
+              Al abrirla verás todas sus misiones como columnas y todas sus maniobras como filas,
+              agrupadas por operación. Así completas la matriz de calificación sin mezclar información de otras
+              subfases.
+            </p>
+            <div class="ps__welcome-tip">
+              <app-icon name="info" />
+              <span>
+                Asigna D, I, R, B o E en cada celda. El botón de guardado afectará únicamente a la
+                subfase abierta.
+              </span>
+            </div>
+          </section>
+        }
+      </section>
+    </div>
+  }
+</div>

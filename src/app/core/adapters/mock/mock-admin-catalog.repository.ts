@@ -15,7 +15,17 @@ import type {
   PhaseBankWriteInput,
   PhaseEntity,
   ProgramCurriculumWriteInput,
+  ProgramStandardMatrixWriteInput,
   ProgramEntity,
+  PromotionEntity,
+  PromotionMemberEntity,
+  PromotionWriteInput,
+  GroupMissionAssignmentEntity,
+  GroupMissionAssignmentWriteInput,
+  IndividualMissionAssignmentEntity,
+  IndividualMissionAssignmentWriteInput,
+  MissionExecutionEntity,
+  MissionExecutionWriteInput,
   SubphaseBankEntity,
   SubphaseBankWriteInput,
   SubphaseEntity,
@@ -35,7 +45,9 @@ import type {
   UserRoleEntity,
   UserWriteInput,
 } from '../../domain/entities/admin-catalog';
+import { DIRBE_LEVELS } from '../../domain/entities/admin-catalog';
 import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
+import { curriculumMissionRefs } from '../../domain/services/admin-catalog';
 import type { AdminCatalogRepository } from '../../ports/admin-catalog.repository';
 import {
   buildSpecialtyUsers,
@@ -48,6 +60,11 @@ import {
   SEED_PHASES,
   SEED_PHASE_BANKS,
   SEED_PROGRAMS,
+  SEED_PROMOTIONS,
+  SEED_PROMOTION_MEMBERS,
+  SEED_GROUP_ASSIGNMENTS,
+  SEED_INDIVIDUAL_ASSIGNMENTS,
+  SEED_MISSION_EXECUTIONS,
   SEED_SUBPHASES,
   SEED_SUBPHASE_BANKS,
   SEED_PASSWORDS,
@@ -64,6 +81,11 @@ const LATENCY = 140;
 
 export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private users: UserEntity[] = structuredClone(SEED_USERS);
+  private promotions: PromotionEntity[] = structuredClone(SEED_PROMOTIONS);
+  private promotionMembers: PromotionMemberEntity[] = structuredClone(SEED_PROMOTION_MEMBERS);
+  private groupAssignments: GroupMissionAssignmentEntity[] = structuredClone(SEED_GROUP_ASSIGNMENTS);
+  private individualAssignments: IndividualMissionAssignmentEntity[] = structuredClone(SEED_INDIVIDUAL_ASSIGNMENTS);
+  private missionExecutions: MissionExecutionEntity[] = structuredClone(SEED_MISSION_EXECUTIONS);
   private roles: UserRoleEntity[] = structuredClone(SEED_ROLES);
   private specialties: SpecialtyEntity[] = structuredClone(SEED_SPECIALTIES);
   private specialtyUsers: SpecialtyUserEntity[] = buildSpecialtyUsers(this.users);
@@ -127,6 +149,103 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     } catch (error) {
       return throwError(() => error);
     }
+  }
+
+  listPromotions(): Observable<PromotionEntity[]> {
+    return of(structuredClone(this.promotions)).pipe(delay(LATENCY));
+  }
+
+  getPromotion(id: string): Observable<PromotionEntity> {
+    const promotion = this.promotions.find((item) => item.id === id);
+    if (!promotion) return throwError(() => new InvalidAdminCatalogError('No encontramos esa promoción.'));
+    return of(structuredClone(promotion)).pipe(delay(LATENCY));
+  }
+
+  createPromotion(input: PromotionWriteInput): Observable<PromotionEntity> {
+    if (this.promotions.some((item) => item.code.toLowerCase() === input.code.toLowerCase())) {
+      return throwError(() => new InvalidAdminCatalogError('Ya existe una promoción con ese código.'));
+    }
+    const promotion = { id: `promotion-${this.seq++}`, ...input };
+    this.promotions = [promotion, ...this.promotions];
+    return of(structuredClone(promotion)).pipe(delay(LATENCY));
+  }
+
+  updatePromotion(id: string, input: PromotionWriteInput): Observable<PromotionEntity> {
+    const index = this.promotions.findIndex((item) => item.id === id);
+    if (index < 0) return throwError(() => new InvalidAdminCatalogError('No encontramos esa promoción.'));
+    if (this.promotions.some((item) => item.id !== id && item.code.toLowerCase() === input.code.toLowerCase())) {
+      return throwError(() => new InvalidAdminCatalogError('Ya existe una promoción con ese código.'));
+    }
+    const promotion = { id, ...input };
+    this.promotions[index] = promotion;
+    return of(structuredClone(promotion)).pipe(delay(LATENCY));
+  }
+
+  listPromotionMembers(promotionId: string): Observable<PromotionMemberEntity[]> {
+    return of(structuredClone(this.promotionMembers.filter((item) => item.promotionId === promotionId))).pipe(delay(LATENCY));
+  }
+
+  savePromotionMembers(promotionId: string, userIds: string[], entryDate: string): Observable<PromotionMemberEntity[]> {
+    this.promotionMembers = this.promotionMembers.filter((item) => item.promotionId !== promotionId);
+    this.promotionMembers.push(...userIds.map((userId) => ({ id: `promotion-member-${this.seq++}`, promotionId, userId, entryDate })));
+    return this.listPromotionMembers(promotionId);
+  }
+
+  listGroupAssignments(): Observable<GroupMissionAssignmentEntity[]> {
+    return of(structuredClone(this.groupAssignments)).pipe(delay(LATENCY));
+  }
+
+  createGroupAssignment(input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity> {
+    const assignment = { id: `group-assignment-${this.seq++}`, ...input };
+    this.groupAssignments = [assignment, ...this.groupAssignments];
+    return of(structuredClone(assignment)).pipe(delay(LATENCY));
+  }
+
+  updateGroupAssignment(id: string, input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity> {
+    const index = this.groupAssignments.findIndex((item) => item.id === id);
+    if (index < 0) return throwError(() => new InvalidAdminCatalogError('No encontramos la asignación grupal.'));
+    const assignment = { id, ...input };
+    this.groupAssignments[index] = assignment;
+    return of(structuredClone(assignment)).pipe(delay(LATENCY));
+  }
+
+  listIndividualAssignments(): Observable<IndividualMissionAssignmentEntity[]> {
+    return of(structuredClone(this.individualAssignments)).pipe(delay(LATENCY));
+  }
+
+  createIndividualAssignment(input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity> {
+    const assignment = { id: `individual-assignment-${this.seq++}`, ...input };
+    this.individualAssignments = [assignment, ...this.individualAssignments];
+    return of(structuredClone(assignment)).pipe(delay(LATENCY));
+  }
+
+  updateIndividualAssignment(id: string, input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity> {
+    const index = this.individualAssignments.findIndex((item) => item.id === id);
+    if (index < 0) return throwError(() => new InvalidAdminCatalogError('No encontramos la asignación individual.'));
+    const assignment = { id, ...input };
+    this.individualAssignments[index] = assignment;
+    return of(structuredClone(assignment)).pipe(delay(LATENCY));
+  }
+
+  listMissionExecutions(): Observable<MissionExecutionEntity[]> {
+    return of(structuredClone(this.missionExecutions)).pipe(delay(LATENCY));
+  }
+
+  getMissionExecution(id: string): Observable<MissionExecutionEntity> {
+    const execution = this.missionExecutions.find((item) => item.id === id);
+    if (!execution) return throwError(() => new InvalidAdminCatalogError('No encontramos la ejecución de misión.'));
+    return of(structuredClone(execution)).pipe(delay(LATENCY));
+  }
+
+  updateMissionExecution(id: string, input: MissionExecutionWriteInput): Observable<MissionExecutionEntity> {
+    const index = this.missionExecutions.findIndex((item) => item.id === id);
+    if (index < 0) return throwError(() => new InvalidAdminCatalogError('No encontramos la ejecución de misión.'));
+    if (input.status === 'completed' && (input.executedHours <= 0 || input.evaluations.some((evaluation) => !evaluation.grade))) {
+      return throwError(() => new InvalidAdminCatalogError('Completa las horas y califica todas las maniobras antes de finalizar la misión.'));
+    }
+    const execution = { ...input, id, individualAssignmentId: this.missionExecutions[index].individualAssignmentId };
+    this.missionExecutions[index] = execution;
+    return of(structuredClone(execution)).pipe(delay(LATENCY));
   }
 
   listRoles(): Observable<UserRoleEntity[]> {
@@ -521,6 +640,10 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         maneuverIds: [...item.maneuverIds],
         maneuverOperationIds: [...item.maneuverOperationIds],
         maneuverAssignment: { ...item.maneuverAssignment },
+        standardAssignments: (item.standardAssignments ?? []).map((assignment) => ({
+          ...assignment,
+          standardIds: [...assignment.standardIds],
+        })),
       })),
     ).pipe(delay(LATENCY));
   }
@@ -624,6 +747,10 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
             maneuverIds: [...subDraft.maneuverIds],
             maneuverOperationIds: [...(subDraft.maneuverOperationIds ?? [])],
             maneuverAssignment: { ...(subDraft.maneuverAssignment ?? {}) },
+            standardAssignments: (subDraft.standardAssignments ?? []).map((assignment) => ({
+              ...assignment,
+              standardIds: [...assignment.standardIds],
+            })),
             sortOrder: subIndex + 1,
           });
         });
@@ -659,6 +786,82 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     return of({ ...item, standardIds: [...item.standardIds] }).pipe(delay(LATENCY));
   }
 
+  saveProgramStandardMatrix(id: string, input: ProgramStandardMatrixWriteInput): Observable<ProgramEntity> {
+    const programIndex = this.programs.findIndex((item) => item.id === id);
+    if (programIndex < 0) {
+      return throwError(() => new InvalidAdminCatalogError('No encontramos ese programa.'));
+    }
+    try {
+      const phaseIds = new Set(this.phases.filter((item) => item.programId === id).map((item) => item.id));
+      const programSubphases = this.subphases.filter((item) => phaseIds.has(item.phaseId));
+      const byId = new Map(programSubphases.map((item) => [item.id, item]));
+      const updates = new Map<string, SubphaseEntity['standardAssignments']>();
+
+      for (const matrix of input.subphases) {
+        const subphase = byId.get(matrix.subphaseId);
+        if (!subphase) {
+          throw new InvalidAdminCatalogError('Una de las subfases no pertenece a este programa.');
+        }
+        const missionKeys = new Set(curriculumMissionRefs(subphase).map((item) => item.key));
+        const maneuverIds = new Set(subphase.maneuverIds);
+        const cells = new Map<string, SubphaseEntity['standardAssignments'][number]>();
+        for (const assignment of matrix.assignments) {
+          if (!missionKeys.has(assignment.missionKey)) {
+            throw new InvalidAdminCatalogError('Una de las misiones de la matriz ya no existe en la subfase.');
+          }
+          if (!maneuverIds.has(assignment.maneuverId)) {
+            throw new InvalidAdminCatalogError('Una de las maniobras de la matriz ya no existe en la subfase.');
+          }
+          const standardIds = [...new Set(assignment.standardIds.filter(Boolean))];
+          for (const standardId of standardIds) {
+            if (!this.standards.some((item) => item.id === standardId)) {
+              throw new InvalidAdminCatalogError('Uno de los estándares indicados no existe.');
+            }
+          }
+          const dirbeLevel = assignment.dirbeLevel;
+          if (dirbeLevel && !DIRBE_LEVELS.includes(dirbeLevel)) {
+            throw new InvalidAdminCatalogError('El nivel DIRBE indicado no es válido.');
+          }
+          if (!standardIds.length && !dirbeLevel) continue;
+          const cellKey = `${assignment.missionKey}\u001f${assignment.maneuverId}`;
+          cells.set(cellKey, {
+            missionKey: assignment.missionKey,
+            maneuverId: assignment.maneuverId,
+            standardIds,
+            ...(dirbeLevel ? { dirbeLevel } : {}),
+          });
+        }
+        updates.set(matrix.subphaseId, [...cells.values()]);
+      }
+
+      this.subphases = this.subphases.map((subphase) => {
+        const assignments = updates.get(subphase.id);
+        if (!assignments) return subphase;
+        return {
+          ...subphase,
+          standardAssignments: assignments.map((assignment) => ({
+            ...assignment,
+            standardIds: [...assignment.standardIds],
+          })),
+        };
+      });
+
+      const refreshed = this.subphases.filter((item) => phaseIds.has(item.phaseId));
+      const standardIds = [
+        ...new Set(
+          refreshed.flatMap((subphase) =>
+            subphase.standardAssignments.flatMap((assignment) => assignment.standardIds),
+          ),
+        ),
+      ];
+      const program: ProgramEntity = { ...this.programs[programIndex], standardIds };
+      this.programs[programIndex] = program;
+      return of({ ...program, standardIds: [...standardIds] }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
   private assertCurriculumRefs(input: ProgramCurriculumWriteInput): void {
     for (const phase of input.phases) {
       if (!this.phaseBanks.some((item) => item.id === phase.phaseBankId)) {
@@ -682,6 +885,18 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         }
         for (const operationId of sub.maneuverOperationIds ?? []) {
           this.assertOperationExists(operationId);
+        }
+        const missionKeys = new Set(curriculumMissionRefs(sub).map((item) => item.key));
+        const maneuverIds = new Set(sub.maneuverIds);
+        for (const assignment of sub.standardAssignments ?? []) {
+          if (!missionKeys.has(assignment.missionKey) || !maneuverIds.has(assignment.maneuverId)) {
+            throw new InvalidAdminCatalogError('La matriz contiene una misión o maniobra que no pertenece a la subfase.');
+          }
+          for (const standardId of assignment.standardIds) {
+            if (!this.standards.some((item) => item.id === standardId)) {
+              throw new InvalidAdminCatalogError('Uno de los estándares indicados no existe.');
+            }
+          }
         }
       }
     }

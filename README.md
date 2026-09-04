@@ -50,7 +50,7 @@ npm run format
 npm run build
 ```
 
-La salida estática queda en `dist/helvia-banca/browser`. Sirve como SPA (hay un `vercel.json` con rewrite a `index.html`).
+La salida estática queda en `dist/app-sgep-frontend/browser`. Sirve como SPA (hay un `vercel.json` con rewrite a `index.html`).
 
 ---
 

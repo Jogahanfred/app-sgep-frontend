@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 @Component({
   selector: 'app-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<article class="card" [class.card--interactive]="interactive()"><ng-content /></article>`,
+  template: `<article class="card" [class.card--interactive]="interactive()" [class.card--padded]="padded()"><ng-content /></article>`,
   styles: `
     .card {
       height: 100%;
@@ -18,6 +18,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         transform var(--duration-med) var(--ease-out),
         box-shadow var(--duration-med) var(--ease-out),
         border-color var(--duration-med) var(--ease-out);
+    }
+
+    .card--padded {
+      padding: 1.25rem;
     }
 
     .card--interactive:hover {
@@ -35,4 +39,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class Card {
   readonly interactive = input(true);
+  readonly padded = input(false);
 }

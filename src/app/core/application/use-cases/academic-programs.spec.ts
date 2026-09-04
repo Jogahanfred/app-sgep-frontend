@@ -1,23 +1,27 @@
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
+import { HELICOPTER_SOURCE_SUMMARY } from '../../adapters/mock/helicopter-program.data';
 import { MockAdminCatalogRepository } from '../../adapters/mock/mock-admin-catalog.repository';
 import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
+import { catalogMissionKey } from '../../domain/services/admin-catalog';
 import { CreatePhaseBank } from './create-phase-bank';
 import { CreateSubphaseBank } from './create-subphase-bank';
 import { ListPhaseBanks } from './list-phase-banks';
 import { ListPhases } from './list-phases';
+import { ListMissionTypes } from './list-mission-types';
 import { ListPrograms } from './list-programs';
 import { ListSubphaseBanks } from './list-subphase-banks';
 import { ListSubphases } from './list-subphases';
 import { AssignProgramStandards } from './assign-program-standards';
+import { SaveProgramStandardMatrix } from './save-program-standard-matrix';
 import { SaveProgramCurriculum } from './save-program-curriculum';
 import { UpdatePhaseBank } from './update-phase-bank';
 
 describe('formación académica', () => {
   it('lista los programas de la academia', async () => {
     const items = await firstValueFrom(new ListPrograms(new MockAdminCatalogRepository()).execute());
-    expect(items.map((item) => item.code)).toEqual(['PPL-AF', 'IR-ME', 'CPL-AF']);
-    expect(items[0].standardIds).toEqual(['std-toff', 'std-land']);
+    expect(items.map((item) => item.code)).toEqual(['PDI-HELI-2023', 'PPL-AF', 'IR-ME', 'CPL-AF']);
+    expect(items.find((item) => item.id === 'prg-ppl')?.standardIds).toEqual(['std-toff', 'std-land']);
   });
 
   it('asigna estándares a un programa guardado', async () => {
@@ -28,12 +32,117 @@ describe('formación académica', () => {
     expect(listed.find((item) => item.id === 'prg-cpl')?.standardIds).toEqual(['std-crm']);
   });
 
+  it('guarda el nivel DIRBE por cruce de misión y maniobra', async () => {
+    const repo = new MockAdminCatalogRepository();
+    const updated = await firstValueFrom(
+      new SaveProgramStandardMatrix(repo).execute('prg-cpl', {
+        subphases: [
+          {
+            subphaseId: 'sp-cpl-nav',
+            assignments: [
+              {
+                missionKey: catalogMissionKey('mt-nav'),
+                maneuverId: 'man-toff',
+                standardIds: ['std-crm'],
+                dirbeLevel: 'R',
+              },
+              {
+                missionKey: catalogMissionKey('mt-nav'),
+                maneuverId: 'man-land',
+                standardIds: [],
+                dirbeLevel: 'B',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(updated.standardIds).toEqual(['std-crm']);
+    const subphases = await firstValueFrom(new ListSubphases(repo).execute());
+    expect(subphases.find((item) => item.id === 'sp-cpl-nav')?.standardAssignments).toEqual([
+      {
+        missionKey: catalogMissionKey('mt-nav'),
+        maneuverId: 'man-toff',
+        standardIds: ['std-crm'],
+        dirbeLevel: 'R',
+      },
+      {
+        missionKey: catalogMissionKey('mt-nav'),
+        maneuverId: 'man-land',
+        standardIds: [],
+        dirbeLevel: 'B',
+      },
+    ]);
+  });
+
   it('carga el itinerario PPL con fases y subfases', async () => {
     const repo = new MockAdminCatalogRepository();
     const phases = (await firstValueFrom(new ListPhases(repo).execute())).filter((item) => item.programId === 'prg-ppl');
     const subphases = await firstValueFrom(new ListSubphases(repo).execute());
     expect(phases).toHaveLength(5);
     expect(subphases.filter((item) => phases.some((phase) => phase.id === item.phaseId)).length).toBeGreaterThan(3);
+  });
+
+  it('carga el programa de helicóptero completo para ejecutar el módulo', async () => {
+    const repo = new MockAdminCatalogRepository();
+    const programs = await firstValueFrom(new ListPrograms(repo).execute());
+    const program = programs.find((item) => item.id === 'prg-heli-2023');
+    const phases = (await firstValueFrom(new ListPhases(repo).execute()))
+      .filter((item) => item.programId === program?.id)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    const allSubphases = await firstValueFrom(new ListSubphases(repo).execute());
+    const missionTypes = await firstValueFrom(new ListMissionTypes(repo).execute());
+    const missionTypeById = new Map(missionTypes.map((item) => [item.id, item] as const));
+    const phaseIds = new Set(phases.map((item) => item.id));
+    const subphases = allSubphases.filter((item) => phaseIds.has(item.phaseId));
+
+    expect(program).toMatchObject({
+      code: 'PDI-HELI-2023',
+      name: 'Curso Piloto de Helicóptero',
+      programType: 'HELI',
+      status: 'active',
+      imageUrl: '/programs/heli.jpg',
+    });
+    expect(phases).toHaveLength(5);
+    expect(subphases).toHaveLength(16);
+    expect(subphases.reduce((total, item) => total + item.hours, 0)).toBe(
+      HELICOPTER_SOURCE_SUMMARY.totalFlightHours,
+    );
+    expect(subphases.reduce((total, item) => total + item.missionTypeIds.length, 0)).toBe(
+      HELICOPTER_SOURCE_SUMMARY.loadedMissionCount,
+    );
+    expect(
+      phases.map((phase) =>
+        subphases
+          .filter((item) => item.phaseId === phase.id)
+          .reduce((total, item) => total + item.hours, 0),
+      ),
+    ).toEqual([51, 40, 22, 2, 5]);
+    const nightMissionIds = subphases.find((item) => item.id === 'sp-heli-night')?.missionTypeIds ?? [];
+    expect(nightMissionIds.map((id) => missionTypeById.get(id)?.code)).toEqual([
+      'N-1',
+      'N-2',
+      'N-3',
+      'N-4',
+      'N-5',
+      'N-6',
+      'N-7',
+    ]);
+    const operationsOrderMissionIds =
+      subphases.find((item) => item.id === 'sp-heli-operations-order')?.missionTypeIds ?? [];
+    expect(operationsOrderMissionIds.map((id) => missionTypeById.get(id)?.code)).toEqual([
+      'O/O-1',
+      'O/O-2',
+    ]);
+    expect(
+      subphases.every(
+        (item) => item.standardAssignments.length === item.missionTypeIds.length * item.maneuverIds.length,
+      ),
+    ).toBe(true);
+    expect(subphases.every((item) => item.standardAssignments.every((cell) => cell.dirbeLevel))).toBe(true);
+    expect(
+      [...new Set(subphases.flatMap((item) => item.standardAssignments.map((cell) => cell.dirbeLevel)))].sort(),
+    ).toEqual(['B', 'D', 'E', 'I', 'R']);
   });
 
   it('crea un plan de estudios y rechaza horas inválidas', async () => {
@@ -83,6 +192,7 @@ describe('formación académica', () => {
     expect(createdSubs[0].autoMissionCount).toBe(17);
     expect(createdSubs[0].maneuverOperationIds).toEqual([]);
     expect(createdSubs[0].maneuverAssignment).toEqual({});
+    expect(createdSubs[0].standardAssignments).toEqual([]);
 
     await expect(
       firstValueFrom(

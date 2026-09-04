@@ -1,0 +1,146 @@
+<section class="saw" aria-labelledby="saw-title">
+  <header class="saw__head">
+    <div>
+      <nav class="saw__path" aria-label="Ubicación en el programa">
+        <span>{{ phaseLabel() }}</span>
+        <app-icon name="chevron-right" />
+        <strong>{{ subphase().label }}</strong>
+      </nav>
+      <h2 id="saw-title">Matriz de calificación</h2>
+      <p>
+        Cada columna representa una misión y cada fila una maniobra. Haz clic en un cuadrante para
+        elegir el nivel que deberá calificar el instructor.
+      </p>
+    </div>
+    <span class="saw__hours">{{ subphase().hours }} h</span>
+  </header>
+
+  @if (!subphase().hasMatrix) {
+    <div class="saw__missing">
+      <span class="saw__missing-icon"><app-icon name="warning" /></span>
+      <div>
+        <h3>Esta subfase todavía no puede configurarse</h3>
+        <p>{{ subphase().matrixHint }}</p>
+      </div>
+      <app-button [href]="editProgramHref()" variant="secondary" size="sm" icon="pencil">
+        Completar estructura
+      </app-button>
+    </div>
+  } @else {
+    <section class="saw__guide" aria-label="Escala de calificación">
+      <span class="saw__kicker">Escala de calificación</span>
+
+      <div class="saw__legend" aria-label="Niveles de calificación">
+        @for (option of dirbeOptions; track option.value) {
+          <span
+            class="saw__legend-item"
+            [class.saw__legend-item--d]="option.value === 'D'"
+            [class.saw__legend-item--i]="option.value === 'I'"
+            [class.saw__legend-item--r]="option.value === 'R'"
+            [class.saw__legend-item--b]="option.value === 'B'"
+            [class.saw__legend-item--e]="option.value === 'E'"
+            [title]="option.description"
+          >
+            <strong>{{ option.value }}</strong>
+            <span>{{ option.label }}</span>
+          </span>
+        }
+      </div>
+    </section>
+
+    <div class="saw__matrix-head">
+      <div class="saw__matrix-tools">
+        <p><app-icon name="info" /> Cada cuadrante abre la selección del nivel de calificación.</p>
+        <app-button
+          type="button"
+          variant="secondary"
+          size="sm"
+          icon="maximize"
+          [disabled]="saving()"
+          (click)="openExpandedMatrix()"
+        >
+          Ampliar matriz
+        </app-button>
+      </div>
+    </div>
+
+    <app-program-standard-matrix
+      [subphase]="subphase()"
+      [assignmentMap]="assignmentMap()"
+      [disabled]="saving()"
+      (cellSelected)="openLevelPicker($event)"
+    />
+
+    <footer class="saw__savebar">
+      <div class="saw__save-state" [class.saw__save-state--dirty]="dirty()">
+        <span></span>
+        <div>
+          <strong>{{ dirty() ? 'Cambios sin guardar' : 'Subfase guardada' }}</strong>
+          <small>
+            {{
+              dirty()
+                ? 'Los cambios pertenecen únicamente a esta subfase.'
+                : 'La matriz de calificación está sincronizada.'
+            }}
+          </small>
+        </div>
+      </div>
+      <app-button
+        type="button"
+        [disabled]="!dirty() || saving()"
+        [loading]="saving()"
+        (click)="saveRequested.emit(subphase().id)"
+      >
+        Guardar subfase
+      </app-button>
+    </footer>
+  }
+</section>
+
+@if (matrixExpanded() && subphase().hasMatrix) {
+  <app-modal
+    [open]="true"
+    [title]="'Matriz de calificación · ' + subphase().label"
+    size="full"
+    (closed)="closeExpandedMatrix()"
+  >
+    <div class="saw__expanded">
+      <app-program-standard-matrix
+        class="saw__expanded-matrix"
+        mode="expanded"
+        [subphase]="subphase()"
+        [assignmentMap]="assignmentMap()"
+        [disabled]="saving()"
+        (cellSelected)="openLevelPicker($event)"
+      />
+
+      <footer class="saw__expanded-savebar">
+        <div class="saw__expanded-actions">
+          <span class="saw__expanded-state" [class.saw__expanded-state--dirty]="dirty()">
+            {{ dirty() ? 'Cambios sin guardar' : 'Subfase guardada' }}
+          </span>
+          <app-button
+            type="button"
+            [disabled]="!dirty() || saving()"
+            [loading]="saving()"
+            (click)="saveRequested.emit(subphase().id)"
+          >
+            Guardar subfase
+          </app-button>
+        </div>
+      </footer>
+    </div>
+  </app-modal>
+}
+
+@if (activeCell(); as cell) {
+  <app-dirbe-level-picker
+    [open]="true"
+    [mission]="cell.mission"
+    [maneuver]="cell.maneuver"
+    [value]="cell.value"
+    [disabled]="saving()"
+    (applied)="applyLevel($event)"
+    (closed)="closeLevelPicker()"
+  />
+}

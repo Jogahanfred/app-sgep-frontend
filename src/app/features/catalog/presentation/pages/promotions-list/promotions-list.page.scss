@@ -1,0 +1,16 @@
+@use '../../shared/styles/panel';
+
+.ap__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ap__head h1 { margin: 0; }
+.ap__status { color: var(--color-text-muted); padding: 2rem 0; }
+
+@media (max-width: 700px) {
+  .ap__head { flex-direction: column; }
+}

@@ -20,6 +20,7 @@ export type IconName =
   | 'chevron-first'
   | 'chevron-last'
   | 'external'
+  | 'maximize'
   | 'shield'
   | 'arrow-up'
   | 'arrow-down'
@@ -59,6 +60,7 @@ const PATHS: Record<IconName, string> = {
   'chevron-first': 'M6 5v14M18 6l-6 6 6 6',
   'chevron-last': 'M18 5v14M6 6l6 6-6 6',
   external: 'M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14 20 4',
+  maximize: 'M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5',
   shield: 'M12 3 5 6v6c0 5 3.2 8.4 7 9.5 3.8-1.1 7-4.5 7-9.5V6l-7-3Z',
   'arrow-up': 'M12 19V5M6 11l6-6 6 6',
   'arrow-down': 'M12 5v14M6 13l6 6 6-6',

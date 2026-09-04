@@ -1,0 +1,21 @@
+@use '../../shared/styles/panel';
+.ap__tabs { display: flex; gap: .25rem; border-bottom: 1px solid var(--color-border); margin-bottom: 1rem; }
+.ap__tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--color-text-secondary); cursor: pointer; padding: .75rem 1rem; font: inherit; }
+.ap__tabs button.is-active { border-bottom-color: var(--color-primary); color: var(--color-primary-dark); font-weight: 700; }
+.filters { display: grid; grid-template-columns: minmax(15rem, 2fr) repeat(4, minmax(10rem, 1fr)); gap: .75rem; margin-bottom: 1.25rem; }
+.assignment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.assignment-card { display: block; }
+.assignment-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
+.assignment-card h2 { margin: .25rem 0 0; font-size: 1.1rem; }
+.assignment-card__eyebrow { color: var(--color-primary); font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; }
+.assignment-card__status { padding: .3rem .55rem; border-radius: var(--radius-pill); background: var(--color-control-soft); color: var(--color-primary-dark); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+.status--completed { background: #e8f5ed; color: var(--color-success); }
+.status--cancelled { background: var(--color-error-soft); color: var(--color-error); }
+.assignment-card dl { display: grid; gap: .7rem; margin: 0; }
+.assignment-card dl div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--color-border-subtle); padding-bottom: .55rem; }
+.assignment-card dt { color: var(--color-text-secondary); font-size: var(--fs-xs); }
+.assignment-card dd { margin: 0; text-align: right; font-size: var(--fs-sm); }
+.assignment-card__actions { display: flex; justify-content: flex-end; align-items: center; gap: .4rem; margin-top: 1.15rem; }
+.empty-state { color: var(--color-text-secondary); }
+@media (max-width: 1050px) { .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); } .filters ui-input { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .assignment-grid, .filters { grid-template-columns: 1fr; } .assignment-card__head { flex-direction: column; } .assignment-card dl div { display: grid; gap: .15rem; } .assignment-card dd { text-align: left; } }

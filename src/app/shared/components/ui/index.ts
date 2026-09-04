@@ -6,6 +6,7 @@ export { UiCheckbox } from '../ui-checkbox/ui-checkbox';
 export { UiChip } from '../ui-chip/ui-chip';
 export { UiConfirmDialog } from '../ui-confirm-dialog/ui-confirm-dialog';
 export { UiDatePicker } from '../ui-date-picker/ui-date-picker';
+export { UiCalendar } from '../ui-calendar/ui-calendar';
 export { UiError } from '../ui-error/ui-error';
 export { UiFieldLabel } from '../ui-field-label/ui-field-label';
 export { UiFormCard } from '../ui-form-card/ui-form-card';

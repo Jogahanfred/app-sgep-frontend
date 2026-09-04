@@ -1,0 +1,96 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+.dcs {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 4.75rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.35rem;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    filter var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+.dcs:hover:not(:disabled) {
+  filter: brightness(0.98);
+}
+
+.dcs:focus {
+  outline: 0;
+}
+
+.dcs:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.dcs:active:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.dcs:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.dcs__value {
+  min-width: 0.85rem;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.dcs--empty {
+  background: var(--color-surface-alt);
+  color: #8a8a8a;
+}
+
+.dcs--empty .dcs__value {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.dcs--d {
+  background: #eaf5fd;
+  color: #17689f;
+}
+
+.dcs--i {
+  background: #fff0f0;
+  color: #a52f2f;
+}
+
+.dcs--r {
+  background: #fff8df;
+  color: #7a5700;
+}
+
+.dcs--b {
+  background: #eaf8f0;
+  color: #246c45;
+}
+
+.dcs--e {
+  background: #f1efff;
+  color: #5146a5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dcs {
+    transition: none;
+  }
+}

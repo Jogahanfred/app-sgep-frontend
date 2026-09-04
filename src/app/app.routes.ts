@@ -4,7 +4,7 @@ import { authGuard } from './layout/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+    loadComponent: () => import('./features/home/presentation/pages/home/home.page').then((m) => m.HomePage),
     data: {
       seo: {
         title: 'Helvia Banca | Banca para particulares',
@@ -15,7 +15,7 @@ export const routes: Routes = [
   },
   {
     path: 'cuentas',
-    loadComponent: () => import('./features/accounts/accounts.page').then((m) => m.AccountsPage),
+    loadComponent: () => import('./features/accounts/presentation/pages/accounts/accounts.page').then((m) => m.AccountsPage),
     data: {
       seo: {
         title: 'Cuentas | Helvia Banca',
@@ -25,7 +25,7 @@ export const routes: Routes = [
   },
   {
     path: 'tarjetas',
-    loadComponent: () => import('./features/cards/cards.page').then((m) => m.CardsPage),
+    loadComponent: () => import('./features/cards/presentation/pages/cards/cards.page').then((m) => m.CardsPage),
     data: {
       seo: {
         title: 'Tarjetas | Helvia Banca',
@@ -35,7 +35,7 @@ export const routes: Routes = [
   },
   {
     path: 'prestamos',
-    loadComponent: () => import('./features/loans/loans.page').then((m) => m.LoansPage),
+    loadComponent: () => import('./features/loans/presentation/pages/loans/loans.page').then((m) => m.LoansPage),
     data: {
       seo: {
         title: 'Préstamos | Helvia Banca',
@@ -45,7 +45,7 @@ export const routes: Routes = [
   },
   {
     path: 'hipotecas',
-    loadComponent: () => import('./features/mortgages/mortgages.page').then((m) => m.MortgagesPage),
+    loadComponent: () => import('./features/mortgages/presentation/pages/mortgages/mortgages.page').then((m) => m.MortgagesPage),
     data: {
       seo: {
         title: 'Hipotecas | Helvia Banca',
@@ -55,7 +55,7 @@ export const routes: Routes = [
   },
   {
     path: 'inversion',
-    loadComponent: () => import('./features/investments/investments.page').then((m) => m.InvestmentsPage),
+    loadComponent: () => import('./features/investments/presentation/pages/investments/investments.page').then((m) => m.InvestmentsPage),
     data: {
       seo: {
         title: 'Inversión | Helvia Banca',
@@ -65,7 +65,7 @@ export const routes: Routes = [
   },
   {
     path: 'hazte-cliente',
-    loadComponent: () => import('./features/onboarding/onboarding.page').then((m) => m.OnboardingPage),
+    loadComponent: () => import('./features/onboarding/presentation/pages/onboarding/onboarding.page').then((m) => m.OnboardingPage),
     data: {
       seo: {
         title: 'Hazte cliente | Helvia Banca',
@@ -76,11 +76,11 @@ export const routes: Routes = [
   {
     path: 'perfil',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/profile/profile.layout').then((m) => m.ProfileLayout),
+    loadComponent: () => import('./features/profile/presentation/layouts/profile-layout/profile.layout').then((m) => m.ProfileLayout),
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+        loadComponent: () => import('./features/profile/presentation/pages/profile/profile.page').then((m) => m.ProfilePage),
         data: {
           seo: {
             title: 'Mi perfil | SIGA',
@@ -90,7 +90,7 @@ export const routes: Routes = [
       },
       {
         path: 'usuario',
-        loadComponent: () => import('./features/profile/my-user.page').then((m) => m.MyUserPage),
+        loadComponent: () => import('./features/profile/presentation/pages/my-user/my-user.page').then((m) => m.MyUserPage),
         data: {
           seo: {
             title: 'Usuario | SIGA',
@@ -100,7 +100,7 @@ export const routes: Routes = [
       },
       {
         path: 'roles',
-        loadComponent: () => import('./features/profile/my-assignments.page').then((m) => m.MyAssignmentsPage),
+        loadComponent: () => import('./features/profile/presentation/pages/my-assignments/my-assignments.page').then((m) => m.MyAssignmentsPage),
         data: {
           assignments: 'roles',
           seo: {
@@ -111,7 +111,7 @@ export const routes: Routes = [
       },
       {
         path: 'especialidades',
-        loadComponent: () => import('./features/profile/my-assignments.page').then((m) => m.MyAssignmentsPage),
+        loadComponent: () => import('./features/profile/presentation/pages/my-assignments/my-assignments.page').then((m) => m.MyAssignmentsPage),
         data: {
           assignments: 'specialties',
           seo: {
@@ -125,12 +125,12 @@ export const routes: Routes = [
   {
     path: 'catalogo',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/catalog/catalog.layout').then((m) => m.CatalogLayout),
+    loadComponent: () => import('./features/catalog/presentation/layouts/catalog-layout/catalog.layout').then((m) => m.CatalogLayout),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'usuarios' },
       {
         path: 'usuarios',
-        loadComponent: () => import('./features/catalog/users-list.page').then((m) => m.UsersListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/users-list/users-list.page').then((m) => m.UsersListPage),
         data: {
           seo: {
             title: 'Catálogo de usuarios | SIGA',
@@ -140,7 +140,7 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios/nuevo',
-        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/user-form/user-form.page').then((m) => m.UserFormPage),
         data: {
           seo: {
             title: 'Nuevo usuario | SIGA',
@@ -150,7 +150,7 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios/:id/editar',
-        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/user-form/user-form.page').then((m) => m.UserFormPage),
         data: {
           mode: 'edit',
           seo: {
@@ -161,7 +161,7 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios/:id',
-        loadComponent: () => import('./features/catalog/user-form.page').then((m) => m.UserFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/user-form/user-form.page').then((m) => m.UserFormPage),
         data: {
           mode: 'view',
           seo: {
@@ -172,7 +172,7 @@ export const routes: Routes = [
       },
       {
         path: 'roles',
-        loadComponent: () => import('./features/catalog/items-list.page').then((m) => m.ItemsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/items-list/items-list.page').then((m) => m.ItemsListPage),
         data: {
           catalog: 'roles',
           seo: {
@@ -183,7 +183,7 @@ export const routes: Routes = [
       },
       {
         path: 'roles/nuevo',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'roles',
           seo: {
@@ -194,7 +194,7 @@ export const routes: Routes = [
       },
       {
         path: 'roles/:id/editar',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'roles',
           mode: 'edit',
@@ -206,7 +206,7 @@ export const routes: Routes = [
       },
       {
         path: 'roles/:id',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'roles',
           mode: 'view',
@@ -218,7 +218,7 @@ export const routes: Routes = [
       },
       {
         path: 'especialidades',
-        loadComponent: () => import('./features/catalog/items-list.page').then((m) => m.ItemsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/items-list/items-list.page').then((m) => m.ItemsListPage),
         data: {
           catalog: 'specialties',
           seo: {
@@ -229,7 +229,7 @@ export const routes: Routes = [
       },
       {
         path: 'especialidades/nuevo',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'specialties',
           seo: {
@@ -240,7 +240,7 @@ export const routes: Routes = [
       },
       {
         path: 'especialidades/:id/editar',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'specialties',
           mode: 'edit',
@@ -252,7 +252,7 @@ export const routes: Routes = [
       },
       {
         path: 'especialidades/:id',
-        loadComponent: () => import('./features/catalog/item-form.page').then((m) => m.ItemFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/item-form/item-form.page').then((m) => m.ItemFormPage),
         data: {
           catalog: 'specialties',
           mode: 'view',
@@ -264,7 +264,7 @@ export const routes: Routes = [
       },
       {
         path: 'unidades',
-        loadComponent: () => import('./features/catalog/units-list.page').then((m) => m.UnitsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/units-list/units-list.page').then((m) => m.UnitsListPage),
         data: {
           seo: {
             title: 'Unidades | SIGA',
@@ -274,7 +274,7 @@ export const routes: Routes = [
       },
       {
         path: 'unidades/nuevo',
-        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/unit-form/unit-form.page').then((m) => m.UnitFormPage),
         data: {
           seo: {
             title: 'Nueva unidad | SIGA',
@@ -284,7 +284,7 @@ export const routes: Routes = [
       },
       {
         path: 'unidades/:id/editar',
-        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/unit-form/unit-form.page').then((m) => m.UnitFormPage),
         data: {
           mode: 'edit',
           seo: {
@@ -295,7 +295,7 @@ export const routes: Routes = [
       },
       {
         path: 'unidades/:id',
-        loadComponent: () => import('./features/catalog/unit-form.page').then((m) => m.UnitFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/unit-form/unit-form.page').then((m) => m.UnitFormPage),
         data: {
           mode: 'view',
           seo: {
@@ -306,7 +306,7 @@ export const routes: Routes = [
       },
       {
         path: 'escuadrones',
-        loadComponent: () => import('./features/catalog/squadrons-list.page').then((m) => m.SquadronsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/squadrons-list/squadrons-list.page').then((m) => m.SquadronsListPage),
         data: {
           seo: {
             title: 'Escuadrones | SIGA',
@@ -316,7 +316,7 @@ export const routes: Routes = [
       },
       {
         path: 'escuadrones/nuevo',
-        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/squadron-form/squadron-form.page').then((m) => m.SquadronFormPage),
         data: {
           seo: {
             title: 'Nuevo escuadrón | SIGA',
@@ -326,7 +326,7 @@ export const routes: Routes = [
       },
       {
         path: 'escuadrones/:id/editar',
-        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/squadron-form/squadron-form.page').then((m) => m.SquadronFormPage),
         data: {
           mode: 'edit',
           seo: {
@@ -337,7 +337,7 @@ export const routes: Routes = [
       },
       {
         path: 'escuadrones/:id',
-        loadComponent: () => import('./features/catalog/squadron-form.page').then((m) => m.SquadronFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/squadron-form/squadron-form.page').then((m) => m.SquadronFormPage),
         data: {
           mode: 'view',
           seo: {
@@ -348,7 +348,7 @@ export const routes: Routes = [
       },
       {
         path: 'comisiones-temporales',
-        loadComponent: () => import('./features/catalog/commissions-list.page').then((m) => m.CommissionsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/commissions-list/commissions-list.page').then((m) => m.CommissionsListPage),
         data: {
           seo: {
             title: 'Comisiones temporales | SIGA',
@@ -358,7 +358,7 @@ export const routes: Routes = [
       },
       {
         path: 'comisiones-temporales/nuevo',
-        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/commission-form/commission-form.page').then((m) => m.CommissionFormPage),
         data: {
           seo: {
             title: 'Nueva comisión temporal | SIGA',
@@ -368,7 +368,7 @@ export const routes: Routes = [
       },
       {
         path: 'comisiones-temporales/:id/editar',
-        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/commission-form/commission-form.page').then((m) => m.CommissionFormPage),
         data: {
           mode: 'edit',
           seo: {
@@ -379,7 +379,7 @@ export const routes: Routes = [
       },
       {
         path: 'comisiones-temporales/:id',
-        loadComponent: () => import('./features/catalog/commission-form.page').then((m) => m.CommissionFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/commission-form/commission-form.page').then((m) => m.CommissionFormPage),
         data: {
           mode: 'view',
           seo: {
@@ -390,107 +390,107 @@ export const routes: Routes = [
       },
       {
         path: 'operaciones',
-        loadComponent: () => import('./features/catalog/operations-list.page').then((m) => m.OperationsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/operations-list/operations-list.page').then((m) => m.OperationsListPage),
         data: { seo: { title: 'Operaciones | SIGA', description: 'Catálogo maestro de operaciones de instrucción.' } },
       },
       {
         path: 'operaciones/nuevo',
-        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/operation-form/operation-form.page').then((m) => m.OperationFormPage),
         data: { seo: { title: 'Nueva operación | SIGA', description: 'Alta de una operación de instrucción.' } },
       },
       {
         path: 'operaciones/:id/editar',
-        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/operation-form/operation-form.page').then((m) => m.OperationFormPage),
         data: { mode: 'edit', seo: { title: 'Editar operación | SIGA', description: 'Nombre, descripción y estado de la operación.' } },
       },
       {
         path: 'operaciones/:id',
-        loadComponent: () => import('./features/catalog/operation-form.page').then((m) => m.OperationFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/operation-form/operation-form.page').then((m) => m.OperationFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de operación | SIGA', description: 'Consulta la operación, sin modificar.' } },
       },
       {
         path: 'tipos-de-mision',
-        loadComponent: () => import('./features/catalog/mission-types-list.page').then((m) => m.MissionTypesListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-types-list/mission-types-list.page').then((m) => m.MissionTypesListPage),
         data: { seo: { title: 'Tipos de misión | SIGA', description: 'Catálogo maestro de tipos de misión.' } },
       },
       {
         path: 'tipos-de-mision/nuevo',
-        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-type-form/mission-type-form.page').then((m) => m.MissionTypeFormPage),
         data: { seo: { title: 'Nuevo tipo de misión | SIGA', description: 'Alta de un tipo de misión.' } },
       },
       {
         path: 'tipos-de-mision/:id/editar',
-        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-type-form/mission-type-form.page').then((m) => m.MissionTypeFormPage),
         data: { mode: 'edit', seo: { title: 'Editar tipo de misión | SIGA', description: 'Código, nombre y descripción del tipo de misión.' } },
       },
       {
         path: 'tipos-de-mision/:id',
-        loadComponent: () => import('./features/catalog/mission-type-form.page').then((m) => m.MissionTypeFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-type-form/mission-type-form.page').then((m) => m.MissionTypeFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de tipo de misión | SIGA', description: 'Consulta el tipo de misión, sin modificar.' } },
       },
       {
         path: 'maniobras',
-        loadComponent: () => import('./features/catalog/maneuvers-list.page').then((m) => m.ManeuversListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/maneuvers-list/maneuvers-list.page').then((m) => m.ManeuversListPage),
         data: { seo: { title: 'Maniobras | SIGA', description: 'Banco de maniobras de instrucción.' } },
       },
       {
         path: 'maniobras/nuevo',
-        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/maneuver-form/maneuver-form.page').then((m) => m.ManeuverFormPage),
         data: { seo: { title: 'Nueva maniobra | SIGA', description: 'Alta de una maniobra.' } },
       },
       {
         path: 'maniobras/:id/editar',
-        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/maneuver-form/maneuver-form.page').then((m) => m.ManeuverFormPage),
         data: { mode: 'edit', seo: { title: 'Editar maniobra | SIGA', description: 'Operación, código, nombre y descripción de la maniobra.' } },
       },
       {
         path: 'maniobras/:id',
-        loadComponent: () => import('./features/catalog/maneuver-form.page').then((m) => m.ManeuverFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/maneuver-form/maneuver-form.page').then((m) => m.ManeuverFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de maniobra | SIGA', description: 'Consulta la maniobra, sin modificar.' } },
       },
       {
         path: 'estandares',
-        loadComponent: () => import('./features/catalog/standards-list.page').then((m) => m.StandardsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/standards-list/standards-list.page').then((m) => m.StandardsListPage),
         data: { seo: { title: 'Estándares | SIGA', description: 'Estándares de evaluación de instrucción.' } },
       },
       {
         path: 'estandares/nuevo',
-        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/standard-form/standard-form.page').then((m) => m.StandardFormPage),
         data: { seo: { title: 'Nuevo estándar | SIGA', description: 'Alta de un estándar.' } },
       },
       {
         path: 'estandares/:id/editar',
-        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/standard-form/standard-form.page').then((m) => m.StandardFormPage),
         data: { mode: 'edit', seo: { title: 'Editar estándar | SIGA', description: 'Código, nombre, descripción y orden del estándar.' } },
       },
       {
         path: 'estandares/:id',
-        loadComponent: () => import('./features/catalog/standard-form.page').then((m) => m.StandardFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/standard-form/standard-form.page').then((m) => m.StandardFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de estándar | SIGA', description: 'Consulta el estándar, sin modificar.' } },
       },
       {
         path: 'ponderaciones',
-        loadComponent: () => import('./features/catalog/weightings-list.page').then((m) => m.WeightingsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/weightings-list/weightings-list.page').then((m) => m.WeightingsListPage),
         data: { seo: { title: 'Ponderaciones | SIGA', description: 'Ponderaciones de estándares por unidad, escuadrón y programa.' } },
       },
       {
         path: 'ponderaciones/nuevo',
-        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/weighting-form/weighting-form.page').then((m) => m.WeightingFormPage),
         data: { seo: { title: 'Nueva ponderación | SIGA', description: 'Alta de una ponderación.' } },
       },
       {
         path: 'ponderaciones/:id/editar',
-        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/weighting-form/weighting-form.page').then((m) => m.WeightingFormPage),
         data: { mode: 'edit', seo: { title: 'Editar ponderación | SIGA', description: 'Estándar, alcance, valor y vigencia.' } },
       },
       {
         path: 'ponderaciones/:id',
-        loadComponent: () => import('./features/catalog/weighting-form.page').then((m) => m.WeightingFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/weighting-form/weighting-form.page').then((m) => m.WeightingFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de ponderación | SIGA', description: 'Consulta la ponderación, sin modificar.' } },
       },
       {
         path: 'programas',
-        loadComponent: () => import('./features/catalog/programs-board.page').then((m) => m.ProgramsBoardPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/programs-board/programs-board.page').then((m) => m.ProgramsBoardPage),
         data: {
           seo: {
             title: 'Formación académica | SIGA',
@@ -499,8 +499,63 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'promociones',
+        loadComponent: () => import('./features/catalog/presentation/pages/promotions-list/promotions-list.page').then((m) => m.PromotionsListPage),
+        data: { seo: { title: 'Promociones | SIGA', description: 'Promociones y grupos de alumnos.' } },
+      },
+      {
+        path: 'promociones/nuevo',
+        loadComponent: () => import('./features/catalog/presentation/pages/promotion-form/promotion-form.page').then((m) => m.PromotionFormPage),
+        data: { seo: { title: 'Nueva promoción | SIGA', description: 'Alta de una promoción de alumnos.' } },
+      },
+      {
+        path: 'promociones/:id/editar',
+        loadComponent: () => import('./features/catalog/presentation/pages/promotion-form/promotion-form.page').then((m) => m.PromotionFormPage),
+        data: { mode: 'edit', seo: { title: 'Editar promoción | SIGA', description: 'Datos y miembros de una promoción.' } },
+      },
+      {
+        path: 'promociones/:id',
+        loadComponent: () => import('./features/catalog/presentation/pages/promotion-form/promotion-form.page').then((m) => m.PromotionFormPage),
+        data: { mode: 'view', seo: { title: 'Detalle de promoción | SIGA', description: 'Consulta una promoción y sus alumnos.' } },
+      },
+      {
+        path: 'programacion-entrenamiento',
+        loadComponent: () => import('./features/catalog/presentation/pages/training-programming/training-programming.page').then((m) => m.TrainingProgrammingPage),
+        data: { seo: { title: 'Programación de entrenamiento | SIGA', description: 'Programa cursos y misiones para grupos y alumnos.' } },
+      },
+      {
+        path: 'programacion-entrenamiento/grupal/nuevo',
+        loadComponent: () => import('./features/catalog/presentation/pages/training-assignment-form/training-assignment-form.page').then((m) => m.TrainingAssignmentFormPage),
+        data: { assignmentType: 'group', seo: { title: 'Nueva asignación grupal | SIGA', description: 'Programa una misión para una promoción.' } },
+      },
+      {
+        path: 'programacion-entrenamiento/grupal/:id/editar',
+        loadComponent: () => import('./features/catalog/presentation/pages/training-assignment-form/training-assignment-form.page').then((m) => m.TrainingAssignmentFormPage),
+        data: { assignmentType: 'group', mode: 'edit', seo: { title: 'Reprogramar asignación grupal | SIGA', description: 'Modifica la fecha, responsable o estado de una asignación grupal.' } },
+      },
+      {
+        path: 'programacion-entrenamiento/individual/nuevo',
+        loadComponent: () => import('./features/catalog/presentation/pages/training-assignment-form/training-assignment-form.page').then((m) => m.TrainingAssignmentFormPage),
+        data: { assignmentType: 'individual', seo: { title: 'Nueva asignación individual | SIGA', description: 'Programa una misión para un alumno o persona externa.' } },
+      },
+      {
+        path: 'programacion-entrenamiento/individual/:id/editar',
+        loadComponent: () => import('./features/catalog/presentation/pages/training-assignment-form/training-assignment-form.page').then((m) => m.TrainingAssignmentFormPage),
+        data: { assignmentType: 'individual', mode: 'edit', seo: { title: 'Reprogramar asignación individual | SIGA', description: 'Modifica la fecha, instructor o estado de una asignación individual.' } },
+      },
+      {
+        path: 'ejecucion-misiones',
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-execution-inbox/mission-execution-inbox.page').then((m) => m.MissionExecutionInboxPage),
+        data: { seo: { title: 'Ejecución y calificación de misiones | SIGA', description: 'Bandeja de misiones pendientes y calificación académica.' } },
+      },
+      {
+        path: 'ejecucion-misiones/:id',
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-workspace/mission-workspace.page').then((m) => m.MissionWorkspacePage),
+        data: { seo: { title: 'Workspace de misión | SIGA', description: 'Ejecuta, califica y cierra una misión.' } },
+      },
+      {
         path: 'programas/nuevo',
-        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/program-studio/program-studio.page').then((m) => m.ProgramStudioPage),
         data: {
           seo: {
             title: 'Nuevo programa | SIGA',
@@ -510,7 +565,7 @@ export const routes: Routes = [
       },
       {
         path: 'programas/:id/flujo',
-        loadComponent: () => import('./features/catalog/program-flow.page').then((m) => m.ProgramFlowPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/program-flow/program-flow.page').then((m) => m.ProgramFlowPage),
         data: {
           seo: {
             title: 'Flujo del programa | SIGA',
@@ -520,7 +575,7 @@ export const routes: Routes = [
       },
       {
         path: 'programas/:id/estandares',
-        loadComponent: () => import('./features/catalog/program-standards.page').then((m) => m.ProgramStandardsPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/program-standards/program-standards.page').then((m) => m.ProgramStandardsPage),
         data: {
           seo: {
             title: 'Asignar estándares | SIGA',
@@ -530,7 +585,7 @@ export const routes: Routes = [
       },
       {
         path: 'programas/:id/editar',
-        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/program-studio/program-studio.page').then((m) => m.ProgramStudioPage),
         data: {
           mode: 'edit',
           seo: {
@@ -541,7 +596,7 @@ export const routes: Routes = [
       },
       {
         path: 'programas/:id',
-        loadComponent: () => import('./features/catalog/program-studio.page').then((m) => m.ProgramStudioPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/program-studio/program-studio.page').then((m) => m.ProgramStudioPage),
         data: {
           mode: 'view',
           seo: {
@@ -552,7 +607,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-fases',
-        loadComponent: () => import('./features/catalog/academic-bank-list.page').then((m) => m.AcademicBankListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-list/academic-bank-list.page').then((m) => m.AcademicBankListPage),
         data: {
           bank: 'phase',
           seo: {
@@ -563,7 +618,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-fases/nuevo',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'phase',
           seo: { title: 'Nuevo banco de fase | SIGA', description: 'Alta de una fase en el banco maestro.' },
@@ -571,7 +626,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-fases/:id/editar',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'phase',
           mode: 'edit',
@@ -580,7 +635,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-fases/:id',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'phase',
           mode: 'view',
@@ -589,7 +644,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-subfases',
-        loadComponent: () => import('./features/catalog/academic-bank-list.page').then((m) => m.AcademicBankListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-list/academic-bank-list.page').then((m) => m.AcademicBankListPage),
         data: {
           bank: 'subphase',
           seo: {
@@ -600,7 +655,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-subfases/nuevo',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'subphase',
           seo: { title: 'Nuevo banco de subfase | SIGA', description: 'Alta de una subfase en el banco maestro.' },
@@ -608,7 +663,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-subfases/:id/editar',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'subphase',
           mode: 'edit',
@@ -620,7 +675,7 @@ export const routes: Routes = [
       },
       {
         path: 'banco-subfases/:id',
-        loadComponent: () => import('./features/catalog/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/academic-bank-form/academic-bank-form.page').then((m) => m.AcademicBankFormPage),
         data: {
           bank: 'subphase',
           mode: 'view',
@@ -632,42 +687,42 @@ export const routes: Routes = [
       },
       {
         path: 'flotas',
-        loadComponent: () => import('./features/catalog/fleets-list.page').then((m) => m.FleetsListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/fleets-list/fleets-list.page').then((m) => m.FleetsListPage),
         data: { seo: { title: 'Flotas | SIGA', description: 'Catálogo de flotas de material aéreo.' } },
       },
       {
         path: 'flotas/nuevo',
-        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/fleet-form/fleet-form.page').then((m) => m.FleetFormPage),
         data: { seo: { title: 'Nueva flota | SIGA', description: 'Alta de una flota.' } },
       },
       {
         path: 'flotas/:id/editar',
-        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/fleet-form/fleet-form.page').then((m) => m.FleetFormPage),
         data: { mode: 'edit', seo: { title: 'Editar flota | SIGA', description: 'Tipo, código, nombre, descripción y estado de la flota.' } },
       },
       {
         path: 'flotas/:id',
-        loadComponent: () => import('./features/catalog/fleet-form.page').then((m) => m.FleetFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/fleet-form/fleet-form.page').then((m) => m.FleetFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de flota | SIGA', description: 'Consulta la flota, sin modificar.' } },
       },
       {
         path: 'aeronaves',
-        loadComponent: () => import('./features/catalog/aircraft-list.page').then((m) => m.AircraftListPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/aircraft-list/aircraft-list.page').then((m) => m.AircraftListPage),
         data: { seo: { title: 'Aeronaves | SIGA', description: 'Registro de aeronaves con imagen, flota y unidad.' } },
       },
       {
         path: 'aeronaves/nuevo',
-        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/aircraft-form/aircraft-form.page').then((m) => m.AircraftFormPage),
         data: { seo: { title: 'Nueva aeronave | SIGA', description: 'Alta de una aeronave.' } },
       },
       {
         path: 'aeronaves/:id/editar',
-        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/aircraft-form/aircraft-form.page').then((m) => m.AircraftFormPage),
         data: { mode: 'edit', seo: { title: 'Editar aeronave | SIGA', description: 'Unidad, flota, matrícula, operativa y estado.' } },
       },
       {
         path: 'aeronaves/:id',
-        loadComponent: () => import('./features/catalog/aircraft-form.page').then((m) => m.AircraftFormPage),
+        loadComponent: () => import('./features/catalog/presentation/pages/aircraft-form/aircraft-form.page').then((m) => m.AircraftFormPage),
         data: { mode: 'view', seo: { title: 'Detalle de aeronave | SIGA', description: 'Consulta la aeronave y su foto.' } },
       },
     ],

@@ -3,8 +3,12 @@ import { InvalidAdminCatalogError } from '../errors/domain-error';
 import { AUTO_MISSION_COUNT_MAX } from '../entities/admin-catalog';
 import {
   assertCatalogWrite,
+  assertProgramStandardMatrixWrite,
   assertPhaseBankWrite,
   assertSubphaseDraft,
+  catalogMissionKey,
+  curriculumMissionRefs,
+  customMissionKey,
   expandAutoMissions,
   assertProgramWrite,
   assertUserWrite,
@@ -78,6 +82,7 @@ describe('admin-catalog domain', () => {
     expect(result.description).toBe('');
     expect(result.imageUrl).toBe('/programs/ppl.jpg');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
+    expect(programTypeLabel('HELI')).toMatch(/helicóptero/i);
     expect(
       assertProgramWrite({
         code: 'ppl-af',
@@ -101,12 +106,107 @@ describe('admin-catalog domain', () => {
     expect(result.description).toBe('Travesía');
   });
 
+  it('conserva diagonales en los códigos académicos del programa de helicóptero', () => {
+    const result = assertPhaseBankWrite({
+      code: 'o/o',
+      name: 'Orden de operaciones',
+      description: '',
+      status: 'active',
+    });
+    expect(result.code).toBe('O/O');
+  });
+
   it('genera la serie automática C1 a C17 desde CER y 17', () => {
     const items = expandAutoMissions('CER', 17);
     expect(items[0]).toBe('C1');
     expect(items[1]).toBe('C2');
     expect(items[16]).toBe('C17');
     expect(items).toHaveLength(17);
+  });
+
+  it('crea claves estables para misiones de catálogo y propias', () => {
+    const missions = curriculumMissionRefs({
+      missionMode: 'manual',
+      missionTypeIds: ['mt-local'],
+      customMissionNames: ['Circuito corto'],
+      autoMissionCode: '',
+      autoMissionCount: 0,
+    });
+    expect(missions.map((mission) => mission.key)).toEqual([
+      catalogMissionKey('mt-local'),
+      customMissionKey('Circuito corto'),
+    ]);
+  });
+
+  it('normaliza y combina estándares y nivel DIRBE de una misma celda', () => {
+    const result = assertProgramStandardMatrixWrite({
+      subphases: [
+        {
+          subphaseId: 'sp-1',
+          assignments: [
+            {
+              missionKey: 'catalog:mt-local',
+              maneuverId: 'man-toff',
+              standardIds: ['std-1'],
+              dirbeLevel: 'D',
+            },
+          ],
+        },
+        {
+          subphaseId: 'sp-1',
+          assignments: [
+            {
+              missionKey: 'catalog:mt-local',
+              maneuverId: 'man-toff',
+              standardIds: ['std-1', 'std-2'],
+              dirbeLevel: 'R',
+            },
+          ],
+        },
+      ],
+    });
+    expect(result).toEqual({
+      subphases: [
+        {
+          subphaseId: 'sp-1',
+          assignments: [
+            {
+              missionKey: 'catalog:mt-local',
+              maneuverId: 'man-toff',
+              standardIds: ['std-1', 'std-2'],
+              dirbeLevel: 'R',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('conserva una celda que solo tiene nivel DIRBE', () => {
+    const result = assertProgramStandardMatrixWrite({
+      subphases: [
+        {
+          subphaseId: 'sp-1',
+          assignments: [
+            {
+              missionKey: 'custom:circuito-corto',
+              maneuverId: 'man-land',
+              standardIds: [],
+              dirbeLevel: 'B',
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.subphases[0].assignments).toEqual([
+      {
+        missionKey: 'custom:circuito-corto',
+        maneuverId: 'man-land',
+        standardIds: [],
+        dirbeLevel: 'B',
+      },
+    ]);
   });
 
   it('limita la serie automática a 20 misiones', () => {

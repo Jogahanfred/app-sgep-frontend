@@ -1,0 +1,60 @@
+<app-modal
+  [open]="open()"
+  title="Seleccionar estándares"
+  size="lg"
+  [roomy]="true"
+  (closed)="cancel()"
+>
+  <div class="spk">
+    <section class="spk__context" aria-label="Cruce que se está configurando">
+      <span>Maniobra por misión</span>
+      <h3>{{ contextTitle() }}</h3>
+      <p>{{ contextDetail() }}</p>
+    </section>
+
+    <ui-input
+      id="standard-picker-search"
+      label="Buscar en el catálogo"
+      type="search"
+      icon="search"
+      placeholder="Código, nombre o descripción"
+      [field]="search"
+    />
+
+    <div class="spk__bar">
+      <p>
+        <strong>{{ selectedCount() }}</strong>
+        {{ selectedCount() === 1 ? 'estándar seleccionado' : 'estándares seleccionados' }}
+      </p>
+      @if (selectedCount()) {
+        <button type="button" class="spk__clear" (click)="clear()">Limpiar selección</button>
+      }
+    </div>
+
+    <div class="spk__list" role="list" aria-label="Catálogo de estándares">
+      @for (standard of filteredStandards(); track standard.id) {
+        <article class="spk__option" [class.spk__option--selected]="isSelected(standard.id)" role="listitem">
+          <ui-checkbox
+            [id]="'standard-option-' + standard.id"
+            [label]="standard.code + ' · ' + standard.name"
+            [checked]="isSelected(standard.id)"
+            (checkedChange)="toggle(standard.id, $event)"
+          />
+          <p>{{ standard.description || 'Sin descripción.' }}</p>
+        </article>
+      } @empty {
+        <div class="spk__empty">
+          <strong>No encontramos estándares</strong>
+          <span>Prueba con otro código, nombre o descripción.</span>
+        </div>
+      }
+    </div>
+
+    <footer class="spk__actions">
+      <app-button variant="ghost" type="button" (click)="cancel()">Cancelar</app-button>
+      <app-button type="button" (click)="apply()">
+        Aplicar {{ selectedCount() ? '(' + selectedCount() + ')' : '' }}
+      </app-button>
+    </footer>
+  </div>
+</app-modal>

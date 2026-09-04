@@ -1,0 +1,149 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ListSpecialties, ListUserRoles, UpdateSpecialty, UpdateUserRole } from '@core/application';
+import { matchesAdminSearch, statusLabel } from '@core/domain/services/admin-catalog';
+import type { EntityStatus, SpecialtyEntity, UserRoleEntity } from '@core/domain/entities';
+import { Alert } from '@shared/components/alert/alert';
+import { Button } from '@shared/components/button/button';
+import { UiConfirmDialog } from '@shared/components/ui-confirm-dialog/ui-confirm-dialog';
+import { ToastService } from '@shared/components/ui-toast/toast.service';
+import { UiInput } from '@shared/components/ui-input/ui-input';
+import { UiSelect } from '@shared/components/ui-select/ui-select';
+import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components/ui-table/ui-table';
+import type { ChoiceOption } from '@shared/models/choice.model';
+import type { CatalogKind } from '../../shared/models/catalog.types';
+
+
+@Component({
+  selector: 'app-items-list-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Alert, Button, UiConfirmDialog, UiInput, UiSelect, UiTable],
+  templateUrl: './items-list.page.html',
+  styleUrl: './items-list.page.scss',
+})
+export class ItemsListPage {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly listRoles = inject(ListUserRoles);
+  private readonly listSpecialties = inject(ListSpecialties);
+  private readonly updateRole = inject(UpdateUserRole);
+  private readonly updateSpecialty = inject(UpdateSpecialty);
+  private readonly toast = inject(ToastService);
+
+  readonly kind = (this.route.snapshot.data['catalog'] as CatalogKind) ?? 'roles';
+  readonly isRoles = this.kind === 'roles';
+  readonly items = signal<(UserRoleEntity | SpecialtyEntity)[]>([]);
+  readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
+  readonly search = new FormControl('', { nonNullable: true });
+  readonly query = signal('');
+  readonly statusFilter = signal<'all' | EntityStatus>('all');
+  readonly selectedId = signal<string | null>(null);
+  readonly confirmOpen = signal(false);
+  readonly confirmName = signal('');
+  readonly confirmMessage = computed(
+    () =>
+      `¿Seguro que quieres dar de baja ${this.isRoles ? 'el rol' : 'la especialidad'} «${this.confirmName()}»?`,
+  );
+  readonly title = this.isRoles ? 'Roles de usuario' : 'Especialidades';
+  readonly lead = this.isRoles
+    ? 'Catálogo de roles: administrador, dirección académica, instrucción y alumnado.'
+    : 'Catálogo de especialidades que se pueden asignar a cada persona.';
+  readonly editBase = this.isRoles ? '/catalogo/roles' : '/catalogo/especialidades';
+  readonly createHref = `${this.editBase}/nuevo`;
+
+  readonly statusOptions: ChoiceOption[] = [
+    { value: 'all', label: 'Todos' },
+    { value: 'active', label: 'Activos' },
+    { value: 'inactive', label: 'Inactivos' },
+  ];
+
+  readonly columns: UiTableColumn[] = [
+    { id: 'name', header: this.isRoles ? 'Nombre del rol' : 'Nombre' },
+    { id: 'description', header: 'Descripción' },
+    { id: 'status', header: 'Estado' },
+  ];
+
+  readonly filtered = computed(() => {
+    const needle = this.query();
+    const status = this.statusFilter();
+    return this.items().filter((item) => {
+      if (status !== 'all' && item.status !== status) return false;
+      return matchesAdminSearch([item.name, item.description], needle);
+    });
+  });
+
+  readonly tableRows = computed<UiTableRow[]>(() =>
+    this.filtered().map((item) => ({
+      id: item.id,
+      cells: {
+        name: item.name,
+        description: item.description || '—',
+        status: { text: statusLabel(item.status), badge: item.status },
+      },
+    })),
+  );
+
+  constructor() {
+    this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.query.set(value);
+      this.selectedId.set(null);
+    });
+    this.reload();
+  }
+
+  goDetail(): void {
+    const id = this.selectedId();
+    if (id) void this.router.navigate([this.editBase, id]);
+  }
+
+  goEdit(): void {
+    const id = this.selectedId();
+    if (id) void this.router.navigate([this.editBase, id, 'editar']);
+  }
+
+  askDeactivate(): void {
+    const item = this.items().find((entry) => entry.id === this.selectedId());
+    if (!item) return;
+    this.confirmName.set(item.name);
+    this.confirmOpen.set(true);
+  }
+
+  closeConfirm(): void {
+    this.confirmOpen.set(false);
+  }
+
+  confirmDeactivate(): void {
+    this.confirmOpen.set(false);
+    this.deactivateSelected();
+  }
+
+  private deactivateSelected(): void {
+    const item = this.items().find((entry) => entry.id === this.selectedId());
+    if (!item) return;
+    const stream = this.isRoles
+      ? this.updateRole.execute(item.id, { name: item.name, description: item.description, status: 'inactive' })
+      : this.updateSpecialty.execute(item.id, { name: item.name, description: item.description, status: 'inactive' });
+    stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.toast.success('Baja realizada', 'El registro ha pasado a baja.');
+        this.selectedId.set(null);
+        this.reload();
+      },
+      error: () => this.toast.error('No se pudo dar de baja', 'No hemos podido dar de baja el registro.'),
+    });
+  }
+
+  private reload(): void {
+    const stream = this.isRoles ? this.listRoles.execute() : this.listSpecialties.execute();
+    stream.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (items) => {
+        this.items.set(items);
+        this.loadState.set('ready');
+      },
+      error: () => this.loadState.set('error'),
+    });
+  }
+}

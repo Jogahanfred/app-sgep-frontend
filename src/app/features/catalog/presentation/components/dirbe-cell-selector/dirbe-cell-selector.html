@@ -1,0 +1,16 @@
+<button
+  type="button"
+  class="dcs"
+  [class.dcs--d]="value() === 'D'"
+  [class.dcs--i]="value() === 'I'"
+  [class.dcs--r]="value() === 'R'"
+  [class.dcs--b]="value() === 'B'"
+  [class.dcs--e]="value() === 'E'"
+  [class.dcs--empty]="!value()"
+  [disabled]="disabled()"
+  [attr.aria-label]="ariaLabel()"
+  aria-haspopup="dialog"
+  (click)="requestEdit()"
+>
+  <span class="dcs__value" aria-hidden="true">{{ value() ?? '+' }}</span>
+</button>

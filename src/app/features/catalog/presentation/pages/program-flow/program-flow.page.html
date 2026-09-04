@@ -1,0 +1,237 @@
+<div class="ap flow">
+  <header class="ap__head flow__head">
+    <div class="flow__intro">
+      <h1 class="flow__title">{{ title() }}</h1>
+      <p class="ap__lead flow__lead">
+        Recorre las fases y subfases del programa hasta consultar la matriz de misiones y maniobras.
+      </p>
+    </div>
+    <div class="flow__head-actions">
+      @if (!tourOpen()) {
+        <app-button type="button" variant="secondary" size="sm" (click)="startTour()">
+          Recorrido guiado
+        </app-button>
+      }
+      <app-button [href]="listHref" variant="ghost" size="sm">Volver a la academia</app-button>
+    </div>
+  </header>
+
+  @if (loadState() === 'loading') {
+    <ui-loading
+      class="ap__loading"
+      title="Cargando el flujo"
+      subtitle="Preparando el itinerario del programa."
+      label="Cargando flujo"
+    />
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
+  } @else {
+    @if (phases().length === 0) {
+      <div class="flow__empty">
+        <p>Este programa aún no tiene fases. El flujo aparecerá cuando se diseñe el itinerario.</p>
+      </div>
+    } @else {
+      <section class="flow__shell" aria-label="Navegación del flujo del programa">
+        <div class="flow__toolbar">
+          <app-button
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon="chevron-left"
+            [disabled]="isFirst() || tourOpen()"
+            (click)="goBack()"
+          >
+            Atrás
+          </app-button>
+
+          <div class="flow__step" aria-live="polite">
+            <span>Recorrido del programa</span>
+            <strong>{{ stepLabel() }}</strong>
+          </div>
+
+          <app-button
+            type="button"
+            size="sm"
+            icon="chevron-right"
+            [disabled]="isLast() || tourOpen()"
+            (click)="goNext()"
+          >
+            Siguiente
+          </app-button>
+        </div>
+
+        <div class="flow__summary">
+          <span><strong>{{ phases().length }}</strong> {{ phases().length === 1 ? 'fase' : 'fases' }}</span>
+          <span>Selecciona una fase para ir directamente a su recorrido.</span>
+        </div>
+
+        <ol class="flow__time" aria-label="Fases del programa">
+          @for (phase of phases(); track phase.name; let i = $index) {
+            <li [class.flow__dot--on]="i === phaseIndex()" [class.flow__dot--done]="i < phaseIndex()">
+              <button
+                type="button"
+                [attr.aria-current]="i === phaseIndex() ? 'step' : null"
+                (click)="goTo(i)"
+              >
+                <span class="flow__time-num">{{ i + 1 }}</span>
+                <span class="flow__time-copy">
+                  <span class="flow__time-kicker">Fase {{ i + 1 }}</span>
+                  <strong class="flow__time-name">{{ phase.name }}</strong>
+                </span>
+              </button>
+            </li>
+          }
+        </ol>
+      </section>
+
+      @if (depth() === 'start') {
+        <article class="flow__phase flow__phase--start">
+          <header class="flow__section-head">
+            <div>
+              <p class="flow__tag">Itinerario del programa</p>
+              <h2>Recorrido académico</h2>
+              <p>
+                Avanza en orden para conocer cada fase, sus subfases y la matriz de misiones y maniobras.
+              </p>
+            </div>
+          </header>
+
+          <ol class="flow__preview">
+            @for (phase of phases(); track phase.name; let i = $index) {
+              <li>
+                <span class="flow__preview-index">{{ i + 1 }}</span>
+                <div class="flow__preview-copy">
+                  <strong>{{ phase.name }}</strong>
+                  <span>
+                    {{ phase.lessons.length }} {{ phase.lessons.length === 1 ? 'subfase' : 'subfases' }} ·
+                    {{ phase.hours }} h
+                  </span>
+                </div>
+              </li>
+            }
+          </ol>
+        </article>
+      } @else if (currentPhase(); as phase) {
+        <article class="flow__phase" data-tour="phase" [class.flow__on]="depth() === 'phase'">
+          @if (depth() === 'phase') {
+            <p class="flow__tag">FASE {{ phaseIndex() + 1 }}</p>
+          }
+
+          <div class="flow__who">
+            <span class="flow__num">{{ phaseIndex() + 1 }}</span>
+            <div>
+              <h2>{{ phase.name }}</h2>
+              <p>
+                {{ phase.lessons.length }} {{ phase.lessons.length === 1 ? 'subfase' : 'subfases' }} ·
+                {{ phase.hours }} h
+              </p>
+            </div>
+          </div>
+
+          @if (depth() === 'phase') {
+            <ol class="flow__lessons">
+              @for (lesson of phase.lessons; track lesson.name; let i = $index) {
+                <li class="flow__lesson flow__lesson--summary">
+                  <span class="flow__lesson-index">{{ i + 1 }}</span>
+                  <div class="flow__lesson-copy">
+                    <header>
+                      <h3>{{ lesson.name }}</h3>
+                      <span>{{ lesson.hours }} h</span>
+                    </header>
+                    <p class="flow__meta">{{ missionCountLabel(lesson.missions.length) }}</p>
+                  </div>
+                </li>
+              }
+            </ol>
+          } @else if (currentLesson(); as lesson) {
+            <article
+              class="flow__lesson flow__lesson--detail"
+              data-tour="lesson"
+              [class.flow__on]="depth() === 'lesson'"
+            >
+              @if (depth() === 'lesson') {
+                <p class="flow__tag">SUBFASE {{ lessonIndex() + 1 }}</p>
+              }
+              <header>
+                <h3>{{ lesson.name }}</h3>
+                <span>{{ lesson.hours }} h</span>
+              </header>
+              <p class="flow__meta">{{ missionCountLabel(lesson.missions.length) }}</p>
+
+              @if (depth() === 'matrix') {
+                <div class="flow__grid" data-tour="matrix">
+                  @if (!lesson.missions.length && !lesson.maneuvers.length) {
+                    <p class="flow__hint">Esta subfase no tiene misiones ni maniobras.</p>
+                  } @else {
+                    <table>
+                      <caption>Misiones</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col" class="flow__corner">Maniobras</th>
+                          @for (mission of lesson.missions; track mission.name) {
+                            <th scope="col">{{ mission.name }}</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (maneuver of lesson.maneuvers; track maneuver) {
+                          <tr>
+                            <th scope="row">{{ maneuver }}</th>
+                            @for (mission of lesson.missions; track mission.name) {
+                              <td><span class="flow__mark">X</span></td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  }
+                </div>
+              } @else if (lesson.missions.length || lesson.maneuvers.length) {
+                <p class="flow__hint">
+                  Siguiente abre la matriz: misiones arriba, maniobras a la izquierda y X en los cruces.
+                </p>
+              } @else {
+                <p class="flow__hint">
+                  Esta subfase no tiene misiones ni maniobras. Siguiente abre su matriz vacía.
+                </p>
+              }
+            </article>
+          }
+
+          @if (isLast()) {
+            <p class="flow__end">Fin del programa</p>
+          }
+        </article>
+      }
+    }
+  }
+</div>
+
+<app-modal [open]="tourIntro()" [roomy]="true" title="Recorrido del programa" (closed)="tourNext()">
+  <p class="flow__sheet">
+    En este recorrido conocerás cómo está organizado el programa y cómo avanzar por sus diferentes niveles de
+    entrenamiento.
+  </p>
+  <div class="flow__tools">
+    <app-button type="button" (click)="tourNext()">Comenzar</app-button>
+  </div>
+</app-modal>
+
+<app-modal [open]="tourFinish()" [roomy]="true" title="Ya conoces la estructura" (closed)="finishTour()">
+  <p class="flow__sheet">
+    El programa se organiza así: Programa → Fase → Subfase → Matriz de misiones y maniobras. Ya puedes recorrer el
+    itinerario por tu cuenta.
+  </p>
+  <div class="flow__tools">
+    <app-button type="button" (click)="finishTour()">Finalizar</app-button>
+  </div>
+</app-modal>
+
+<ui-guided-tour
+  [open]="tourCoach()"
+  [step]="tourStep()"
+  [isFirst]="false"
+  [isLast]="tourOnMatrix()"
+  (next)="tourNext()"
+  (prev)="tourPrev()"
+/>

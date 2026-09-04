@@ -1,0 +1,92 @@
+<div
+  class="psm"
+  [class.psm--expanded]="mode() === 'expanded'"
+  [style.--psm-axis-translate]="activeColumnTranslate()"
+>
+  <div
+    class="psm__scroll"
+    tabindex="0"
+    [attr.aria-label]="'Matriz de calificación de ' + subphase().label"
+  >
+    <table
+      class="psm__matrix saw__matrix"
+      (pointerleave)="clearAxis()"
+      (pointercancel)="clearAxis()"
+      (focusout)="clearAxisWhenFocusLeaves($event)"
+    >
+      <thead>
+        <tr>
+          <th class="psm__number-head" scope="col">N.º</th>
+          <th class="psm__maneuver-head" scope="col">Maniobras</th>
+          @for (mission of subphase().missions; track mission.key; let missionIndex = $index) {
+            <th
+              class="psm__mission-head"
+              scope="col"
+              [class.psm__mission-head--axis]="activeColumnIndex() === missionIndex"
+            >
+              <span class="psm__mission-type">{{ mission.typeCode }}</span>
+              <strong>{{ mission.code }}</strong>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (group of maneuverGroups(); track group.id) {
+          <tr
+            class="psm__group-row"
+            [class.psm__group-row--axis]="
+              activeColumnIndex() >= 0 && group.firstRowIndex <= activeRowIndex()
+            "
+          >
+            <th [attr.colspan]="subphase().missions.length + 2" scope="rowgroup">
+              <span class="psm__group-title">{{ group.label }}</span>
+            </th>
+          </tr>
+          @for (maneuver of group.rows; track maneuver.id) {
+            <tr class="psm__maneuver-row">
+              <td
+                class="psm__number-cell"
+                [class.psm__number-cell--axis]="activeRowIndex() === maneuver.rowNumber - 1"
+              >
+                {{ maneuver.rowNumber }}
+              </td>
+              <th
+                class="psm__maneuver-cell"
+                scope="row"
+                [class.psm__maneuver-cell--axis]="activeRowIndex() === maneuver.rowNumber - 1"
+              >
+                <strong>{{ maneuver.name }}</strong>
+              </th>
+              @for (mission of subphase().missions; track mission.key; let missionIndex = $index) {
+                <td
+                  class="psm__level-cell"
+                  [class.psm__level-cell--row-axis]="
+                    activeRowIndex() === maneuver.rowNumber - 1 &&
+                    missionIndex <= activeColumnIndex()
+                  "
+                  [class.psm__level-cell--column-axis]="
+                    activeColumnIndex() === missionIndex &&
+                    maneuver.rowNumber - 1 <= activeRowIndex()
+                  "
+                  [class.psm__level-cell--target]="
+                    activeRowIndex() === maneuver.rowNumber - 1 &&
+                    activeColumnIndex() === missionIndex
+                  "
+                  (pointerenter)="activateAxis(maneuver.rowNumber - 1, missionIndex)"
+                  (focusin)="activateAxis(maneuver.rowNumber - 1, missionIndex)"
+                >
+                  <app-dirbe-cell-selector
+                    [value]="level(mission.key, maneuver.id)"
+                    [disabled]="disabled()"
+                    [label]="'Configurar calificación de ' + maneuver.name + ' en ' + mission.code"
+                    (editRequested)="selectCell(mission, maneuver)"
+                  />
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

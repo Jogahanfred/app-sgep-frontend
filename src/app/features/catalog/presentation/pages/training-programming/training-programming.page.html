@@ -1,0 +1,25 @@
+<div class="ap">
+  <div class="ap__head"><div><h1>Programación y asignación de misiones</h1><p class="ap__lead">Coordina cursos, misiones y seguimiento operativo desde una única vista.</p></div><app-button icon="plus" (click)="create()">Nueva asignación</app-button></div>
+  <div class="ap__tabs"><button type="button" [class.is-active]="tab() === 'group'" (click)="setTab('group')">Asignación grupal</button><button type="button" [class.is-active]="tab() === 'individual'" (click)="setTab('individual')">Asignación individual</button></div>
+  <div class="filters">
+    <ui-input id="training-search" label="Buscar" type="search" icon="search" placeholder="Promoción, alumno, programa o misión" [field]="search" />
+    <ui-select id="training-program" label="Programa" [uppercase]="false" [options]="programOptions()" [value]="programFilter()" (valueChange)="setFilter('program', $event)" />
+    @if (tab() === 'group') { <ui-select id="training-promotion" label="Promoción" [uppercase]="false" [options]="promotionOptions()" [value]="promotionFilter()" (valueChange)="setFilter('promotion', $event)" /> }
+    <ui-select id="training-instructor" label="Instructor" [uppercase]="false" [options]="instructorOptions()" [value]="instructorFilter()" (valueChange)="setFilter('instructor', $event)" />
+    <ui-select id="training-status" label="Estado" [uppercase]="false" [options]="statusOptions" [value]="statusFilter()" (valueChange)="setFilter('status', $event)" />
+  </div>
+  @if (tab() === 'group') {
+    <div class="assignment-grid">
+      @for (item of visibleGroups(); track item.id) {
+        <app-card class="assignment-card" [interactive]="true" [padded]="true"><div class="assignment-card__head"><div><span class="assignment-card__eyebrow">Asignación grupal</span><h2>{{ promotionName(item.promotionId) }}</h2></div><span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span></div><dl><div><dt>Programa</dt><dd>{{ programName(item.programId) }}</dd></div><div><dt>Instructor responsable</dt><dd>{{ userName(item.trainingLeadId) }}</dd></div><div><dt>Fecha programada</dt><dd>{{ formatDate(item.scheduledDate) }}</dd></div></dl><div class="assignment-card__actions">@if (pendingCount(item.id) > 0) { <app-button variant="secondary" size="sm" icon="user" (click)="updateParticipants(item.id)">Actualizar participantes ({{ pendingCount(item.id) }})</app-button> }<app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('group', item.id)">Ver detalle</app-button><app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('group', item.id)" ariaLabel="Cancelar programación"></app-button></div></app-card>
+      } @empty { <p class="empty-state">No hay asignaciones grupales con estos filtros.</p> }
+    </div>
+  } @else {
+    <div class="assignment-grid">
+      @for (item of visibleIndividuals(); track item.id) {
+        <app-card class="assignment-card" [interactive]="true" [padded]="true"><div class="assignment-card__head"><div><span class="assignment-card__eyebrow">{{ item.assignmentCase | uppercase }}</span><h2>{{ personName(item) }}</h2></div><span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span></div><dl><div><dt>Programa</dt><dd>{{ programName(item.programId) }}</dd></div><div><dt>Misión</dt><dd>{{ missionName(item.missionId) }}</dd></div><div><dt>Instructor</dt><dd>{{ userName(item.instructorId) }}</dd></div><div><dt>Fecha</dt><dd>{{ formatDate(item.date) }}</dd></div></dl><div class="assignment-card__actions"><app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('individual', item.id)">Ver detalle</app-button><app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('individual', item.id)" ariaLabel="Cancelar programación"></app-button></div></app-card>
+      } @empty { <p class="empty-state">No hay asignaciones individuales con estos filtros.</p> }
+    </div>
+  }
+  <ui-confirm-dialog title="Cancelar programación" message="La programación pasará a estado Cancelado y dejará de estar disponible para ejecución." confirmLabel="Cancelar programación" [open]="!!cancelTarget()" (closed)="closeCancel()" (confirmed)="confirmCancel()" />
+</div>

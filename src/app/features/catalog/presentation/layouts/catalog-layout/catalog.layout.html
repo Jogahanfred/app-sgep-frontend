@@ -1,0 +1,70 @@
+<app-container [wide]="true">
+  <div class="adm">
+    @if (domain() === 'ops') {
+      @if (showDomainNav()) {
+        <header class="adm__intro">
+          <h1 class="adm__kicker">Estructura operativa</h1>
+          <p class="adm__lead">Unidades, escuadrones y comisiones temporales. Aquí se configura dónde opera el personal.</p>
+        </header>
+        <nav class="adm__nav" aria-label="Estructura operativa">
+          <a routerLink="/catalogo/unidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Unidades</a>
+          <a routerLink="/catalogo/escuadrones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Escuadrones</a>
+          <a routerLink="/catalogo/comisiones-temporales" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Comisiones temporales</a>
+        </nav>
+      }
+    } @else if (domain() === 'air') {
+      @if (showDomainNav()) {
+        <header class="adm__intro">
+          <h1 class="adm__kicker">Gestión de material aéreo</h1>
+          <p class="adm__lead">Flotas y aeronaves. Aquí se registran las matrículas, su unidad y si están operativas.</p>
+        </header>
+        <nav class="adm__nav" aria-label="Gestión de material aéreo">
+          <a routerLink="/catalogo/flotas" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Flotas</a>
+          <a routerLink="/catalogo/aeronaves" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Aeronaves</a>
+        </nav>
+      }
+    } @else if (domain() === 'academic') {
+      @if (showDomainNav()) {
+        <header class="adm__intro">
+          <h1 class="adm__kicker">Formación académica</h1>
+          <p class="adm__lead">Programas y bancos de fases. El itinerario usa el banco; el banco se edita fuera del programa.</p>
+        </header>
+        <nav class="adm__nav" aria-label="Formación académica">
+          <a routerLink="/catalogo/programas" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Programas</a>
+          <a routerLink="/catalogo/banco-fases" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Banco de fases</a>
+          <a routerLink="/catalogo/banco-subfases" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Banco de subfases</a>
+          <a routerLink="/catalogo/promociones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Promociones</a>
+          <a routerLink="/catalogo/programacion-entrenamiento" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Programación de entrenamiento</a>
+        </nav>
+      }
+    } @else if (domain() === 'instruction') {
+      @if (showDomainNav()) {
+        <header class="adm__intro">
+          <h1 class="adm__kicker">Catálogos de instrucción</h1>
+          <p class="adm__lead">Operaciones, tipos de misión, maniobras, estándares y ponderaciones. Aquí se configuran los catálogos maestros.</p>
+        </header>
+        <nav class="adm__nav" aria-label="Catálogos de instrucción">
+          <a routerLink="/catalogo/operaciones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Operaciones</a>
+          <a routerLink="/catalogo/tipos-de-mision" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Tipo de misión</a>
+          <a routerLink="/catalogo/maniobras" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Maniobras</a>
+          <a routerLink="/catalogo/estandares" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Estándares</a>
+          <a routerLink="/catalogo/ponderaciones" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Ponderaciones</a>
+        </nav>
+      }
+    } @else {
+      @if (showDomainNav()) {
+        <header class="adm__intro">
+          <h1 class="adm__kicker">Catálogo</h1>
+          <p class="adm__lead">Personas, roles y especialidades. Tu ficha personal está en Mi perfil.</p>
+        </header>
+        <nav class="adm__nav" aria-label="Catálogo">
+          <a routerLink="/catalogo/usuarios" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Usuarios</a>
+          <a routerLink="/catalogo/roles" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Roles</a>
+          <a routerLink="/catalogo/especialidades" routerLinkActive="adm__link--on" [routerLinkActiveOptions]="{ exact: false }">Especialidades</a>
+        </nav>
+      }
+    }
+
+    <router-outlet />
+  </div>
+</app-container>

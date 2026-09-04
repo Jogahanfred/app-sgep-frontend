@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Descargar propuesta · La Galería 2026</title>
+  <style>
+    html, body { margin: 0; min-height: 100%; background: #050505; color: #f4f1ea; font-family: Georgia, serif; }
+    main { max-width: 36rem; margin: 0 auto; padding: 4rem 1.5rem; }
+    p.k { letter-spacing: 0.18em; text-transform: uppercase; color: #e8c14a; font-size: 0.75rem; }
+    h1 { font-size: 2rem; line-height: 1.1; }
+    a, button {
+      display: inline-block;
+      margin-top: 1.25rem;
+      margin-right: 0.75rem;
+      padding: 0.85rem 1.2rem;
+      border: 0;
+      background: #e8c14a;
+      color: #050505;
+      font: 700 0.8rem/1 sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    a.alt { background: transparent; color: #e8c14a; border: 1px solid #e8c14a; }
+    .ok { color: #e8c14a; min-height: 1.4em; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="k">SMILE Productions Perú · Confidencial</p>
+    <h1>La Galería Aniversario 2026</h1>
+    <p>Propuesta de evento actualizada. Pulsa el botón dorado para guardar el PDF en tu equipo.</p>
+    <button type="button" id="dl">Descargar PDF</button>
+    <a class="alt" href="/La-Galeria-Aniversario-2026.pdf" download="La-Galeria-Aniversario-2026.pdf">Enlace directo</a>
+    <p class="ok" id="status"></p>
+  </main>
+  <script>
+    const status = document.getElementById("status");
+    async function downloadPdf() {
+      status.textContent = "Preparando descarga…";
+      const response = await fetch("/La-Galeria-Aniversario-2026.pdf", { cache: "no-store" });
+      if (!response.ok) throw new Error("No se pudo leer el archivo");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "La-Galeria-Aniversario-2026.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      status.textContent = "Si no se abrió el cuadro de guardado, usa el enlace directo.";
+    }
+    document.getElementById("dl").addEventListener("click", function () {
+      downloadPdf().catch(function () {
+        status.textContent = "Fallo el botón. Prueba el enlace directo.";
+        location.href = "/La-Galeria-Aniversario-2026.pdf";
+      });
+    });
+  </script>
+</body>
+</html>
