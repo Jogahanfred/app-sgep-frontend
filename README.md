@@ -1,62 +1,46 @@
-# Helvia Banca
+# APP-SGEP-FRONTEND
 
-Landing bancaria de particulares construida con **Angular 22**, TypeScript, SCSS y **arquitectura hexagonal** (puertos y adaptadores).
+Frontend del **Sistema de Gestión y Evaluación de Pilotos (SGEP)** construido con Angular 22, TypeScript, SCSS y arquitectura hexagonal (puertos y adaptadores).
 
-Helvia es una marca ficticia. El diseño se inspira en las convenciones de las webs de banca retail (jerarquía, navegación, cards, simulador, FAQ), no en la identidad visual ni en los contenidos de ninguna entidad real.
+SGEP es una plataforma orientada a la gestión, formación, evaluación y seguimiento de pilotos y personal relacionado con las operaciones de instrucción.
 
 ## Requisitos
 
-- Node.js **≥ 22.22.3** (ver `.nvmrc`)
-- npm 10+
+Node.js ≥ 22.22.3 (ver .nvmrc)  
+npm 10+
 
 ## Instalar
 
 ```bash
 npm install
-```
 
-## Ejecutar
-
-```bash
+Ejecutar
 npm start
-```
 
-La aplicación queda en [http://localhost:43141](http://localhost:43141).
+La aplicación queda en http://localhost:43141.
 
-Para un enlace público (túnel), primero `npm run build` y luego `npm run start:public`. Eso sirve el build estático en el puerto 43142, sin Vite, para que los clics y las rutas funcionen detrás de Cloudflare.
+Para un enlace público (túnel), primero npm run build y luego npm run start:public. Eso sirve el build estático en el puerto 43142, sin Vite, para que los clics y las rutas funcionen detrás de Cloudflare.
 
-## Tests
-
-```bash
+Tests
 npm test
-```
 
 En CI, sin watch:
 
-```bash
 npm run test:ci
-```
 
-## Lint y formato
-
-```bash
+Lint y formato
 npm run lint
+
 npm run format
-```
 
-## Producción
-
-```bash
+Producción
 npm run build
-```
 
-La salida estática queda en `dist/app-sgep-frontend/browser`. Sirve como SPA (hay un `vercel.json` con rewrite a `index.html`).
+La salida estática queda en dist/app-sgep-frontend/browser. Sirve como SPA (hay un vercel.json con rewrite a index.html).
 
----
+Arquitectura
+El proyecto utiliza arquitectura hexagonal (Ports & Adapters), manteniendo separadas las reglas de negocio, los casos de uso, los contratos y las implementaciones de infraestructura.
 
-## Arquitectura
-
-```
 src/app/
 ├── core/
 │   ├── domain/          Entidades y reglas puras (sin Angular)
@@ -64,14 +48,11 @@ src/app/
 │   ├── ports/           Interfaces de repositorio
 │   ├── adapters/        Mock (activo) y HTTP (ejemplo)
 │   └── di/              Tokens y factories
-├── features/            Páginas (home, productos, perfil + administración)
+├── features/            Páginas y funcionalidades
 ├── shared/              Design system y utilidades
 └── layout/              Header, navegación, menú móvil, footer
-```
 
-### Dirección de dependencias
-
-```
+Dirección de dependencias
 PRESENTACIÓN (páginas / componentes)
         ↓
 APLICACIÓN (casos de uso)
@@ -79,170 +60,368 @@ APLICACIÓN (casos de uso)
 PUERTOS (interfaces)
         ↓
 ADAPTADORES (mock / HTTP)
-```
 
-El **dominio** no importa Angular, HTTP ni APIs del navegador.
+El dominio no importa Angular, HTTP ni APIs del navegador.
 
-Los componentes **nunca** inyectan un mock. Inyectan un caso de uso. El caso de uso recibe un puerto. El puerto se resuelve en `CORE_PROVIDERS` con un adaptador.
+Los componentes nunca inyectan un mock. Inyectan un caso de uso. El caso de uso recibe un puerto. El puerto se resuelve en CORE_PROVIDERS con un adaptador.
 
-```
-ProductCard / HomePage
+Ejemplo:
+
+Componente / Página
         ↓
-GetFeaturedProducts / GetHomeContent
+Caso de uso
         ↓
-ProductRepository (interface)
+Puerto (interface)
         ↓
-MockProductRepository
-```
+Adaptador (Mock / HTTP)
 
-### Casos de uso
+Casos de uso
+Caso de uso	Puerto
+GetCurrentUser	UserProfile
+UpdateUser*	UserProfile
+ChangeUserPassword	UserProfile
+GetAdminUser	AdminCatalog
+ListAdminUsers	AdminCatalog
+CreateAdminUser	AdminCatalog
+UpdateAdminUser	AdminCatalog
+ListUserRoles	AdminCatalog
+CreateUserRole	AdminCatalog
+UpdateUserRole	AdminCatalog
+ListSpecialties	AdminCatalog
+CreateSpecialty	AdminCatalog
+UpdateSpecialty	AdminCatalog
+ListUnits	UnitCatalog
+CreateUnit	UnitCatalog
+UpdateUnit	UnitCatalog
+ListSquadrons	SquadronCatalog
+CreateSquadron	SquadronCatalog
+ListTemporaryCommissions	TemporaryCommissionCatalog
+CreateTemporaryCommission	TemporaryCommissionCatalog
+UpdateTemporaryCommission	TemporaryCommissionCatalog
+ListOperations	OperationCatalog
+CreateOperation	OperationCatalog
+UpdateOperation	OperationCatalog
+ListMissionTypes	MissionTypeCatalog
+CreateMissionType	MissionTypeCatalog
+UpdateMissionType	MissionTypeCatalog
+ListManeuvers	ManeuverBankCatalog
+CreateManeuver	ManeuverBankCatalog
+UpdateManeuver	ManeuverBankCatalog
+ListStandards	StandardCatalog
+CreateStandard	StandardCatalog
+UpdateStandard	StandardCatalog
+ListStandardWeightings	StandardWeightingCatalog
+CreateStandardWeighting	StandardWeightingCatalog
+ListPrograms	ProgramCatalog
+CreateProgram	ProgramCatalog
+UpdateProgram	ProgramCatalog
+ListPhases	PhaseBankCatalog
+CreatePhase	PhaseBankCatalog
+UpdatePhase	PhaseBankCatalog
+ListSubphases	SubphaseBankCatalog
+CreateSubphase	SubphaseBankCatalog
+UpdateSubphase	SubphaseBankCatalog
+ListFleets	FleetCatalog
+CreateFleet	FleetCatalog
+UpdateFleet	FleetCatalog
+ListAircraft	AircraftCatalog
+CreateAircraft	AircraftCatalog
+UpdateAircraft	AircraftCatalog
 
-| Caso de uso | Puerto |
-|---|---|
-| `GetHomeContent` | Product, Promotion, Faq |
-| `GetFeaturedProducts` | Product |
-| `GetProductsByNeed` | Product |
-| `GetPromotions` | Promotion |
-| `GetAccounts` | Account |
-| `GetCards` | Card |
-| `GetLoans` / `GetMortgages` | Loan |
-| `GetInvestmentProducts` | Investment |
-| `GetFaqs` / `GetHelpTopics` | Faq |
-| `CalculateLoanInstallment` | Dominio (`calculateFrenchAmortization`) |
-| `CalculateMortgageInstallment` | Dominio (`calculateMortgageAmortization`) |
-| `GetCurrentUser` / `UpdateUser*` / `ChangeUserPassword` | UserProfile |
-| `GetAdminUser` / `ListAdminUsers` / `CreateAdminUser` / `UpdateAdminUser` | AdminCatalog (`UserEntity`) |
-| `ListUserRoles` / `CreateUserRole` / `UpdateUserRole` | AdminCatalog (`UserRoleEntity`) |
-| `ListSpecialties` / `CreateSpecialty` / `UpdateSpecialty` | AdminCatalog (`SpecialtyEntity`, `SpecialtyUserEntity`) |
+Los casos de uso son clases TypeScript planas. Angular solo aparece en core/di para registrar factories y resolver las dependencias.
 
-Los casos de uso son clases TypeScript planas. Angular solo aparece en `core/di` para registrar factories.
+Cómo reemplazar mocks por una API real
+Los adaptadores Mock permiten trabajar con datos locales mientras no exista una API real.
 
----
+Para reemplazar un Mock por una API real, implementa el puerto correspondiente en src/app/core/adapters/http/.
 
-## Cómo reemplazar mocks por una API real
+Ejemplo:
 
-1. Implementa el puerto (ya existe un esqueleto):
+export class HttpUserRepository implements UserRepository {
+  constructor(
+    private readonly http: HttpClient,
+    private readonly baseUrl = '/api'
+  ) {}
 
-```ts
-// src/app/core/adapters/http/http-product.repository.ts
-export class HttpProductRepository implements ProductRepository {
-  constructor(private readonly http: HttpClient, private readonly baseUrl = '/api') {}
-  getFeaturedProducts() {
-    return this.http.get<Product[]>(`${this.baseUrl}/products/featured`);
+  getCurrentUser() {
+    return this.http.get<UserEntity>(
+      `${this.baseUrl}/users/me`
+    );
   }
-  // ...
 }
-```
 
-2. En `src/app/core/di/providers.ts` cambia solo el `provide` del puerto:
+En src/app/core/di/providers.ts cambia solo el provide del puerto:
 
-```ts
-{ provide: PRODUCT_REPOSITORY, useClass: HttpProductRepository }
-```
+{
+  provide: USER_REPOSITORY,
+  useClass: HttpUserRepository
+}
 
-3. Añade `provideHttpClient()` en `app.config.ts`.
+Añade provideHttpClient() en app.config.ts.
 
-La home, las páginas de producto y los casos de uso **no se tocan**.
+Las páginas y los casos de uso no deberían depender directamente de la implementación HTTP.
 
----
+Cómo crear un catálogo nuevo
+Añádelo al adaptador Mock correspondiente en src/app/core/adapters/mock/ o al endpoint cuando exista una API real.
 
-## Cómo crear un producto nuevo
+Respeta el contrato de la entidad correspondiente y utiliza los mappers definidos en application/mappers cuando sea necesario.
 
-1. Añádelo al catálogo del adaptador (`src/app/core/adapters/mock/catalog.data.ts`) o al endpoint cuando exista API.
-2. Respeta el contrato de `Product` (o de `Account`, `Loan`, etc. y usa el mapper en `application/mappers`).
-3. `ProductSection` / `ProductCatalog` / `ProductCard` recogen el ítem sin cambios en el padre.
+La capa de presentación debe consumir casos de uso y contratos, evitando dependencias directas con los adaptadores.
 
-No hace falta editar `HomePage` para listar un préstamo o un fondo nuevo.
+Cómo crear un componente reutilizable
+Colócalo en src/app/shared/components/ui-<nombre>/ si es un control de UI reutilizable.
 
----
+Selector:
 
-## Cómo crear un componente reutilizable
+ui-<nombre>
 
-1. Colócalo en `src/app/shared/components/ui-<nombre>/` si es un control de UI reutilizable.
-2. Selector `ui-<nombre>`, standalone, `OnPush`, `input()` / `output()`.
-3. Usa las variables de `src/styles/_tokens.scss` (`--color-primary`, `--spacing-md`, `--radius-lg`…).
-4. Cubre estados: default, hover, focus, disabled, loading, error o empty si aplica.
-5. Si es un patrón de negocio (no UI tonta), el componente **pinta**; el caso de uso **decide**.
+Los componentes deben ser standalone, utilizar OnPush cuando corresponda y trabajar con input() / output().
 
-Ejemplo de la calculadora: `LoanCalculator` solo valida el formulario y llama a `CalculateLoanInstallment`. La fórmula francesa vive en `core/domain/services/loan-calculator.ts`.
+Usa las variables definidas en:
 
----
+src/styles/_tokens.scss
 
-## Rutas
+Ejemplos:
 
-| Ruta | Página |
-|---|---|
-| `/` | Home |
-| `/cuentas` | Cuentas |
-| `/tarjetas` | Tarjetas |
-| `/prestamos` | Préstamos + simulador |
-| `/hipotecas` | Hipotecas |
-| `/inversion` | Inversión |
-| `/hazte-cliente` | Alta (formulario demo) |
-| `/perfil` | Mi perfil (solo con sesión) |
-| `/perfil/usuario` | Ficha de acceso de la persona logueada |
-| `/perfil/roles` | Roles asignados a esa persona |
-| `/perfil/especialidades` | Especialidades asignadas a esa persona |
-El header incluye **Configuración**, con el mega-menú en cinco columnas: **Catálogos**, **Instrucción**, **Formación académica** (Programas, Banco de fases y Banco de subfases), **Estructura operativa** y **Material aéreo**. Instrucción y Formación académica no son pestañas de primer nivel.
+--color-primary
+--spacing-md
+--radius-lg
 
-| `/catalogo/usuarios` | Catálogo de personas (listado y pantallas de alta/edición) |
-| `/catalogo/roles` | Catálogo de roles (`UserRoleEntity`) |
-| `/catalogo/especialidades` | Catálogo de especialidades (`SpecialtyEntity`) |
-| `/catalogo/unidades` | Unidades donde opera el personal (`UnitEntity`) |
-| `/catalogo/escuadrones` | Escuadrones ligados a una unidad (`SquadronEntity`) |
-| `/catalogo/comisiones-temporales` | Comisiones temporales (`TemporaryCommissionEntity`) con timeline Registrado → Aprobado → Activo → Finalizado |
-| `/catalogo/operaciones` | Operaciones de instrucción (`OperationEntity`) |
-| `/catalogo/tipos-de-mision` | Tipos de misión (`MissionTypeEntity`) |
-| `/catalogo/maniobras` | Banco de maniobras (`ManeuverBankEntity`) |
-| `/catalogo/estandares` | Estándares (`StandardEntity`) |
-| `/catalogo/ponderaciones` | Ponderaciones (`StandardWeightingEntity`) |
-| `/catalogo/programas` | Formación académica: tablero de programas (`ProgramEntity`) con itinerario de fases y subfases |
-| `/catalogo/programas/:id/flujo` | Recorre el programa fase → subfase → matriz (misiones en X, maniobras en Y, X en los cruces) |
-| `/catalogo/banco-fases` | Banco maestro de fases (`PhaseBankEntity`). Se edita fuera del programa |
-| `/catalogo/banco-subfases` | Banco maestro de subfases (`SubphaseBankEntity`). Se edita fuera del programa |
-| `/catalogo/flotas` | Flotas (`FleetEntity`) |
-| `/catalogo/aeronaves` | Aeronaves (`AircraftEntity`) con foto, matrícula, flota, unidad y operativa |
+Cubre los estados que correspondan:
 
-Las features se cargan con **lazy loading** (`loadComponent`).
+default
+hover
+focus
+disabled
+loading
+error
+empty
 
----
+Si es un patrón de negocio y no un componente de UI genérico, el componente pinta y el caso de uso decide.
 
-## Design system
+Rutas
+Ruta	Página
+/	Inicio
+/perfil	Mi perfil
+/perfil/usuario	Ficha de acceso de la persona logueada
+/perfil/roles	Roles asignados a la persona
+/perfil/especialidades	Especialidades asignadas a la persona
+/catalogo/usuarios	Catálogo de personas
+/catalogo/roles	Catálogo de roles
+/catalogo/especialidades	Catálogo de especialidades
+/catalogo/unidades	Unidades donde opera el personal
+/catalogo/escuadrones	Escuadrones ligados a una unidad
+/catalogo/comisiones-temporales	Comisiones temporales
+/catalogo/operaciones	Operaciones de instrucción
+/catalogo/tipos-de-mision	Tipos de misión
+/catalogo/maniobras	Banco de maniobras
+/catalogo/estandares	Estándares
+/catalogo/ponderaciones	Ponderaciones
+/catalogo/programas	Programas de formación
+/catalogo/programas/:id/flujo	Flujo de fases, subfases y matriz
+/catalogo/banco-fases	Banco maestro de fases
+/catalogo/banco-subfases	Banco maestro de subfases
+/catalogo/flotas	Flotas
+/catalogo/aeronaves	Aeronaves
 
-Identidad propia: blanco limpio y azul de cielo (`#1e8ae6`) como color primario. Tipografía Manrope.
+Las features se cargan con lazy loading mediante loadComponent.
 
-Tokens en `src/styles/_tokens.scss`. Breakpoints: 480 / 768 / 1024 / 1280.
+Administración
+El header incluye Configuración, con un mega-menú organizado en cinco áreas:
 
-Componentes de layout: `Button`, `Card`, `ProductCard`, `PromotionCard`, `HeroBanner`, `Section`, `Container`, `Grid`, `Badge`, `Icon`, `Accordion`, `Tabs`, `Modal`, `Breadcrumb`, `Alert`, `Skeleton`.
+Catálogos
+Instrucción
+Formación académica
+Estructura operativa
+Material aéreo
+Instrucción y Formación académica no son pestañas de primer nivel.
 
-Controles de formulario en `src/app/shared/components/ui-*` (selector `ui-xxxxx`):
+Formación académica
+La gestión de programas permite definir itinerarios compuestos por fases y subfases.
 
-`ui-radio-card-group`, `ui-stepper-input`, `ui-range-slider`, `ui-amount-field`, `ui-segmented-control`, `ui-toggle`, `ui-select`, `ui-table`, `ui-checkbox`, `ui-input`, `ui-textarea`, `ui-date-picker`, `ui-error`, `ui-info`, `ui-field-label`, `ui-result-card`, `ui-help`, `ui-steps`, `ui-form-card`, `ui-calc-panel`, `ui-avatar`, `ui-siga-loader`, `ui-loading`.
+Programa
+   ↓
+Fase
+   ↓
+Subfase
+   ↓
+Matriz
 
-Barrel: `src/app/shared/components/ui/index.ts`.
+El flujo del programa permite recorrer la estructura de formación y configurar los elementos asociados a cada fase y subfase.
 
----
+La matriz relaciona misiones y maniobras:
 
-## Árbol de la home
+                 MISIONES
+             M1    M2    M3
+           ┌────┬────┬────┐
+MANIOBRA 1 │ X  │    │ X  │
+           ├────┼────┼────┤
+MANIOBRA 2 │    │ X  │    │
+           ├────┼────┼────┤
+MANIOBRA 3 │ X  │ X  │    │
+           └────┴────┴────┘
 
-```
-HomePage
- ├── HeroBanner
- ├── Carga SIGA (ui-loading del icono)
- ├── NeedSelectorSection → Tabs + ProductCard
- ├── ProductSection (destacados)
- ├── PromotionSection → PromotionCard
- ├── ProductSection (financiación)
- ├── LoanCalculator
- ├── ProductSection (inversión)
- ├── HelpSection
- └── FaqSection → Accordion
-```
+Estructura operativa
+El sistema contempla la gestión de:
 
----
+Unidades
+Escuadrones
+Operaciones
+Tipos de misión
+Comisiones temporales
+Las comisiones temporales utilizan un flujo de estados:
 
-## Tests mínimos
+Registrado
+    ↓
+Aprobado
+    ↓
+Activo
+    ↓
+Finalizado
 
-- Dominio: `loan-calculator.spec.ts`, `user-profile.spec.ts`, `admin-catalog.spec.ts`
-- Aplicación: `calculate-loan-installment`, `get-featured-products`, `get-home-content`, `update-user-contact`, `change-user-password`, `create-admin-user`, `create-user-role`
-- UI: `ProductCard`, `PromotionCard`, `Header`, `LoanCalculator`, `Accordion`, `ProfilePage`, `MyUserPage`, `UsersListPage`, `UiTable`
+Material aéreo
+El sistema contempla la gestión de:
+
+Flotas
+Aeronaves
+Matrículas
+Unidades
+Operativa
+Las aeronaves pueden asociarse a una flota y unidad, además de disponer de información visual y operativa.
+
+Design system
+Identidad visual propia basada en una interfaz limpia y corporativa.
+
+Tipografía: Manrope.
+
+Tokens en:
+
+src/styles/_tokens.scss
+
+Breakpoints:
+
+480 / 768 / 1024 / 1280
+
+Componentes de layout:
+
+Button
+Card
+HeroBanner
+Section
+Container
+Grid
+Badge
+Icon
+Accordion
+Tabs
+Modal
+Breadcrumb
+Alert
+Skeleton
+
+Controles de formulario en src/app/shared/components/ui-*:
+
+ui-radio-card-group
+ui-stepper-input
+ui-range-slider
+ui-amount-field
+ui-segmented-control
+ui-toggle
+ui-select
+ui-table
+ui-checkbox
+ui-input
+ui-textarea
+ui-date-picker
+ui-error
+ui-info
+ui-field-label
+ui-result-card
+ui-help
+ui-steps
+ui-form-card
+ui-calc-panel
+ui-avatar
+ui-siga-loader
+ui-loading
+
+Barrel:
+
+src/app/shared/components/ui/index.ts
+
+Árbol de la aplicación
+App
+ ├── Layout
+ │   ├── Header
+ │   ├── Navegación
+ │   ├── Menú móvil
+ │   └── Footer
+ │
+ ├── Perfil
+ │   ├── Usuario
+ │   ├── Roles
+ │   └── Especialidades
+ │
+ └── Administración
+     ├── Catálogos
+     │   ├── Usuarios
+     │   ├── Roles
+     │   ├── Especialidades
+     │   ├── Unidades
+     │   ├── Escuadrones
+     │   ├── Comisiones temporales
+     │   ├── Operaciones
+     │   ├── Tipos de misión
+     │   ├── Maniobras
+     │   ├── Estándares
+     │   ├── Ponderaciones
+     │   ├── Flotas
+     │   └── Aeronaves
+     │
+     ├── Formación académica
+     │   ├── Programas
+     │   ├── Fases
+     │   ├── Subfases
+     │   └── Matriz
+     │
+     └── Instrucción
+
+Tests mínimos
+Dominio
+user-profile.spec.ts
+admin-catalog.spec.ts
+
+Aplicación
+get-current-user
+update-user-contact
+change-user-password
+create-admin-user
+create-user-role
+create-specialty
+
+UI
+Header
+ProfilePage
+MyUserPage
+UsersListPage
+UiTable
+Accordion
+
+Convenciones
+El proyecto sigue una separación clara de responsabilidades entre:
+
+Presentación
+Aplicación
+Dominio
+Puertos
+Adaptadores
+Las reglas de negocio deben permanecer en el dominio o en los casos de uso correspondientes.
+
+Los componentes de presentación no deben acceder directamente a repositorios, HTTP ni adaptadores concretos.
+
+About
+SGEP — Sistema de Gestión y Evaluación de Pilotos
+
+Frontend de la plataforma para la gestión, formación, evaluación y seguimiento de pilotos.
+
+El proyecto utiliza arquitectura hexagonal para mantener desacopladas las reglas de negocio, los casos de uso, las interfaces de infraestructura y la capa de presentación.
