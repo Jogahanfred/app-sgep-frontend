@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import type { NavGroup } from '@shared/models/nav.model';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
 import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
-import { UiInput } from '@shared/components/ui-input/ui-input';
-import { Modal } from '@shared/components/modal/modal';
+import { LOGIN_DEFAULT_NEXT_URL } from '../login-screen/login-screen.constants';
+import { LoginScreen } from '../login-screen/login-screen';
 import { MAIN_NAV } from '../navigation/data/nav.data';
 import { MegaMenu } from '../navigation/mega-menu/mega-menu';
 import { NavigationMenu } from '../navigation/navigation-menu/navigation-menu';
@@ -19,7 +18,7 @@ import { ScrollChrome } from '../scroll-chrome.service';
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, Modal, UiInput, ReactiveFormsModule, Icon, UiAvatar],
+  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, LoginScreen, Icon, UiAvatar],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -33,15 +32,9 @@ export class Header {
   readonly hidden = signal(false);
   readonly mobileOpen = signal(false);
   readonly loginOpen = signal(false);
-  readonly loginMessage = signal<string | null>(null);
   readonly megaLabel = signal<string | null>(null);
   readonly userMenuOpen = signal(false);
-  private pendingNext = '/perfil';
-
-  readonly loginForm = new FormGroup({
-    user: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] }),
-    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
-  });
+  readonly pendingNext = signal(LOGIN_DEFAULT_NEXT_URL);
 
   constructor() {
     let lastY = window.scrollY;
@@ -145,7 +138,6 @@ export class Header {
 
   openLogin(): void {
     this.closeMega();
-    this.loginMessage.set(null);
     this.loginOpen.set(true);
   }
 
@@ -153,17 +145,9 @@ export class Header {
     this.loginOpen.set(false);
   }
 
-  submitLogin(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-    this.session.signIn('Elena');
-    this.loginForm.reset();
+  onSignedIn(): void {
+    this.pendingNext.set(LOGIN_DEFAULT_NEXT_URL);
     this.closeLogin();
-    const next = this.pendingNext || '/perfil';
-    this.pendingNext = '/perfil';
-    void this.router.navigateByUrl(next);
   }
 
   private openLoginIfNeeded(): void {
@@ -171,7 +155,7 @@ export class Header {
     const tree = this.router.parseUrl(this.router.url);
     const next = tree.queryParams['next'];
     if (!next || this.loginOpen()) return;
-    this.pendingNext = next;
+    this.pendingNext.set(next);
     this.openLogin();
   }
 
@@ -180,17 +164,5 @@ export class Header {
     this.closeMega();
     this.closeUserMenu();
     void this.router.navigate(['/']);
-  }
-
-  userError(): string | undefined {
-    const control = this.loginForm.controls.user;
-    if (!control.touched || !control.invalid) return undefined;
-    return 'Introduce tu identificador (mínimo 4 caracteres).';
-  }
-
-  passwordError(): string | undefined {
-    const control = this.loginForm.controls.password;
-    if (!control.touched || !control.invalid) return undefined;
-    return 'La contraseña debe tener al menos 6 caracteres.';
   }
 }

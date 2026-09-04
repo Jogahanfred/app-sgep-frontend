@@ -44,6 +44,25 @@ describe('Header', () => {
     expect(root.textContent).toContain('Cerrar sesión');
   });
 
+  it('abre la pantalla de acceso institucional', async () => {
+    HTMLDialogElement.prototype.showModal ??= function showModal(this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close ??= function close(this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    };
+
+    const fixture = TestBed.createComponent(Header);
+    fixture.componentInstance.openLogin();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Iniciar sesión institucional');
+    expect(text).toContain('Ingresar al portal operacional');
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-login-screen')).toBeTruthy();
+  });
+
   it('abre el menú móvil', async () => {
     const fixture = TestBed.createComponent(Header);
     const component = fixture.componentInstance;

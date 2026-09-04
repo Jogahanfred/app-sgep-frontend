@@ -1,0 +1,119 @@
+<dialog
+  #dialog
+  class="login-screen"
+  (cancel)="onCancel($event)"
+  [attr.aria-label]="copy.dialogLabel"
+>
+  <div class="login-screen__frame">
+    <section class="login-screen__showcase" [attr.aria-label]="copy.mission">
+      <img class="login-screen__plate" [src]="showcaseImage" [alt]="copy.imageAlt" width="1408" height="768" />
+      <div class="login-screen__veil" aria-hidden="true"></div>
+      <svg class="login-screen__hud" viewBox="0 0 800 900" fill="none" aria-hidden="true" focusable="false">
+        <circle cx="400" cy="450" r="280" stroke="currentColor" stroke-dasharray="4 6" stroke-width="0.8" />
+        <circle cx="400" cy="450" r="190" stroke="currentColor" stroke-width="0.5" />
+        <line x1="120" x2="680" y1="450" y2="450" stroke="currentColor" stroke-dasharray="2 4" stroke-width="0.75" />
+        <line x1="400" x2="400" y1="180" y2="720" stroke="currentColor" stroke-dasharray="2 4" stroke-width="0.75" />
+        <path d="M370 410 L400 430 L430 410" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+      <div class="login-screen__showcase-top">
+        <p class="login-screen__live">
+          <span class="login-screen__pulse" aria-hidden="true"></span>
+          {{ copy.liveStatus }}
+        </p>
+        <div class="login-screen__chips">
+          <span class="login-screen__chip">
+            <app-icon name="lock" />
+            {{ copy.secureChannel }}
+          </span>
+          <span class="login-screen__chip login-screen__chip--hide-sm">
+            <app-icon name="shield" />
+            {{ copy.certified }}
+          </span>
+        </div>
+      </div>
+      <div class="login-screen__hero">
+        <p class="login-screen__eyebrow">
+          <app-icon name="trend" />
+          {{ copy.commandEyebrow }}
+        </p>
+        <h1 class="login-screen__motto">
+          {{ copy.mottoLead }}
+          <span>{{ copy.mottoAccent }}</span>
+        </h1>
+        <p class="login-screen__mission">{{ copy.mission }}</p>
+        <dl class="login-screen__metrics">
+          @for (metric of metrics; track metric.id) {
+            <div class="login-screen__metric">
+              <dt>{{ metric.label }}</dt>
+              <dd>
+                {{ metric.value }}<span>{{ metric.unit }}</span>
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+      <div class="login-screen__station">
+        <p>
+          <app-icon name="pin" />
+          {{ copy.station }}
+        </p>
+        <span>{{ copy.networkState }}</span>
+      </div>
+    </section>
+
+    <section class="login-screen__panel">
+      <div class="login-screen__panel-head">
+        <div class="login-screen__brand">
+          <img class="login-screen__logo" src="/logo-sgcp.svg" alt="" width="44" height="44" />
+          <div>
+            <div class="login-screen__brand-row">
+              <strong>{{ copy.brandName }}</strong>
+              <ui-chip [label]="copy.networkChip" />
+            </div>
+            <p>{{ copy.brandUnit }}</p>
+          </div>
+        </div>
+        <button type="button" class="login-screen__close" data-close [attr.aria-label]="copy.close" (click)="close()">
+          <app-icon name="close" />
+        </button>
+      </div>
+
+      <header class="login-screen__intro">
+        <app-badge>{{ copy.accessEyebrow }}</app-badge>
+        <h2>{{ copy.title }}</h2>
+        <p>{{ copy.subtitle }}</p>
+      </header>
+
+      <form class="login-screen__form" [formGroup]="form" (ngSubmit)="submit()">
+        <ui-input
+          id="login-user"
+          [label]="copy.userLabel"
+          [hint]="copy.userHint"
+          [placeholder]="copy.userPlaceholder"
+          [field]="form.controls.user"
+          [error]="userError()"
+          icon="user"
+          autocomplete="username"
+        />
+        <ui-input
+          id="login-pass"
+          [label]="copy.passwordLabel"
+          type="password"
+          [field]="form.controls.password"
+          [error]="passwordError()"
+          icon="lock"
+          autocomplete="current-password"
+        />
+        <app-button type="submit" [fullWidth]="true" icon="arrow-right">{{ copy.submit }}</app-button>
+      </form>
+
+      <footer class="login-screen__legal">
+        <div>
+          <span>{{ copy.classification }}</span>
+          <span>{{ copy.audited }}</span>
+        </div>
+        <p>{{ copy.legal }}</p>
+      </footer>
+    </section>
+  </div>
+</dialog>

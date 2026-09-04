@@ -1,0 +1,33 @@
+export const LOGIN_COPY = {
+  dialogLabel: 'Iniciar sesión institucional',
+  close: 'Cerrar acceso',
+  liveStatus: 'Núcleo operacional listo',
+  secureChannel: 'Canal TLS',
+  certified: 'Entorno auditado',
+  commandEyebrow: 'Fuerza Aérea del Perú • Comando de Operaciones',
+  mottoLead: 'Non Sibi Sed',
+  mottoAccent: 'Patriae',
+  mission:
+    'Sistema Integral de Gestión y Evaluación del Entrenamiento de Pilotos de Caza, Transporte y Ala Rotatoria.',
+  station: 'Base Aérea Las Palmas • Estación central de monitoreo',
+  networkState: 'Estado de red: seguro',
+  brandName: 'SIGA',
+  brandUnit: 'Fuerza Aérea del Perú',
+  networkChip: 'Red institucional',
+  accessEyebrow: 'Acceso operacional seguro',
+  title: 'Iniciar sesión institucional',
+  subtitle: 'Plataforma única de doctrina, instrucción y vuelo.',
+  userLabel: 'Identificador',
+  userHint: 'Mínimo 4 caracteres',
+  userPlaceholder: 'Ej. 104822',
+  userError: 'Introduce tu identificador (mínimo 4 caracteres).',
+  passwordLabel: 'Contraseña de acceso institucional',
+  passwordError: 'La contraseña debe tener al menos 6 caracteres.',
+  submit: 'Ingresar al portal operacional',
+  classification: 'Clasificación: reservado — uso oficial',
+  audited: 'Sistema auditado',
+  legal:
+    'El acceso no autorizado a este sistema informático está penado conforme a la normativa vigente. Todas las sesiones quedan registradas.',
+  imageAlt:
+    'Cabina de vuelo al anochecer, con indicadores tácticos y formación de aeronaves sobre el horizonte.',
+} as const;

@@ -196,21 +196,6 @@
   background: var(--color-text);
 }
 
-.login {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.login__lead,
-.login__ok {
-  font-size: var(--fs-sm);
-  color: var(--color-text-secondary);
-}
-
-.login__ok {
-  color: var(--color-success);
-}
-
 .mega-backdrop {
   position: fixed;
   inset: 0;

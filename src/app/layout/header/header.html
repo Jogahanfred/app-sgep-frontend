@@ -83,21 +83,4 @@
   />
 </div>
 
-<app-modal [open]="loginOpen()" title="Acceso clientes" (closed)="closeLogin()">
-  <form class="login" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
-    <p class="login__lead">Entorno de demostración. No introduces credenciales reales.</p>
-    <ui-input id="login-user" label="Identificador" [field]="loginForm.controls.user" [error]="userError()" autocomplete="username" />
-    <ui-input
-      id="login-pass"
-      label="Contraseña"
-      type="password"
-      [field]="loginForm.controls.password"
-      [error]="passwordError()"
-      autocomplete="current-password"
-    />
-    @if (loginMessage()) {
-      <p class="login__ok" role="status">{{ loginMessage() }}</p>
-    }
-    <app-button type="submit" [fullWidth]="true">Entrar</app-button>
-  </form>
-</app-modal>
+<app-login-screen [open]="loginOpen()" [nextUrl]="pendingNext()" (closed)="closeLogin()" (signedIn)="onSignedIn()" />

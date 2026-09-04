@@ -1,0 +1,368 @@
+:host {
+  display: contents;
+}
+
+.login-screen {
+  width: min(100% - 1.5rem, 86rem);
+  max-width: none;
+  height: min(100dvh - 1.5rem, 54rem);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.login-screen::backdrop {
+  background: var(--color-overlay);
+}
+
+.login-screen__frame {
+  display: grid;
+  grid-template-rows: minmax(14rem, 38%) 1fr;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.login-screen__showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  padding: var(--spacing-md);
+  overflow: hidden;
+  color: var(--color-text-inverse);
+}
+
+.login-screen__plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+}
+
+.login-screen__veil,
+.login-screen__hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.login-screen__veil {
+  background:
+    linear-gradient(180deg, rgb(11 28 48 / 18%) 0%, rgb(11 28 48 / 78%) 100%),
+    linear-gradient(90deg, rgb(15 79 136 / 72%) 0%, rgb(15 79 136 / 18%) 70%);
+}
+
+.login-screen__hud {
+  width: 100%;
+  height: 100%;
+  color: var(--color-primary-light);
+  opacity: 0.28;
+}
+
+.login-screen__showcase-top,
+.login-screen__hero,
+.login-screen__station {
+  position: relative;
+  z-index: 1;
+}
+
+.login-screen__showcase-top,
+.login-screen__station {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login-screen__live,
+.login-screen__chip,
+.login-screen__eyebrow,
+.login-screen__station {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.login-screen__live,
+.login-screen__chip,
+.login-screen__station {
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-md);
+  background: rgb(11 28 48 / 58%);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.login-screen__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.login-screen__pulse {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  animation: login-pulse 1.6s var(--ease-out) infinite;
+}
+
+.login-screen__chip--hide-sm {
+  display: none;
+}
+
+.login-screen__hero {
+  max-width: 36rem;
+  padding-block: var(--spacing-sm);
+}
+
+.login-screen__eyebrow {
+  display: inline-flex;
+  margin: 0 0 var(--spacing-xs);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgb(18 112 196 / 72%);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.login-screen__motto {
+  margin: 0 0 var(--spacing-xs);
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+}
+
+.login-screen__motto span {
+  color: var(--color-primary-light);
+}
+
+.login-screen__mission {
+  margin: 0 0 var(--spacing-md);
+  max-width: 32rem;
+  color: rgb(248 249 255 / 88%);
+  font-size: var(--fs-sm);
+}
+
+.login-screen__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: rgb(11 28 48 / 62%);
+}
+
+.login-screen__metric dt {
+  margin: 0 0 0.2rem;
+  color: rgb(248 249 255 / 62%);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login-screen__metric dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.login-screen__metric span {
+  margin-left: 0.25rem;
+  color: var(--color-primary-light);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.login-screen__station {
+  justify-content: space-between;
+  width: 100%;
+  color: rgb(248 249 255 / 86%);
+}
+
+.login-screen__station p {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0;
+}
+
+.login-screen__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-height: 0;
+  padding: var(--spacing-lg);
+  overflow: auto;
+}
+
+.login-screen__panel-head,
+.login-screen__brand,
+.login-screen__brand-row {
+  display: flex;
+  align-items: center;
+}
+
+.login-screen__panel-head {
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.login-screen__brand {
+  gap: var(--spacing-sm);
+}
+
+.login-screen__logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: contain;
+}
+
+.login-screen__brand-row {
+  gap: var(--spacing-xs);
+}
+
+.login-screen__brand p {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.login-screen__close {
+  display: inline-flex;
+  padding: 0.4rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+.login-screen__close:hover {
+  background: var(--color-surface-alt);
+}
+
+.login-screen__intro h2 {
+  margin: var(--spacing-sm) 0 var(--spacing-2xs);
+  font-size: var(--fs-2xl);
+}
+
+.login-screen__intro p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.login-screen__form {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.login-screen__legal {
+  margin-top: auto;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-warm);
+}
+
+.login-screen__legal div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.login-screen__legal p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+@keyframes login-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (min-width: 480px) {
+  .login-screen__chip--hide-sm {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 768px) {
+  .login-screen__showcase {
+    padding: var(--spacing-lg);
+  }
+
+  .login-screen__motto {
+    font-size: var(--fs-4xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .login-screen {
+    width: min(100% - 2rem, 90rem);
+    height: min(100dvh - 2rem, 56rem);
+  }
+
+  .login-screen__frame {
+    grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 0.9fr);
+    grid-template-rows: 1fr;
+  }
+
+  .login-screen__showcase {
+    padding: var(--spacing-xl);
+  }
+
+  .login-screen__panel {
+    padding: var(--spacing-xl);
+  }
+
+  .login-screen__metric dd {
+    font-size: var(--fs-2xl);
+  }
+}
+
+@media (max-width: 640px) {
+  .login-screen {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .login-screen__metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-screen__pulse {
+    animation: none;
+  }
+
+  .login-screen__plate {
+    transform: none;
+  }
+}
