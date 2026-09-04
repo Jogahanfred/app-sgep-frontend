@@ -1,0 +1,77 @@
+---
+description: Uso obligatorio del design system, componentes ui-* y tokens SCSS existentes
+globs:
+  - "src/**/*.html"
+  - "src/**/*.scss"
+  - "src/app/shared/components/**/*.ts"
+alwaysApply: false
+---
+
+# Design System
+
+Los componentes reutilizables de UI se encuentran en:
+
+```text
+src/app/shared/components/
+```
+
+Los controles reutilizables siguen el selector:
+
+```text
+ui-<nombre>
+```
+
+## Antes de crear UI
+
+Buscar primero, en este orden:
+
+1. Un componente `ui-*` que resuelva el caso.
+2. Una variante o input ya disponible en ese componente.
+3. Un patrón equivalente en una pantalla existente.
+4. Una directiva, pipe o utilidad ya creada.
+5. Un token SCSS existente.
+
+Después:
+
+- reutilizar si cubre la necesidad;
+- extender de forma coherente y retrocompatible si falta una capacidad general;
+- componer componentes existentes si la necesidad es específica;
+- crear un componente nuevo únicamente cuando no exista una alternativa adecuada.
+
+## Reglas visuales
+
+- Usar tokens definidos en `src/styles/_tokens.scss` y demás archivos de tokens existentes.
+- No introducir colores, spacing, radios, sombras, tipografías, z-index o breakpoints arbitrarios si existe un token equivalente.
+- Si falta un token, agregar uno semántico solo cuando represente una decisión reutilizable del sistema; no crear tokens para ocultar valores únicos sin sentido compartido.
+- No copiar SCSS de otro componente; extraer o reutilizar el patrón correcto.
+- No usar `!important` salvo integración externa inevitable y documentada.
+- No usar `::ng-deep` para código nuevo.
+- No introducir una nueva librería visual o de iconos sin necesidad explícita.
+- Usar el set de iconos, tamaños, densidades y patrones existentes.
+
+## Estados obligatorios
+
+Todo componente reutilizable debe contemplar los estados que apliquen:
+
+- default;
+- hover;
+- focus visible;
+- disabled;
+- loading;
+- error;
+- empty;
+- selected/active cuando corresponda.
+
+## Accesibilidad
+
+- Usar HTML semántico antes que roles ARIA artificiales.
+- Mantener navegación por teclado y foco visible.
+- Asociar labels, mensajes de error y descripciones con sus controles.
+- No comunicar estado únicamente mediante color.
+- Botones con icono deben conservar un nombre accesible.
+
+## Responsabilidad
+
+- Un componente `ui-*` es presentacional y agnóstico del negocio.
+- No debe importar casos de uso, repositorios, adaptadores ni modelos exclusivos de una feature.
+- Su API debe ser tipada, pequeña, predecible y compatible con usos existentes.

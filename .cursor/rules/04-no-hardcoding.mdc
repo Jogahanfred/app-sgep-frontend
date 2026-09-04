@@ -1,0 +1,62 @@
+---
+description: Prevención de hardcoding y centralización de valores con significado funcional, técnico o visual
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+  - "src/**/*.scss"
+alwaysApply: false
+---
+
+# No hardcoding
+
+## Principio
+
+No escribir literales repetidos o valores con significado de negocio, navegación, infraestructura, autorización, validación, presentación o configuración directamente dentro de componentes, casos de uso, plantillas o adaptadores.
+
+Centralizar cada valor en la capa y alcance más cercanos a su propietario. No crear una constante global para todo.
+
+## Debe extraerse
+
+- rutas, segmentos y nombres de parámetros;
+- endpoints y fragmentos de URL;
+- claves de storage, cache o query params;
+- roles, permisos, estados, códigos y tipos de operación;
+- límites, tamaños de página, timeouts, reintentos y umbrales;
+- expresiones regulares y reglas de validación;
+- mensajes, etiquetas y textos funcionales repetidos;
+- nombres de eventos, acciones y claves de telemetría;
+- formatos de fecha, moneda o archivo cuando tengan significado funcional;
+- arrays de opciones, columnas, filtros, tabs y configuración de UI;
+- clases CSS repetidas construidas desde TypeScript;
+- colores, spacing, radios, sombras, tipografías, breakpoints y tamaños visuales.
+
+## Ubicación
+
+- Feature: `features/<feature>/constants/`.
+- Compartido: `shared/constants/`.
+- Adaptador: `core/adapters/<adapter>/constants/` cuando el valor pertenezca a infraestructura.
+- Configuración por ambiente: mecanismo de environments/configuración e inyección existente.
+- UI copy: sistema i18n existente; si no existe, archivo `*.copy.constants.ts` en la feature.
+- Valores visuales: tokens SCSS del proyecto, no constantes TypeScript.
+
+## Reglas
+
+- No duplicar una constante existente con otro nombre.
+- No crear constantes ambiguas como `VALUE`, `DEFAULT`, `LIMIT` o `URL`.
+- Usar nombres que indiquen contexto y unidad, por ejemplo `SEARCH_DEBOUNCE_MS` o `DEFAULT_PAGE_SIZE`.
+- No concatenar URLs manualmente en componentes.
+- No exponer secretos, tokens o credenciales en código frontend.
+- No trasladar valores visuales a TypeScript para evitar usar SCSS.
+- No usar `[style]`, `[style.prop]` o estilos inline cuando el mismo resultado puede expresarse mediante clases y tokens del design system.
+
+## Excepciones razonables
+
+No es hardcoding perjudicial un literal estructural obvio y local sin significado configurable, por ejemplo:
+
+- `0` como índice inicial;
+- `1` como incremento unitario;
+- `true`, `false`, `null` o `undefined` usados semánticamente;
+- una cadena vacía como valor inicial cuando el tipo y contexto son inequívocos;
+- sintaxis estructural de CSS como `auto`, `1fr`, `100%` o `display: flex`.
+
+Si el literal expresa una regla, política, límite, texto funcional o decisión visual del sistema, debe extraerse.

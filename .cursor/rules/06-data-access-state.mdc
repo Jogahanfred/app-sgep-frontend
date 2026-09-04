@@ -1,0 +1,42 @@
+---
+description: Reglas de acceso a datos, casos de uso, adaptadores, mapeo y estado de pantalla
+globs:
+  - "src/**/*.ts"
+alwaysApply: false
+---
+
+# Acceso a datos y estado
+
+## Acceso a datos
+
+- `HttpClient` solo se usa en adaptadores de infraestructura.
+- Un componente o página no importa ni inyecta adaptadores o repositorios concretos.
+- Un caso de uso depende de un puerto, nunca de una implementación.
+- La asociación puerto-adaptador se realiza mediante DI.
+- Centralizar base URL, endpoints y configuración HTTP en la infraestructura existente.
+- No construir requests, headers o parámetros de negocio dentro de componentes.
+
+## DTO y mapeo
+
+- Definir DTO según el contrato externo real.
+- Validar o estrechar datos externos cuando exista incertidumbre de forma.
+- Mapear DTO a dominio o contrato de aplicación en el límite del adaptador.
+- Mapear el resultado de aplicación a view model cuando la UI requiera una forma distinta.
+- No reutilizar un mismo tipo por comodidad si representa conceptos distintos.
+
+## Estado de pantalla
+
+- El estado local pertenece al componente o a una facade/store de feature, según su alcance.
+- No crear servicios `providedIn: 'root'` para estado que solo usa una pantalla.
+- Usar estado global únicamente para información realmente transversal y persistente entre features.
+- Modelar estados asíncronos de manera explícita: idle, loading, success, empty y error cuando apliquen.
+- Usar uniones discriminadas o tipos de estado claros en lugar de múltiples booleanos contradictorios.
+- Usar `computed()` para derivados; no duplicar estado calculable.
+- Evitar condiciones de carrera y cancelar operaciones obsoletas con operadores adecuados.
+
+## Errores
+
+- No silenciar errores con `catchError(() => EMPTY)` sin una decisión explícita.
+- Traducir errores técnicos a errores de aplicación o mensajes de UI en el límite correcto.
+- No mostrar respuestas crudas del backend al usuario.
+- No registrar datos sensibles en consola, telemetría o mensajes de error.

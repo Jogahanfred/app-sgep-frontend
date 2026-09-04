@@ -1,0 +1,79 @@
+---
+description: Organización obligatoria de tipos, modelos, DTO, constantes y declaraciones auxiliares
+globs:
+  - "src/**/*.ts"
+alwaysApply: false
+---
+
+# Organización de código TypeScript
+
+## Regla principal
+
+No declarar tipos, interfaces, enums, clases auxiliares o constantes de configuración dentro del archivo de un componente, página, directiva o pipe.
+
+Toda declaración debe vivir en un archivo y carpeta acordes con su responsabilidad.
+
+## Ubicación de tipos
+
+### Dominio
+
+- Entidades y modelos con identidad: `core/domain/entities/` o la carpeta equivalente ya existente.
+- Value objects e invariantes: `core/domain/value-objects/`.
+- Errores de dominio: `core/domain/errors/`.
+- No duplicar un modelo de dominio dentro de `types/`.
+
+### Puertos
+
+- Interfaces de repositorios, gateways y servicios externos: `core/ports/`.
+- El nombre debe expresar la capacidad, no la tecnología concreta.
+
+### Infraestructura
+
+- Formas exactas de request/response de API: carpeta `dto/` del adaptador correspondiente.
+- Transformaciones entre DTO, dominio y contratos de aplicación: carpeta `mappers/`.
+- No usar DTO de API como modelo de UI o de dominio.
+
+### Feature / Presentación
+
+- Tipos exclusivos de una feature: `src/app/features/<feature>/types/`.
+- Tipos exclusivos de un componente: crear `types/<component-name>.types.ts` dentro de la feature.
+- View models y estados de pantalla: usar nombres explícitos como `*.view-model.ts` o `*.state.ts` cuando representen esos conceptos.
+
+### Compartidos
+
+- Tipos reutilizados por dos o más features sin pertenecer al dominio: `src/app/shared/types/`.
+- No mover un tipo a `shared` anticipadamente; hacerlo solo cuando exista reutilización real.
+
+## Ubicación de constantes
+
+- Constantes de una feature: `src/app/features/<feature>/constants/`.
+- Constantes compartidas por varias features: `src/app/shared/constants/`.
+- Constantes transversales de infraestructura o aplicación: carpeta `constants/` dentro de la capa propietaria.
+- Configuración dependiente del entorno, URLs base, secretos o flags desplegables no son constantes de código; deben provenir del mecanismo de configuración existente.
+
+## Convenciones de archivos
+
+Usar nombres `kebab-case` y sufijos semánticos:
+
+```text
+user-filter.types.ts
+user-list.view-model.ts
+user-api.dto.ts
+user.mapper.ts
+user.constants.ts
+user-copy.constants.ts
+route-paths.constants.ts
+permission.constants.ts
+```
+
+## Convenciones de declaraciones
+
+- Tipos, interfaces y clases: `PascalCase`.
+- Constantes exportadas: `UPPER_SNAKE_CASE`.
+- Objetos y arrays constantes: `as const` cuando aporte inmutabilidad y tipos literales.
+- Usar `Readonly`, `ReadonlyArray` o propiedades `readonly` cuando los datos no deban mutar.
+- Usar `interface` para contratos extensibles y puertos; usar `type` para uniones, intersecciones, aliases y estados discriminados.
+- Crear una clase solo cuando exista comportamiento, identidad o invariantes; no para representar una forma de datos simple.
+- Evitar `any`. Usar `unknown` en fronteras y estrechar el tipo de forma segura.
+- No crear archivos genéricos como `helpers.ts`, `common.ts`, `misc.ts` o `utils.ts` sin un propósito concreto.
+- Evitar nuevos barrels `index.ts` si pueden ocultar dependencias o producir ciclos; seguir la convención existente.

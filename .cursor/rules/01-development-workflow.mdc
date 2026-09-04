@@ -1,0 +1,47 @@
+---
+description: Flujo obligatorio para analizar, implementar y validar cambios en APP-SGEP-FRONTEND
+alwaysApply: true
+---
+
+# Flujo de desarrollo
+
+## Antes de modificar código
+
+1. Identificar el alcance exacto de la tarea y la capa responsable.
+2. Inspeccionar únicamente el árbol y los archivos relevantes.
+3. Buscar implementaciones existentes antes de crear código nuevo:
+   - componentes y selectores;
+   - casos de uso;
+   - puertos y adaptadores;
+   - tipos, modelos, DTO y mappers;
+   - constantes y configuración;
+   - tokens SCSS, utilidades, directivas y pipes;
+   - pruebas relacionadas.
+4. Revisar los archivos cercanos para conservar convenciones reales del proyecto.
+5. Consultar `package.json` antes de ejecutar comandos; no inventar scripts.
+6. Elegir el cambio mínimo que resuelva completamente el requerimiento.
+
+## Durante el cambio
+
+- Modificar solo archivos relacionados con la tarea.
+- Reutilizar primero; extender de forma compatible después; crear como última opción.
+- Mantener nombres públicos, selectores, rutas, tipos exportados y contratos existentes, salvo que el requerimiento exija cambiarlos.
+- No hacer refactorizaciones oportunistas fuera del alcance.
+- No instalar dependencias si la solución puede implementarse con Angular, TypeScript o dependencias ya instaladas.
+- No cambiar archivos de configuración, lockfiles o formato global sin una necesidad directa y justificada.
+- No ocultar errores con `any`, casts inseguros, `@ts-ignore`, reglas de lint desactivadas o pruebas debilitadas.
+- No eliminar comportamiento existente para simplificar la implementación.
+- Si una decisión depende de una convención ya existente, inspeccionar el código y seguirla; no adivinar.
+
+## Después del cambio
+
+1. Revisar imports, tipos, límites de arquitectura y código no usado.
+2. Ejecutar primero las pruebas relacionadas.
+3. Ejecutar los scripts existentes de lint, typecheck y build que correspondan al alcance.
+4. Corregir todos los errores introducidos por el cambio.
+5. No aplicar autofix masivo sobre archivos no relacionados.
+6. Informar:
+   - archivos creados o modificados;
+   - comportamiento implementado;
+   - validaciones ejecutadas y su resultado;
+   - supuestos o riesgos pendientes, si existen.

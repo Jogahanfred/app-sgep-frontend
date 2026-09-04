@@ -1,0 +1,104 @@
+---
+description: Arquitectura hexagonal, límites de capas y dirección de dependencias de APP-SGEP-FRONTEND
+alwaysApply: true
+---
+
+# Arquitectura de APP-SGEP-FRONTEND
+
+Proyecto frontend corporativo desarrollado con Angular 22, TypeScript y SCSS.
+
+La solución sigue Ports & Adapters / Arquitectura Hexagonal. Toda modificación debe respetar la arquitectura existente y aplicar el cambio mínimo necesario.
+
+## Estructura principal
+
+```text
+src/app/
+├── core/
+│   ├── domain/
+│   ├── application/
+│   ├── ports/
+│   ├── adapters/
+│   └── di/
+├── features/
+├── shared/
+└── layout/
+```
+
+## Dirección correcta de dependencias
+
+```text
+Presentación ───────▶ Aplicación ───────▶ Dominio
+                           │
+                           └────────────▶ Puertos
+
+Adaptadores ───────────────────────────▶ Puertos
+
+DI / Composition Root conecta puertos con adaptadores concretos.
+```
+
+Los puertos nunca dependen de los adaptadores. Los adaptadores implementan los puertos.
+
+## Responsabilidad por capa
+
+### `core/domain`
+
+- Contiene entidades, value objects, reglas, invariantes, errores y servicios de dominio.
+- Debe ser TypeScript puro.
+- No importa Angular, RxJS orientado a UI, `HttpClient`, Router, formularios, APIs del navegador ni adaptadores.
+- No conoce DTO de API, componentes, páginas, almacenamiento ni detalles de infraestructura.
+
+### `core/application`
+
+- Contiene casos de uso, orquestación y contratos de entrada/salida de aplicación.
+- Puede depender del dominio y de puertos.
+- No importa adaptadores concretos, `HttpClient`, componentes, HTML, SCSS ni APIs del navegador.
+- Un caso de uso debe tener una responsabilidad clara y no contener lógica de presentación.
+
+### `core/ports`
+
+- Contiene interfaces que expresan capacidades requeridas por la aplicación.
+- Puede usar tipos del dominio o tipos propios del contrato del puerto.
+- No importa implementaciones ni detalles internos de aplicación que produzcan ciclos.
+- No contiene implementaciones concretas.
+- No importa adaptadores, componentes, `HttpClient` ni detalles externos.
+
+### `core/adapters`
+
+- Implementa los puertos.
+- Contiene acceso HTTP, almacenamiento, integración con APIs, serialización, DTO y mappers de infraestructura.
+- Puede depender de puertos y dominio.
+- Un DTO externo no debe filtrarse directamente hacia el dominio o la presentación; mapearlo en el límite correspondiente.
+
+### `core/di`
+
+- Es el Composition Root.
+- Registra tokens, providers y asociaciones entre puertos y adaptadores.
+- Es el único lugar autorizado para conocer simultáneamente una abstracción y su implementación concreta, salvo una factory de infraestructura expresamente justificada.
+
+### `features` y `layout`
+
+- Constituyen la presentación y composición visual.
+- Los componentes invocan casos de uso; no acceden directamente a repositorios ni adaptadores.
+- No contienen lógica de negocio.
+- Una feature no importa archivos internos de otra feature. Compartir mediante contratos públicos, aplicación o `shared`.
+
+### `shared`
+
+- Contiene UI, directivas, pipes, utilidades y tipos verdaderamente reutilizables.
+- No depende de ninguna feature.
+- No debe convertirse en un contenedor genérico de código sin dueño claro.
+
+## Flujo obligatorio
+
+```text
+Componente/Página → Caso de uso → Puerto → Adaptador
+```
+
+## Prohibiciones
+
+- No importar desde `core/adapters` en componentes, páginas o casos de uso.
+- No inyectar repositorios concretos en componentes.
+- No colocar reglas de negocio en componentes, pipes, directivas o plantillas.
+- No crear dependencias circulares.
+- No mover código entre capas únicamente por conveniencia.
+- No modificar la arquitectura, contratos públicos, rutas públicas o tokens de DI sin explicarlo expresamente.

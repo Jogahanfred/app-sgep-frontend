@@ -1,0 +1,67 @@
+---
+description: Convenciones para componentes, plantillas, estilos y reactividad en Angular 22
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+  - "src/**/*.scss"
+alwaysApply: false
+---
+
+# Angular 22
+
+## Componentes
+
+- Crear componentes standalone y mantener compatibilidad con los componentes existentes.
+- Usar `ChangeDetectionStrategy.OnPush` de forma explícita cuando el proyecto todavía lo requiera.
+- Preferir `input()`, `input.required()`, `output()` y `model()` frente a decoradores heredados, salvo interoperabilidad con código existente.
+- Usar `signal()` para estado local mutable y `computed()` para estado derivado.
+- Usar `effect()` únicamente para sincronizar con efectos externos; no usarlo para copiar o propagar estado que puede modelarse con `computed()`.
+- Mantener cada componente pequeño, cohesivo y orientado a presentación.
+- Los manejadores de eventos deben validar interacción de UI y delegar el trabajo a un caso de uso o facade de aplicación.
+- No acceder directamente a repositorios, adaptadores, `HttpClient` ni almacenamiento desde componentes.
+- No realizar cálculos costosos o llamadas con efectos secundarios desde la plantilla.
+- Para listas con `@for`, usar una clave `track` estable.
+- Preferir el control de flujo moderno `@if`, `@for` y `@switch` cuando sea compatible con el código circundante.
+
+## Separación de archivos
+
+Por defecto, cada componente debe usar archivos externos con el mismo nombre base:
+
+```ts
+@Component({
+  selector: 'app-example',
+  templateUrl: './example.component.html',
+  styleUrl: './example.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExampleComponent {}
+```
+
+- No colocar CSS o SCSS dentro del archivo TypeScript.
+- No colocar plantillas extensas dentro del archivo TypeScript.
+- Solo se permite `template` o `styles` inline cuando el componente es verdaderamente trivial:
+  - máximo 3 líneas simples;
+  - sin formularios, control de flujo, markup repetido ni layout complejo;
+  - sin valores visuales que deban provenir de tokens;
+  - sin previsión razonable de crecimiento.
+- Ante duda, usar `.html` y `.scss` externos.
+
+## Declaraciones auxiliares
+
+- No declarar `interface`, `type`, `enum`, clases auxiliares, constantes, arrays de configuración ni mocks encima o debajo de un componente.
+- El archivo del componente contiene el decorador, la clase del componente y únicamente sus miembros.
+- Mover las declaraciones auxiliares a archivos semánticos e importarlas.
+- Evitar más de una declaración Angular pública principal por archivo.
+
+## RxJS y ciclo de vida
+
+- Preferir `AsyncPipe`, `toSignal()` o interoperabilidad RxJS/Signals frente a suscripciones manuales en componentes.
+- Cuando una suscripción manual sea imprescindible, garantizar su liberación con mecanismos como `takeUntilDestroyed()`.
+- No anidar `subscribe()`.
+- No usar `setTimeout()` para coordinar estado o ciclo de vida si existe una API de Angular apropiada.
+
+## Routing
+
+- Preferir lazy loading para páginas y features.
+- Usar `loadComponent` para componentes standalone en rutas.
+- Centralizar segmentos y nombres de rutas con significado funcional según las reglas de constantes del proyecto.

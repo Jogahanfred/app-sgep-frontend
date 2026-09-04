@@ -1,0 +1,39 @@
+---
+description: Calidad, tipado, pruebas y validación de cambios del frontend
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+  - "src/**/*.scss"
+  - "**/*.spec.ts"
+alwaysApply: false
+---
+
+# Calidad y pruebas
+
+## TypeScript
+
+- Mantener tipado estricto.
+- No usar `any`; preferir tipos concretos o `unknown` con narrowing.
+- Evitar `as` y `!` como mecanismo para ocultar incertidumbre de tipos.
+- No desactivar reglas con `eslint-disable`, `@ts-ignore` o `@ts-expect-error` sin una causa inevitable, localizada y explicada.
+- Eliminar imports, miembros y código muerto introducidos por el cambio.
+- Preferir funciones pequeñas, puras y con nombres que expresen intención.
+- Los comentarios deben explicar el porqué, no repetir el código.
+
+## Pruebas
+
+- Crear o actualizar pruebas cuando cambie comportamiento observable.
+- Priorizar pruebas de casos de uso, reglas de dominio, mappers, validadores y estados de componentes.
+- Mantener las pruebas cerca del código probado siguiendo la convención existente.
+- Probar happy path, errores y casos límite relevantes.
+- Para UI reutilizable, probar inputs, outputs, accesibilidad básica y estados aplicables.
+- No modificar una prueba solo para hacerla pasar si el comportamiento correcto no cambió.
+- No eliminar aserciones, reducir cobertura relevante ni introducir esperas arbitrarias.
+
+## Validación
+
+- Usar únicamente scripts existentes en `package.json`.
+- Ejecutar pruebas focalizadas antes de suites amplias.
+- Ejecutar lint/typecheck/build según el alcance.
+- Si una validación no puede ejecutarse, indicar exactamente cuál y por qué.
+- No afirmar que una prueba pasó si no fue ejecutada.

@@ -1,0 +1,22 @@
+---
+description: Reglas mínimas de seguridad para un frontend corporativo Angular
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+alwaysApply: false
+---
+
+# Seguridad del frontend
+
+- Nunca incluir secretos, credenciales, tokens privados o claves reales en el repositorio.
+- No registrar tokens, datos personales, respuestas sensibles ni información de autenticación.
+- No persistir información sensible en `localStorage` o `sessionStorage` sin que exista una decisión arquitectónica y un adaptador aprobado.
+- No usar `innerHTML`, acceso directo al DOM o APIs `bypassSecurityTrust*` salvo necesidad inevitable, revisión específica y sanitización adecuada.
+- No desactivar mecanismos de sanitización de Angular.
+- Validar y normalizar datos en los límites, aun cuando el backend también valide.
+- Las restricciones de UI no sustituyen autorización del servidor.
+- No asumir que ocultar un botón protege una operación.
+- Centralizar permisos y roles; no comparar strings dispersos en componentes o plantillas.
+- No exponer mensajes técnicos, stack traces o respuestas crudas al usuario.
+- No agregar dependencias nuevas para resolver funciones disponibles en Angular o en el proyecto.
+- Antes de incorporar una dependencia, justificar necesidad, mantenimiento, impacto de bundle, licencia y superficie de seguridad.
