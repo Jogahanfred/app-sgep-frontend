@@ -1,0 +1,179 @@
+<div class="dd">
+  <p class="dd__lead">{{ copy.lead }}</p>
+
+  @if (snapshot()?.needsSquadron) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading' && !snapshot()) {
+    <ui-loading title="Cargando despacho" subtitle="Slots del día operativo." label="Cargando despacho" />
+  } @else {
+    <div class="dd__toolbar">
+      <div class="dd__date">
+        <app-button variant="ghost" size="sm" icon="chevron-left" [ariaLabel]="copy.datePrev" (click)="shiftDay(-1)" />
+        <span>{{ dateLabel() }}</span>
+        <app-button variant="ghost" size="sm" icon="chevron-right" [ariaLabel]="copy.dateNext" (click)="shiftDay(1)" />
+      </div>
+      <ui-select
+        id="dispatch-instructor"
+        [label]="copy.instructorFilter"
+        [uppercase]="false"
+        [options]="instructorOptions()"
+        [value]="instructorId()"
+        (valueChange)="setInstructor($event)"
+      />
+    </div>
+
+    <div class="dd__metrics">
+      <app-card [padded]="true">
+        <p class="dd__kicker">{{ copy.metricTotal }}</p>
+        <p class="dd__metric">{{ snapshot()?.totals.scheduled ?? 0 }}</p>
+        <p class="dd__hint">{{ copy.metricTotalHint }}</p>
+        <p class="dd__meta">{{ copy.metricCapacity }}: {{ snapshot()?.slotCapacity }} · {{ snapshot()?.occupancyPercent }}% {{ copy.metricAssigned }}</p>
+      </app-card>
+      <app-card [padded]="true">
+        <p class="dd__kicker">{{ copy.metricAirborne }}</p>
+        <p class="dd__metric">{{ snapshot()?.totals.airborne ?? 0 }}</p>
+        <p class="dd__hint">{{ copy.metricAirborneHint }}</p>
+      </app-card>
+      <app-card [padded]="true">
+        <p class="dd__kicker">{{ copy.metricClosed }}</p>
+        <p class="dd__metric">{{ snapshot()?.totals.closed ?? 0 }}</p>
+        <p class="dd__hint">{{ copy.metricClosedHint }}</p>
+      </app-card>
+      <app-card [padded]="true">
+        <p class="dd__kicker">{{ copy.metricReady }}</p>
+        <p class="dd__metric">{{ snapshot()?.totals.ready ?? 0 }}</p>
+        <p class="dd__hint">{{ copy.metricReadyHint }}</p>
+      </app-card>
+    </div>
+
+    <section class="dd__callout">
+      <div>
+        <p class="dd__kicker">{{ copy.protocolTitle }}</p>
+        <p>{{ copy.protocolLead }}</p>
+      </div>
+    </section>
+
+    <div class="dd__board-head">
+      <h2>{{ copy.boardTitle }}</h2>
+      <ui-segmented-control [label]="copy.boardTitle" [options]="tabOptions()" [value]="tab()" [wrap]="true" (valueChange)="setTab($event)" />
+    </div>
+
+    <div class="dd__table-wrap">
+      <table class="dd__table">
+        <thead>
+          <tr>
+            <th>{{ copy.colSlot }}</th>
+            <th>{{ copy.colMission }}</th>
+            <th>{{ copy.colStudent }}</th>
+            <th>{{ copy.colInstructor }}</th>
+            <th>{{ copy.colAircraft }}</th>
+            <th>{{ copy.colStatus }}</th>
+            <th>{{ copy.colAction }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (slot of visibleSlots(); track slot.assignmentId) {
+            <tr [class.dd__row--on]="selectedAssignmentId() === slot.assignmentId" (click)="select(slot.assignmentId)">
+              <td>
+                <strong>{{ slot.startTime && slot.endTime ? slot.startTime + ' – ' + slot.endTime : (slot.startTime ?? copy.none) }}</strong>
+                <span>{{ copy.durationPrefix }} {{ slot.blockHours }}h</span>
+              </td>
+              <td>
+                <strong>{{ slot.missionName }}</strong>
+                <span>{{ slot.programName }}</span>
+                <span>{{ slot.missionHint }}</span>
+              </td>
+              <td>
+                <strong>{{ slot.studentName }}</strong>
+                <span>{{ slot.studentMeta }}</span>
+              </td>
+              <td>
+                <strong>{{ slot.instructorName }}</strong>
+                <span>{{ slot.instructorRole }}</span>
+              </td>
+              <td>
+                <strong>{{ slot.aircraftLabel }}</strong>
+                <span>{{ slot.aircraftFleet }}</span>
+              </td>
+              <td><span class="dd__badge" [attr.data-kind]="slot.kind">{{ kindLabel(slot.kind) }}</span></td>
+              <td class="dd__actions">
+                @if (slot.kind === 'ready' && snapshot()?.canDispatch) {
+                  <app-button size="sm" [disabled]="busy()" (click)="dispatch(slot); $event.stopPropagation()">{{ copy.actionDispatch }}</app-button>
+                } @else if (slot.kind === 'airborne' && snapshot()?.canOpenLiveSheet) {
+                  <app-button size="sm" variant="secondary" (click)="openLive(slot); $event.stopPropagation()">{{ copy.actionLive }}</app-button>
+                } @else if (slot.kind === 'closed') {
+                  <app-button size="sm" variant="secondary" (click)="openRecord(slot); $event.stopPropagation()">{{ copy.actionRecord }}</app-button>
+                } @else {
+                  <app-button size="sm" variant="ghost" (click)="select(slot.assignmentId); $event.stopPropagation()">{{ copy.actionPrereq }}</app-button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7">{{ copy.empty }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="dd__footer-line">
+      {{ copy.showing }} {{ visibleSlots().length }} {{ copy.of }} {{ snapshot()?.totals.scheduled ?? 0 }} {{ copy.slotsWord }}
+    </p>
+    <div class="dd__exports">
+      <app-button variant="secondary" size="sm" (click)="exportSoon()">{{ copy.exportManifest }}</app-button>
+      <app-button variant="secondary" size="sm" (click)="exportSoon()">{{ copy.exportSiga }}</app-button>
+    </div>
+
+    <div class="dd__panels">
+      @if (selected(); as current) {
+        <app-card [padded]="true">
+          <p class="dd__kicker">{{ copy.preflightKicker }}</p>
+          <h2>{{ current.missionName }}</h2>
+          <p class="dd__hint">{{ current.studentName }} · {{ current.aircraftLabel }}</p>
+          <p class="dd__badge" [attr.data-kind]="checksReady() ? 'ready' : 'pending'">
+            {{ checksReady() ? copy.preflightReady : copy.preflightBlocked }}
+          </p>
+          <ul class="dd__checks">
+            @for (item of checks(); track item.id) {
+              <li [class.dd__check--ok]="item.ready">
+                <strong>{{ item.title }}</strong>
+                <span>{{ item.detail }}</span>
+              </li>
+            }
+          </ul>
+          @if (current.executionId && snapshot()?.canOpenLiveSheet) {
+            <app-button variant="secondary" size="sm" (click)="openLive(current)">{{ copy.preflightOpenRubric }}</app-button>
+          }
+        </app-card>
+        <app-card [padded]="true">
+          <p class="dd__kicker">{{ copy.rampKicker }}</p>
+          <h2>{{ copy.rampTitle }}</h2>
+          <p class="dd__hint">{{ copy.rampLead }}</p>
+          <div class="dd__ramp">
+            <app-button variant="secondary" [fullWidth]="true" (click)="reschedule(current)">{{ copy.reschedule }}</app-button>
+            <app-button variant="secondary" [fullWidth]="true" (click)="reschedule(current)">{{ copy.swap }}</app-button>
+            <app-button variant="ghost" [fullWidth]="true" [disabled]="!snapshot()?.canDispatch || current.kind === 'closed'" (click)="askCancel()">{{ copy.cancel }}</app-button>
+          </div>
+        </app-card>
+      } @else {
+        <app-card [padded]="true">
+          <p class="dd__kicker">{{ copy.preflightKicker }}</p>
+          <h2>{{ copy.preflightTitle }}</h2>
+          <p class="dd__hint">{{ copy.empty }}</p>
+        </app-card>
+      }
+    </div>
+  }
+</div>
+
+<ui-confirm-dialog
+  [title]="copy.cancelTitle"
+  [message]="copy.cancelMessage"
+  [confirmLabel]="copy.cancelConfirm"
+  [open]="cancelOpen()"
+  (closed)="closeCancel()"
+  (confirmed)="confirmCancel()"
+/>

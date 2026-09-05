@@ -15,6 +15,7 @@ import { ClientSession } from '../client-session.service';
 export class MobileMenu {
   readonly session = inject(ClientSession);
   readonly groups = input.required<NavGroup[]>();
+  readonly activeLabel = input<string | null>(null);
   readonly open = input(false);
   readonly closed = output<void>();
   readonly loginRequested = output<void>();

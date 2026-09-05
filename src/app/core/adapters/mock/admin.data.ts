@@ -10,6 +10,7 @@ import type {
   ProgramEntity,
   PromotionEntity,
   PromotionMemberEntity,
+  ProgramEnrollmentEntity,
   GroupMissionAssignmentEntity,
   IndividualMissionAssignmentEntity,
   MissionExecutionEntity,
@@ -28,10 +29,15 @@ import type {
 import {
   automaticMissionKey,
   catalogMissionKey,
+  curriculumMissionRefs,
   customMissionKey,
   expandAutoMissions,
 } from '../../domain/services/admin-catalog';
 import {
+  HELICOPTER_COURSE_ASSIGNMENTS,
+  HELICOPTER_COURSE_ENROLLMENTS,
+  HELICOPTER_COURSE_EXECUTIONS,
+  HELICOPTER_COURSE_GROUP_ASSIGNMENTS,
   HELICOPTER_MANEUVERS,
   HELICOPTER_MISSION_TYPES,
   HELICOPTER_OPERATIONS,
@@ -40,7 +46,26 @@ import {
   HELICOPTER_PROGRAMS,
   HELICOPTER_SUBPHASE_BANKS,
   HELICOPTER_SUBPHASES,
-} from './helicopter-program.data';
+} from './helicopter-course.data';
+import { PPL_GROUND_SUBPHASE_BANKS, PPL_GROUND_SUBPHASES } from './ppl-ground-courses.data';
+import {
+  DISPATCH_INDIVIDUAL_ASSIGNMENTS,
+  DISPATCH_MISSION_EXECUTIONS,
+} from './dispatch-board.data';
+import {
+  LIFECYCLE_ENROLLMENTS,
+  LIFECYCLE_INDIVIDUAL_ASSIGNMENTS,
+  LIFECYCLE_MISSION_EXECUTIONS,
+} from './enrollment-lifecycle.data';
+import {
+  FLIGHT_ORDER_CONTEXT_AIRCRAFT,
+  FLIGHT_ORDER_CONTEXT_ASSIGNMENTS,
+  FLIGHT_ORDER_CONTEXT_ENROLLMENTS,
+  FLIGHT_ORDER_CONTEXT_EXECUTIONS,
+  FLIGHT_ORDER_CONTEXT_MEMBERS,
+  FLIGHT_ORDER_CONTEXT_PROMOTIONS,
+  FLIGHT_ORDER_CONTEXT_USERS,
+} from './flight-order-context.data';
 
 function seededDirbeLevel(missionIndex: number, missionCount: number): DirbeLevel {
   if (missionCount <= 1) return 'B';
@@ -69,32 +94,72 @@ function standardAssignmentsFor(
 export const SEED_ROLES: UserRoleEntity[] = [
   {
     id: 'role-admin',
+    code: 'ADSYS',
     name: 'Administrador',
     description: 'Acceso completo a seguridad, catálogos y operación del sistema.',
     status: 'active',
   },
   {
     id: 'role-director',
+    code: 'COMDO',
     name: 'Director Académico',
     description: 'Dirige el plan de estudios, calendarios y el claustro instructor.',
     status: 'active',
   },
   {
     id: 'role-chief',
+    code: 'JINST',
     name: 'Jefe de Instrucción',
     description: 'Coordina turnos, evaluaciones y la calidad de la instrucción.',
     status: 'active',
   },
   {
     id: 'role-instructor',
+    code: 'INSTR',
     name: 'Instructor',
     description: 'Imparte sesiones, registra asistencia y evalúa a los alumnos.',
     status: 'active',
   },
   {
     id: 'role-student',
+    code: 'PILOT',
     name: 'Alumno',
     description: 'Cursa especialidades, consulta horarios y entrega evidencias.',
+    status: 'active',
+  },
+  {
+    id: 'role-adper',
+    code: 'ADPER',
+    name: 'Administrador de personal',
+    description: 'Gestiona la dotación de la unidad asignada y sus escuadrones.',
+    status: 'active',
+  },
+  {
+    id: 'role-jesqd',
+    code: 'JESQD',
+    name: 'Jefe de escuadrón',
+    description: 'Comando táctico del escuadrón asignado.',
+    status: 'active',
+  },
+  {
+    id: 'role-joper',
+    code: 'JOPER',
+    name: 'Jefe de operaciones',
+    description: 'Programación y consulta operativa sobre los escuadrones de su unidad.',
+    status: 'active',
+  },
+  {
+    id: 'role-evalu',
+    code: 'EVALU',
+    name: 'Evaluador',
+    description: 'Chequeos de estandarización y dictámenes de vuelo.',
+    status: 'active',
+  },
+  {
+    id: 'role-audit',
+    code: 'AUDIT',
+    name: 'Consulta / Auditor',
+    description: 'Fiscalización y consulta sin modificación operativa.',
     status: 'active',
   },
 ];
@@ -181,7 +246,9 @@ const EXTRA_USERS: UserEntity[] = EXTRA_PEOPLE.map(([firstName, lastName], index
     indicative: `ALU-${300 + index}`,
     status: 'active',
     roleIds: ['role-student'],
-    specialtyIds: ['spc-pilot'],
+    specialtyIds: index === 2 || index === 3 ? [] : ['spc-pilot'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-alfa',
   };
 });
 
@@ -197,6 +264,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-admin'],
     specialtyIds: ['spc-academic'],
+    assignedUnitId: null,
+    assignedSquadronId: null,
   },
   {
     id: 'usr-diego-herrera',
@@ -209,6 +278,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-director'],
     specialtyIds: ['spc-academic', 'spc-safety'],
+    assignedUnitId: 'unit-academia',
+    assignedSquadronId: null,
   },
   {
     id: 'usr-carmen-lopez',
@@ -221,6 +292,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-chief'],
     specialtyIds: ['spc-flight-inst', 'spc-pilot'],
+    assignedUnitId: 'unit-academia',
+    assignedSquadronId: 'sq-formacion',
   },
   {
     id: 'usr-pablo-nunez',
@@ -233,6 +306,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-instructor'],
     specialtyIds: ['spc-pilot'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-alfa',
   },
   {
     id: 'usr-lucia-ramos',
@@ -245,6 +320,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-instructor'],
     specialtyIds: ['spc-maint'],
+    assignedUnitId: 'unit-sur',
+    assignedSquadronId: 'sq-sur',
   },
   {
     id: 'usr-sofia-vidal',
@@ -257,6 +334,22 @@ export const SEED_USERS: UserEntity[] = [
     status: 'active',
     roleIds: ['role-student'],
     specialtyIds: ['spc-pilot'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-alfa',
+  },
+  {
+    id: 'usr-diego-molina',
+    firstName: 'Diego',
+    lastName: 'Molina Cruz',
+    email: 'diego.molina@alumno.siga.demo',
+    documentNumber: '81204567D',
+    entryDate: '2025-10-01',
+    indicative: 'ALU-221',
+    status: 'active',
+    roleIds: ['role-student'],
+    specialtyIds: [],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-alfa',
   },
   {
     id: 'usr-mario-castillo',
@@ -269,6 +362,8 @@ export const SEED_USERS: UserEntity[] = [
     status: 'inactive',
     roleIds: ['role-student'],
     specialtyIds: ['spc-atc'],
+    assignedUnitId: 'unit-sur',
+    assignedSquadronId: 'sq-sur',
   },
   {
     id: 'usr-irene-soto',
@@ -281,8 +376,81 @@ export const SEED_USERS: UserEntity[] = [
     status: 'inactive',
     roleIds: ['role-instructor'],
     specialtyIds: ['spc-flight-inst'],
+    assignedUnitId: 'unit-academia',
+    assignedSquadronId: 'sq-formacion',
+  },
+  {
+    id: 'usr-laura-mendez',
+    firstName: 'Laura',
+    lastName: 'Méndez Ortiz',
+    email: 'laura.mendez@siga.demo',
+    documentNumber: '40211876R',
+    entryDate: '2018-05-12',
+    indicative: 'ADP-03',
+    status: 'active',
+    roleIds: ['role-adper'],
+    specialtyIds: ['spc-academic'],
+    assignedUnitId: 'unit-sur',
+    assignedSquadronId: null,
+  },
+  {
+    id: 'usr-ricardo-pena',
+    firstName: 'Ricardo',
+    lastName: 'Peña Soler',
+    email: 'ricardo.pena@siga.demo',
+    documentNumber: '22881764L',
+    entryDate: '2016-11-03',
+    indicative: 'JES-07',
+    status: 'active',
+    roleIds: ['role-jesqd'],
+    specialtyIds: ['spc-pilot'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-bravo',
+  },
+  {
+    id: 'usr-nuria-vega',
+    firstName: 'Nuria',
+    lastName: 'Vega Alonso',
+    email: 'nuria.vega@siga.demo',
+    documentNumber: '19330451Q',
+    entryDate: '2015-02-18',
+    indicative: 'JOP-05',
+    status: 'active',
+    roleIds: ['role-joper'],
+    specialtyIds: ['spc-atc'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: null,
+  },
+  {
+    id: 'usr-hector-diaz',
+    firstName: 'Héctor',
+    lastName: 'Díaz Romero',
+    email: 'hector.diaz@siga.demo',
+    documentNumber: '66120918V',
+    entryDate: '2021-08-09',
+    indicative: 'EVA-09',
+    status: 'active',
+    roleIds: ['role-evalu'],
+    specialtyIds: ['spc-flight-inst'],
+    assignedUnitId: 'unit-norte',
+    assignedSquadronId: 'sq-alfa',
+  },
+  {
+    id: 'usr-ana-rios',
+    firstName: 'Ana',
+    lastName: 'Ríos Calderón',
+    email: 'ana.rios@siga.demo',
+    documentNumber: '77441120S',
+    entryDate: '2014-01-22',
+    indicative: 'AUD-01',
+    status: 'active',
+    roleIds: ['role-audit'],
+    specialtyIds: ['spc-safety'],
+    assignedUnitId: null,
+    assignedSquadronId: null,
   },
   ...EXTRA_USERS,
+  ...FLIGHT_ORDER_CONTEXT_USERS,
 ];
 
 export const SEED_PASSWORDS: Record<string, string> = Object.fromEntries(
@@ -318,6 +486,22 @@ export const SEED_UNITS: UnitEntity[] = [
     abbreviation: 'PL',
     status: 'inactive',
   },
+  {
+    id: 'unit-ga-51',
+    code: 'GA-51',
+    name: 'Grupo Aéreo N.º 51',
+    abbreviation: 'GA-51',
+    status: 'active',
+    imageUrl: '/emblems/units/grupo-aereo-51.jpg',
+  },
+  {
+    id: 'unit-ga-8',
+    code: 'GA-8',
+    name: 'Grupo Aéreo N.º 8',
+    abbreviation: 'GA-8',
+    status: 'active',
+    imageUrl: '/emblems/units/grupo-aereo-8.png',
+  },
 ];
 
 export const SEED_SQUADRONS: SquadronEntity[] = [
@@ -338,11 +522,35 @@ export const SEED_SQUADRONS: SquadronEntity[] = [
     status: 'active',
   },
   {
+    id: 'sq-charlie',
+    unitId: 'unit-norte',
+    code: 'ESC-C',
+    name: 'Escuadrón Charlie',
+    description: 'Instrucción avanzada y relevos de la Base Norte.',
+    status: 'active',
+  },
+  {
     id: 'sq-sur',
     unitId: 'unit-sur',
     code: 'ESC-S',
     name: 'Escuadrón Sur',
     description: 'Despliegue y apoyo en la Base Sur.',
+    status: 'active',
+  },
+  {
+    id: 'sq-delta',
+    unitId: 'unit-sur',
+    code: 'ESC-D',
+    name: 'Escuadrón Delta',
+    description: 'Cobertura táctica de la Base Sur.',
+    status: 'active',
+  },
+  {
+    id: 'sq-echo',
+    unitId: 'unit-sur',
+    code: 'ESC-E',
+    name: 'Escuadrón Echo',
+    description: 'Apoyo y relevos de la Base Sur.',
     status: 'active',
   },
   {
@@ -353,6 +561,60 @@ export const SEED_SQUADRONS: SquadronEntity[] = [
     description: 'Instrucción, briefing y evaluación de alumnado.',
     status: 'active',
   },
+  {
+    id: 'sq-510',
+    unitId: 'unit-ga-51',
+    code: 'EA-510',
+    name: 'Escuadrón Aéreo 510',
+    description: 'Escuadrón del Grupo Aéreo N.º 51.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-510.png',
+  },
+  {
+    id: 'sq-511',
+    unitId: 'unit-ga-51',
+    code: 'EA-511',
+    name: 'Escuadrón Aéreo 511',
+    description: 'Escuadrón del Grupo Aéreo N.º 51.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-511.png',
+  },
+  {
+    id: 'sq-512',
+    unitId: 'unit-ga-51',
+    code: 'EA-512',
+    name: 'Escuadrón Aéreo 512',
+    description: 'Escuadrón del Grupo Aéreo N.º 51.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-512.png',
+  },
+  {
+    id: 'sq-513',
+    unitId: 'unit-ga-51',
+    code: 'EA-513',
+    name: 'Escuadrón Aéreo 513',
+    description: 'Instrucción de caza del Grupo Aéreo N.º 51.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-513.png',
+  },
+  {
+    id: 'sq-842',
+    unitId: 'unit-ga-8',
+    code: 'EA-842',
+    name: 'Escuadrón Aéreo 842',
+    description: 'Escuadrón Hercules del Grupo Aéreo N.º 8.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-842.png',
+  },
+  {
+    id: 'sq-844',
+    unitId: 'unit-ga-8',
+    code: 'EA-844',
+    name: 'Escuadrón Aéreo 844',
+    description: 'Escuadrón del Grupo Aéreo N.º 8.',
+    status: 'active',
+    imageUrl: '/emblems/squadrons/ea-844.png',
+  },
 ];
 
 export const SEED_PROMOTIONS: PromotionEntity[] = [
@@ -361,10 +623,10 @@ export const SEED_PROMOTIONS: PromotionEntity[] = [
     code: 'PROM-25-A',
     name: 'Promoción Alfa 2025',
     year: 2025,
-    unitId: 'unit-academia',
-    squadronId: 'sq-formacion',
-    startDate: '2025-09-08',
-    endDate: '2026-06-30',
+    unitId: 'unit-norte',
+    squadronId: 'sq-alfa',
+    startDate: '2025-01-13',
+    endDate: '2025-12-19',
   },
   {
     id: 'promotion-2024-bravo',
@@ -376,31 +638,49 @@ export const SEED_PROMOTIONS: PromotionEntity[] = [
     startDate: '2024-09-09',
     endDate: '2025-06-27',
   },
+  {
+    id: 'promotion-2026-i',
+    code: 'PROM-26-I',
+    name: 'Promoción 2026-I',
+    year: 2026,
+    unitId: 'unit-norte',
+    squadronId: 'sq-alfa',
+    startDate: '2026-01-12',
+    endDate: '2026-12-18',
+  },
+  ...FLIGHT_ORDER_CONTEXT_PROMOTIONS,
 ];
 
 export const SEED_PROMOTION_MEMBERS: PromotionMemberEntity[] = [
-  { id: 'promotion-member-1', promotionId: 'promotion-2025-alfa', userId: 'usr-sofia-vidal', entryDate: '2025-09-08' },
-  { id: 'promotion-member-2', promotionId: 'promotion-2025-alfa', userId: 'usr-mario-castillo', entryDate: '2025-09-08' },
+  { id: 'promotion-member-1', promotionId: 'promotion-2025-alfa', userId: 'usr-sofia-vidal', entryDate: '2025-01-13' },
+  { id: 'promotion-member-3', promotionId: 'promotion-2025-alfa', userId: 'usr-alba-ferrer-sol', entryDate: '2025-01-13' },
+  { id: 'promotion-member-4', promotionId: 'promotion-2025-alfa', userId: 'usr-hugo-pardo-leon', entryDate: '2025-01-13' },
+  { id: 'promotion-member-5', promotionId: 'promotion-2025-alfa', userId: 'usr-diego-molina', entryDate: '2025-01-13' },
+  { id: 'promotion-member-6', promotionId: 'promotion-2025-alfa', userId: 'usr-nuria-beltran-cid', entryDate: '2025-01-13' },
+  { id: 'promotion-member-7', promotionId: 'promotion-2025-alfa', userId: 'usr-oscar-mendez-rivas', entryDate: '2025-01-13' },
+  { id: 'promotion-member-26-1', promotionId: 'promotion-2026-i', userId: 'usr-ivan-rubio-nadal', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-2', promotionId: 'promotion-2026-i', userId: 'usr-marta-cos-varela', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-3', promotionId: 'promotion-2026-i', userId: 'usr-raul-vega-pinto', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-4', promotionId: 'promotion-2026-i', userId: 'usr-pilar-nieto-calvo', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-5', promotionId: 'promotion-2026-i', userId: 'usr-jaime-ortiz-luna', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-6', promotionId: 'promotion-2026-i', userId: 'usr-beatriz-cano-riera', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-7', promotionId: 'promotion-2026-i', userId: 'usr-teresa-gil-pascual', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-8', promotionId: 'promotion-2026-i', userId: 'usr-andres-lobo-sanz', entryDate: '2026-01-12' },
+  { id: 'promotion-member-26-9', promotionId: 'promotion-2026-i', userId: 'usr-tomas-prieto-marin', entryDate: '2026-01-12' },
+  ...FLIGHT_ORDER_CONTEXT_MEMBERS,
 ];
 
-export const SEED_GROUP_ASSIGNMENTS: GroupMissionAssignmentEntity[] = [
-  { id: 'group-assignment-1', promotionId: 'promotion-2025-alfa', programId: 'prg-heli', scheduledDate: '2026-02-10', trainingLeadId: 'usr-carmen-lopez', status: 'assigned', participantIds: ['usr-sofia-vidal'] },
+export const SEED_PROGRAM_ENROLLMENTS: ProgramEnrollmentEntity[] = [
+  ...HELICOPTER_COURSE_ENROLLMENTS,
+  ...LIFECYCLE_ENROLLMENTS,
+  ...FLIGHT_ORDER_CONTEXT_ENROLLMENTS,
 ];
 
-export const SEED_INDIVIDUAL_ASSIGNMENTS: IndividualMissionAssignmentEntity[] = [
-  { id: 'individual-assignment-1', assignmentCase: 'pdi', studentId: 'usr-sofia-vidal', externalPerson: null, programId: 'prg-heli', missionId: 'mt-vfr', instructorId: 'usr-pablo-nunez', date: '2026-02-12', status: 'scheduled' },
-];
+export const SEED_GROUP_ASSIGNMENTS: GroupMissionAssignmentEntity[] = [...HELICOPTER_COURSE_GROUP_ASSIGNMENTS];
 
-export const SEED_MISSION_EXECUTIONS: MissionExecutionEntity[] = [
-  {
-    id: 'execution-1', individualAssignmentId: 'individual-assignment-1', status: 'scheduled', startDate: null, startTime: null,
-    takeoffTime: '', landingTime: '', executedHours: 0, aircraftId: null, observations: '', strengths: '', improvements: '', recommendations: '', result: null,
-    evaluations: [
-      { id: 'evaluation-1', maneuverId: 'man-toff', grade: null, observation: '', evidenceName: null },
-      { id: 'evaluation-2', maneuverId: 'man-land', grade: null, observation: '', evidenceName: null },
-    ],
-  },
-];
+const BASE_INDIVIDUAL_ASSIGNMENTS: IndividualMissionAssignmentEntity[] = [];
+
+const BASE_MISSION_EXECUTIONS: MissionExecutionEntity[] = [];
 
 export const SEED_COMMISSIONS: TemporaryCommissionEntity[] = [
   {
@@ -726,6 +1006,7 @@ export const SEED_AIRCRAFT: AircraftEntity[] = [
     status: 'inactive',
     imageUrl: '/aircraft/ec-hvi.jpg',
   },
+  ...FLIGHT_ORDER_CONTEXT_AIRCRAFT,
 ];
 
 export const SEED_PHASE_BANKS: PhaseBankEntity[] = [
@@ -769,6 +1050,13 @@ export const SEED_PHASE_BANKS: PhaseBankEntity[] = [
     code: 'CHK',
     name: 'Prueba de pericia',
     description: 'Evaluación final ante examinador.',
+    status: 'active',
+  },
+  {
+    id: 'pb-sim',
+    code: 'SIM',
+    name: 'Simulador',
+    description: 'Entrenamiento en dispositivo de simulación de vuelo.',
     status: 'active',
   },
   ...HELICOPTER_PHASE_BANKS,
@@ -817,6 +1105,7 @@ export const SEED_SUBPHASE_BANKS: SubphaseBankEntity[] = [
     description: 'Vuelo o prueba de evaluación.',
     status: 'active',
   },
+  ...PPL_GROUND_SUBPHASE_BANKS,
   ...HELICOPTER_SUBPHASE_BANKS,
 ];
 
@@ -831,6 +1120,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     status: 'active',
     imageUrl: '/programs/ppl.jpg',
     standardIds: ['std-toff', 'std-land'],
+    lifecycleFlag: 'open',
   },
   {
     id: 'prg-ir',
@@ -841,6 +1131,7 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     status: 'active',
     imageUrl: '/programs/ir.jpg',
     standardIds: ['std-hold'],
+    lifecycleFlag: 'open',
   },
   {
     id: 'prg-cpl',
@@ -851,39 +1142,45 @@ export const SEED_PROGRAMS: ProgramEntity[] = [
     status: 'inactive',
     imageUrl: '/programs/cpl.jpg',
     standardIds: [],
+    lifecycleFlag: 'open',
   },
 ];
 
 export const SEED_PHASES: PhaseEntity[] = [
   ...HELICOPTER_PHASES,
-  { id: 'ph-ppl-teo', programId: 'prg-ppl', phaseBankId: 'pb-teo', sortOrder: 1 },
-  { id: 'ph-ppl-bas', programId: 'prg-ppl', phaseBankId: 'pb-bas', sortOrder: 2 },
-  { id: 'ph-ppl-nav', programId: 'prg-ppl', phaseBankId: 'pb-nav', sortOrder: 3 },
-  { id: 'ph-ppl-solo', programId: 'prg-ppl', phaseBankId: 'pb-solo', sortOrder: 4 },
-  { id: 'ph-ppl-chk', programId: 'prg-ppl', phaseBankId: 'pb-chk', sortOrder: 5 },
-  { id: 'ph-ir-teo', programId: 'prg-ir', phaseBankId: 'pb-teo', sortOrder: 1 },
-  { id: 'ph-ir-ifr', programId: 'prg-ir', phaseBankId: 'pb-ifr', sortOrder: 2 },
-  { id: 'ph-ir-chk', programId: 'prg-ir', phaseBankId: 'pb-chk', sortOrder: 3 },
-  { id: 'ph-cpl-nav', programId: 'prg-cpl', phaseBankId: 'pb-nav', sortOrder: 1 },
-  { id: 'ph-cpl-chk', programId: 'prg-cpl', phaseBankId: 'pb-chk', sortOrder: 2 },
+  { id: 'ph-ppl-teo', programId: 'prg-ppl', phaseBankId: 'pb-teo', moduleKind: 'ground', sortOrder: 1 },
+  { id: 'ph-ppl-sim', programId: 'prg-ppl', phaseBankId: 'pb-sim', moduleKind: 'simulator', sortOrder: 2 },
+  { id: 'ph-ppl-bas', programId: 'prg-ppl', phaseBankId: 'pb-bas', moduleKind: 'air', sortOrder: 3 },
+  { id: 'ph-ppl-nav', programId: 'prg-ppl', phaseBankId: 'pb-nav', moduleKind: 'air', sortOrder: 4 },
+  { id: 'ph-ppl-solo', programId: 'prg-ppl', phaseBankId: 'pb-solo', moduleKind: 'air', sortOrder: 5 },
+  { id: 'ph-ppl-chk', programId: 'prg-ppl', phaseBankId: 'pb-chk', moduleKind: 'air', sortOrder: 6 },
+  { id: 'ph-ir-teo', programId: 'prg-ir', phaseBankId: 'pb-teo', moduleKind: 'ground', sortOrder: 1 },
+  { id: 'ph-ir-ifr', programId: 'prg-ir', phaseBankId: 'pb-ifr', moduleKind: 'air', sortOrder: 2 },
+  { id: 'ph-ir-chk', programId: 'prg-ir', phaseBankId: 'pb-chk', moduleKind: 'air', sortOrder: 3 },
+  { id: 'ph-cpl-nav', programId: 'prg-cpl', phaseBankId: 'pb-nav', moduleKind: 'air', sortOrder: 1 },
+  { id: 'ph-cpl-chk', programId: 'prg-cpl', phaseBankId: 'pb-chk', moduleKind: 'air', sortOrder: 2 },
 ];
 
 export const SEED_SUBPHASES: SubphaseEntity[] = [
   ...HELICOPTER_SUBPHASES,
+  ...PPL_GROUND_SUBPHASES,
   {
-    id: 'sp-ppl-aula',
-    phaseId: 'ph-ppl-teo',
-    subphaseBankId: 'sb-aula',
-    hours: 45,
+    id: 'sp-ppl-sim-proc',
+    phaseId: 'ph-ppl-sim',
+    subphaseBankId: 'sb-sim',
+    hours: 10,
     missionMode: 'manual',
-    missionTypeIds: [],
-    customMissionNames: [],
+    missionTypeIds: ['mt-local'],
+    customMissionNames: ['Procedimientos de cabina', 'Emergencias'],
     autoMissionCode: '',
     autoMissionCount: 0,
-    maneuverIds: [],
+    maneuverIds: ['man-toff', 'man-land'],
     maneuverOperationIds: [],
     maneuverAssignment: {},
-    standardAssignments: [],
+    standardAssignments: standardAssignmentsFor(
+      [catalogMissionKey('mt-local'), customMissionKey('Procedimientos de cabina'), customMissionKey('Emergencias')],
+      { 'man-toff': ['std-toff'], 'man-land': ['std-land'] },
+    ),
     sortOrder: 1,
   },
   {
@@ -1084,3 +1381,128 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     sortOrder: 1,
   },
 ];
+
+function isoDate(start: string, offsetDays: number): string {
+  const date = new Date(`${start}T12:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + offsetDays);
+  return date.toISOString().slice(0, 10);
+}
+
+function slotsForProgram(programId: string): string[] {
+  const phaseIds = SEED_PHASES.filter((phase) => phase.programId === programId)
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((phase) => phase.id);
+  const ordered = SEED_SUBPHASES.filter((item) => phaseIds.includes(item.phaseId)).slice().sort((a, b) => {
+    const phaseA = phaseIds.indexOf(a.phaseId);
+    const phaseB = phaseIds.indexOf(b.phaseId);
+    if (phaseA !== phaseB) return phaseA - phaseB;
+    return a.sortOrder - b.sortOrder;
+  });
+  return ordered.flatMap((subphase) => curriculumMissionRefs(subphase).map((ref) => ref.value));
+}
+
+function seedAcademicTrack(input: {
+  prefix: string;
+  studentId: string;
+  programId: string;
+  instructorIds: readonly string[];
+  startDate: string;
+  completeCount: number;
+  gradePattern: 'excellent' | 'high' | 'solid';
+  failFrom?: number;
+}): { assignments: IndividualMissionAssignmentEntity[]; executions: MissionExecutionEntity[] } {
+  const missions = slotsForProgram(input.programId).slice(0, input.completeCount);
+  const assignments: IndividualMissionAssignmentEntity[] = [];
+  const executions: MissionExecutionEntity[] = [];
+  missions.forEach((missionId, index) => {
+    const assignmentId = `${input.prefix}-as-${String(index + 1).padStart(3, '0')}`;
+    const executionId = `${input.prefix}-ex-${String(index + 1).padStart(3, '0')}`;
+    const date = isoDate(input.startDate, index);
+    const instructorId = input.instructorIds[index % input.instructorIds.length] ?? input.instructorIds[0] ?? null;
+    const failed = input.failFrom !== undefined && index >= input.failFrom;
+    const grade = failed ? 'I' : input.gradePattern === 'excellent' ? 'E' : input.gradePattern === 'high' ? (index % 5 === 0 ? 'B' : 'E') : index % 3 === 0 ? 'E' : 'B';
+    assignments.push({
+      id: assignmentId,
+      assignmentCase: 'pdi',
+      studentId: input.studentId,
+      externalPerson: null,
+      programId: input.programId,
+      missionId,
+      instructorId,
+      date,
+      status: 'completed',
+    });
+    executions.push({
+      id: executionId,
+      individualAssignmentId: assignmentId,
+      status: 'completed',
+      startDate: date,
+      startTime: '08:00',
+      takeoffTime: '08:10',
+      landingTime: '09:20',
+      executedHours: 1.2,
+      aircraftId: 'ac-hva',
+      observations: '',
+      strengths: '',
+      improvements: '',
+      recommendations: '',
+      result: failed ? 'failed' : 'approved',
+      evaluations: [
+        { id: `${executionId}-ev`, maneuverId: 'man-toff', grade, observation: '', evidenceName: null },
+      ],
+    });
+  });
+  return { assignments, executions };
+}
+
+const sofiaPpl = seedAcademicTrack({
+  prefix: 'sofia-ppl',
+  studentId: 'usr-sofia-vidal',
+  programId: 'prg-ppl',
+  instructorIds: ['usr-pablo-nunez'],
+  startDate: '2024-03-04',
+  completeCount: slotsForProgram('prg-ppl').length,
+  gradePattern: 'high',
+});
+const sofiaIr = seedAcademicTrack({
+  prefix: 'sofia-ir',
+  studentId: 'usr-sofia-vidal',
+  programId: 'prg-ir',
+  instructorIds: ['usr-pablo-nunez'],
+  startDate: '2024-11-04',
+  completeCount: slotsForProgram('prg-ir').length,
+  gradePattern: 'solid',
+});
+const marioPpl = seedAcademicTrack({
+  prefix: 'mario-ppl',
+  studentId: 'usr-mario-castillo',
+  programId: 'prg-ppl',
+  instructorIds: ['usr-lucia-ramos'],
+  startDate: '2023-09-11',
+  completeCount: slotsForProgram('prg-ppl').length,
+  gradePattern: 'solid',
+});
+
+export const SEED_INDIVIDUAL_ASSIGNMENTS: IndividualMissionAssignmentEntity[] = [
+  ...BASE_INDIVIDUAL_ASSIGNMENTS,
+  ...DISPATCH_INDIVIDUAL_ASSIGNMENTS,
+  ...LIFECYCLE_INDIVIDUAL_ASSIGNMENTS,
+  ...sofiaPpl.assignments,
+  ...sofiaIr.assignments,
+  ...HELICOPTER_COURSE_ASSIGNMENTS,
+  ...marioPpl.assignments,
+  ...FLIGHT_ORDER_CONTEXT_ASSIGNMENTS,
+];
+
+export const SEED_MISSION_EXECUTIONS: MissionExecutionEntity[] = [
+  ...BASE_MISSION_EXECUTIONS,
+  ...DISPATCH_MISSION_EXECUTIONS,
+  ...LIFECYCLE_MISSION_EXECUTIONS,
+  ...sofiaPpl.executions,
+  ...sofiaIr.executions,
+  ...HELICOPTER_COURSE_EXECUTIONS,
+  ...marioPpl.executions,
+  ...FLIGHT_ORDER_CONTEXT_EXECUTIONS,
+];
+

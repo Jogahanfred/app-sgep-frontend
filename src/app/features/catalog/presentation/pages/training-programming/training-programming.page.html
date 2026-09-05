@@ -1,25 +1,101 @@
 <div class="ap">
-  <div class="ap__head"><div><h1>Programación y asignación de misiones</h1><p class="ap__lead">Coordina cursos, misiones y seguimiento operativo desde una única vista.</p></div><app-button icon="plus" (click)="create()">Nueva asignación</app-button></div>
-  <div class="ap__tabs"><button type="button" [class.is-active]="tab() === 'group'" (click)="setTab('group')">Asignación grupal</button><button type="button" [class.is-active]="tab() === 'individual'" (click)="setTab('individual')">Asignación individual</button></div>
+  <div class="ap__head">
+    <div class="ap__tabs">
+      <button type="button" [class.is-active]="tab() === 'group'" (click)="setTab('group')">{{ copy.groupTab }}</button>
+      <button type="button" [class.is-active]="tab() === 'individual'" (click)="setTab('individual')">{{ copy.individualTab }}</button>
+    </div>
+    <app-button icon="plus" (click)="create()">{{ createLabel() }}</app-button>
+  </div>
   <div class="filters">
-    <ui-input id="training-search" label="Buscar" type="search" icon="search" placeholder="Promoción, alumno, programa o misión" [field]="search" />
-    <ui-select id="training-program" label="Programa" [uppercase]="false" [options]="programOptions()" [value]="programFilter()" (valueChange)="setFilter('program', $event)" />
-    @if (tab() === 'group') { <ui-select id="training-promotion" label="Promoción" [uppercase]="false" [options]="promotionOptions()" [value]="promotionFilter()" (valueChange)="setFilter('promotion', $event)" /> }
-    <ui-select id="training-instructor" label="Instructor" [uppercase]="false" [options]="instructorOptions()" [value]="instructorFilter()" (valueChange)="setFilter('instructor', $event)" />
-    <ui-select id="training-status" label="Estado" [uppercase]="false" [options]="statusOptions" [value]="statusFilter()" (valueChange)="setFilter('status', $event)" />
+    <ui-input id="training-search" [label]="copy.searchLabel" type="search" icon="search" [placeholder]="copy.searchPlaceholder" [field]="search" />
+    <ui-select id="training-program" [label]="copy.programLabel" [uppercase]="false" [options]="programOptions()" [value]="programFilter()" (valueChange)="setFilter('program', $event)" />
+    @if (tab() === 'group') {
+      <ui-select id="training-promotion" [label]="copy.promotionLabel" [uppercase]="false" [options]="promotionOptions()" [value]="promotionFilter()" (valueChange)="setFilter('promotion', $event)" />
+    }
   </div>
   @if (tab() === 'group') {
     <div class="assignment-grid">
       @for (item of visibleGroups(); track item.id) {
-        <app-card class="assignment-card" [interactive]="true" [padded]="true"><div class="assignment-card__head"><div><span class="assignment-card__eyebrow">Asignación grupal</span><h2>{{ promotionName(item.promotionId) }}</h2></div><span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span></div><dl><div><dt>Programa</dt><dd>{{ programName(item.programId) }}</dd></div><div><dt>Instructor responsable</dt><dd>{{ userName(item.trainingLeadId) }}</dd></div><div><dt>Fecha programada</dt><dd>{{ formatDate(item.scheduledDate) }}</dd></div></dl><div class="assignment-card__actions">@if (pendingCount(item.id) > 0) { <app-button variant="secondary" size="sm" icon="user" (click)="updateParticipants(item.id)">Actualizar participantes ({{ pendingCount(item.id) }})</app-button> }<app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('group', item.id)">Ver detalle</app-button><app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('group', item.id)" ariaLabel="Cancelar programación"></app-button></div></app-card>
-      } @empty { <p class="empty-state">No hay asignaciones grupales con estos filtros.</p> }
+        <app-card class="assignment-card" [interactive]="true" [padded]="true">
+          <div class="assignment-card__head">
+            <div>
+              <span class="assignment-card__eyebrow">{{ copy.groupTab }}</span>
+              <h2>{{ promotionName(item.promotionId) }}</h2>
+            </div>
+            <span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span>
+          </div>
+          <dl>
+            <div>
+              <dt>{{ copy.programLabel }}</dt>
+              <dd>{{ programName(item.programId) }}</dd>
+            </div>
+            <div class="assignment-card__people">
+              <dt>{{ copy.participants }}</dt>
+              <dd>
+                @if (participantNames(item).length) {
+                  {{ participantNames(item).join(', ') }}
+                } @else {
+                  {{ copy.noParticipants }}
+                }
+              </dd>
+            </div>
+          </dl>
+          <div class="assignment-card__actions">
+            <app-button variant="secondary" size="sm" icon="user" (click)="viewParticipants(item); $event.stopPropagation()">{{ copy.viewParticipants }}</app-button>
+            <app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('group', item.id)">{{ copy.viewDetail }}</app-button>
+            <app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('group', item.id)" [ariaLabel]="copy.cancelAria"></app-button>
+          </div>
+        </app-card>
+      } @empty {
+        <p class="empty-state">{{ copy.emptyGroup }}</p>
+      }
     </div>
   } @else {
     <div class="assignment-grid">
       @for (item of visibleIndividuals(); track item.id) {
-        <app-card class="assignment-card" [interactive]="true" [padded]="true"><div class="assignment-card__head"><div><span class="assignment-card__eyebrow">{{ item.assignmentCase | uppercase }}</span><h2>{{ personName(item) }}</h2></div><span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span></div><dl><div><dt>Programa</dt><dd>{{ programName(item.programId) }}</dd></div><div><dt>Misión</dt><dd>{{ missionName(item.missionId) }}</dd></div><div><dt>Instructor</dt><dd>{{ userName(item.instructorId) }}</dd></div><div><dt>Fecha</dt><dd>{{ formatDate(item.date) }}</dd></div></dl><div class="assignment-card__actions"><app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('individual', item.id)">Ver detalle</app-button><app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('individual', item.id)" ariaLabel="Cancelar programación"></app-button></div></app-card>
-      } @empty { <p class="empty-state">No hay asignaciones individuales con estos filtros.</p> }
+        <app-card class="assignment-card" [interactive]="true" [padded]="true">
+          <div class="assignment-card__head">
+            <div>
+              <span class="assignment-card__eyebrow">{{ copy.individualTab }}</span>
+              <h2>{{ personName(item) }}</h2>
+            </div>
+            <span class="assignment-card__status" [class]="'status--' + statusClass(item.status)">{{ statusText(item.status) }}</span>
+          </div>
+          <dl>
+            <div>
+              <dt>{{ copy.programLabel }}</dt>
+              <dd>{{ programName(item.programId) }}</dd>
+            </div>
+          </dl>
+          <div class="assignment-card__actions">
+            <app-button variant="secondary" size="sm" icon="eye" (click)="openDetail('individual', item.id)">{{ copy.viewDetail }}</app-button>
+            <app-button variant="ghost" size="sm" icon="trash" [disabled]="item.status === 'cancelled' || item.status === 'completed'" (click)="askCancel('individual', item.id)" [ariaLabel]="copy.cancelAria"></app-button>
+          </div>
+        </app-card>
+      } @empty {
+        <p class="empty-state">{{ copy.emptyIndividual }}</p>
+      }
     </div>
   }
-  <ui-confirm-dialog title="Cancelar programación" message="La programación pasará a estado Cancelado y dejará de estar disponible para ejecución." confirmLabel="Cancelar programación" [open]="!!cancelTarget()" (closed)="closeCancel()" (confirmed)="confirmCancel()" />
+  <ui-confirm-dialog
+    [title]="copy.cancelTitle"
+    [message]="copy.cancelMessage"
+    [confirmLabel]="copy.cancelConfirm"
+    [open]="!!cancelTarget()"
+    (closed)="closeCancel()"
+    (confirmed)="confirmCancel()"
+  />
+  <app-modal
+    [open]="!!participantModal()"
+    [title]="participantModal()?.title ?? copy.participantsModalTitle"
+    size="lg"
+    (closed)="closeParticipants()"
+  >
+    <ui-table
+      [columns]="participantColumns"
+      [rows]="participantRows()"
+      [emptyTitle]="copy.emptyParticipants"
+      [caption]="copy.participants"
+    />
+  </app-modal>
 </div>

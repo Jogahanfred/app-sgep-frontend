@@ -1,0 +1,526 @@
+alwaysApply: true
+Regla de Perfilamiento y Contexto Operativo
+
+Esta regla es de aplicación obligatoria en todo el sistema.
+
+El sistema utiliza un modelo de perfilamiento, roles y contexto operativo que debe respetarse en todas las funcionalidades, páginas, componentes, rutas, casos de uso y flujos.
+
+El perfilamiento no debe tratarse únicamente como parte del login. El usuario puede tener un rol determinado y, dependiendo de dicho rol, operar sobre una Unidad y/o un Escuadrón.
+
+1. Jerarquía organizacional
+
+La estructura organizacional obligatoria es:
+
+Unidad
+└── Escuadrones
+    └── Personal / Pilotos
+
+
+Reglas:
+
+Una Unidad puede tener múltiples Escuadrones.
+Un Escuadrón pertenece siempre a una Unidad.
+El Escuadrón nunca debe seleccionarse sin conocer su Unidad.
+Los identificadores internos deben utilizarse para mantener el contexto:
+unitId
+squadronId
+Nunca utilizar nombres de Unidad o Escuadrón como identificadores internos cuando exista un ID disponible.
+2. Roles del sistema
+
+Los roles definidos actualmente son:
+
+Código	Rol	Contexto
+ADSYS	Administrador del Sistema	Puede seleccionar Unidad y Escuadrón
+ADPER	Administrador de Personal	Unidad asignada, Escuadrón opcional
+COMDO	Comando	Unidad asignada, Escuadrón opcional
+JESQD	Jefe de Escuadrón	Unidad y Escuadrón asignados
+JOPER	Jefe de Operaciones	Unidad asignada, puede consultar Escuadrones
+JINST	Jefe de Instrucción	Unidad y Escuadrón asignados
+INSTR	Instructor	Unidad y Escuadrón asignados
+EVALU	Evaluador	Unidad y Escuadrón asignados
+PILOT	Piloto	Unidad y Escuadrón asignados
+AUDIT	Consulta / Auditor	Rol transversal de consulta/configuración según permisos
+3. Contexto del usuario
+
+Después de autenticarse, el sistema debe conocer como mínimo:
+
+interface UserContext {
+  userId: string;
+  roleCode: RoleCode;
+  unitId?: string;
+  squadronId?: string;
+}
+
+
+El contexto debe estar disponible de manera centralizada.
+
+No duplicar la lógica de perfilamiento en cada página.
+
+No crear verificaciones independientes del tipo:
+
+if (user.role === 'ADSYS') ...
+
+
+repetidas por toda la aplicación.
+
+La lógica debe centralizarse mediante servicios, guards, resolvers, policies o mecanismos equivalentes de la arquitectura existente.
+
+4. Selección de Unidad y Escuadrón
+
+El sistema debe manejar un contexto operativo activo.
+
+Conceptualmente:
+
+interface OperationalContext {
+  unitId?: string;
+  squadronId?: string;
+}
+
+
+El contexto puede establecerse:
+
+Durante el perfilamiento posterior al login.
+Desde el selector global del Header.
+Desde una pantalla específica cuando la operación lo requiera.
+
+La selección debe respetar siempre la jerarquía:
+
+Unidad → Escuadrón
+
+
+Al cambiar la Unidad:
+
+El squadronId actual debe invalidarse si ya no pertenece a la nueva Unidad.
+El sistema debe solicitar o permitir seleccionar un Escuadrón válido.
+Nunca conservar un squadronId perteneciente a otra Unidad.
+5. Perfilamiento posterior al login
+
+El login y el perfilamiento son conceptos diferentes.
+
+El login únicamente autentica al usuario.
+
+Después de autenticarse, el usuario debe pasar por el flujo de perfilamiento cuando corresponda.
+
+Flujo:
+
+Login
+  ↓
+Usuario autenticado
+  ↓
+Carga de roles y contexto
+  ↓
+Perfilamiento
+  ↓
+Selección de Unidad / Escuadrón cuando corresponda
+  ↓
+Sistema
+
+
+El sistema no debe mostrar el contenido principal de la aplicación antes de completar el perfilamiento requerido.
+
+El perfilamiento debe ser una pantalla completa, nunca un modal.
+
+6. Comportamiento por rol
+ADSYS — Administrador del Sistema
+
+Es el rol con mayor capacidad de selección de contexto.
+
+Debe poder:
+
+Seleccionar una Unidad.
+Seleccionar un Escuadrón perteneciente a la Unidad.
+Cambiar de Unidad.
+Cambiar de Escuadrón.
+Trabajar sobre diferentes Unidades y Escuadrones según sus permisos.
+
+En el Header debe existir la posibilidad de establecer:
+
+Unidad → Escuadrón
+
+
+Si ADSYS ya seleccionó ambos en el Header, las pantallas internas deben reutilizar:
+
+unitId
+squadronId
+
+
+y no solicitar nuevamente los mismos datos.
+
+ADPER — Administrador de Personal
+
+Tiene una Unidad asignada.
+
+Debe:
+
+Utilizar la Unidad asignada como contexto por defecto.
+Poder seleccionar Escuadrón cuando sus permisos lo permitan.
+No poder cambiar libremente de Unidad salvo que una autorización específica lo permita.
+Si existe un Escuadrón seleccionado en Header, las pantallas deben reutilizarlo.
+COMDO — Comando
+
+Tiene una Unidad asignada.
+
+Debe:
+
+Trabajar dentro de su Unidad.
+Tener menor nivel de privilegios que ADPER.
+Poder consultar los Escuadrones disponibles dentro de su Unidad cuando la funcionalidad lo requiera.
+No poder cambiar de Unidad sin autorización.
+Reutilizar el Escuadrón seleccionado globalmente cuando exista.
+JESQD — Jefe de Escuadrón
+
+Tiene asignados:
+
+Unidad
+└── Escuadrón
+
+
+Su contexto es fijo.
+
+No debe solicitarse nuevamente Unidad o Escuadrón en las pantallas.
+
+Las operaciones deben ejecutarse automáticamente utilizando:
+
+unitId
+squadronId
+
+
+del perfil del usuario.
+
+JOPER — Jefe de Operaciones
+
+Tiene una Unidad asignada.
+
+Su nivel organizacional se encuentra por encima del Escuadrón.
+
+Por ello:
+
+Tiene una Unidad asignada.
+Puede consultar múltiples Escuadrones de dicha Unidad.
+Puede necesitar seleccionar un Escuadrón para ejecutar determinadas operaciones.
+Si no existe un Escuadrón seleccionado en el Header y una pantalla requiere trabajar sobre un Escuadrón, dicha pantalla debe mostrar un selector de Escuadrón.
+El selector debe mostrar únicamente Escuadrones pertenecientes a la Unidad asignada.
+
+Ejemplo:
+
+Header
+Unidad: Unidad A
+Escuadrón: Todos / Sin selección
+
+            ↓
+
+Pantalla de Operaciones
+
+Escuadrón: [ Seleccionar escuadrón ▼ ]
+
+
+Si posteriormente el Header tiene:
+
+Unidad: Unidad A
+Escuadrón: Escuadrón 811
+
+
+la pantalla no debe mostrar otro selector innecesario.
+
+Debe utilizar:
+
+unitId = unidadA
+squadronId = escuadron811
+
+JINST — Jefe de Instrucción
+
+Tiene:
+
+Unidad
+└── Escuadrón
+
+
+El contexto es asignado.
+
+Las pantallas deben trabajar directamente con esos IDs.
+
+No duplicar selectores de Unidad/Escuadrón cuando el contexto ya está definido.
+
+INSTR — Instructor
+
+Tiene:
+
+Unidad
+└── Escuadrón
+
+
+Debe trabajar exclusivamente dentro de su contexto autorizado.
+
+Las operaciones de evaluación, instrucción, misiones, maniobras y calificaciones deben respetar automáticamente:
+
+unitId
+squadronId
+
+EVALU — Evaluador
+
+Tiene:
+
+Unidad
+└── Escuadrón
+
+
+Debe trabajar dentro de su Unidad y Escuadrón asignados.
+
+Las evaluaciones nunca deben permitir seleccionar arbitrariamente otra Unidad o Escuadrón.
+
+PILOT — Piloto
+
+Tiene:
+
+Unidad
+└── Escuadrón
+
+
+Su contexto normalmente es fijo.
+
+El piloto debe visualizar información correspondiente a su contexto y permisos.
+
+No debe poder cambiar de Unidad o Escuadrón salvo que exista una regla de negocio explícita que lo permita.
+
+AUDIT — Consulta / Auditor
+
+Es un perfil orientado principalmente a consulta, fiscalización y auditoría.
+
+Debe respetar estrictamente los permisos de solo lectura cuando corresponda.
+
+No asumir que AUDIT puede modificar información simplemente por tener acceso a una pantalla.
+
+7. Regla del Header
+
+El Header debe actuar como fuente del contexto operativo activo cuando el usuario tenga capacidad para seleccionarlo.
+
+Ejemplo:
+
+┌──────────────────────────────────────────────┐
+│ Unidad: [ Unidad 01 ▼ ]                     │
+│ Escuadrón: [ Escuadrón 811 ▼ ]              │
+└──────────────────────────────────────────────┘
+
+
+Si existe un contexto seleccionado globalmente:
+
+unitId
+squadronId
+
+
+las páginas deben consumir ese contexto.
+
+No crear selectores duplicados.
+
+8. Selector contextual dentro de las páginas
+
+Una página puede mostrar un selector propio únicamente cuando:
+
+La operación requiere Unidad y/o Escuadrón.
+El Header no tiene el contexto necesario.
+El rol del usuario permite seleccionar dicho contexto.
+
+Ejemplo para JOPER:
+
+Header
+Unidad: Unidad 01
+Escuadrón: Sin seleccionar
+
+↓
+
+Pantalla de operaciones
+
+Escuadrón
+[ Escuadrón 811 ▼ ]
+
+
+Si el Header ya tiene:
+
+Unidad: Unidad 01
+Escuadrón: Escuadrón 811
+
+
+entonces:
+
+NO mostrar selector de Escuadrón
+
+
+La página debe utilizar el contexto global.
+
+9. Prioridad del contexto
+
+Cuando una pantalla necesite contexto operativo, aplicar esta prioridad:
+
+1. Contexto global seleccionado en Header
+        ↓
+2. Contexto asignado al usuario
+        ↓
+3. Selector contextual de la página
+        ↓
+4. Sin contexto → mostrar estado requerido
+
+
+Nunca inventar un contexto por defecto.
+
+Nunca seleccionar automáticamente un Escuadrón arbitrario.
+
+10. Pantallas administrativas
+
+Las pantallas administrativas, especialmente las relacionadas con:
+
+Programas.
+Fases.
+Subfases.
+Maniobras.
+Misiones.
+Estándares.
+Ponderaciones.
+Operaciones.
+Personal.
+Aeronaves.
+Flotas.
+Escuadrones.
+Evaluaciones.
+Calificaciones.
+
+deben determinar explícitamente si requieren:
+
+Unidad
+Escuadrón
+
+
+Antes de ejecutar consultas o comandos.
+
+Ejemplo:
+
+Programas
+Unidad:      [ Unidad 01 ▼ ]
+Escuadrón:   [ Escuadrón 811 ▼ ]
+Programa:    [ Programa de formación ▼ ]
+
+
+Si Unidad y Escuadrón ya fueron definidos en el contexto global:
+
+Programas
+Programa: [ Programa de formación ▼ ]
+
+
+No repetir los selectores.
+
+11. Seguridad
+
+El selector de contexto es únicamente una herramienta de UX.
+
+Nunca debe utilizarse como mecanismo de seguridad.
+
+El backend debe validar siempre:
+
+Usuario autenticado.
+Rol.
+Permisos.
+unitId.
+squadronId.
+Relación Unidad → Escuadrón.
+Acceso del usuario al contexto solicitado.
+
+El frontend no debe asumir que porque un usuario puede seleccionar un ID puede acceder a sus datos.
+
+12. Arquitectura
+
+El perfilamiento debe respetar la arquitectura existente del proyecto:
+
+Presentación
+      ↓
+Aplicación
+      ↓
+Puertos
+      ↓
+Adaptadores
+
+
+Los componentes de UI no deben contener reglas complejas de autorización.
+
+Evitar:
+
+if (...)
+if (...)
+if (...)
+
+
+distribuidos por los componentes.
+
+Preferir servicios/policies centralizados:
+
+AuthorizationService
+ProfileService
+OperationalContextService
+RolePolicy
+
+
+Los nombres deben adaptarse a las convenciones existentes del proyecto antes de crear nuevos servicios.
+
+13. Persistencia del contexto
+
+El contexto activo debe mantenerse mientras sea necesario para la navegación.
+
+Cuando el usuario cambie:
+
+Unidad
+
+
+debe revisarse automáticamente:
+
+Escuadrón
+
+
+y cualquier contexto dependiente.
+
+No mantener estados inconsistentes.
+
+Ejemplo inválido:
+
+Unidad: Unidad 02
+Escuadrón: Escuadrón 811
+
+
+cuando Escuadrón 811 pertenece a Unidad 01.
+
+14. Regla para nuevas funcionalidades
+
+Cada vez que se cree una nueva feature, página, componente o caso de uso, determinar primero:
+
+¿Qué roles pueden acceder?
+¿Qué permisos tienen?
+¿Requiere Unidad?
+¿Requiere Escuadrón?
+¿El usuario tiene Unidad asignada?
+¿El usuario tiene Escuadrón asignado?
+¿El contexto ya está definido en Header?
+¿Debe mostrarse un selector contextual?
+¿Debe utilizar unitId?
+¿Debe utilizar squadronId?
+
+No implementar una nueva pantalla ignorando el modelo de perfilamiento.
+
+15. Regla fundamental
+
+El contexto operativo debe viajar por el sistema junto con la identidad y autorización del usuario.
+
+No diseñar funcionalidades suponiendo que el usuario opera sobre "todos los datos".
+
+El sistema debe saber siempre, cuando corresponda:
+
+QUIÉN
+ ↓
+CON QUÉ ROL
+ ↓
+EN QUÉ UNIDAD
+ ↓
+EN QUÉ ESCUADRÓN
+ ↓
+SOBRE QUÉ RECURSO
+ ↓
+QUÉ OPERACIÓN PUEDE REALIZAR
+
+
+Esta regla aplica a todo desarrollo nuevo y a toda modificación de funcionalidades existentes.

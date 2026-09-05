@@ -1,0 +1,20 @@
+:host {
+  display: contents;
+}
+
+.csm__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.csm__grid app-profile-emblem-card {
+  flex: 0 1 7.5rem;
+}
+
+.csm__load {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}

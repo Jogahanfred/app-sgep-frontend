@@ -1,34 +1,140 @@
 <div class="ap">
-  <div class="ap__head"><div><h1>{{ title() }}</h1><p class="ap__lead">Configura la asignación paso a paso.</p></div><app-button variant="ghost" [href]="listHref">Volver al listado</app-button></div>
-  @if (loading() || saving()) { <ui-loading title="Cargando programación" [subtitle]="saving() ? 'Guardando la asignación y volviendo al listado.' : 'Un momento.'" [label]="saving() ? 'Guardando asignación' : 'Cargando programación'" /> } @else {
-    <div class="training-form">
+  <div class="ap__head">
+    <div>
+      <h1>{{ title() }}</h1>
+      <p class="ap__lead">{{ isGroup ? copy.lead : copy.individualLead }}</p>
+    </div>
+    <app-button variant="ghost" (click)="backToList()">{{ copy.listBack }}</app-button>
+  </div>
+  @if (loading() || saving()) {
+    <ui-loading
+      [title]="copy.loadingTitle"
+      [subtitle]="saving() ? copy.savingSubtitle : copy.loadingSubtitle"
+      [label]="saving() ? copy.savingLabel : copy.loadingLabel"
+    />
+  } @else {
+    <div class="training-form" [class.training-form--solo]="!isGroup">
       @if (isGroup) {
-        <aside class="training-form__timeline"><p class="training-form__kicker">Programar una asignación</p><h2>Progreso de programación</h2><ui-steps [steps]="steps" [current]="currentStep()" label="Progreso de la programación" /></aside>
+        <aside class="training-form__timeline">
+          <p class="training-form__kicker">{{ copy.timelineKicker }}</p>
+          <h2>{{ copy.timelineTitle }}</h2>
+          <ui-steps [steps]="steps" [current]="currentStep()" [label]="copy.timelineLabel" />
+        </aside>
       }
       <main class="training-form__main">
         @if (isGroup) {
-          <nav class="training-form__navigation" aria-label="Navegación de pasos">
-            <app-button variant="ghost" size="sm" icon="chevron-left" [disabled]="currentStep() === 1 || saving()" (click)="previousStep()">Anterior</app-button>
-            <ui-select id="group-status-top" label="Estado de asignación" [uppercase]="false" [options]="statusOptions" [value]="optionValue(form.controls.status)" [disabled]="isView" (valueChange)="setStatus($event)" />
-            <app-button variant="secondary" size="sm" icon="chevron-right" [disabled]="currentStep() === steps.length || !isStepComplete() || saving()" (click)="nextStep()">Siguiente</app-button>
+          <nav class="training-form__navigation" [attr.aria-label]="copy.timelineLabel">
+            <app-button variant="ghost" size="sm" icon="chevron-left" [disabled]="currentStep() === 1 || saving()" (click)="previousStep()">{{ copy.previous }}</app-button>
+            <ui-select id="group-status-top" [label]="copy.statusLabel" [uppercase]="false" [options]="statusOptions" [value]="optionValue(form.controls.status)" [disabled]="isView" (valueChange)="setStatus($event)" />
+            <app-button variant="secondary" size="sm" icon="chevron-right" [disabled]="currentStep() === steps.length || !isStepComplete() || saving()" (click)="nextStep()">{{ copy.next }}</app-button>
           </nav>
         }
-        <ui-form-card><form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
-          @if (error()) { <app-alert tone="error">{{ error() }}</app-alert> }
-          @if (!isGroup) { <ui-select id="assignment-case" label="Tipo de asignación" [uppercase]="false" [options]="caseOptions" [value]="assignmentCase()" [disabled]="isView" (valueChange)="setCase($event)" /> }
-          @if (isGroup) {
-            @if (currentStep() === 1) { <ui-select id="group-program" label="Programa" [uppercase]="false" [options]="programs()" [value]="optionValue(form.controls.programId)" [disabled]="isView" [error]="requiredError(form.controls.programId)" (valueChange)="form.controls.programId.setValue($event)" /> }
-            @if (currentStep() === 2) { <ui-select id="group-promotion" label="Promoción" [uppercase]="false" [options]="promotions()" [value]="optionValue(form.controls.promotionId)" [disabled]="isView" [error]="requiredError(form.controls.promotionId)" (valueChange)="changePromotion($event)" /> }
-            @if (currentStep() === 3) { <section class="promotion-members"><div class="section-heading"><div><h2>2.1 Actualizar participantes</h2><p>Selecciona los alumnos nuevos de la promoción para incluirlos en esta programación.</p></div><strong>{{ pendingParticipants().length }} pendientes</strong></div><div class="member-chips">@for (member of pendingParticipants(); track member.id) { <div class="member-chip"><ui-checkbox [id]="'participant-' + member.id" [label]="member.firstName + ' ' + member.lastName + ' · ' + member.documentNumber" [checked]="selectedParticipantIds().includes(member.id)" [disabled]="isView" (checkedChange)="toggleParticipant(member.id, $event)" /></div> } @empty { <p>No hay participantes nuevos pendientes.</p> }</div></section> }
-            @if (currentStep() === 4) { <section class="lead-selection"><div class="section-heading"><div><h2>Jefe de instrucción</h2><p>Selecciona un responsable entre los cinco perfiles disponibles.</p></div><strong>5 perfiles</strong></div><ui-input id="lead-search" label="Buscar jefe de instrucción" type="search" icon="search" placeholder="Nombre o indicativo" [field]="leadQuery" /><div class="lead-grid">@for (lead of leadCandidates(); track lead.id) { <button type="button" class="lead-card" [class.lead-card--selected]="form.controls.trainingLeadId.value === lead.id" [disabled]="isView" (click)="selectLead(lead.id)"><ui-avatar [name]="lead.firstName + ' ' + lead.lastName" size="md" /><span>{{ lead.firstName }} {{ lead.lastName }}</span><small>{{ lead.indicative || 'Jefe de instrucción' }}</small></button> }</div>@if (form.controls.trainingLeadId.touched && !form.controls.trainingLeadId.value) { <p class="field-error">Selecciona un responsable.</p> }</section> }
-            @if (currentStep() === 5) { <ui-calendar class="training-calendar" id="group-date" label="Fecha programada" [field]="form.controls.scheduledDate" [error]="requiredError(form.controls.scheduledDate)" /> }
-            @if (currentStep() === 6) { <section class="preview"><div class="preview__intro"><span class="training-form__kicker">Reporte de programación</span><h2>Todo listo para programar</h2><p>Revisa el resumen de la asignación antes de confirmar.</p></div><dl><div><dt>Programa</dt><dd>{{ selectedProgram() }}</dd></div><div><dt>Promoción</dt><dd>{{ selectedPromotion() }}</dd></div><div><dt>Jefe de instrucción</dt><dd>{{ selectedLead() }}</dd></div><div><dt>Fecha programada</dt><dd>{{ selectedDate() }}</dd></div><div class="preview__total"><dt>Alumnos incluidos</dt><dd>{{ selectedParticipantIds().length }} personas</dd></div></dl><div class="preview__note">La programación quedará disponible para seguimiento operativo después de confirmar.</div></section> }
-          } @else {
-            @if (assignmentCase() === 'commission') { <ui-input id="external-person" label="Persona externa" icon="user" placeholder="Nombre de la persona externa" [field]="form.controls.externalPerson" [error]="requiredError(form.controls.externalPerson)" /> } @else { <ui-select id="individual-student" label="Alumno" [uppercase]="false" [options]="users()" [value]="optionValue(form.controls.studentId)" [disabled]="isView" (valueChange)="form.controls.studentId.setValue($event)" /> }
-            <div class="ap__grid"><ui-select id="individual-program" label="Programa" [uppercase]="false" [options]="programs()" [value]="optionValue(form.controls.programId)" [disabled]="isView || assignmentCase() === 'commission'" (valueChange)="form.controls.programId.setValue($event)" /><ui-select id="individual-mission" label="Misión individual" [uppercase]="false" [options]="missions()" [value]="optionValue(form.controls.missionId)" [disabled]="isView" (valueChange)="form.controls.missionId.setValue($event)" /></div><div class="ap__grid"><ui-select id="individual-instructor" label="Instructor" [uppercase]="false" [options]="users()" [value]="optionValue(form.controls.instructorId)" [disabled]="isView || assignmentCase() === 'commission'" (valueChange)="form.controls.instructorId.setValue($event)" /><ui-date-picker id="individual-date" label="Fecha" [field]="form.controls.date" /></div>
-          }
-          <div class="ap__actions">@if (!isView && isGroup && currentStep() === 3) { <app-button type="submit" [disabled]="saving() || !hasChanges()">{{ saving() ? 'Actualizando...' : 'Actualizar participantes' }}</app-button> } @if (!isView && (!isGroup || currentStep() === 6)) { <app-button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando...' : 'Programar' }}</app-button> }</div>
-        </form></ui-form-card>
+        <ui-form-card>
+          <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            @if (error()) {
+              <app-alert tone="error">{{ error() }}</app-alert>
+            }
+            @if (isGroup) {
+              @if (currentStep() === 1) {
+                <ui-select id="group-program" [label]="copy.programLabel" [uppercase]="false" [options]="programs()" [value]="optionValue(form.controls.programId)" [disabled]="isView" [error]="requiredError(form.controls.programId)" (valueChange)="form.controls.programId.setValue($event)" />
+              }
+              @if (currentStep() === 2) {
+                <ui-select id="group-promotion" [label]="copy.promotionLabel" [uppercase]="false" [options]="promotions()" [value]="optionValue(form.controls.promotionId)" [disabled]="isView" [error]="requiredError(form.controls.promotionId)" (valueChange)="changePromotion($event)" />
+                <section class="promotion-members">
+                  <div class="section-heading">
+                    <div>
+                      <h2>{{ copy.participantsHeading }}</h2>
+                      <p>{{ copy.participantsLead }}</p>
+                    </div>
+                    <strong>{{ selectedParticipantIds().length }} {{ copy.participantsCountSuffix }}</strong>
+                  </div>
+                  <div class="member-grid">
+                    @for (member of promotionMembers(); track member.id) {
+                      <ui-checkbox
+                        [id]="'participant-' + member.id"
+                        [label]="displayName(member)"
+                        [checked]="selectedParticipantIds().includes(member.id)"
+                        [disabled]="isView"
+                        (checkedChange)="toggleParticipant(member.id, $event)"
+                      />
+                    } @empty {
+                      <p>{{ copy.noParticipants }}</p>
+                    }
+                  </div>
+                </section>
+              }
+              @if (currentStep() === 3) {
+                <section class="lead-selection">
+                  <div class="section-heading">
+                    <div>
+                      <h2>{{ copy.leadHeading }}</h2>
+                      <p>{{ copy.leadLead }}</p>
+                    </div>
+                  </div>
+                  <ui-input id="lead-search" [label]="copy.leadSearch" type="search" icon="search" [placeholder]="copy.leadSearchPlaceholder" [field]="leadQuery" />
+                  <div class="lead-grid">
+                    @for (lead of leadCandidates(); track lead.id) {
+                      <button type="button" class="lead-card" [class.lead-card--selected]="form.controls.trainingLeadId.value === lead.id" [disabled]="isView" (click)="selectLead(lead.id)">
+                        <ui-avatar [name]="lead.firstName + ' ' + lead.lastName" size="md" />
+                        <span>{{ lead.firstName }} {{ lead.lastName }}</span>
+                        <small>{{ lead.indicative || copy.leadFallback }}</small>
+                      </button>
+                    }
+                  </div>
+                  @if (form.controls.trainingLeadId.touched && !form.controls.trainingLeadId.value) {
+                    <p class="field-error">{{ copy.leadRequired }}</p>
+                  }
+                </section>
+              }
+              @if (currentStep() === 4) {
+                <ui-calendar class="training-calendar" id="group-date" [label]="copy.dateLabel" [field]="form.controls.scheduledDate" [error]="requiredError(form.controls.scheduledDate)" />
+              }
+              @if (currentStep() === 5) {
+                <section class="preview">
+                  <div class="preview__intro">
+                    <span class="training-form__kicker">{{ copy.previewKicker }}</span>
+                    <h2>{{ copy.previewTitle }}</h2>
+                    <p>{{ copy.previewLead }}</p>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>{{ copy.previewProgram }}</dt>
+                      <dd>{{ selectedProgram() }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.previewPromotion }}</dt>
+                      <dd>{{ selectedPromotion() }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.previewLeadPerson }}</dt>
+                      <dd>{{ selectedLead() }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.previewDate }}</dt>
+                      <dd>{{ selectedDate() }}</dd>
+                    </div>
+                    <div class="preview__total">
+                      <dt>{{ copy.previewPeople }}</dt>
+                      <dd>{{ selectedParticipantIds().length }} {{ copy.previewPeopleSuffix }}</dd>
+                    </div>
+                  </dl>
+                  <div class="preview__note">{{ copy.previewNote }}</div>
+                </section>
+              }
+            } @else {
+              <ui-select id="individual-student" [label]="copy.studentLabel" [uppercase]="false" [options]="studentOptions()" [value]="optionValue(form.controls.studentId)" [disabled]="isView" [error]="requiredError(form.controls.studentId)" (valueChange)="form.controls.studentId.setValue($event)" />
+              <ui-select id="individual-program" [label]="copy.programLabel" [uppercase]="false" [options]="programs()" [value]="optionValue(form.controls.programId)" [disabled]="isView" [error]="requiredError(form.controls.programId)" (valueChange)="form.controls.programId.setValue($event)" />
+              @if (!studentOptions().length) {
+                <app-alert>{{ copy.emptyStudents }}</app-alert>
+              }
+            }
+            <div class="ap__actions">
+              @if (!isView && (!isGroup || currentStep() === steps.length)) {
+                <app-button type="submit" [disabled]="saving() || (isGroup && !hasChanges())">{{ saving() ? copy.saving : copy.submit }}</app-button>
+              }
+            </div>
+          </form>
+        </ui-form-card>
       </main>
     </div>
   }

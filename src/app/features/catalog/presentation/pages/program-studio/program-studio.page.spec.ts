@@ -54,61 +54,113 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const page = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    let text = root.textContent ?? '';
     expect(text).toContain('Diseñar plan de estudios');
-    expect(text).toContain('Itinerario');
-    expect(text).toContain('Teoría en aula');
+    expect(text).toContain('Módulos');
+    expect(text).toContain('Arquitectura de módulos');
+    expect(text).toContain('Matriz');
+    expect(text).toContain('Póster del programa');
+    expect(text).toContain('Cambiar póster');
+    expect(root.querySelector('ui-poster-field input[type="file"]')).not.toBeNull();
+    expect(root.querySelector('ui-poster-field img')?.getAttribute('src')).toBe('/programs/ppl.jpg');
+    expect(root.querySelector('ui-assign-block')).toBeNull();
+
+    page.goToStep('architecture');
+    fixture.detectChanges();
+    expect(root.querySelector('.ap__head h1')?.textContent?.trim()).toBe('Arquitectura de módulos');
+    text = root.textContent ?? '';
     expect(text).toContain('Vuelo básico');
-    expect(text).toContain('Aula');
     expect(text).toContain('Dual');
     expect(text).toContain('Subfase 1');
     expect(text).toContain('Subfase 2');
-    expect(text).toContain('Las sesiones que vuela o practica el alumno');
-    expect(text).toContain('Los ejercicios que se trabajan o evalúan');
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('ui-assign-block').length).toBeGreaterThan(1);
-    expect(text).toContain('Añadir');
-    const chips = (fixture.nativeElement as HTMLElement).querySelector('.chips') as HTMLElement | null;
-    expect(chips).not.toBeNull();
-    expect(getComputedStyle(chips!).justifyContent).toBe('center');
-    const addMission = (fixture.nativeElement as HTMLElement).querySelector('.ab__bar app-button');
-    expect(addMission?.textContent).toContain('Añadir');
-    expect(addMission?.querySelector('.btn--xs')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.ab__body app-button')).toBeNull();
-    expect(text).toContain('C1');
-    expect(text).toContain('C8');
-    expect(text).toContain('C17');
-    expect(text).not.toMatch(/C1, C2, C3, C4 … C17/);
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.chips ui-chip').length).toBeGreaterThanOrEqual(17);
-    expect(text).toContain('TOFF · Despegue');
-    expect(text).toContain('LAND · Aterrizaje');
-    const orderBtns = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.ab__bar app-button')].filter((node) =>
-      (node.textContent ?? '').includes('Ver orden'),
-    );
-    expect(orderBtns.length).toBeGreaterThan(0);
-    expect(orderBtns.some((node) => !node.querySelector('button')?.disabled)).toBe(true);
-    expect(orderBtns.some((node) => !!node.querySelector('button')?.disabled)).toBe(true);
-    expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="ms-"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('input[id^="mn-"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('fieldset.picks')).toBeNull();
     expect(text).toContain('Añadir fase al itinerario');
     expect(text).toContain('Editar fase');
     expect(text).not.toContain('Banco de fases');
     expect(text).not.toContain('Banco de subfases');
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-fases"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('[id^="sub-bank-"]')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.path ui-table')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-input input[id^="hours-"]')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('label.lesson__hours')).toBeNull();
+    expect(root.querySelector('a[href="/catalogo/banco-fases"]')).toBeNull();
+    expect(root.querySelector('a[href="/catalogo/banco-subfases"]')).toBeNull();
+    expect(root.querySelector('ui-select[id^="phase-bank-"]')).toBeNull();
+    expect(root.querySelector('[id^="sub-bank-"]')).toBeNull();
+    expect(root.querySelector('.path ui-table')).toBeNull();
+    expect(root.querySelector('ui-input input[id^="hours-"]')).not.toBeNull();
+    expect(root.querySelector('label.lesson__hours')).toBeNull();
+    expect(root.querySelector('ui-assign-block')).toBeNull();
+
+    page.goToStep('matrix');
+    fixture.detectChanges();
+    const solo = page.phases().find((phase) => phase.phaseBankId === 'pb-solo');
+    expect(solo).toBeTruthy();
+    page.setMatrixTargetValue(`${solo!.key}:${solo!.subphases[0].key}`);
+    fixture.detectChanges();
+    text = root.textContent ?? '';
+    expect(text).toContain('Matriz de calificación');
+    expect(text).toContain('Ampliar pantalla');
+    expect(text).toContain('C1');
+    expect(text).toContain('C8');
+    expect(text).toContain('C17');
+    expect(text).toContain('Calibrador de celda');
+    expect(text).toContain('LAND');
+    expect(root.querySelector('input[id^="ms-"]')).toBeNull();
+    expect(root.querySelector('input[id^="mn-"]')).toBeNull();
+    expect(root.querySelector('fieldset.picks')).toBeNull();
     expect(text).toContain('Guardar programa');
     expect(text).not.toContain('Guardar plan');
-    expect(text).toContain('Póster del programa');
-    expect(text).toContain('Cambiar póster');
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-poster-field input[type="file"]')).not.toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('ui-poster-field img')?.getAttribute('src')).toBe(
-      '/programs/ppl.jpg',
-    );
+
+    page.selectModule('ground');
+    page.goToStep('architecture');
+    fixture.detectChanges();
+    text = root.textContent ?? '';
+    expect(text).toContain('Teoría en aula');
+    expect(text).toContain('Teoría Aeronáutica I');
+    expect(text).toContain('Curso');
+    expect(text).not.toContain('Fase 1');
+    expect(text).toContain('NIT = NCT');
+    expect(root.querySelector('.path ui-table')).not.toBeNull();
+    expect(page.wizardSteps().includes('matrix')).toBe(false);
+  });
+
+  it('no avanza si faltan datos del paso actual', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot(null) }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const page = fixture.componentInstance;
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.step()).toBe('plan');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Completa el código y el nombre del programa');
+    page.form.controls.code.setValue('NEW-1');
+    page.form.controls.name.setValue('Nuevo programa');
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.step()).toBe('modules');
+    page.goNext();
+    fixture.detectChanges();
+    expect(page.step()).toBe('modules');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Activa al menos un módulo');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Activo');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Avanzar');
+    expect(page.wizardSteps().includes('matrix')).toBe(false);
+    page.setModuleEnabled('ground', true);
+    page.setModuleEnabled('air', true);
+    page.setModuleEnabled('simulator', true);
+    page.setAdvanceModule('air', true);
+    fixture.detectChanges();
+    expect(page.moduleEnabled('ground')).toBe(true);
+    expect(page.moduleEnabled('air')).toBe(true);
+    expect(page.moduleEnabled('simulator')).toBe(true);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Continuar Aire');
+    expect(page.wizardSteps().includes('matrix')).toBe(true);
+    page.setAdvanceModule('ground', true);
+    fixture.detectChanges();
+    expect(page.moduleEnabled('air')).toBe(true);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Continuar Tierra');
+    expect(page.wizardSteps().includes('matrix')).toBe(false);
   });
 
   it('al guardar muestra el loading y vuelve a la lista', async () => {
@@ -149,12 +201,19 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    expect(fixture.componentInstance.phases().length).toBe(0);
-    fixture.componentInstance.addPhase();
+    const page = fixture.componentInstance;
+    expect(page.phases().length).toBe(0);
+    page.form.controls.code.setValue('NEW-1');
+    page.form.controls.name.setValue('Nuevo programa');
+    page.toggleModule('air');
+    page.goToStep('architecture');
+    page.addPhase('air');
     fixture.detectChanges();
-    expect(fixture.componentInstance.phases().length).toBe(1);
+    expect(page.phases().length).toBe(1);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Fase 1');
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Subfase 1');
+    page.goToStep('plan');
+    fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Subir imagen o póster');
   });
 
@@ -167,10 +226,18 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    const firstKey = fixture.componentInstance.phases()[0].key;
-    fixture.componentInstance.openPhaseBankPicker(firstKey);
+    const page = fixture.componentInstance;
+    page.goToStep('architecture');
     fixture.detectChanges();
-    const modal = (fixture.nativeElement as HTMLElement).querySelector('dialog, app-modal');
+    const airPhase = page.phases().find((phase) => phase.moduleKind === 'air');
+    expect(airPhase).toBeTruthy();
+    const firstKey = airPhase!.key;
+    page.openPhaseBankPicker(firstKey);
+    fixture.detectChanges();
+    const modal =
+      [...(fixture.nativeElement as HTMLElement).querySelectorAll('app-modal')].find((item) =>
+        (item.textContent ?? '').includes('Editar fase'),
+      ) ?? null;
     const modalText = modal?.textContent ?? '';
     expect(modal?.querySelector('ui-table')).not.toBeNull();
     expect(modalText).toContain('Editar fase');
@@ -179,18 +246,18 @@ describe('ProgramStudioPage', () => {
     expect(modalText).toContain('En el programa');
     expect(modalText).toContain('IFR');
     expect(modalText).toContain('Instrumental');
-    expect(modalText).toContain('Mostrando 1 - 4 de 11');
+    expect(modalText).toContain('Mostrando 1 - 4 de 15');
     expect(modalText).not.toContain('Vuelo solo');
     expect(modalText).not.toContain('Prueba de pericia');
-    fixture.componentInstance.phaseBankSearch.setValue('BAS');
+    page.phaseBankSearch.setValue('BAS');
     fixture.detectChanges();
     expect((modal?.textContent ?? '')).toContain('Vuelo básico');
     expect((modal?.textContent ?? '')).not.toContain('Instrumental');
-    fixture.componentInstance.pickerSelectedId.set('pb-ifr');
-    fixture.componentInstance.applyPickerPhase();
+    page.pickerSelectedId.set('pb-ifr');
+    page.applyPickerPhase();
     fixture.detectChanges();
-    expect(fixture.componentInstance.phases()[0].phaseBankId).toBe('pb-ifr');
-    expect(fixture.componentInstance.phaseBankOpen()).toBe(false);
+    expect(page.phases().find((phase) => phase.key === firstKey)?.phaseBankId).toBe('pb-ifr');
+    expect(page.phaseBankOpen()).toBe(false);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('IFR · Instrumental');
   });
 
@@ -203,8 +270,11 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    const dual = fixture.componentInstance.phases()[1].subphases[1];
-    fixture.componentInstance.openMissionPicker(fixture.componentInstance.phases()[1].key, dual.key);
+    const page = fixture.componentInstance;
+    page.goToStep('matrix');
+    fixture.detectChanges();
+    const dual = page.phases()[1].subphases[1];
+    page.openMissionPicker(page.phases()[1].key, dual.key);
     fixture.detectChanges();
     const modal =
       (fixture.nativeElement as HTMLElement).querySelector('dialog[open]') ??
@@ -220,7 +290,7 @@ describe('ProgramStudioPage', () => {
     expect(modalText).toContain('Añadir');
     expect(modalText).not.toContain('Catálogo');
     expect(modalText).not.toContain('Crear en automático');
-    fixture.componentInstance.startAddingMissions();
+    page.startAddingMissions();
     fixture.detectChanges();
     modalText = modal?.textContent ?? '';
     expect(modalText).toContain('Manual');
@@ -232,12 +302,12 @@ describe('ProgramStudioPage', () => {
     expect(pills[0].classList.contains('sp__btn--on')).toBe(true);
     expect(pills[1].classList.contains('sp__btn--on')).toBe(false);
     expect(modal?.querySelector('#pick-mision-buscar')).toBeNull();
-    fixture.componentInstance.draftMissionName.update((map) => ({ ...map, [dual.key]: 'Circuito bajo' }));
-    fixture.componentInstance.addCustomMission(fixture.componentInstance.phases()[1].key, dual.key);
+    page.draftMissionName.update((map) => ({ ...map, [dual.key]: 'Circuito bajo' }));
+    page.addCustomMission(page.phases()[1].key, dual.key);
     fixture.detectChanges();
-    expect(fixture.componentInstance.phases()[1].subphases[1].customMissionNames).toContain('Circuito bajo');
-    expect(fixture.componentInstance.generatedMissions().some((item) => item.label === 'Circuito bajo')).toBe(true);
-    expect(fixture.componentInstance.missionAdding()).toBe(false);
+    expect(page.phases()[1].subphases[1].customMissionNames).toContain('Circuito bajo');
+    expect(page.generatedMissions().some((item) => item.label === 'Circuito bajo')).toBe(true);
+    expect(page.missionAdding()).toBe(false);
   });
 
   it('añade maniobras desde el catálogo y las muestra como chips', async () => {
@@ -249,9 +319,14 @@ describe('ProgramStudioPage', () => {
 
     const fixture = TestBed.createComponent(ProgramStudioPage);
     await waitReady(fixture);
-    const phase = fixture.componentInstance.phases()[1];
+    const page = fixture.componentInstance;
+    page.goToStep('matrix');
+    fixture.detectChanges();
+    const phase = page.phases()[1];
     const dual = phase.subphases[1];
-    fixture.componentInstance.openManeuverPicker(phase.key, dual.key);
+    page.setMatrixTargetValue(`${phase.key}:${dual.key}`);
+    fixture.detectChanges();
+    page.openManeuverPicker(phase.key, dual.key);
     fixture.detectChanges();
     const modal =
       [...(fixture.nativeElement as HTMLElement).querySelectorAll('app-modal')].find((item) =>
@@ -285,7 +360,8 @@ describe('ProgramStudioPage', () => {
     fixture.componentInstance.addManeuverFromCatalog('man-hold');
     fixture.detectChanges();
     expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).toContain('man-hold');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('HOLD · Espera');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('HOLD');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Espera');
     fixture.componentInstance.showManeuverGroups();
     fixture.detectChanges();
     expect(modal?.textContent).toContain('Por operaciones');
@@ -328,5 +404,59 @@ describe('ProgramStudioPage', () => {
     fixture.componentInstance.removeManeuver(phase.key, dual.key, 'HOLD · Espera');
     fixture.detectChanges();
     expect(fixture.componentInstance.phases()[1].subphases[1].maneuverIds).not.toContain('man-hold');
+  });
+
+  it('en tierra muestra cursos y asignaturas del programa de helicóptero', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProgramStudioPage],
+      providers: [provideRouter([]), ...CORE_PROVIDERS, { provide: ActivatedRoute, useValue: routeSnapshot('prg-heli-2023', 'view') }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProgramStudioPage);
+    await waitReady(fixture);
+    const page = fixture.componentInstance;
+    page.selectModule('ground');
+    page.goToStep('architecture');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const text = root.textContent ?? '';
+    expect(text).toContain('Instrucción en tierra');
+    expect(text).toContain('Curso');
+    expect(text).not.toContain('Fase 1');
+    expect(text).toContain('CTPH-1');
+    expect(text).toContain('CTPH-2');
+    expect(text).toContain('CCAM');
+    expect(text).toContain('Aerodinámica');
+    expect(text).toContain('0,13');
+    expect(text).toContain('0,22');
+    expect(text).toContain('NIT = NCT');
+    expect(text).toContain('NFPI = NIT');
+    expect(text).toContain('Pond. NEI');
+    expect(text).toContain('Inopinado');
+    expect(text).toContain('Emergencias críticas');
+    expect(text).not.toContain('Editar curso');
+    expect(text).toContain('El programa de 2025 está culminado');
+    expect(text).not.toContain('Añadir asignatura');
+    expect(text).not.toContain('Añadir curso al itinerario');
+    expect(text).not.toContain('Añadir test');
+    expect(root.querySelector('.workspace--full')).not.toBeNull();
+    expect(root.querySelector('[id^="add-course-"]')).toBeNull();
+    expect(root.querySelector('input[id^="gs-name-"]')).toBeNull();
+    expect(root.querySelector('input#periodic-period')).toBeNull();
+    expect(text).not.toContain('Métricas del plan');
+    expect(text).not.toContain('Requisitos de progresión');
+    page.collapseAll();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Matemática');
+    page.expandAll();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Matemática');
+    page.selectModule('simulator');
+    fixture.detectChanges();
+    const simText = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(simText).toContain('Simulador de vuelo');
+    expect(simText).toContain('Contacto en simulador');
+    expect(simText).toContain('SIM-CON');
+    expect(root.querySelector('.workspace--full')).toBeNull();
   });
 });

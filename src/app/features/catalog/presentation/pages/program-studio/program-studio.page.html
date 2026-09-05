@@ -1,293 +1,835 @@
 <div class="ap studio">
-  <div class="ap__head">
-    <div>
-      <h1>{{ title() }}</h1>
-      <p class="ap__lead">{{ lead() }}</p>
-    </div>
-    @if (!creating()) {
-      <app-button [href]="listHref" variant="ghost">Volver a la academia</app-button>
-    }
-  </div>
-
-  @if (loadState() === 'loading' || creating()) {
+  @if (loadState() === 'loading' || creating() || saving()) {
     <ui-loading
       class="ap__loading"
-      [title]="creating() ? 'Guardando el programa' : 'Cargando el programa'"
-      [subtitle]="creating() ? 'Estamos guardando el programa en la academia.' : 'Un momento.'"
-      [label]="creating() ? 'Guardando programa' : 'Cargando programa'"
+      [title]="creating() || saving() ? copy.saving : copy.loading"
+      [subtitle]="creating() || saving() ? copy.savingHint : copy.loadingHint"
+      [label]="creating() || saving() ? copy.saving : copy.loading"
     />
   } @else if (loadState() === 'error') {
-    <app-alert tone="error">No hemos podido cargar este programa.</app-alert>
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
   } @else {
+    <header class="studio__intro">
+      <h1 class="studio__kicker">{{ programTypeText() }}</h1>
+      <p class="studio__section-lead">{{ copy.sectionLead }}</p>
+    </header>
+
+    <div class="ap__head">
+      <div>
+        <h1>{{ title() }}</h1>
+        <p class="ap__lead">{{ lead() }}</p>
+      </div>
+      @if (!creating()) {
+        <app-button [href]="listHref" variant="ghost">{{ copy.back }}</app-button>
+      }
+    </div>
+
+    @if (needsSquadron()) {
+      <app-alert>{{ copy.needsSquadron }}</app-alert>
+    }
+
     <form class="studio__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
       @if (error()) {
         <app-alert tone="error">{{ error() }}</app-alert>
       }
+      @if (stepError()) {
+        <app-alert tone="error">{{ stepError() }}</app-alert>
+      }
+      @if (culminated()) {
+        <app-alert>{{ copy.culminatedBanner(academicYear()) }}</app-alert>
+      }
 
-      <ui-form-card>
-        <div class="studio__identity">
-          <div class="studio__id-grid">
-            <ui-input
-              id="prg-code"
-              label="Código"
-              icon="id-card"
-              placeholder="PPL-AF"
-              [field]="form.controls.code"
-              [error]="requiredError('code', 'Escribe el código.')"
+      <nav class="stepper" aria-label="Pasos del programa">
+        @for (item of wizardSteps(); track item; let i = $index) {
+          <button
+            type="button"
+            class="stepper__item"
+            [class.stepper__item--on]="step() === item"
+            [class.stepper__item--off]="step() !== item"
+            [disabled]="!canVisitStep(item)"
+            (click)="goToStep(item)"
+          >
+            <span class="stepper__num">{{ i + 1 }}</span>
+            <strong>{{ stepLabel(item) }}</strong>
+          </button>
+        }
+      </nav>
+
+      @if (step() === 'plan') {
+        <section class="master">
+          <div class="studio__identity">
+            <div class="studio__id-grid">
+              <ui-input
+                id="prg-code"
+                label="Código"
+                icon="id-card"
+                placeholder="PPL-AF"
+                [field]="form.controls.code"
+                [error]="requiredError('code', 'Escribe el código.')"
+              />
+              <ui-input
+                id="prg-name"
+                label="Nombre"
+                icon="shield"
+                placeholder="Piloto privado · ala fija"
+                [field]="form.controls.name"
+                [error]="requiredError('name', 'Escribe el nombre.')"
+              />
+            </div>
+            <ui-poster-field
+              label="Póster del programa"
+              emptyText="Arrastra una imagen o elige un archivo para el póster de la tarjeta."
+              [value]="form.controls.imageUrl.value"
+              [alt]="form.controls.name.value || 'Póster del programa'"
+              [disabled]="isReadOnly()"
+              (valueChange)="setPoster($event)"
+              (reject)="onPosterReject($event)"
             />
-            <ui-input
-              id="prg-name"
-              label="Nombre"
-              icon="shield"
-              placeholder="Piloto privado · ala fija"
-              [field]="form.controls.name"
-              [error]="requiredError('name', 'Escribe el nombre.')"
+            <ui-radio-card-group
+              id="prg-type"
+              question="Tipo"
+              layout="horizontal"
+              [options]="typeOptions"
+              [value]="form.controls.programType.value"
+              (valueChange)="setType($event)"
+            />
+            <ui-textarea
+              id="prg-desc"
+              label="Descripción"
+              icon="info"
+              placeholder="Qué forma este programa y a quién se dirige"
+              [rows]="3"
+              [field]="form.controls.description"
+            />
+            <ui-select
+              id="prg-status"
+              label="Estado"
+              [uppercase]="false"
+              [options]="entityStatusOptions"
+              [value]="form.controls.status.value"
+              [disabled]="isReadOnly()"
+              (valueChange)="setStatus($event)"
             />
           </div>
-          <ui-poster-field
-            label="Póster del programa"
-            emptyText="Arrastra una imagen o elige un archivo para el póster de la tarjeta."
-            [value]="form.controls.imageUrl.value"
-            [alt]="form.controls.name.value || 'Póster del programa'"
-            [disabled]="isView"
-            (valueChange)="setPoster($event)"
-            (reject)="onPosterReject($event)"
-          />
-          <ui-radio-card-group
-            id="prg-type"
-            question="Tipo"
-            layout="horizontal"
-            [options]="typeOptions"
-            [value]="form.controls.programType.value"
-            (valueChange)="setType($event)"
-          />
-          <ui-textarea
-            id="prg-desc"
-            label="Descripción"
-            icon="info"
-            placeholder="Qué forma este programa y a quién se dirige"
-            [rows]="3"
-            [field]="form.controls.description"
-          />
-          <ui-select
-            id="prg-status"
-            label="Estado"
-            [uppercase]="false"
-            [options]="entityStatusOptions"
-            [value]="form.controls.status.value"
-            [disabled]="isView"
-            (valueChange)="setStatus($event)"
-          />
-        </div>
-      </ui-form-card>
+        </section>
+      }
 
-      <section class="path" aria-label="Itinerario del programa">
-        <header class="path__head">
-          <div>
-            <h2>Itinerario</h2>
-            <p>
-              {{ phaseCount() }} {{ phaseCount() === 1 ? 'fase' : 'fases' }} · {{ totalHours() }} horas de
-              formación
-            </p>
-          </div>
-        </header>
-
-        @if (phases().length === 0) {
-          <div class="path__empty">
-            <p>El curso aún no tiene etapas. Añade la primera fase del itinerario.</p>
-          </div>
-        } @else {
-          <ol class="path__list">
-            @for (phase of phases(); track phase.key; let i = $index) {
-              <li class="station">
-                <div class="station__rail" aria-hidden="true">
-                  <span class="station__num">{{ i + 1 }}</span>
+      @if (step() === 'modules') {
+        <section class="modules" aria-label="Módulos del programa">
+          <p class="ap__lead">{{ copy.modulesLead }}</p>
+          <ul class="modules__list">
+            @for (option of moduleOptions; track option.kind) {
+              <li
+                class="modules__card"
+                [class.modules__card--on]="moduleEnabled(option.kind)"
+                [class.modules__card--pick]="moduleAdvance(option.kind)"
+              >
+                <div>
+                  <strong>{{ option.title }}</strong>
+                  <span>{{ option.hint }}</span>
                 </div>
-                <article class="station__card">
-                  <header class="station__head">
+                <div class="modules__actions">
+                  <ui-checkbox
+                    [id]="'mod-on-' + option.kind"
+                    [label]="copy.enableModule"
+                    [checked]="moduleEnabled(option.kind)"
+                    [disabled]="isReadOnly()"
+                    (checkedChange)="setModuleEnabled(option.kind, $event)"
+                  />
+                  <ui-checkbox
+                    [id]="'mod-go-' + option.kind"
+                    [label]="copy.advanceModule"
+                    [checked]="moduleAdvance(option.kind)"
+                    [disabled]="isReadOnly()"
+                    (checkedChange)="setAdvanceModule(option.kind, $event)"
+                  />
+                </div>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (step() === 'architecture') {
+        <div class="workspace" [class.workspace--full]="selectedModule() === 'ground'">
+          <section class="path" aria-label="Arquitectura de módulos">
+            <header class="path__head">
+              <div>
+                <h2>{{ copy.stepArchitecture }}</h2>
+                <p>
+                  @if (selectedModule() === 'ground') {
+                    {{ phaseCount() }} {{ phaseCount() === 1 ? copy.courseMeta : copy.coursesMeta }}
+                    · {{ totalHours() }} horas de formación
+                  } @else {
+                    {{ phaseCount() }} {{ phaseCount() === 1 ? 'fase' : 'fases' }}
+                    · {{ totalHours() }} horas de formación
+                  }
+                </p>
+              </div>
+              <div class="path__tools">
+                <app-button type="button" variant="secondary" size="sm" (click)="expandAll()">{{ copy.expand }}</app-button>
+                <app-button type="button" variant="secondary" size="sm" (click)="collapseAll()">{{
+                  copy.collapse
+                }}</app-button>
+              </div>
+            </header>
+
+            @if (selectedModule(); as kind) {
+              @if (kind !== 'ground') {
+                <article class="module-block">
+                  <header class="module-block__head">
                     <div>
-                      <p class="station__kicker">Fase {{ i + 1 }}</p>
-                      <h3>{{ phaseName(phase.phaseBankId) }}</h3>
+                      <p class="station__kicker">{{ kind === 'air' ? copy.moduleKicker : copy.architectureSim }}</p>
+                      <h3>{{ moduleTitle(kind) }}</h3>
                     </div>
-                    @if (!isView) {
-                      <div class="station__tools">
-                        <app-button type="button" variant="secondary" size="sm" (click)="openPhaseBankPicker(phase.key)">
-                          Editar fase
-                        </app-button>
-                        <app-button type="button" variant="secondary" size="sm" (click)="movePhase(phase.key, -1)">
-                          Subir
-                        </app-button>
-                        <app-button type="button" variant="secondary" size="sm" (click)="movePhase(phase.key, 1)">
-                          Bajar
-                        </app-button>
-                        <app-button type="button" variant="ghost" size="sm" (click)="removePhase(phase.key)">
-                          Quitar
-                        </app-button>
-                      </div>
-                    }
+                    <strong>{{ hoursLabel(curriculumHoursOf(kind)) }}</strong>
                   </header>
-
-                  <div class="lessons">
-                    @for (sub of phase.subphases; track sub.key; let j = $index) {
-                      <article class="lesson">
-                        <header class="station__head">
-                          <div>
-                            <p class="station__kicker">Subfase {{ j + 1 }}</p>
-                            <h4>{{ subphaseName(sub.subphaseBankId) }}</h4>
+                  @if (phasesOf(kind).length === 0) {
+                    <div class="path__empty">
+                      <p>{{ copy.emptyModule }}</p>
+                    </div>
+                  } @else {
+                    <ol class="path__list">
+                      @for (phase of phasesOf(kind); track phase.key; let i = $index) {
+                        <li class="station">
+                          <div class="station__rail" aria-hidden="true">
+                            <span class="station__num">{{ i + 1 }}</span>
                           </div>
-                          @if (!isView) {
-                            <div class="station__tools">
-                              <app-button type="button" variant="ghost" size="sm" (click)="removeSubphase(phase.key, sub.key)">
-                                Quitar
-                              </app-button>
-                            </div>
-                          } @else {
-                            <p class="lesson__meta">{{ sub.hours }} h</p>
-                          }
-                        </header>
+                          <article class="station__card">
+                            <header class="station__head">
+                              <div>
+                                <p class="station__kicker">
+                                  Fase {{ i + 1 }} · {{ phaseShare(phase) }}% {{ copy.ofProgram }}
+                                </p>
+                                <h3>{{ phaseName(phase.phaseBankId) }}</h3>
+                                <p class="lesson__meta">{{ hoursLabel(phaseHours(phase)) }}</p>
+                              </div>
+                              @if (!isReadOnly()) {
+                                <div class="station__tools">
+                                  <app-button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    (click)="togglePhase(phase.key)"
+                                  >
+                                    {{ isPhaseCollapsed(phase.key) ? copy.expandCourse : copy.collapseCourse }}
+                                  </app-button>
+                                  <app-button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    (click)="openPhaseBankPicker(phase.key)"
+                                  >
+                                    Editar fase
+                                  </app-button>
+                                  <app-button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    [disabled]="!canMovePhase(phase.key, -1)"
+                                    (click)="movePhase(phase.key, -1)"
+                                  >
+                                    Subir
+                                  </app-button>
+                                  <app-button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    [disabled]="!canMovePhase(phase.key, 1)"
+                                    (click)="movePhase(phase.key, 1)"
+                                  >
+                                    Bajar
+                                  </app-button>
+                                  <app-button type="button" variant="ghost" size="sm" (click)="removePhase(phase.key)">
+                                    Quitar
+                                  </app-button>
+                                </div>
+                              }
+                            </header>
 
-                        @if (!isView) {
+                            @if (!isPhaseCollapsed(phase.key)) {
+                              <div class="lessons">
+                                @for (sub of phase.subphases; track sub.key; let j = $index) {
+                                  <article
+                                    class="lesson"
+                                    [class.lesson--on]="matrixSelectValue() === phase.key + ':' + sub.key"
+                                    (click)="setMatrixTargetValue(phase.key + ':' + sub.key)"
+                                  >
+                                    <header class="station__head">
+                                      <div>
+                                        <p class="station__kicker">Subfase {{ j + 1 }}</p>
+                                        <h4>{{ subphaseName(sub.subphaseBankId) }}</h4>
+                                      </div>
+                                      @if (!isReadOnly()) {
+                                        <div class="station__tools">
+                                          <app-button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            (click)="$event.stopPropagation(); removeSubphase(phase.key, sub.key)"
+                                          >
+                                            Quitar
+                                          </app-button>
+                                        </div>
+                                      } @else {
+                                        <p class="lesson__meta">{{ sub.hours }} h</p>
+                                      }
+                                    </header>
+                                    @if (!isReadOnly()) {
+                                      <ui-input
+                                        [id]="'hours-' + sub.key"
+                                        class="lesson__hours"
+                                        label="Horas"
+                                        type="number"
+                                        suffix="h"
+                                        [min]="0.5"
+                                        [max]="200"
+                                        [step]="0.5"
+                                        [field]="hoursField(phase.key, sub.key, sub.hours)"
+                                      />
+                                    }
+                                  </article>
+                                }
+                              </div>
+                              @if (!isReadOnly()) {
+                                <div class="station__add">
+                                  <ui-select
+                                    [id]="'add-sub-' + phase.key"
+                                    label="Añadir subfase"
+                                    [uppercase]="false"
+                                    [options]="subphaseBankOptionsFor(kind)"
+                                    [value]="nextSubphaseBankId()[phase.key] || subphaseBankOptionsFor(kind)[0]?.value || ''"
+                                    (valueChange)="setNextSubphase(phase.key, $event)"
+                                  />
+                                  <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
+                                    Añadir subfase
+                                  </app-button>
+                                </div>
+                              }
+                            }
+                          </article>
+                        </li>
+                      }
+                    </ol>
+                  }
+                  @if (!isReadOnly()) {
+                    <div class="path__add">
+                      <ui-select
+                        [id]="'add-phase-' + kind"
+                        label="Añadir fase"
+                        [uppercase]="false"
+                        [options]="phaseBankOptionsFor(kind)"
+                        [value]="nextAvailablePhaseBankIdFor(kind)"
+                        (valueChange)="nextPhaseBankId.set($event)"
+                      />
+                      <app-button type="button" icon="plus" (click)="addPhase(kind)">Añadir fase al itinerario</app-button>
+                    </div>
+                  }
+                </article>
+              }
+
+              @if (kind === 'ground') {
+              <article class="module-block">
+                <header class="module-block__head">
+                  <div>
+                    <p class="station__kicker">{{ copy.coursesHeading }}</p>
+                    <h3>{{ copy.architectureGround }}</h3>
+                    <p class="lesson__meta">{{ groundGradeHint }}</p>
+                  </div>
+                </header>
+                @if (phasesOf('ground').length === 0) {
+                  <div class="path__empty">
+                    <p>{{ copy.emptyGround }}</p>
+                  </div>
+                } @else {
+                  @for (phase of phasesOf('ground'); track phase.key) {
+                    <article class="station__card">
+                      <header class="station__head">
+                        <div>
+                          <p class="station__kicker">{{ copy.courseKicker }}</p>
+                          <h3>{{ courseTitle(phase.phaseBankId) }}</h3>
+                          <p class="lesson__meta">{{ phaseDescription(phase.phaseBankId) }}</p>
+                        </div>
+                        @if (!isReadOnly()) {
+                          <div class="station__tools">
+                            <app-button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              (click)="togglePhase(phase.key)"
+                            >
+                              {{ isPhaseCollapsed(phase.key) ? copy.expandCourse : copy.collapseCourse }}
+                            </app-button>
+                            <app-button type="button" variant="ghost" size="sm" (click)="removePhase(phase.key)">
+                              Quitar
+                            </app-button>
+                          </div>
+                        } @else {
+                          <app-button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            (click)="togglePhase(phase.key)"
+                          >
+                            {{ isPhaseCollapsed(phase.key) ? copy.expandCourse : copy.collapseCourse }}
+                          </app-button>
+                        }
+                      </header>
+                      @if (!isPhaseCollapsed(phase.key)) {
+                      <ui-table
+                        [heading]="copy.colSubject"
+                        caption="Asignaturas de tierra"
+                        [columns]="courseColumns"
+                        [rows]="courseRows(phase)"
+                        [rowAction]="isReadOnly() ? '' : 'Quitar'"
+                        [emptyTitle]="copy.emptySubjects"
+                        (rowActionClick)="removeCourse($event)"
+                      />
+                      @if (!isReadOnly()) {
+                        <div class="station__add station__add--fields">
                           <ui-input
-                            [id]="'hours-' + sub.key"
-                            class="lesson__hours"
-                            label="Horas"
+                            [id]="'gs-name-' + phase.key"
+                            [label]="copy.colSubject"
+                            [field]="groundSubjectNameField(phase.key)"
+                          />
+                          <ui-input
+                            [id]="'gs-hours-' + phase.key"
+                            [label]="copy.colHours"
                             type="number"
                             suffix="h"
                             [min]="0.5"
                             [max]="200"
                             [step]="0.5"
-                            [field]="hoursField(phase.key, sub.key, sub.hours)"
+                            [field]="groundSubjectHoursField(phase.key)"
                           />
-                        }
-
-                        <div class="lesson__blocks">
-                          <ui-assign-block
-                            title="Misiones"
-                            hint="Las sesiones que vuela o practica el alumno en esta subfase."
-                            [countLabel]="missionCountLabel(sub)"
-                          >
-                            @if (!isView) {
-                              <app-button
-                                blockAction
-                                type="button"
-                                variant="secondary"
-                                size="xs"
-                                icon="plus"
-                                (click)="openMissionPicker(phase.key, sub.key)"
-                              >
-                                Añadir
-                              </app-button>
-                            }
-                            @if (missionLabels(sub).length) {
-                              <ul class="chips">
-                                @for (name of missionLabels(sub); track name) {
-                                  <li>
-                                    <ui-chip
-                                      [label]="name"
-                                      [removable]="!isView"
-                                      (removed)="removeMission(phase.key, sub.key, name)"
-                                    />
-                                  </li>
-                                }
-                              </ul>
-                            } @else {
-                              <p class="lesson__meta">Esta subfase aún no tiene misiones.</p>
-                            }
-                          </ui-assign-block>
-
-                          <ui-assign-block
-                            title="Maniobras"
-                            hint="Los ejercicios que se trabajan o evalúan en esas sesiones."
-                            [countLabel]="maneuverCountLabel(sub)"
-                          >
-                            <ng-container blockAction>
-                              @if (!isView) {
-                                <app-button
-                                  type="button"
-                                  variant="secondary"
-                                  size="xs"
-                                  icon="plus"
-                                  (click)="openManeuverPicker(phase.key, sub.key)"
-                                >
-                                  Añadir
-                                </app-button>
-                                <app-button
-                                  type="button"
-                                  variant="secondary"
-                                  size="xs"
-                                  [disabled]="!sub.maneuverIds.length"
-                                  (click)="showManeuverOrder(phase.key, sub.key)"
-                                >
-                                  Ver orden
-                                </app-button>
-                              }
-                            </ng-container>
-                            @if (maneuverLabels(sub).length) {
-                              <ul class="chips">
-                                @for (name of maneuverLabels(sub); track name) {
-                                  <li>
-                                    <ui-chip
-                                      [label]="name"
-                                      [removable]="!isView"
-                                      (removed)="removeManeuver(phase.key, sub.key, name)"
-                                    />
-                                  </li>
-                                }
-                              </ul>
-                            } @else {
-                              <p class="lesson__meta">Esta subfase aún no tiene maniobras.</p>
-                            }
-                          </ui-assign-block>
+                          <ui-input
+                            [id]="'gs-coef-' + phase.key"
+                            [label]="copy.colCoefficient"
+                            type="number"
+                            [min]="0"
+                            [max]="1"
+                            [step]="0.01"
+                            [field]="groundSubjectCoefField(phase.key)"
+                          />
+                          <ui-input
+                            [id]="'gs-min-' + phase.key"
+                            [label]="copy.colMinGrade"
+                            type="number"
+                            [min]="0"
+                            [max]="20"
+                            [step]="1"
+                            [field]="groundSubjectMinField(phase.key)"
+                          />
+                          <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addGroundSubject(phase.key)">
+                            {{ copy.addCourse }}
+                          </app-button>
                         </div>
-                      </article>
-                    }
+                      }
+                      }
+                    </article>
+                  }
+                }
+                @if (!isReadOnly()) {
+                  <div class="path__add">
+                    <ui-select
+                      id="add-phase-ground"
+                      [label]="copy.addCourseLabel"
+                      [uppercase]="false"
+                      [options]="phaseBankOptionsFor('ground')"
+                      [value]="nextAvailablePhaseBankIdFor('ground')"
+                      (valueChange)="nextPhaseBankId.set($event)"
+                    />
+                    <app-button type="button" icon="plus" (click)="addPhase('ground')">{{ copy.addCoursePath }}</app-button>
                   </div>
-
-                  @if (!isView) {
-                    <div class="station__add">
-                      <ui-select
-                        [id]="'add-sub-' + phase.key"
-                        label="Añadir subfase"
-                        [uppercase]="false"
-                        [options]="subphaseBankOptions()"
-                        [value]="nextSubphaseBankId()[phase.key] || subphaseBankOptions()[0]?.value || ''"
-                        (valueChange)="setNextSubphase(phase.key, $event)"
+                }
+                <section class="station__card">
+                  <header class="station__head">
+                    <div>
+                      <p class="station__kicker">{{ copy.periodicHeading }}</p>
+                      <h3>{{ copy.periodicHeading }}</h3>
+                    </div>
+                  </header>
+                  <ui-table
+                    [heading]="copy.periodicHeading"
+                    caption="Evaluaciones periódicas de tierra"
+                    [columns]="periodicColumns"
+                    [rows]="periodicRows()"
+                    [rowAction]="isReadOnly() ? '' : 'Quitar'"
+                    [emptyTitle]="copy.emptyPeriodic"
+                    (rowActionClick)="removePeriodicExam($event)"
+                  />
+                  @if (!isReadOnly()) {
+                    <div class="station__add station__add--fields">
+                      <ui-input
+                        [id]="'periodic-period'"
+                        [label]="copy.colPeriod"
+                        [field]="periodicPeriodField()"
                       />
-                      <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addSubphase(phase.key)">
-                        Añadir subfase
+                      <ui-input
+                        [id]="'periodic-exam'"
+                        [label]="copy.colExam"
+                        [field]="periodicExamNameField()"
+                      />
+                      <ui-input
+                        [id]="'periodic-min'"
+                        [label]="copy.colMinGrade"
+                        type="number"
+                        [min]="0"
+                        [max]="20"
+                        [step]="1"
+                        [field]="periodicMinField()"
+                      />
+                      <ui-input
+                        [id]="'periodic-weight'"
+                        [label]="copy.colWeight"
+                        type="number"
+                        [min]="0"
+                        [max]="1"
+                        [step]="0.01"
+                        [field]="periodicWeightField()"
+                      />
+                      <app-button type="button" variant="secondary" size="sm" icon="plus" (click)="addPeriodicExam()">
+                        {{ copy.addPeriodic }}
                       </app-button>
                     </div>
                   }
-                </article>
-              </li>
+                </section>
+              </article>
+              }
             }
-          </ol>
-        }
+          </section>
 
-        @if (!isView) {
-          <div class="path__add">
-            <ui-select
-              id="add-phase"
-              label="Añadir fase"
-              [uppercase]="false"
-              [options]="phaseBankOptions()"
-              [value]="nextAvailablePhaseBankId()"
-              (valueChange)="nextPhaseBankId.set($event)"
-            />
-            <app-button type="button" icon="plus" (click)="addPhase()">Añadir fase al itinerario</app-button>
-          </div>
-        }
-      </section>
+          @if (selectedModule() !== 'ground') {
+          <aside class="aside">
+            <section class="aside__card">
+              <p class="station__kicker">{{ copy.metricsKicker }}</p>
+              <h3>{{ copy.metricsTitle }}</h3>
+              <div class="donut">
+                <div class="donut__chart">
+                  <svg viewBox="0 0 36 36" aria-hidden="true">
+                    <circle class="donut__track" cx="18" cy="18" r="15.5" fill="none" stroke-width="3"></circle>
+                    @for (share of hourShares(); track share.id; let i = $index) {
+                      <circle
+                        class="donut__seg"
+                        [class.donut__seg--2]="i % 3 === 1"
+                        [class.donut__seg--3]="i % 3 === 2"
+                        cx="18"
+                        cy="18"
+                        r="15.5"
+                        fill="none"
+                        stroke-width="3.5"
+                        [attr.stroke-dasharray]="share.dasharray"
+                        [attr.stroke-dashoffset]="share.dashoffset"
+                      ></circle>
+                    }
+                  </svg>
+                  <div class="donut__value">
+                    <strong>{{ totalHours() }}</strong>
+                    <span>{{ copy.totalHours }}</span>
+                  </div>
+                </div>
+                <ul class="donut__legend">
+                  @for (share of hourShares(); track share.id) {
+                    <li>
+                      <span>{{ share.label }}</span>
+                      <strong>{{ share.hours }} h ({{ share.percent }}%)</strong>
+                    </li>
+                  }
+                </ul>
+              </div>
+              <ul class="aside__stats">
+                <li>
+                  <span>{{ selectedModule() === 'ground' ? copy.coursesHeading : copy.ratioPhases }}</span>
+                  <strong>{{ phaseCount() }}</strong>
+                </li>
+                <li>
+                  <span>{{ selectedModule() === 'ground' ? copy.subjectsHeading : copy.ratioSubphases }}</span>
+                  <strong>{{ subphaseCount() }}</strong>
+                </li>
+                @if (selectedModule() !== 'ground') {
+                  <li>
+                    <span>{{ copy.ratioMissions }}</span>
+                    <strong>{{ totalMissions() }}</strong>
+                  </li>
+                }
+              </ul>
+            </section>
+            <section class="aside__card">
+              <h3>{{ copy.progressionTitle }}</h3>
+              <p class="lesson__meta">{{
+                selectedModule() === 'ground' ? copy.progressionLeadGround : copy.progressionLead
+              }}</p>
+              <ul class="gates">
+                @for (item of progression(); track item.id) {
+                  <li>
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.detail }}</span>
+                  </li>
+                }
+              </ul>
+            </section>
+          </aside>
+          }
+        </div>
+      }
+
+      @if (step() === 'matrix') {
+        <section class="path" aria-label="Matriz del programa">
+          @if (!hasFlightModules()) {
+            <div class="path__empty">
+              <p>{{ copy.matrixEmpty }}</p>
+            </div>
+          } @else {
+            @if (activeMatrixSub(); as current) {
+              @if (!matrixReady()) {
+                <p class="lesson__meta">{{ copy.matrixPick }}</p>
+                <div class="lesson__blocks">
+                  <ui-assign-block
+                    title="Misiones"
+                    hint="Las sesiones que vuela o practica el alumno en esta subfase."
+                    [countLabel]="missionCountLabel(current.sub)"
+                  >
+                    @if (!isReadOnly()) {
+                      <app-button
+                        blockAction
+                        type="button"
+                        variant="secondary"
+                        size="xs"
+                        icon="plus"
+                        (click)="openMissionPicker(current.phase.key, current.sub.key)"
+                      >
+                        Añadir
+                      </app-button>
+                    }
+                    @if (missionLabels(current.sub).length) {
+                      <ul class="chips">
+                        @for (name of missionLabels(current.sub); track name) {
+                          <li>
+                            <ui-chip
+                              [label]="name"
+                              [removable]="!isReadOnly()"
+                              (removed)="removeMission(current.phase.key, current.sub.key, name)"
+                            />
+                          </li>
+                        }
+                      </ul>
+                    } @else {
+                      <p class="lesson__meta">Esta subfase aún no tiene misiones.</p>
+                    }
+                  </ui-assign-block>
+                  <ui-assign-block
+                    title="Maniobras"
+                    hint="Los ejercicios que se trabajan o evalúan en esas sesiones."
+                    [countLabel]="maneuverCountLabel(current.sub)"
+                  >
+                    <ng-container blockAction>
+                      @if (!isReadOnly()) {
+                        <app-button
+                          type="button"
+                          variant="secondary"
+                          size="xs"
+                          icon="plus"
+                          (click)="openManeuverPicker(current.phase.key, current.sub.key)"
+                        >
+                          Añadir
+                        </app-button>
+                        <app-button
+                          type="button"
+                          variant="secondary"
+                          size="xs"
+                          [disabled]="!current.sub.maneuverIds.length"
+                          (click)="showManeuverOrder(current.phase.key, current.sub.key)"
+                        >
+                          Ver orden
+                        </app-button>
+                      }
+                    </ng-container>
+                    @if (maneuverLabels(current.sub).length) {
+                      <ul class="chips">
+                        @for (name of maneuverLabels(current.sub); track name) {
+                          <li>
+                            <ui-chip
+                              [label]="name"
+                              [removable]="!isReadOnly()"
+                              (removed)="removeManeuver(current.phase.key, current.sub.key, name)"
+                            />
+                          </li>
+                        }
+                      </ul>
+                    } @else {
+                      <p class="lesson__meta">Esta subfase aún no tiene maniobras.</p>
+                    }
+                  </ui-assign-block>
+                </div>
+              } @else if (matrixSubphaseView(); as view) {
+                <div class="matrix-shell" [class.matrix-shell--expanded]="matrixExpanded()">
+                  <div class="matrix-shell__head">
+                    <h2>{{ copy.matrixHeading }}</h2>
+                    <app-button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      [icon]="matrixExpanded() ? 'close' : 'maximize'"
+                      (click)="toggleMatrixExpanded()"
+                    >
+                      {{ matrixExpanded() ? copy.matrixCollapse : copy.matrixExpand }}
+                    </app-button>
+                  </div>
+                  <p class="lesson__meta">{{ subphaseName(current.sub.subphaseBankId) }}</p>
+                  <app-program-standard-matrix
+                    [subphase]="view"
+                    [assignmentMap]="matrixAssignmentMap()"
+                    [disabled]="isReadOnly()"
+                    [mode]="matrixExpanded() ? 'expanded' : 'embedded'"
+                    (cellSelected)="selectMatrixCell($event)"
+                  />
+                </div>
+              }
+            }
+          }
+        </section>
+      }
 
       <div class="ap__actions">
-        <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver a la academia' : 'Cancelar' }}</app-button>
-        @if (!isView) {
-          <app-button type="submit" [disabled]="saving()">{{ isCreate ? 'Crear programa' : 'Guardar programa' }}</app-button>
+        @if (step() !== 'plan') {
+          <app-button type="button" variant="secondary" (click)="goPrev()">{{ copy.prev }}</app-button>
+        }
+        <app-button variant="ghost" [href]="listHref">{{ isReadOnly() ? 'Volver a la academia' : 'Cancelar' }}</app-button>
+        @if (!isReadOnly() && canContinue()) {
+          <app-button type="button" (click)="goNext()">{{ nextLabel() }}</app-button>
+        }
+        @if (!isReadOnly() && !canContinue()) {
+          <app-button type="submit" [disabled]="saving()">{{ isCreate ? copy.create : copy.saveCopy }}</app-button>
         }
       </div>
     </form>
 
-    @if (!isView) {
+    @if (!isReadOnly()) {
+      <app-modal
+        [open]="calibratorCell() !== null"
+        size="xl"
+        [roomy]="true"
+        [title]="copy.calibratorTitle"
+        (closed)="closeCalibrator()"
+      >
+        @if (calibratorCell(); as cell) {
+          <div class="calibrator calibrator--modal">
+            <div class="calibrator__head">
+              <h2>{{ cell.mission.code }} × {{ cell.maneuver.name }}</h2> 
+            </div>
+            <section class="calibrator__block">
+              <ui-field-label [label]="copy.calibratorGrade" [subLabel]="copy.calibratorPickHint" />
+              <div class="calibrator__board calibrator__board--req" role="radiogroup" [attr.aria-label]="copy.calibratorGrade">
+                @for (option of dirbeOptions; track option.value) {
+                  <button
+                    type="button"
+                    [class]="calibratorCardClass(option.value, calibratorLevel() === option.value)"
+                    [attr.aria-pressed]="calibratorLevel() === option.value"
+                    appRipple
+                    (click)="toggleCalibratorLevel(option.value)"
+                  >
+                    <strong>{{ option.value }}</strong>
+                    <!-- <em>{{ option.label }}</em> -->
+                    @if (calibratorLevel() === option.value) {
+                      <span>{{ copy.calibratorRequired }}</span>
+                    }
+                  </button>
+                }
+              </div> 
+            </section>
+            <section class="calibrator__block">
+              <ui-field-label [label]="copy.calibratorDeltaTitle" [subLabel]="copy.calibratorDeltaHint" />
+              <div class="calibrator__board calibrator__board--dirbep">
+                @for (code of dirbepCodes; track code) {
+                  <div class="calibrator__stack" [class.calibrator__stack--danger]="code === 'P'">
+                    <div class="calibrator__slot calibrator__slot--add">
+                      @if (calibratorAddVisible(code)) {
+                        <label class="calibrator__num">
+                          <span>{{ copy.calibratorAdd }}</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            [attr.aria-label]="copy.calibratorAdd + ' ' + dirbepLabel(code)"
+                            [formControl]="calibratorAddField(code)"
+                            (input)="onCalibratorAddTyped(code)"
+                          />
+                        </label>
+                      }
+                    </div>
+                    <article
+                      [class]="
+                        calibratorCardClass(code, calibratorScoreCardOn(code)) + ' calibrator__card--tile'
+                      "
+                    >
+                      @if (code !== 'P') {
+                        <app-button
+                          type="button"
+                          variant="inverse"
+                          size="xs"
+                          icon="plus"
+                          [ariaLabel]="copy.calibratorPlus + ' ' + dirbepLabel(code)"
+                          (click)="bumpCalibratorScore(code, 1)"
+                        />
+                      } @else {
+                        <app-button
+                          type="button"
+                          variant="inverse"
+                          size="xs"
+                          icon="minus"
+                          [ariaLabel]="copy.calibratorMinus + ' ' + dirbepLabel(code)"
+                          (click)="bumpCalibratorScore(code, -1)"
+                        />
+                      }
+                      <div class="calibrator__face">
+                        <strong>{{ code }}</strong>
+                        <!-- <em>{{ dirbepLabel(code) }}</em> -->
+                      </div>
+                      @if (code !== 'P') {
+                        <app-button
+                          type="button"
+                          variant="inverse"
+                          size="xs"
+                          icon="minus"
+                          [ariaLabel]="copy.calibratorMinus + ' ' + dirbepLabel(code)"
+                          (click)="bumpCalibratorScore(code, -1)"
+                        />
+                      } @else {
+                        <app-button
+                          type="button"
+                          variant="inverse"
+                          size="xs"
+                          (click)="toggleCalibratorDischarge()"
+                        >
+                          {{ copy.calibratorDischarge }}
+                        </app-button>
+                      }
+                    </article>
+                    <div class="calibrator__slot calibrator__slot--sub">
+                      @if (calibratorSubVisible(code)) {
+                        <label class="calibrator__num">
+                          <span>{{ copy.calibratorSub }}</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            [attr.aria-label]="copy.calibratorSub + ' ' + dirbepLabel(code)"
+                            [formControl]="calibratorSubField(code)"
+                            (input)="onCalibratorSubTyped(code)"
+                          />
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </section>
+            <div class="ap__actions">
+              <app-button type="button" (click)="applyCalibrator()">{{ copy.calibratorApply }}</app-button>
+            </div>
+          </div>
+        }
+      </app-modal>
       <app-modal [open]="phaseBankOpen()" size="lg" title="Editar fase" (closed)="closePhaseBankPicker()">
         <div class="lessons">
           <p class="lesson__meta">Todas las fases activas. Busca, selecciona una fila y úsala en esta etapa.</p>

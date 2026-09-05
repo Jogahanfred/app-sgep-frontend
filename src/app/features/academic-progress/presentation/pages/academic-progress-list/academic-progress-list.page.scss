@@ -1,0 +1,12 @@
+.ap__lead {
+  margin: 0 0 1rem;
+  max-width: 40rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ap__toolbar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}

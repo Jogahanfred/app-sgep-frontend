@@ -1,0 +1,91 @@
+<div class="reports">
+  <p class="reports__lead">{{ copy.lead }}</p>
+
+  @if (report()?.needsSquadron) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else {
+    @if (loadState() === 'error') {
+      <app-alert tone="error">{{ copy.loadError }}</app-alert>
+    }
+
+    <div class="reports__filters">
+      <ui-select
+        id="report-kind"
+        [label]="copy.typeLabel"
+        [uppercase]="false"
+        [options]="kindOptions()"
+        [value]="kind()"
+        (valueChange)="onKind($event)"
+      />
+      @if (showDates()) {
+        <ui-date-picker id="report-from" [label]="copy.fromLabel" [field]="from" />
+        <ui-date-picker id="report-to" [label]="copy.toLabel" [field]="to" />
+      }
+      @if (showProgram()) {
+        <ui-select
+          id="report-program"
+          [label]="copy.programLabel"
+          [uppercase]="false"
+          [options]="programOptions()"
+          [value]="programId()"
+          (valueChange)="programId.set($event)"
+        />
+      }
+      @if (showPromotion()) {
+        <ui-select
+          id="report-promotion"
+          [label]="copy.promotionLabel"
+          [uppercase]="false"
+          [options]="promotionOptions()"
+          [value]="promotionId()"
+          (valueChange)="promotionId.set($event)"
+        />
+      }
+      @if (showStudent()) {
+        <ui-select
+          id="report-student"
+          [label]="copy.studentLabel"
+          [uppercase]="false"
+          [options]="studentOptions()"
+          [value]="studentId()"
+          (valueChange)="studentId.set($event)"
+        />
+      }
+      @if (showInstructor()) {
+        <ui-select
+          id="report-instructor"
+          [label]="copy.instructorLabel"
+          [uppercase]="false"
+          [options]="instructorOptions()"
+          [value]="instructorId()"
+          (valueChange)="instructorId.set($event)"
+        />
+      }
+      @if (showAircraft()) {
+        <ui-select
+          id="report-aircraft"
+          [label]="copy.aircraftLabel"
+          [uppercase]="false"
+          [options]="aircraftOptions()"
+          [value]="aircraftId()"
+          (valueChange)="aircraftId.set($event)"
+        />
+      }
+    </div>
+
+    <div class="reports__actions">
+      <app-button variant="primary" size="sm" (click)="consult()">{{ copy.consult }}</app-button>
+      <app-button variant="secondary" size="sm" [disabled]="!report()?.rows.length" (click)="exportCsv()">
+        {{ copy.export }}
+      </app-button>
+    </div>
+
+    <ui-table
+      [heading]="tableHeading()"
+      [columns]="columns()"
+      [rows]="rows()"
+      [loading]="loadState() === 'loading'"
+      [emptyTitle]="copy.empty"
+    />
+  }
+</div>

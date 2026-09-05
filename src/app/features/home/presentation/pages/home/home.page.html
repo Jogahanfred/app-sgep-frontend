@@ -1,88 +1,249 @@
-<app-hero-banner
-  title="Hasta 280 €¹ en un año"
-  subtitle="Suma mes a mes. Sin permanencia ni penalizaciones. Cumpliendo condiciones."
-  primaryLabel="Cuéntame cómo"
-  primaryHref="/cuentas"
-  image="/images/hero-lifestyle.jpg"
-  imageAlt="Grupo de personas al aire libre, fotografía de uso libre"
-  align="end"
-/>
-
-<section class="home-loader" aria-labelledby="home-loader-title">
-  <div class="home-loader__inner">
-    <p id="home-loader-title" class="home-loader__kicker">Carga SIGA</p>
-    <h2 class="home-loader__title">Una vuelta y el trazo encuentra el rosa</h2>
-    <p class="home-loader__lead">
-      Parte abajo a la izquierda y gira en sentido horario. Cada cinta forma su triángulo y late. Cuando termina el plomo, el loading vuelve a empezar.
-    </p>
-    <div class="home-loader__stage">
-      <ui-loading />
-    </div>
-    <p class="home-loader__download">
-      <a href="/helvia-siga.zip" download="helvia-siga.zip">Descargar proyecto (ZIP)</a>
-    </p>
+<section class="dash-hero" aria-labelledby="dash-hero-title">
+  <div class="dash-hero__media">
+    <img [src]="copy.image" [alt]="copy.imageAlt" width="1920" height="1080" />
   </div>
+  <app-container>
+    <div class="dash-hero__copy">
+      @if (dashboard(); as data) {
+        @if (data.kind === 'director') {
+          <p class="dash-hero__eyebrow">{{ copy.director.eyebrow }}</p>
+          <h1 id="dash-hero-title">{{ copy.director.title }}</h1>
+          <p class="dash-hero__lead">{{ copy.director.subtitle }}</p>
+        } @else if (data.kind === 'instructor') {
+          <p class="dash-hero__eyebrow">{{ copy.instructor.eyebrow }}</p>
+          <h1 id="dash-hero-title">{{ copy.instructor.title }}</h1>
+          <p class="dash-hero__lead">{{ copy.instructor.subtitle }}</p>
+        } @else {
+          <p class="dash-hero__eyebrow">{{ copy.student.eyebrow }}</p>
+          <h1 id="dash-hero-title">{{ copy.student.title }}</h1>
+          <p class="dash-hero__lead">{{ copy.student.subtitle }}</p>
+        }
+      } @else {
+        <p class="dash-hero__eyebrow">SIGA</p>
+        <h1 id="dash-hero-title">{{ copy.student.title }}</h1>
+      }
+    </div>
+  </app-container>
 </section>
 
 @if (status() === 'loading') {
-  <app-section title="Cargando soluciones">
-    <div class="home-sk">
+  <app-section title="Cargando panel">
+    <div class="dash-sk">
       <ui-loading />
     </div>
   </app-section>
+} @else if (status() === 'missing') {
+  <app-section>
+    <app-alert>{{ copy.missingContext }}</app-alert>
+  </app-section>
 } @else if (status() === 'error') {
   <app-section>
-    <app-alert tone="error">No hemos podido cargar la página. Recarga o vuelve en unos minutos.</app-alert>
+    <app-alert tone="error">{{ copy.error }}</app-alert>
   </app-section>
-} @else if (content(); as home) {
-  <app-need-selector-section [options]="home.needOptions" />
+} @else if (dashboard(); as data) {
+  @if (data.needsSquadron) {
+    <app-section>
+      <app-alert>{{ copy.needsSquadron }}</app-alert>
+    </app-section>
+  }
 
-  <app-theme-section />
-
-  <app-product-section
-    title="Productos destacados"
-    subtitle="Cuenta, tarjeta, préstamo, hipoteca e inversión."
-    [products]="home.featuredProducts"
-    featuredId="cuenta-clara"
-    sectionId="productos"
-    [columns]="3"
-    align="center"
-  />
-
-  <app-promotion-section [promotions]="home.promotions" />
-
-  <app-section
-    title="¿Cuánto necesitas?"
-    subtitle="Cuota orientativa. El cálculo vive en el dominio, no en la plantilla."
-    sectionId="calculadora"
-    align="center"
-  >
-    <div class="home-calc">
-      <app-loan-calculator />
-    </div>
-  </app-section>
-
-  <app-product-section
-    title="Inversión y ahorro"
-    [products]="home.investmentProducts"
-    sectionId="inversion"
-    [columns]="4"
-    align="center"
-  />
-
-  <app-help-section [topics]="home.helpTopics" />
-  <app-faq-section [items]="home.faqs" />
-
-  <section class="home-cta">
-    <app-container>
-      <div class="home-cta__box">
-        <h2>Conectados, siempre</h2>
-        <p>Abre la Cuenta Clara en digital o pide cita. Helvia es una marca ficticia; el flujo es el de un banco real.</p>
-        <div class="home-cta__actions">
-          <app-button href="/hazte-cliente" variant="inverse" size="lg">Hazte cliente</app-button>
-          <app-button href="/cuentas" variant="inverse" size="lg">Ver cuentas</app-button>
+  @if (data.kind === 'director') {
+    <app-section [title]="copy.director.kpis.students">
+      <div class="dash-kpis">
+        <div class="dash-kpi">
+          <span>{{ data.activeStudents }}</span>
+          <strong>{{ copy.director.kpis.students }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.activePrograms }}</span>
+          <strong>{{ copy.director.kpis.programs }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.missionsToday }}</span>
+          <strong>{{ copy.director.kpis.today }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.hoursFlown }}</span>
+          <strong>{{ copy.director.kpis.hours }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.activePromotions }}</span>
+          <strong>{{ copy.director.kpis.promotions }}</strong>
         </div>
       </div>
-    </app-container>
-  </section>
+    </app-section>
+    <app-section [title]="copy.director.missions" tone="muted">
+      <div class="dash-kpis">
+        <div class="dash-kpi">
+          <span>{{ data.missionActivity.scheduled }}</span>
+          <strong>{{ copy.director.scheduled }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.missionActivity.inProgress }}</span>
+          <strong>{{ copy.director.inProgress }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.missionActivity.completed }}</span>
+          <strong>{{ copy.director.completed }}</strong>
+        </div>
+      </div>
+    </app-section>
+    <app-section [title]="copy.director.programs">
+      <ul class="dash-programs">
+        @for (item of data.programStatus; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.director.activity" tone="muted">
+      <ul class="dash-programs">
+        @for (item of data.academicActivity; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.director.distribution" tone="muted">
+      <ul class="dash-programs">
+        @for (item of data.studentDistribution; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.director.trend">
+      <ul class="dash-programs">
+        @for (item of data.hoursTrend; track item.id) {
+          <li><span>{{ item.meta }} h</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.director.alerts">
+      <ul class="dash-programs">
+        @for (item of data.alerts; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+  }
+
+  @if (data.kind === 'instructor') {
+    <app-section>
+      <div class="dash-kpis">
+        <div class="dash-kpi">
+          <span>{{ data.assignedMissions }}</span>
+          <strong>{{ copy.instructor.assignedMissions }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.assignedStudents }}</span>
+          <strong>{{ copy.instructor.assignedStudents }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.pendingEvaluations }}</span>
+          <strong>{{ copy.instructor.pendingEvaluations }}</strong>
+        </div>
+      </div>
+    </app-section>
+    <app-section [title]="copy.instructor.upcoming" tone="muted">
+      <ul class="dash-programs">
+        @for (item of data.upcoming; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.instructor.pendingStudents">
+      <ul class="dash-programs">
+        @for (item of data.pendingStudents; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.instructor.toGrade" tone="muted">
+      <ul class="dash-programs">
+        @for (item of data.pendingEvaluationsList; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.instructor.recent">
+      <ul class="dash-programs">
+        @for (item of data.recentGrades; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.instructor.progress">
+      <ul class="dash-programs">
+        @for (item of data.studentProgress; track item.id) {
+          <li>
+            <a [routerLink]="'/catalogo/avance-academico/' + item.id"><span>{{ item.meta }}</span> {{ item.title }}</a>
+          </li>
+        }
+      </ul>
+    </app-section>
+  }
+
+  @if (data.kind === 'student') {
+    <app-section>
+      <div class="dash-kpis">
+        <div class="dash-kpi">
+          <span>{{ data.percentComplete === null ? copy.none : data.percentComplete + '%' }}</span>
+          <strong>{{ copy.student.progress }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.hours }}</span>
+          <strong>{{ copy.student.hours }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.average === null ? copy.none : data.average.toFixed(1) }}</span>
+          <strong>{{ copy.student.average }}</strong>
+        </div>
+        <div class="dash-kpi">
+          <span>{{ data.nextMission?.title ?? copy.none }}</span>
+          <strong>{{ copy.student.next }}</strong>
+          @if (data.nextMission) {
+            <em>{{ data.nextMission.meta }}</em>
+          }
+        </div>
+      </div>
+    </app-section>
+    <app-section tone="muted">
+      <ul class="dash-programs">
+        <li><span>{{ copy.student.program }}</span> {{ data.programName || copy.none }}</li>
+        <li><span>{{ copy.student.phase }}</span> {{ data.phaseName || copy.none }}</li>
+        <li><span>{{ copy.student.subphase }}</span> {{ data.subphaseName || copy.none }}</li>
+      </ul>
+    </app-section>
+    <app-section [title]="copy.student.evaluations">
+      <ul class="dash-programs">
+        @for (item of data.recentEvaluations; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        } @empty {
+          <li>{{ copy.empty }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.student.history" tone="muted">
+      <ul class="dash-programs">
+        @for (item of data.recentMissions; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+    <app-section [title]="copy.student.pending">
+      <ul class="dash-programs">
+        @for (item of data.pending; track item.id) {
+          <li><span>{{ item.meta }}</span> {{ item.title }}</li>
+        }
+      </ul>
+    </app-section>
+  }
 }

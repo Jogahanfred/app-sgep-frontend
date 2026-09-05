@@ -5,6 +5,10 @@
   font-family: var(--font-body);
 }
 
+:host:has(.psm--expanded) {
+  height: 100%;
+}
+
 .psm {
   --psm-header-height: 4.25rem;
   --psm-number-width: 3rem;
@@ -35,8 +39,14 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
+  cursor: grab;
   scrollbar-width: thin;
   overscroll-behavior: contain;
+}
+
+.psm__scroll--panning {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .psm--expanded .psm__scroll {

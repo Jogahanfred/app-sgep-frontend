@@ -1,9 +1,4 @@
-<dialog
-  #dialog
-  class="login-screen"
-  (cancel)="onCancel($event)"
-  [attr.aria-label]="copy.dialogLabel"
->
+<section class="login-screen" [attr.aria-label]="copy.pageLabel">
   <div class="login-screen__frame">
     <section class="login-screen__showcase" [attr.aria-label]="copy.mission">
       <img class="login-screen__plate" [src]="showcaseImage" [alt]="copy.imageAlt" width="1408" height="768" />
@@ -73,9 +68,6 @@
             <p>{{ copy.brandUnit }}</p>
           </div>
         </div>
-        <button type="button" class="login-screen__close" data-close [attr.aria-label]="copy.close" (click)="close()">
-          <app-icon name="close" />
-        </button>
       </div>
 
       <header class="login-screen__intro">
@@ -83,6 +75,10 @@
         <h2>{{ copy.title }}</h2>
         <p>{{ copy.subtitle }}</p>
       </header>
+
+      @if (error(); as message) {
+        <app-alert tone="error">{{ message }}</app-alert>
+      }
 
       <form class="login-screen__form" [formGroup]="form" (ngSubmit)="submit()">
         <ui-input
@@ -104,7 +100,9 @@
           icon="lock"
           autocomplete="current-password"
         />
-        <app-button type="submit" [fullWidth]="true" icon="arrow-right">{{ copy.submit }}</app-button>
+        <app-button type="submit" [fullWidth]="true" icon="arrow-right" [loading]="submitting()" [disabled]="submitting()">
+          {{ copy.submit }}
+        </app-button>
       </form>
 
       <footer class="login-screen__legal">
@@ -116,4 +114,4 @@
       </footer>
     </section>
   </div>
-</dialog>
+</section>

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ListPhases, ListPrograms, ListSubphases } from '@core/application';
 import type { ProgramEntity } from '@core/domain/entities';
-import { curriculumHours, matchesAdminSearch, programTypeLabel, statusLabel } from '@core/domain/services/admin-catalog';
+import { curriculumHours, isProgramCulminated, matchesAdminSearch, programBoardStatusLabel, programTypeLabel } from '@core/domain/services/admin-catalog';
 import { forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -82,7 +82,22 @@ export class ProgramsBoardPage {
   }
 
   typeLabel = programTypeLabel;
-  statusText = statusLabel;
+
+  studioHref(program: ProgramEntity): string {
+    return isProgramCulminated(program) ? `/catalogo/programas/${program.id}` : `/catalogo/programas/${program.id}/editar`;
+  }
+
+  isCulminated(program: ProgramEntity): boolean {
+    return isProgramCulminated(program);
+  }
+
+  cardStatus(program: ProgramEntity): ProgramEntity['status'] {
+    return isProgramCulminated(program) ? 'inactive' : program.status;
+  }
+
+  cardStatusLabel(program: ProgramEntity): string {
+    return programBoardStatusLabel(program);
+  }
 
   cardStats(card: ProgramCard): string[] {
     return [

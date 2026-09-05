@@ -1,0 +1,211 @@
+<div class="file">
+  @if (session.roleCode() !== 'PILOT') {
+    <p class="file__nav">
+      <a [routerLink]="listHref">{{ copy.back }}</a>
+    </p>
+  }
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <p class="file__muted">{{ copy.currentEyebrow }}</p>
+  } @else if (detail(); as data) {
+    <header class="file__head">
+      <p class="file__eyebrow">{{ copy.currentEyebrow }}</p>
+      <h2>{{ data.displayName }}</h2>
+      @if (currentProgramView()?.enrollmentStatus; as enrollmentStatus) {
+        <p class="file__enrollment" [class.file__enrollment--closed]="enrollmentStatus !== 'active'">
+          {{ copy.enrollmentStatus[enrollmentStatus] }}
+        </p>
+      }
+      @if (data.indicative) {
+        <p class="file__meta">{{ data.indicative }}</p>
+      }
+    </header>
+
+    @if (currentProgramView(); as enrollmentView) {
+      @if (enrollmentView.enrollmentStatus && enrollmentView.enrollmentStatus !== 'active') {
+        <app-alert>{{ copy.blockedWrite }}</app-alert>
+      }
+    }
+
+    @if (data.progress; as progress) {
+      <section class="file__card" [attr.aria-label]="copy.currentTitle">
+        <p class="file__kicker">{{ copy.programLabel }}</p>
+        <h3>{{ data.programName }}</h3>
+        <p class="file__progress-label">{{ copy.progressLabel }}</p>
+        <p class="file__percent">{{ progress.percentComplete }}%</p>
+        <div class="file__bar" role="progressbar" [attr.aria-valuenow]="progress.percentComplete" aria-valuemin="0" aria-valuemax="100">
+          <span [style.--progress]="progress.percentComplete"></span>
+        </div>
+        <dl class="file__facts">
+          <div>
+            <dt>{{ copy.phaseLabel }}</dt>
+            <dd>{{ data.phaseName || copy.none }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.subphaseLabel }}</dt>
+            <dd>{{ data.subphaseName || copy.none }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.instructorLabel }}</dt>
+            <dd>{{ data.instructorName || copy.none }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.specialtyLabel }}</dt>
+            <dd>{{ data.specialtyNames.join(', ') || copy.none }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.completedLabel }}</dt>
+            <dd>{{ progress.completedMissions }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.pendingLabel }}</dt>
+            <dd>{{ progress.pendingMissions }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.hoursLabel }}</dt>
+            <dd>{{ progress.accumulatedHours }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.averageLabel }}</dt>
+            <dd>{{ progress.average === null ? copy.none : progress.average.toFixed(1) }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.statusLabel }}</dt>
+            <dd>{{ copy.status[progress.academicStatus] }}</dd>
+          </div>
+          @if (currentProgramView(); as enrollmentView) {
+            <div>
+              <dt>{{ copy.enrollmentLabel }}</dt>
+              <dd>{{ enrollmentView.enrollmentStatus ? copy.enrollmentStatus[enrollmentView.enrollmentStatus] : copy.none }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.promotionLabel }}</dt>
+              <dd>{{ enrollmentView.promotionName || copy.noPromotion }}</dd>
+            </div>
+            @if (enrollmentView.closedAt) {
+              <div>
+                <dt>{{ copy.closedAtLabel }}</dt>
+                <dd>{{ formatDate(enrollmentView.closedAt) }}</dd>
+              </div>
+            }
+            @if (enrollmentView.closeReason) {
+              <div>
+                <dt>{{ copy.closeReasonLabel }}</dt>
+                <dd>{{ enrollmentView.closeReason }}</dd>
+              </div>
+            }
+          }
+        </dl>
+      </section>
+    } @else {
+      <app-alert>{{ copy.noCurrent }}</app-alert>
+    }
+
+    <section class="file__block">
+      <h3>{{ copy.historyTitle }}</h3>
+      <p class="file__lead">{{ copy.historyLead }}</p>
+      <ui-table
+        [heading]="copy.historyTitle"
+        [caption]="copy.historyTitle"
+        [columns]="historyColumns"
+        [rows]="historyRows()"
+        [selectedId]="selectedProgramId()"
+        (selectedIdChange)="selectedProgramId.set($event)"
+      />
+    </section>
+
+    @if (selectedProgram(); as selected) {
+      <section class="file__card">
+        <h3>{{ copy.detailTitle }}</h3>
+        <p class="file__kicker">{{ selected.programName }}</p>
+        <dl class="file__facts">
+          <div>
+            <dt>{{ copy.finalStatus }}</dt>
+            <dd>{{ copy.status[selected.program.status] }}</dd>
+          </div>
+          @if (selected.enrollmentStatus) {
+            <div>
+              <dt>{{ copy.enrollmentLabel }}</dt>
+              <dd>{{ copy.enrollmentStatus[selected.enrollmentStatus] }}</dd>
+            </div>
+          }
+          <div>
+            <dt>{{ copy.promotionLabel }}</dt>
+            <dd>{{ selected.promotionName || copy.noPromotion }}</dd>
+          </div>
+          @if (selected.closedAt) {
+            <div>
+              <dt>{{ copy.closedAtLabel }}</dt>
+              <dd>{{ formatDate(selected.closedAt) }}</dd>
+            </div>
+          }
+          @if (selected.closeReason) {
+            <div>
+              <dt>{{ copy.closeReasonLabel }}</dt>
+              <dd>{{ selected.closeReason }}</dd>
+            </div>
+          }
+          <div>
+            <dt>{{ copy.rankLabel }}</dt>
+            <dd>{{ selected.rank === null ? copy.none : selected.rank }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.lifecycleLabel }}</dt>
+            <dd>{{ selected.culminated ? copy.lifecycleCulminated : copy.lifecycleOpen }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.yearLabel }}</dt>
+            <dd>{{ selected.academicYear === null ? copy.none : selected.academicYear }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.averageLabel }}</dt>
+            <dd>{{ selected.program.average === null ? copy.none : selected.program.average.toFixed(1) }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.hoursLabel }}</dt>
+            <dd>{{ selected.program.accumulatedHours }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.start }}</dt>
+            <dd>{{ formatDate(selected.program.startDate) }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.end }}</dt>
+            <dd>{{ formatDate(selected.program.endDate) }}</dd>
+          </div>
+        </dl>
+        <h4>{{ copy.phasesDone }}</h4>
+        <p>{{ selected.completedPhaseNames.join(', ') || copy.none }}</p>
+        <h4>{{ copy.subphasesDone }}</h4>
+        <p>{{ selected.completedSubphaseNames.join(', ') || copy.none }}</p>
+        <h4>{{ copy.missionsDone }}</h4>
+        <p>{{ selected.executedMissionNames.join(', ') || copy.none }}</p>
+        <h4>{{ copy.evaluations }}</h4>
+        <ul class="file__list">
+          @for (item of selected.evaluations; track item.assignmentId) {
+            <li>
+              {{ formatDate(item.date) }}
+              · {{ item.missionName }}
+              · {{ item.average === null ? copy.none : item.average.toFixed(1) }}
+              · {{ item.result === 'failed' ? copy.resultFailed : item.result === 'approved' ? copy.resultApproved : copy.none }}
+              · {{ copy.graderLabel }}: {{ item.instructorName || copy.none }}
+            </li>
+          } @empty {
+            <li>{{ copy.none }}</li>
+          }
+        </ul>
+        <h4>{{ copy.certifications }}</h4>
+        <p>{{ selected.program.certifications.join(', ') || copy.none }}</p>
+      </section>
+    }
+
+    @if (timelineSteps().length) {
+      <section class="file__block">
+        <h3>{{ copy.timelineTitle }}</h3>
+        <ui-steps [steps]="timelineSteps()" [current]="timelineCurrent()" [label]="copy.timelineTitle" />
+      </section>
+    }
+  }
+</div>

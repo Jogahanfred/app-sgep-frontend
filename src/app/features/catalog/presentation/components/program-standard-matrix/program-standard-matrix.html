@@ -5,8 +5,13 @@
 >
   <div
     class="psm__scroll"
+    [class.psm__scroll--panning]="panning()"
     tabindex="0"
     [attr.aria-label]="'Matriz de calificación de ' + subphase().label"
+    (pointerdown)="onPanStart($event)"
+    (pointermove)="onPanMove($event)"
+    (pointerup)="onPanEnd($event)"
+    (pointercancel)="onPanEnd($event)"
   >
     <table
       class="psm__matrix saw__matrix"

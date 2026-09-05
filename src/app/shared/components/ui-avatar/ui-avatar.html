@@ -1,0 +1,12 @@
+<span class="av-wrap">
+  <span class="av" [class]="'av--' + size()" [attr.aria-label]="name()">
+    @if (src()) {
+      <img [src]="src()" [alt]="'Foto de ' + name()" />
+    } @else {
+      <span aria-hidden="true">{{ initials() }}</span>
+    }
+  </span>
+  @if (marker()) {
+    <span class="av__marker" aria-hidden="true"></span>
+  }
+</span>

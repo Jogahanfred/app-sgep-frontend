@@ -1,24 +1,25 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
-import type { NavGroup } from '@shared/models/nav.model';
-import { Button } from '@shared/components/button/button';
+import { activeNavGroupLabel, type NavGroup } from '@shared/models/nav.model';
 import { Icon } from '@shared/components/icon/icon';
 import { UiAvatar } from '@shared/components/ui-avatar/ui-avatar';
-import { LOGIN_DEFAULT_NEXT_URL } from '../login-screen/login-screen.constants';
-import { LoginScreen } from '../login-screen/login-screen';
+import { LOGIN_ROUTE } from '../auth-routes.constants';
 import { MAIN_NAV } from '../navigation/data/nav.data';
 import { MegaMenu } from '../navigation/mega-menu/mega-menu';
 import { NavigationMenu } from '../navigation/navigation-menu/navigation-menu';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
 import { ClientSession } from '../client-session.service';
+import { ContextSquadronModal } from '../context-squadron-modal';
 import { ScrollChrome } from '../scroll-chrome.service';
+import { getProfileRequirements } from '@core/domain/services/profile-context-policy';
+import { PROFILE_CONTEXT_COPY } from '@features/profile-context/constants/profile-context.copy.constants';
 
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, NavigationMenu, MegaMenu, MobileMenu, LoginScreen, Icon, UiAvatar],
+  imports: [RouterLink, NavigationMenu, MegaMenu, MobileMenu, Icon, UiAvatar, ContextSquadronModal],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -28,13 +29,37 @@ export class Header {
   private readonly router = inject(Router);
   readonly session = inject(ClientSession);
   readonly groups = MAIN_NAV;
+  readonly currentUrl = signal(this.router.url);
+  readonly activeNavLabel = computed(() => activeNavGroupLabel(this.groups, this.currentUrl()));
   readonly scrolled = signal(false);
   readonly hidden = signal(false);
   readonly mobileOpen = signal(false);
-  readonly loginOpen = signal(false);
   readonly megaLabel = signal<string | null>(null);
   readonly userMenuOpen = signal(false);
-  readonly pendingNext = signal(LOGIN_DEFAULT_NEXT_URL);
+  readonly squadronModalOpen = signal(false);
+  readonly loginRoute = LOGIN_ROUTE;
+  readonly squadronPickerLabel = PROFILE_CONTEXT_COPY.chooseSquadron;
+  readonly contextEmblems = computed(() => {
+    if (!this.session.contextConfirmed()) return [];
+    const emblems: { id: string; name: string; imageUrl: string }[] = [];
+    const unitName = this.session.unitName();
+    const unitImageUrl = this.session.unitImageUrl();
+    if (unitName && unitImageUrl) {
+      emblems.push({ id: 'unit', name: unitName, imageUrl: unitImageUrl });
+    }
+    const squadronName = this.session.squadronName();
+    const squadronImageUrl = this.session.squadronImageUrl();
+    if (squadronName && squadronImageUrl) {
+      emblems.push({ id: 'squadron', name: squadronName, imageUrl: squadronImageUrl });
+    }
+    return emblems;
+  });
+  readonly showSquadronPicker = computed(() => {
+    if (!this.session.contextConfirmed()) return false;
+    const role = this.session.roleCode();
+    if (!role || !getProfileRequirements(role).allowSquadronChange) return false;
+    return !!this.session.unitId() && !this.session.squadronId();
+  });
 
   constructor() {
     let lastY = window.scrollY;
@@ -66,6 +91,7 @@ export class Header {
       if (event.key === 'Escape') {
         this.closeMega();
         this.closeUserMenu();
+        this.closeSquadronModal();
       }
     };
     const onDocClick = (event: MouseEvent) => {
@@ -79,8 +105,10 @@ export class Header {
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.openLoginIfNeeded());
-    this.openLoginIfNeeded();
+      .subscribe((event) => {
+        this.currentUrl.set(event.urlAfterRedirects);
+        this.closeUserMenu();
+      });
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -122,6 +150,16 @@ export class Header {
     this.userMenuOpen.set(false);
   }
 
+  openSquadronModal(): void {
+    this.closeMega();
+    this.closeUserMenu();
+    this.squadronModalOpen.set(true);
+  }
+
+  closeSquadronModal(): void {
+    this.squadronModalOpen.set(false);
+  }
+
   goProfile(): void {
     this.closeUserMenu();
     this.closeMega();
@@ -138,31 +176,15 @@ export class Header {
 
   openLogin(): void {
     this.closeMega();
-    this.loginOpen.set(true);
-  }
-
-  closeLogin(): void {
-    this.loginOpen.set(false);
-  }
-
-  onSignedIn(): void {
-    this.pendingNext.set(LOGIN_DEFAULT_NEXT_URL);
-    this.closeLogin();
-  }
-
-  private openLoginIfNeeded(): void {
-    if (this.session.loggedIn()) return;
-    const tree = this.router.parseUrl(this.router.url);
-    const next = tree.queryParams['next'];
-    if (!next || this.loginOpen()) return;
-    this.pendingNext.set(next);
-    this.openLogin();
+    this.closeMobile();
+    void this.router.navigate([LOGIN_ROUTE]);
   }
 
   signOut(): void {
     this.session.signOut();
     this.closeMega();
     this.closeUserMenu();
-    void this.router.navigate(['/']);
+    this.closeSquadronModal();
+    void this.router.navigate([LOGIN_ROUTE]);
   }
 }

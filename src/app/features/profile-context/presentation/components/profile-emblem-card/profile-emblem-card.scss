@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+
+.emblem {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  text-align: center;
+  cursor: pointer;
+}
+
+.emblem:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.emblem__mark {
+  display: grid;
+  place-items: center;
+  width: 10rem;
+  height: 10rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow var(--duration-med) var(--ease-out),
+    transform var(--duration-med) var(--ease-out);
+}
+
+:host.is-sm .emblem__mark {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+:host.is-lg .emblem__mark {
+  width: 14rem;
+  height: 14rem;
+}
+
+:host.is-sm .emblem__name {
+  max-width: 7.5rem;
+  font-size: var(--fs-sm);
+}
+
+.emblem:hover:not(:disabled) .emblem__mark {
+  transform: scale(1.12);
+}
+
+.emblem:hover:not(:disabled) .emblem__mark,
+.emblem--selected .emblem__mark {
+  box-shadow: var(--shadow-md);
+}
+
+.emblem:hover:not(:disabled) .emblem__mark img,
+.emblem:hover:not(:disabled) .emblem__fallback {
+  transform: rotate(8deg);
+}
+
+.emblem--selected .emblem__mark {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.emblem__mark img,
+.emblem__fallback {
+  transition: transform var(--duration-med) var(--ease-out);
+}
+
+.emblem__mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emblem__fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.emblem__name {
+  max-width: 14rem;
+  font-weight: 700;
+  line-height: var(--lh-snug, 1.3);
+}

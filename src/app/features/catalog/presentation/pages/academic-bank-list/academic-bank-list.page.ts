@@ -40,27 +40,41 @@ export class AcademicBankListPage {
     ? 'Catálogo maestro de fases. Aquí se crea y edita el banco; el programa solo lo asigna al itinerario.'
     : 'Catálogo maestro de subfases. Aquí se crea y edita el banco; el programa solo lo asigna a cada lección.';
 
-  readonly columns: UiTableColumn[] = [
-    { id: 'code', header: 'Código' },
-    { id: 'name', header: 'Nombre' },
-    { id: 'description', header: 'Descripción' },
-    { id: 'status', header: 'Estado' },
-  ];
+  readonly columns: UiTableColumn[] = this.isPhase
+    ? [
+        { id: 'code', header: 'Código' },
+        { id: 'name', header: 'Nombre' },
+        { id: 'description', header: 'Descripción' },
+        { id: 'status', header: 'Estado' },
+      ]
+    : [
+        { id: 'code', header: 'Código' },
+        { id: 'name', header: 'Nombre' },
+        { id: 'description', header: 'Descripción' },
+        { id: 'coefficient', header: 'Coef.' },
+        { id: 'minGrade', header: 'Nota mín.' },
+        { id: 'status', header: 'Estado' },
+      ];
 
   readonly filtered = computed(() =>
     this.items().filter((item) => matchesAdminSearch([item.code, item.name, item.description], this.query())),
   );
 
   readonly tableRows = computed<UiTableRow[]>(() =>
-    this.filtered().map((item) => ({
-      id: item.id,
-      cells: {
+    this.filtered().map((item) => {
+      const cells: UiTableRow['cells'] = {
         code: item.code,
         name: item.name,
         description: item.description || '—',
         status: { text: statusLabel(item.status), badge: item.status },
-      },
-    })),
+      };
+      if (!this.isPhase) {
+        const bank = item as SubphaseBankEntity;
+        cells['coefficient'] = this.formatOptionalNumber(bank.coefficient);
+        cells['minGrade'] = this.formatOptionalNumber(bank.minPassingGrade);
+      }
+      return { id: item.id, cells };
+    }),
   );
 
   constructor() {
@@ -76,6 +90,10 @@ export class AcademicBankListPage {
       },
       error: () => this.loadState.set('error'),
     });
+  }
+
+  private formatOptionalNumber(value: number | undefined): string {
+    return value === undefined ? '—' : String(value).replace('.', ',');
   }
 
   goDetail(): void {

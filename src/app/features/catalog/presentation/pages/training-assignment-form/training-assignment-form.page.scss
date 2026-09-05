@@ -1,5 +1,30 @@
 @use '../../shared/styles/panel';
-.training-form { display: grid; grid-template-columns: 16.5rem minmax(0, 1fr); align-items: start; gap: 1.15rem; }
+
+.training-form {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr);
+  align-items: start;
+  gap: 1.15rem;
+  width: 100%;
+}
+
+.training-form--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.training-form__main {
+  min-width: 0;
+  width: 100%;
+}
+
+.training-form--solo ui-form-card,
+.training-form--solo .ap__form,
+.training-form--solo ui-select,
+.training-form--solo ui-input,
+.training-form--solo ui-date-picker {
+  display: block;
+  width: 100%;
+}
 .training-form__timeline { padding: 1.15rem 1.1rem 1.25rem; background: #fff; border: 1px solid var(--color-border-subtle); border-radius: .75rem; }
 .training-form__timeline h2 { margin: 0 0 1rem; font-size: 1.05rem; }
 .training-form__navigation { display: grid; grid-template-columns: minmax(6.5rem, 1fr) minmax(13rem, 22rem) minmax(6.5rem, 1fr); align-items: end; gap: .75rem; min-height: 4.7rem; margin-bottom: 1rem; }
@@ -10,15 +35,17 @@
 .section-heading h2 { margin: 0; font-size: 1rem; }
 .section-heading p { margin: .3rem 0 0; color: var(--color-text-secondary); font-size: var(--fs-sm); }
 .section-heading strong { color: var(--color-primary-dark); font-size: var(--fs-sm); }
-.member-chips { display: flex; flex-wrap: wrap; gap: .65rem; }
-.member-chip { display: inline-flex; align-items: center; gap: .55rem; padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-alt); }
-.member-chip span { display: grid; gap: .1rem; font-size: .85rem; }
-.member-chip small, .lead-card small { color: var(--color-text-secondary); font-size: .72rem; }
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
 .lead-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .65rem; margin-top: .9rem; }
 .lead-card { display: grid; justify-items: center; gap: .35rem; min-width: 0; padding: .85rem .4rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); color: var(--color-text); cursor: pointer; font: inherit; text-align: center; }
 .lead-card:hover, .lead-card--selected { border-color: var(--color-primary); background: var(--color-control-soft); }
 .lead-card:disabled { cursor: default; opacity: .75; }
 .lead-card span { overflow: hidden; width: 100%; text-overflow: ellipsis; white-space: nowrap; font-size: .85rem; font-weight: 700; }
+.lead-card small { color: var(--color-text-secondary); font-size: .72rem; }
 .field-error { margin: .5rem 0 0; color: var(--color-error); font-size: var(--fs-xs); }
 .preview { border: 1px solid var(--color-border); background: var(--color-surface); padding: 1.5rem; }
 .preview__intro { padding-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); }
@@ -33,4 +60,4 @@
 .preview__note { margin-top: 1rem; padding: .75rem; background: var(--color-control-soft); color: var(--color-text-secondary); font-size: var(--fs-xs); }
 .training-form__kicker { margin: 0 0 .35rem; color: var(--color-primary); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 @media (max-width: 900px) { .training-form { grid-template-columns: 1fr; } .lead-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .training-form__navigation { grid-template-columns: 1fr 1fr; align-items: end; } .training-form__navigation ui-select { grid-column: 1 / -1; grid-row: 1; } .training-form__navigation app-button { grid-row: 2; } .lead-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .member-chips { display: grid; grid-template-columns: 1fr; } .preview dl div { display: grid; gap: .15rem; } .preview dd { text-align: left; } }
+@media (max-width: 560px) { .training-form__navigation { grid-template-columns: 1fr 1fr; align-items: end; } .training-form__navigation ui-select { grid-column: 1 / -1; grid-row: 1; } .training-form__navigation app-button { grid-row: 2; } .lead-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .member-grid { grid-template-columns: 1fr; } .preview dl div { display: grid; gap: .15rem; } .preview dd { text-align: left; } }

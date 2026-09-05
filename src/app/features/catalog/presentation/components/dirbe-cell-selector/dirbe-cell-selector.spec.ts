@@ -33,6 +33,7 @@ describe('DirbeCellSelector', () => {
 
     const button = (fixture.nativeElement as HTMLElement).querySelector('button') as HTMLButtonElement;
     expect(button.classList.contains('dcs--b')).toBe(true);
+    expect(button.classList.contains('dcs--empty')).toBe(false);
     expect(button.textContent?.trim()).toBe('B');
   });
 

@@ -28,3 +28,24 @@ export class InvalidAdminCatalogError extends DomainError {
     this.name = 'InvalidAdminCatalogError';
   }
 }
+
+export class InvalidCredentialsError extends DomainError {
+  constructor(message = 'Identificador o contraseña incorrectos.') {
+    super(message, 'INVALID_CREDENTIALS');
+    this.name = 'InvalidCredentialsError';
+  }
+}
+
+export class InvalidProfileContextError extends DomainError {
+  constructor(message: string) {
+    super(message, 'INVALID_PROFILE_CONTEXT');
+    this.name = 'InvalidProfileContextError';
+  }
+}
+
+export class AcademicRecordAccessError extends DomainError {
+  constructor(message = 'No puedes consultar el avance académico de esta persona.') {
+    super(message, 'ACADEMIC_RECORD_ACCESS');
+    this.name = 'AcademicRecordAccessError';
+  }
+}

@@ -1,0 +1,11 @@
+<div class="pg">
+  @if (needsSquadron()) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading [title]="copy.loadingTitle" [subtitle]="copy.loadingSubtitle" [label]="copy.loadingLabel" />
+  } @else {
+    <router-outlet />
+  }
+</div>

@@ -79,7 +79,7 @@ describe('formación académica', () => {
     const repo = new MockAdminCatalogRepository();
     const phases = (await firstValueFrom(new ListPhases(repo).execute())).filter((item) => item.programId === 'prg-ppl');
     const subphases = await firstValueFrom(new ListSubphases(repo).execute());
-    expect(phases).toHaveLength(5);
+    expect(phases).toHaveLength(6);
     expect(subphases.filter((item) => phases.some((phase) => phase.id === item.phaseId)).length).toBeGreaterThan(3);
   });
 
@@ -91,34 +91,68 @@ describe('formación académica', () => {
       .filter((item) => item.programId === program?.id)
       .sort((a, b) => a.sortOrder - b.sortOrder);
     const allSubphases = await firstValueFrom(new ListSubphases(repo).execute());
+    const banks = await firstValueFrom(new ListSubphaseBanks(repo).execute());
     const missionTypes = await firstValueFrom(new ListMissionTypes(repo).execute());
     const missionTypeById = new Map(missionTypes.map((item) => [item.id, item] as const));
     const phaseIds = new Set(phases.map((item) => item.id));
     const subphases = allSubphases.filter((item) => phaseIds.has(item.phaseId));
+    const airPhases = phases.filter((item) => item.moduleKind === 'air');
+    const groundPhases = phases.filter((item) => item.moduleKind === 'ground');
+    const simPhases = phases.filter((item) => item.moduleKind === 'simulator');
+    const simSubphases = subphases.filter((item) => simPhases.some((phase) => phase.id === item.phaseId));
+    const airSubphases = subphases.filter((item) => airPhases.some((phase) => phase.id === item.phaseId));
+    const groundSubphases = subphases.filter((item) => groundPhases.some((phase) => phase.id === item.phaseId));
+    const aeroBank = banks.find((item) => item.id === 'sb-heli-aero');
+    const doctrineBank = banks.find((item) => item.id === 'sb-heli-doctrine');
 
     expect(program).toMatchObject({
       code: 'PDI-HELI-2023',
       name: 'Curso Piloto de Helicóptero',
       programType: 'HELI',
       status: 'active',
-      imageUrl: '/programs/heli.jpg',
+      academicYear: 2025,
+      lifecycleFlag: 'culminated',
     });
-    expect(phases).toHaveLength(5);
-    expect(subphases).toHaveLength(16);
-    expect(subphases.reduce((total, item) => total + item.hours, 0)).toBe(
+    expect(program?.groundPeriodicExams?.length).toBeGreaterThan(0);
+    expect(program?.groundPeriodicExams?.some((item) => item.period === 'Inopinado')).toBe(true);
+    expect(groundPhases).toHaveLength(3);
+    expect(simPhases).toHaveLength(1);
+    expect(airPhases).toHaveLength(5);
+    expect(groundSubphases).toHaveLength(HELICOPTER_SOURCE_SUMMARY.groundSubjectCount);
+    expect(simSubphases).toHaveLength(3);
+    expect(airSubphases).toHaveLength(16);
+    expect(groundSubphases.reduce((total, item) => total + item.hours, 0)).toBe(
+      HELICOPTER_SOURCE_SUMMARY.groundAcademicHours,
+    );
+    expect(airSubphases.reduce((total, item) => total + item.hours, 0)).toBe(
       HELICOPTER_SOURCE_SUMMARY.totalFlightHours,
     );
-    expect(subphases.reduce((total, item) => total + item.missionTypeIds.length, 0)).toBe(
+    expect(airSubphases.reduce((total, item) => total + item.missionTypeIds.length, 0)).toBe(
       HELICOPTER_SOURCE_SUMMARY.loadedMissionCount,
     );
+    expect(simSubphases.reduce((total, item) => total + item.hours, 0)).toBe(
+      HELICOPTER_SOURCE_SUMMARY.simulatorHours,
+    );
+    expect(simSubphases.reduce((total, item) => total + item.missionTypeIds.length, 0)).toBe(
+      HELICOPTER_SOURCE_SUMMARY.simulatorMissionCount,
+    );
     expect(
-      phases.map((phase) =>
-        subphases
+      groundPhases.map((phase) =>
+        groundSubphases
+          .filter((item) => item.phaseId === phase.id)
+          .reduce((total, item) => total + item.hours, 0),
+      ),
+    ).toEqual([189, 34, 33.5]);
+    expect(
+      airPhases.map((phase) =>
+        airSubphases
           .filter((item) => item.phaseId === phase.id)
           .reduce((total, item) => total + item.hours, 0),
       ),
     ).toEqual([51, 40, 22, 2, 5]);
-    const nightMissionIds = subphases.find((item) => item.id === 'sp-heli-night')?.missionTypeIds ?? [];
+    expect(aeroBank).toMatchObject({ coefficient: 0.13, minPassingGrade: 16 });
+    expect(doctrineBank).toMatchObject({ coefficient: 0.22, minPassingGrade: 18 });
+    const nightMissionIds = airSubphases.find((item) => item.id === 'sp-heli-night')?.missionTypeIds ?? [];
     expect(nightMissionIds.map((id) => missionTypeById.get(id)?.code)).toEqual([
       'N-1',
       'N-2',
@@ -264,6 +298,17 @@ describe('formación académica', () => {
       }),
     );
     expect(created.code).toBe('LINE');
+    const withGrade = await firstValueFrom(
+      new CreateSubphaseBank(repo).execute({
+        code: 'aero-x',
+        name: 'Aerodinámica extra',
+        description: 'Asignatura de tierra.',
+        status: 'active',
+        coefficient: 0.13,
+        minPassingGrade: 16,
+      }),
+    );
+    expect(withGrade).toMatchObject({ coefficient: 0.13, minPassingGrade: 16 });
     const banks = await firstValueFrom(new ListSubphaseBanks(repo).execute());
     expect(banks.some((item) => item.id === created.id)).toBe(true);
     await expect(

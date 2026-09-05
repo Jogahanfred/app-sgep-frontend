@@ -1,24 +1,26 @@
 :host {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .nav {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .nav__list {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.05rem;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
 .nav__link {
   position: relative;
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   min-height: 0;
   padding: 0 0.72rem;
   border: 0;
@@ -27,22 +29,26 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .nav__link:hover {
   color: #111111;
 }
 
-.nav__link.is-open {
+.nav__link.is-open,
+.nav__link.is-active {
   color: var(--color-primary);
   font-weight: 600;
 }
 
-.nav__link.is-open::after {
+.nav__link.is-open::after,
+.nav__link.is-active::after {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -0.2rem;
+  bottom: -0.22rem;
   width: 1.15rem;
   height: 3px;
   border-radius: 2px;

@@ -1,308 +1,121 @@
-import type { NavColumn, NavGroup } from '@shared/models/nav.model';
+import type { NavColumn, NavGroup, NavLink } from '@shared/models/nav.model';
+import { NAV_ROUTES } from './nav-routes.constants';
 
-const particulares: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Cuentas',
-        links: [
-          { label: 'Cuenta Clara', href: '/cuentas' },
-          { label: 'Cuenta Ahorro Lumbre', href: '/cuentas' },
-          { label: 'Cuenta Brújula', href: '/cuentas' },
-          { label: 'Hazte cliente', href: '/hazte-cliente' },
-        ],
-      },
-      {
-        heading: 'Banca online',
-        links: [
-          { label: 'Mi perfil', href: '/perfil' },
-          { label: 'App Helvia', href: '/cuentas' },
-          { label: 'Pagos inmediatos', href: '/cuentas' },
-          { label: 'Transferencias', href: '/cuentas' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Tarjetas',
-        links: [
-          { label: 'Tarjeta Norte Crédito', href: '/tarjetas' },
-          { label: 'Tarjeta Delta Débito', href: '/tarjetas' },
-          { label: 'Tarjeta Viajera', href: '/tarjetas' },
-        ],
-      },
-      {
-        heading: 'Ahorro e inversión',
-        links: [
-          { label: 'Fondo Horizonte', href: '/inversion' },
-          { label: 'Plan Ahorro Lumbre', href: '/inversion' },
-          { label: 'Plan Albada', href: '/inversion' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Préstamos',
-        links: [
-          { label: 'Préstamo Impulso', href: '/prestamos' },
-          { label: 'Préstamo Movilidad', href: '/prestamos' },
-          { label: 'Préstamo Reforma', href: '/prestamos' },
-          { label: 'Simular cuota', href: '/prestamos' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Hipotecas',
-        links: [
-          { label: 'Simulador de hipoteca', href: '/hipotecas' },
-          { label: 'Hipoteca Hogar Fija', href: '/hipotecas' },
-          { label: 'Hipoteca Brisa Variable', href: '/hipotecas' },
-          { label: 'Hipoteca Dual Mixta', href: '/hipotecas' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Protección',
-        links: [
-          { label: 'Proteger tu hogar', href: '/hazte-cliente' },
-          { label: 'Proteger tus pagos', href: '/tarjetas' },
-          { label: 'Hablar con un gestor', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Segmentos',
-        links: [
-          { label: 'Jóvenes', href: '/cuentas' },
-          { label: 'Familias', href: '/hipotecas' },
-          { label: 'Sénior', href: '/cuentas' },
-        ],
-      },
-      {
-        heading: 'Atención y oficinas',
-        links: [
-          { label: 'Preguntas frecuentes', href: '/' },
-          { label: 'Cita previa', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
+function links(...items: ReadonlyArray<readonly [string, string]>): NavLink[] {
+  return items.map(([label, href]) => ({ label, href }));
+}
+
+function column(heading: string, items: NavLink[]): NavColumn {
+  return { blocks: [{ heading, links: items }] };
+}
+
+const administration: NavColumn[] = [
+  column(
+    'Acceso y seguridad',
+    links(
+      ['Usuarios', NAV_ROUTES.users],
+      ['Roles y Permisos', NAV_ROUTES.roles],
+      ['Especialidades', NAV_ROUTES.specialties],
+    ),
+  ),
+  column(
+    'Organización',
+    links(
+      ['Unidades', NAV_ROUTES.units],
+      ['Escuadrones', NAV_ROUTES.squadrons],
+      ['Comisiones Temporales', NAV_ROUTES.commissions],
+    ),
+  ),
 ];
 
-const empresas: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Cuentas de empresa',
-        links: [
-          { label: 'Cuenta de autónomos', href: '/hazte-cliente' },
-          { label: 'Cuenta de sociedad', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Financiación',
-        links: [
-          { label: 'Línea de crédito', href: '/prestamos' },
-          { label: 'Préstamo Impulso', href: '/prestamos' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Medios de pago',
-        links: [
-          { label: 'Tarjetas de empresa', href: '/tarjetas' },
-          { label: 'TPV y cobros', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Asesoramiento',
-        links: [{ label: 'Pedir cita', href: '/hazte-cliente' }],
-      },
-    ],
-  },
+const catalogs: NavColumn[] = [
+  column(
+    'Académico',
+    links(
+      ['Programas', NAV_ROUTES.programs],
+      ['Estándares', NAV_ROUTES.standards],
+      ['Ponderaciones', NAV_ROUTES.weightings],
+      ['Operaciones', NAV_ROUTES.operations],
+      ['Tipos de Misión', NAV_ROUTES.missionTypes],
+    ),
+  ),
+  column(
+    'Bancos académicos',
+    links(
+      ['Banco de Fases', NAV_ROUTES.phaseBanks],
+      ['Banco de Subfases', NAV_ROUTES.subphaseBanks],
+      ['Banco de Maniobras', NAV_ROUTES.maneuvers],
+    ),
+  ),
+  column(
+    'Recursos',
+    links(
+      ['Flotas', NAV_ROUTES.fleets],
+      ['Aeronaves', NAV_ROUTES.aircraft],
+    ),
+  ),
 ];
 
-const autonomos: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Día a día',
-        links: [
-          { label: 'Cuenta Clara', href: '/cuentas' },
-          { label: 'Tarjeta Norte', href: '/tarjetas' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Financiación',
-        links: [
-          { label: 'Préstamo Impulso', href: '/prestamos' },
-          { label: 'Simular cuota', href: '/prestamos' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Previsión',
-        links: [{ label: 'Plan Albada', href: '/inversion' }],
-      },
-    ],
-  },
+const programming: NavColumn[] = [
+  column(
+    'Formación',
+    links(
+      ['Promociones', NAV_ROUTES.promotions],
+      ['Matrícula', NAV_ROUTES.enrollment],
+    ),
+  ),
+  column(
+    'Entrenamiento',
+    links(
+      ['Orden de vuelo y asignación', NAV_ROUTES.flightOrder],
+      ['Programación y despacho diario', NAV_ROUTES.dispatch],
+    ),
+  ),
 ];
 
-const privada: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Inversión',
-        links: [
-          { label: 'Fondo Horizonte', href: '/inversion' },
-          { label: 'Asesoría Norte', href: '/inversion' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Patrimonio',
-        links: [
-          { label: 'Hipoteca Dual', href: '/hipotecas' },
-          { label: 'Planificación', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
+const missions: NavColumn[] = [
+  column(
+    'Ejecución',
+    links(['Ejecución y calificación', NAV_ROUTES.missionExecution]),
+  ),
 ];
 
-const select: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Ventajas Select',
-        links: [
-          { label: 'Cuenta Clara', href: '/cuentas' },
-          { label: 'Tarjeta Viajera', href: '/tarjetas' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Acompañamiento',
-        links: [
-          { label: 'Gestor personal', href: '/hazte-cliente' },
-          { label: 'Cita previa', href: '/hazte-cliente' },
-        ],
-      },
-    ],
-  },
+const grades: NavColumn[] = [
+  column(
+    'Seguimiento',
+    links(['Avance Académico', NAV_ROUTES.academicProgress]),
+  ),
 ];
 
-const configuracion: NavColumn[] = [
-  {
-    blocks: [
-      {
-        heading: 'Catálogos',
-        links: [
-          { label: 'Usuarios', href: '/catalogo/usuarios' },
-          { label: 'Roles', href: '/catalogo/roles' },
-          { label: 'Especialidades', href: '/catalogo/especialidades' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Instrucción',
-        links: [
-          { label: 'Operaciones', href: '/catalogo/operaciones' },
-          { label: 'Tipo de misión', href: '/catalogo/tipos-de-mision' },
-          { label: 'Maniobras', href: '/catalogo/maniobras' },
-          { label: 'Estándares', href: '/catalogo/estandares' },
-          { label: 'Ponderaciones', href: '/catalogo/ponderaciones' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Formación académica',
-        links: [
-          { label: 'Programas', href: '/catalogo/programas' },
-          { label: 'Banco de fases', href: '/catalogo/banco-fases' },
-          { label: 'Banco de subfases', href: '/catalogo/banco-subfases' },
-          { label: 'Promociones', href: '/catalogo/promociones' },
-          { label: 'Programación de entrenamiento', href: '/catalogo/programacion-entrenamiento' },
-          { label: 'Ejecución y calificación de misiones', href: '/catalogo/ejecucion-misiones' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Estructura operativa',
-        links: [
-          { label: 'Unidades', href: '/catalogo/unidades' },
-          { label: 'Escuadrones', href: '/catalogo/escuadrones' },
-          { label: 'Comisiones temporales', href: '/catalogo/comisiones-temporales' },
-        ],
-      },
-    ],
-  },
-  {
-    blocks: [
-      {
-        heading: 'Material aéreo',
-        links: [
-          { label: 'Flotas', href: '/catalogo/flotas' },
-          { label: 'Aeronaves', href: '/catalogo/aeronaves' },
-        ],
-      },
-    ],
-  },
+const reports: NavColumn[] = [
+  column(
+    'Académicos',
+    links(
+      ['Historial de alumno', NAV_ROUTES.reportStudentHistory],
+      ['Historial de promoción', NAV_ROUTES.reportPromotionHistory],
+      ['Estadísticas académicas', NAV_ROUTES.reportAcademicStats],
+      ['Ranking de alumnos', NAV_ROUTES.reportStudentRanking],
+      ['Ranking de promociones', NAV_ROUTES.reportPromotionRanking],
+    ),
+  ),
+  column(
+    'Operativos',
+    links(
+      ['Horas por programa', NAV_ROUTES.reportHoursProgram],
+      ['Horas por aeronave', NAV_ROUTES.reportHoursAircraft],
+      ['Rendimiento por instructor', NAV_ROUTES.reportInstructor],
+    ),
+  ),
 ];
 
-export const AUDIENCE_NAV: NavGroup[] = [
-  { label: 'Particulares', columns: particulares },
-  { label: 'Empresas', columns: empresas },
-  { label: 'Autónomos', columns: autonomos },
-  { label: 'Banca Privada', columns: privada },
-  { label: 'Select', columns: select },
-  { label: 'Configuración', columns: configuracion },
+export const MAIN_NAV: NavGroup[] = [
+  { label: 'Dashboard', href: NAV_ROUTES.dashboard, columns: [] },
+  { label: 'Administración', columns: administration },
+  { label: 'Catálogos', columns: catalogs },
+  { label: 'Programación', columns: programming, matchHrefs: [NAV_ROUTES.training] },
+  { label: 'Misiones', columns: missions },
+  { label: 'Calificaciones', columns: grades },
+  { label: 'Reportes', columns: reports },
 ];
 
-export const MAIN_NAV = AUDIENCE_NAV;
+export const AUDIENCE_NAV = MAIN_NAV;

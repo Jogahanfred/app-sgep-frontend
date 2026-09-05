@@ -1,0 +1,216 @@
+<div class="fo">
+  <p class="fo__lead">{{ copy.lead }}</p>
+
+  @if (snapshot()?.needsSquadron) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading' && !snapshot()) {
+    <ui-loading [title]="copy.loadingTitle" [subtitle]="copy.loadingSubtitle" [label]="copy.loadingLabel" />
+  } @else {
+    <div class="fo__layout">
+      <aside class="fo__col fo__col--side">
+        <app-card [padded]="true" [interactive]="false">
+          <div class="fo__side">
+            <ui-segmented-control
+              [label]="copy.modeLabel"
+              [options]="rosterOptions()"
+              [value]="rosterMode()"
+              (valueChange)="setRoster($event)"
+            />
+            <div class="fo__filters">
+              @if (rosterMode() === 'promotion') {
+                <ui-select
+                  id="flight-order-promotion"
+                  [label]="copy.promotionLabel"
+                  [uppercase]="false"
+                  [filter]="true"
+                  [options]="promotionOptions()"
+                  [value]="promotionId()"
+                  (valueChange)="setPromotion($event)"
+                />
+              }
+              <ui-input
+                id="flight-order-search"
+                [label]="copy.searchLabel"
+                type="search"
+                icon="search"
+                [placeholder]="copy.searchPlaceholder"
+                [field]="search"
+              />
+            </div>
+            <p class="fo__kicker">{{ copy.rosterLabel }} ({{ visibleTrainees().length }})</p>
+            <div class="fo__roster">
+              @for (trainee of visibleTrainees(); track trainee.id) {
+                <button
+                  type="button"
+                  class="fo__pilot"
+                  [class.fo__pilot--on]="selected()?.id === trainee.id"
+                  (click)="select(trainee.id)"
+                >
+                  <ui-avatar [name]="trainee.displayName" size="sm" />
+                  <span class="fo__pilot-id">
+                    <span class="fo__pilot-name">{{ trainee.displayName }}</span>
+                    <span class="fo__meta">{{ trainee.indicative ?? copy.none }} · {{ trainee.programCode }}</span>
+                  </span>
+                  <span class="fo__pilot-pct">{{ trainee.percentComplete }}%</span>
+                </button>
+              } @empty {
+                <app-alert>{{ emptyTitle() }}</app-alert>
+              }
+            </div>
+          </div>
+        </app-card>
+      </aside>
+
+      <section class="fo__col fo__col--main">
+        @if (selected(); as trainee) {
+          <app-card [padded]="true" [interactive]="false">
+            <div class="fo__banner">
+              <ui-avatar [name]="trainee.displayName" size="md" radius="md" />
+              <div class="fo__banner-copy">
+                <p class="fo__name">{{ trainee.displayName }}</p>
+                <p class="fo__meta">
+                  {{ trainee.indicative ?? copy.none }} · {{ trainee.programName }} ·
+                  {{ moduleStats().completed }} {{ copy.ofMissions }} {{ moduleStats().total }}
+                  {{ moduleStats().itemWord }}
+                </p>
+              </div>
+              <ui-progress
+                [value]="trainee.percentComplete"
+                [caption]="copy.progressLabel"
+                [valueLabel]="trainee.percentComplete + '%'"
+                [label]="copy.progressLabel"
+                scale="sm"
+              />
+            </div>
+          </app-card>
+
+          <ui-select
+            id="flight-order-program"
+            [label]="copy.programLabel"
+            [uppercase]="false"
+            [filter]="true"
+            [options]="programOptions()"
+            [value]="trainee.programId"
+            (valueChange)="setProgram($event)"
+          />
+
+          <div class="fo__kpis">
+            <app-card [padded]="true" [interactive]="false">
+              <p class="fo__kicker">{{ kpiCompletedLabel() }}</p>
+              <p class="fo__metric">{{ moduleStats().completed }}/{{ moduleStats().total }}</p>
+            </app-card>
+            <app-card [padded]="true" [interactive]="false">
+              <p class="fo__kicker">{{ copy.kpiHours }}</p>
+              <p class="fo__metric">{{ moduleStats().hours }}</p>
+            </app-card>
+            <app-card [padded]="true" [interactive]="false">
+              <p class="fo__kicker">{{ copy.kpiAverage }}</p>
+              <p class="fo__metric">{{ moduleStats().average === null ? copy.none : moduleStats().average }}</p>
+            </app-card>
+            <app-card [padded]="true" [interactive]="false">
+              <p class="fo__kicker">{{ copy.kpiStatus }}</p>
+              <p class="fo__name">{{ copy.academicStatus[trainee.academicStatus] }}</p>
+            </app-card>
+          </div>
+
+          <app-card [padded]="true" [interactive]="false">
+            <div class="fo__tree">
+              <p class="fo__kicker">{{ copy.treeTitle }}</p>
+              <ui-segmented-control
+                [label]="copy.treeModuleLabel"
+                [options]="treeModuleOptions()"
+                [value]="treeModule()"
+                (valueChange)="setTreeModule($event)"
+              />
+              @if (trainee.programCulminated) {
+                <app-alert>{{ copy.cannotModifyCulminated }}</app-alert>
+              } @else if (!snapshot()?.canIssue) {
+                <app-alert>{{ copy.cannotIssue }}</app-alert>
+              }
+              @if (treePhases().length) {
+                <ui-curriculum-tree
+                  [programTitle]="trainee.curriculum.programName"
+                  [programMeta]="trainee.curriculum.programCode + ' · ' + (moduleCurriculum()?.plannedHours ?? 0) + ' ' + copy.hoursPlan"
+                  [phases]="treePhases()"
+                  [selectedId]="selectedMission()?.id ?? null"
+                  [legend]="legend"
+                  [emptyLabel]="treeEmptyLabel()"
+                  (selectedChange)="pickMission($event)"
+                  (scheduleClick)="pickMission($event); openOrder()"
+                  (phaseSelectChange)="setGroundCourse($event.id, $event.selected)"
+                />
+              } @else {
+                <app-alert>{{ copy.treeModuleEmpty }}</app-alert>
+              }
+            </div>
+          </app-card>
+        } @else {
+          <app-alert>{{ copy.emptyTrainee }}</app-alert>
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<app-modal [open]="previewOpen()" [title]="previewTitle()" size="xl" [roomy]="true" (closed)="closePreview()">
+  @if (selected(); as trainee) {
+    <p class="fo__meta">{{ trainee.displayName }} · {{ missionName(missionId()) }}</p>
+  }
+  <div class="fo__form">
+    <div class="fo__pair">
+      <ui-date-picker id="flight-order-date" [label]="copy.dateLabel" [field]="dateField" [maxYear]="dateMaxYear" />
+      <ui-input id="flight-order-time" [label]="copy.timeLabel" [field]="timeField" [hint]="copy.timeHint" placeholder="08:30" />
+    </div>
+    <div class="fo__pair">
+      <div [class.fo__shift--locked]="orderReadOnly()">
+        <p class="fo__kicker">{{ copy.shiftLabel }}</p>
+        <ui-segmented-control
+          [label]="copy.shiftLabel"
+          [options]="shiftOptions()"
+          [value]="shift()"
+          (valueChange)="setShift($event)"
+        />
+      </div>
+      <ui-input id="flight-order-duration" [label]="copy.durationLabel" [field]="durationField" [suffix]="copy.hoursSuffix" />
+    </div>
+    <div class="fo__pair">
+      <ui-select
+        id="flight-order-aircraft"
+        [label]="copy.aircraftLabel"
+        [uppercase]="false"
+        [filter]="true"
+        [disabled]="orderReadOnly()"
+        [options]="aircraftOptions()"
+        [value]="aircraftId()"
+        (valueChange)="setAircraft($event)"
+      />
+      <ui-select
+        id="flight-order-instructor"
+        [label]="copy.instructorLabel"
+        [uppercase]="false"
+        [filter]="true"
+        [disabled]="orderReadOnly()"
+        [options]="instructorOptions()"
+        [value]="instructorId()"
+        (valueChange)="setInstructor($event)"
+      />
+    </div>
+    <ui-textarea
+      id="flight-order-notes"
+      [label]="copy.observationsLabel"
+      [field]="remarksField"
+      [hint]="copy.observationsHint"
+    />
+    <app-alert>{{ orderNotice() }}</app-alert>
+    <div class="fo__actions">
+      <app-button variant="ghost" (click)="closePreview()">{{ copy.previewClose }}</app-button>
+      @if (!orderReadOnly()) {
+        <app-button variant="primary" icon="check" [disabled]="!canSubmit()" [loading]="busy()" (click)="emitOrder()">{{
+          selectedMission()?.status === 'scheduled' ? copy.update : copy.emit
+        }}</app-button>
+      }
+    </div>
+  </div>
+</app-modal>

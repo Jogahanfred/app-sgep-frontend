@@ -15,6 +15,11 @@ describe('roles y especialidades', () => {
       'Jefe de Instrucción',
       'Instructor',
       'Alumno',
+      'Administrador de personal',
+      'Jefe de escuadrón',
+      'Jefe de operaciones',
+      'Evaluador',
+      'Consulta / Auditor',
     ]);
   });
 

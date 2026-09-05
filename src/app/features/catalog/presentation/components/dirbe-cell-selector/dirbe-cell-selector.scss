@@ -13,7 +13,7 @@
   min-width: 4.75rem;
   height: 2.4rem;
   padding: 0;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 0.35rem;
   background: var(--color-surface-alt);
   color: var(--color-text-secondary);
@@ -65,27 +65,27 @@
 }
 
 .dcs--d {
-  background: #eaf5fd;
+  background: #dceef8;
   color: #17689f;
 }
 
 .dcs--i {
-  background: #fff0f0;
+  background: #ffe4e4;
   color: #a52f2f;
 }
 
 .dcs--r {
-  background: #fff8df;
+  background: #fff3c8;
   color: #7a5700;
 }
 
 .dcs--b {
-  background: #eaf8f0;
+  background: #dcf2e6;
   color: #246c45;
 }
 
 .dcs--e {
-  background: #f1efff;
+  background: #e8e4fc;
   color: #5146a5;
 }
 

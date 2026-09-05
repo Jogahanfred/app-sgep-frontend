@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  CreateSubphaseBank,
   ListManeuvers,
   ListMissionTypes,
   ListOperations,
@@ -16,6 +17,9 @@ import {
 import { DomainError } from '@core/domain/errors/domain-error';
 import {
   AUTO_MISSION_COUNT_MAX,
+  DIRBE_LEVELS,
+  PROGRAM_LIFECYCLE_FLAG,
+  type DirbeLevel,
   type EntityStatus,
   type ManeuverBankEntity,
   type ManeuverStandardAssignment,
@@ -24,19 +28,36 @@ import {
   type PhaseBankEntity,
   type MissionAssignMode,
   type PhaseDraftInput,
+  type ProgramLifecycleFlag,
+  type ProgramModuleKind,
   type ProgramType,
+  type GroundPeriodicExamRule,
   type SubphaseBankEntity,
 } from '@core/domain/entities';
-import { curriculumHours, expandAutoMissions, matchesAdminSearch } from '@core/domain/services/admin-catalog';
+import {
+  curriculumHours,
+  curriculumMissionRefs,
+  defaultProgramModuleKind,
+  defaultSubphaseModuleKind,
+  emptyDirbePointDeltas,
+  expandAutoMissions,
+  isProgramCulminated,
+  matchesAdminSearch,
+  normalizeProgramLifecycleFlag,
+  programTypeLabel,
+} from '@core/domain/services/admin-catalog';
+import { operationalContextNeedsSquadronPick } from '@core/domain/services/profile-context-policy';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Button } from '@shared/components/button/button';
 import { Modal } from '@shared/components/modal/modal';
 import { UiAssignBlock } from '@shared/components/ui-assign-block/ui-assign-block';
+import { UiCheckbox } from '@shared/components/ui-checkbox/ui-checkbox';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
-import { UiFormCard } from '@shared/components/ui-form-card/ui-form-card';
+import { UiFieldLabel } from '@shared/components/ui-field-label/ui-field-label';
 import { UiInput } from '@shared/components/ui-input/ui-input';
+import { RippleDirective } from '@shared/directives/ripple.directive';
 import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiOperationBoard } from '@shared/components/ui-operation-board/ui-operation-board';
 import { UiPosterField } from '@shared/components/ui-poster-field/ui-poster-field';
@@ -47,6 +68,14 @@ import { UiTable, type UiTableColumn, type UiTableRow } from '@shared/components
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
 import type { ChoiceOption } from '@shared/models/choice.model';
+import { ProgramStandardMatrix, type ProgramStandardMatrixCell } from '../../components/program-standard-matrix/program-standard-matrix';
+import {
+  DIRBE_OPTIONS,
+  standardCellKey,
+  type ProgramStandardManeuverView,
+  type ProgramStandardMissionView,
+  type ProgramStandardSubphaseView,
+} from '../../shared/models/program-standard-matrix.types';
 import {
   CATALOG_CREATE_HOLD_MS,
   academicProgramTypeOptions,
@@ -55,35 +84,27 @@ import {
   holdFor,
   touchedError,
 } from '../../shared/forms/catalog-form';
-
-interface StudioSubphase {
-  key: string;
-  subphaseBankId: string;
-  hours: number;
-  missionMode: MissionAssignMode;
-  missionTypeIds: string[];
-  customMissionNames: string[];
-  autoMissionCode: string;
-  autoMissionCount: number;
-  maneuverIds: string[];
-  maneuverOperationIds: string[];
-  maneuverAssignment: Record<string, string>;
-  standardAssignments: ManeuverStandardAssignment[];
-}
-
-interface StudioPhase {
-  key: string;
-  phaseBankId: string;
-  subphases: StudioSubphase[];
-}
-
-interface GeneratedMission {
-  key: string;
-  label: string;
-  kind: 'catalog' | 'custom' | 'series';
-  origin: string;
-  value: string;
-}
+import { CURRICULUM_DONUT, PROGRAM_STUDIO_COPY, PROGRAM_STUDIO_ROUTES } from '../../../constants/program-studio.copy.constants';
+import { DIRBEP_CODES, PROGRAM_MODULE_OPTIONS, visibleStudioWizardSteps } from '../../../constants/program-studio.wizard.constants';
+import {
+  GROUND_PERIODIC_EXAMS,
+  academicCodeFromName,
+  formatGroundDecimal,
+  formatGroundInstructionHint,
+  periodicExamKindFromPeriod,
+} from '@core/domain/services/ground-instruction-grade';
+import { EMPTY_GROUND_PERIODIC_DRAFT, EMPTY_GROUND_SUBJECT_DRAFT } from '../../../constants/program-studio.ground.constants';
+import type {
+  CurriculumHourShare,
+  GeneratedMission,
+  GroundPeriodicDraft,
+  GroundSubjectDraft,
+  StudioDirbepCode,
+  StudioPhase,
+  StudioSubphase,
+  StudioWizardStep,
+} from '../../../types/program-studio.types';
+import { ClientSession } from '../../../../../layout/client-session.service';
 
 @Component({
   selector: 'app-program-studio-page',
@@ -95,15 +116,18 @@ interface GeneratedMission {
     Button,
     Modal,
     UiAssignBlock,
+    UiCheckbox,
     UiChip,
-    UiFormCard,
+    UiFieldLabel,
     UiInput,
+    RippleDirective,
     UiLoading,
     UiOperationBoard,
     UiPosterField,
     UiRadioCardGroup,
     UiSegmentedControl,
     UiSelect,
+    ProgramStandardMatrix,
     UiTable,
     UiTextarea,
   ],
@@ -123,6 +147,8 @@ export class ProgramStudioPage {
   private readonly listManeuvers = inject(ListManeuvers);
   private readonly listOperations = inject(ListOperations);
   private readonly saveCurriculum = inject(SaveProgramCurriculum);
+  private readonly createSubphaseBank = inject(CreateSubphaseBank);
+  private readonly session = inject(ClientSession);
   private readonly toast = inject(ToastService);
   private draftSeq = 1;
   private left = false;
@@ -131,22 +157,67 @@ export class ProgramStudioPage {
   readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isCreate = !this.editingId;
   readonly isView = this.route.snapshot.data['mode'] === 'view';
+  readonly culminated = signal(false);
+  readonly academicYear = signal<number | null>(null);
+  readonly lifecycleFlag = signal<ProgramLifecycleFlag>(PROGRAM_LIFECYCLE_FLAG.open);
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly saving = signal(false);
   readonly creating = signal(false);
   readonly error = signal<string | null>(null);
-  readonly listHref = '/catalogo/programas';
+  readonly copy = PROGRAM_STUDIO_COPY;
+  readonly groundGradeHint = formatGroundInstructionHint();
+  readonly moduleOptions = PROGRAM_MODULE_OPTIONS;
+  readonly selectedModule = signal<ProgramModuleKind | null>(null);
+  readonly wizardSteps = computed(() =>
+    visibleStudioWizardSteps(this.selectedModule() === 'air' || this.selectedModule() === 'simulator'),
+  );
+  readonly listHref = PROGRAM_STUDIO_ROUTES.list;
   readonly entityStatusOptions = entityStatusOptions;
   readonly typeOptions = academicProgramTypeOptions;
   readonly missionModeOptions = missionAssignModeOptions;
   readonly autoMissionCountMax = AUTO_MISSION_COUNT_MAX;
   readonly draftMissionName = signal<Record<string, string>>({});
+  readonly draftGroundSubjects = signal<Record<string, GroundSubjectDraft>>({});
+  readonly draftPeriodicExam = signal<GroundPeriodicDraft>({ ...EMPTY_GROUND_PERIODIC_DRAFT });
   readonly phaseBanks = signal<PhaseBankEntity[]>([]);
   readonly subphaseBanks = signal<SubphaseBankEntity[]>([]);
   readonly missions = signal<MissionTypeEntity[]>([]);
   readonly maneuvers = signal<ManeuverBankEntity[]>([]);
   readonly operations = signal<OperationEntity[]>([]);
   readonly phases = signal<StudioPhase[]>([]);
+  readonly step = signal<StudioWizardStep>('plan');
+  readonly enabledModules = signal<Record<ProgramModuleKind, boolean>>({
+    ground: false,
+    air: false,
+    simulator: false,
+  });
+  readonly architectureKind = signal<ProgramModuleKind>('air');
+  readonly matrixTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
+  readonly matrixExpanded = signal(false);
+  readonly calibratorCell = signal<ProgramStandardMatrixCell | null>(null);
+  readonly calibratorLevel = signal<DirbeLevel | null>(null);
+  readonly dirbeOptions = DIRBE_OPTIONS;
+  readonly dirbepCodes = DIRBEP_CODES;
+  readonly calibratorStandardIds = signal<string[]>([]);
+  readonly calibratorDangerFail = signal(false);
+  readonly calibratorAdds: Record<StudioDirbepCode, FormControl<number>> = {
+    D: new FormControl(0, { nonNullable: true }),
+    I: new FormControl(0, { nonNullable: true }),
+    R: new FormControl(0, { nonNullable: true }),
+    B: new FormControl(0, { nonNullable: true }),
+    E: new FormControl(0, { nonNullable: true }),
+    P: new FormControl(0, { nonNullable: true }),
+  };
+  readonly calibratorSubs: Record<StudioDirbepCode, FormControl<number>> = {
+    D: new FormControl(0, { nonNullable: true }),
+    I: new FormControl(0, { nonNullable: true }),
+    R: new FormControl(0, { nonNullable: true }),
+    B: new FormControl(0, { nonNullable: true }),
+    E: new FormControl(0, { nonNullable: true }),
+    P: new FormControl(0, { nonNullable: true }),
+  };
+  readonly stepError = signal<string | null>(null);
+  readonly collapsedPhaseKeys = signal<string[]>([]);
   readonly nextPhaseBankId = signal('');
   readonly nextSubphaseBankId = signal<Record<string, string>>({});
   readonly phaseBankPickerKey = signal<string | null>(null);
@@ -160,6 +231,30 @@ export class ProgramStudioPage {
     { id: 'description', header: 'Descripción' },
     { id: 'use', header: 'Uso' },
   ];
+  readonly courseColumns: UiTableColumn[] = [
+    { id: 'name', header: PROGRAM_STUDIO_COPY.colSubject },
+    { id: 'hours', header: PROGRAM_STUDIO_COPY.colHours },
+    { id: 'coefficient', header: PROGRAM_STUDIO_COPY.colCoefficient },
+    { id: 'minGrade', header: PROGRAM_STUDIO_COPY.colMinGrade },
+  ];
+  readonly periodicColumns: UiTableColumn[] = [
+    { id: 'period', header: PROGRAM_STUDIO_COPY.colPeriod },
+    { id: 'exam', header: PROGRAM_STUDIO_COPY.colExam },
+    { id: 'minGrade', header: PROGRAM_STUDIO_COPY.colMinGrade },
+    { id: 'weight', header: PROGRAM_STUDIO_COPY.colWeight },
+  ];
+  readonly periodicExams = signal<GroundPeriodicExamRule[]>([]);
+  readonly periodicRows = computed<UiTableRow[]>(() =>
+    this.periodicExams().map((item) => ({
+      id: item.id,
+      cells: {
+        period: item.period,
+        exam: item.exam,
+        minGrade: formatGroundDecimal(item.minPassingGrade),
+        weight: item.countsTowardNei ? formatGroundDecimal(item.neiWeight) : PROGRAM_STUDIO_COPY.none,
+      },
+    })),
+  );
   readonly missionPickerTarget = signal<{ phaseKey: string; subKey: string } | null>(null);
   readonly generatedSelectedId = signal<string | null>(null);
   readonly missionCreateMode = signal<MissionAssignMode>('manual');
@@ -194,21 +289,142 @@ export class ProgramStudioPage {
     status: new FormControl<EntityStatus>('active', { nonNullable: true }),
     imageUrl: new FormControl('', { nonNullable: true }),
   });
+  readonly formTick = signal(0);
 
-  readonly title = computed(() => {
-    if (this.isCreate) return 'Nuevo plan de estudios';
-    if (this.isView) return 'Itinerario del programa';
-    return 'Diseñar plan de estudios';
+  readonly title = computed(() => this.stepLabel(this.step()));
+
+  readonly lead = computed(() => {
+    if (this.isReadOnly()) {
+      return 'Consulta el plan, los módulos, la arquitectura y la matriz del programa.';
+    }
+    switch (this.step()) {
+      case 'plan':
+        return 'Código, nombre, tipo, descripción y estado del programa.';
+      case 'modules':
+        return this.copy.modulesLead;
+      case 'architecture':
+        return 'Organiza fases y subfases en aire o simulador, o cursos en tierra.';
+      default:
+        return 'Elige la subfase y, si falta, asigna misiones y maniobras para ver su matriz.';
+    }
   });
 
-  readonly lead = computed(() =>
-    this.isView
-      ? 'Consulta el itinerario del programa: fases, lecciones, horas y misiones.'
-      : 'Elige o cambia la fase de cada etapa. Horas, misiones y maniobras son de este programa.',
-  );
+  readonly enabledPhases = computed(() => {
+    const kind = this.selectedModule();
+    if (!kind) return [];
+    return this.phases().filter((phase) => phase.moduleKind === kind);
+  });
 
-  readonly totalHours = computed(() => curriculumHours(this.phases()));
-  readonly phaseCount = computed(() => this.phases().length);
+  readonly totalHours = computed(() => curriculumHours(this.enabledPhases()));
+  readonly phaseCount = computed(() => this.enabledPhases().length);
+  readonly subphaseCount = computed(() =>
+    this.enabledPhases().reduce((total, phase) => total + phase.subphases.length, 0),
+  );
+  readonly totalMissions = computed(() =>
+    this.enabledPhases().reduce(
+      (total, phase) => total + phase.subphases.reduce((sum, sub) => sum + this.missionLabels(sub).length, 0),
+      0,
+    ),
+  );
+  readonly programTypeText = computed(() => {
+    this.formTick();
+    return programTypeLabel(this.form.controls.programType.value);
+  });
+  readonly needsSquadron = computed(() => {
+    const context = this.session.operationalContext();
+    return context ? operationalContextNeedsSquadronPick(context) : false;
+  });
+  readonly hourShares = computed<CurriculumHourShare[]>(() => {
+    const total = this.totalHours();
+    const ring = CURRICULUM_DONUT.circumference;
+    let offset = 0;
+    return this.enabledPhases().map((phase) => {
+      const hours = this.phaseHours(phase);
+      const percent = total > 0 ? Math.round((hours / total) * 1000) / 10 : 0;
+      const length = (percent / 100) * ring;
+      const share: CurriculumHourShare = {
+        id: phase.key,
+        label: this.selectedModule() === 'ground' ? this.courseTitle(phase.phaseBankId) : this.phaseName(phase.phaseBankId),
+        hours,
+        percent,
+        dasharray: `${length} ${ring}`,
+        dashoffset: -offset,
+      };
+      offset += length;
+      return share;
+    });
+  });
+  readonly progression = computed(() => {
+    const ground = this.selectedModule() === 'ground';
+    return this.enabledPhases().map((phase, index) => ({
+      id: phase.key,
+      title: ground ? this.courseTitle(phase.phaseBankId) : this.phaseName(phase.phaseBankId),
+      detail: index === 0
+        ? ground
+          ? this.copy.firstCourseGate
+          : this.copy.firstPhaseGate
+        : ground
+          ? this.copy.nextCourseGate
+          : this.copy.nextPhaseGate,
+    }));
+  });
+
+  readonly hasFlightModules = computed(() => {
+    const kind = this.selectedModule();
+    return kind === 'air' || kind === 'simulator';
+  });
+
+  readonly flightTargets = computed(() => {
+    const kind = this.selectedModule();
+    if (kind !== 'air' && kind !== 'simulator') return [];
+    return this.phases().flatMap((phase) => {
+      if (phase.moduleKind !== kind) return [];
+      return phase.subphases.map((sub) => ({
+        phaseKey: phase.key,
+        subKey: sub.key,
+        value: `${phase.key}:${sub.key}`,
+        label: `${this.phaseName(phase.phaseBankId)} · ${this.subphaseName(sub.subphaseBankId)}`,
+      }));
+    });
+  });
+
+  readonly activeMatrixTarget = computed(() => {
+    const selected = this.matrixTarget();
+    const targets = this.flightTargets();
+    if (selected && targets.some((item) => item.phaseKey === selected.phaseKey && item.subKey === selected.subKey)) {
+      return selected;
+    }
+    const first = targets[0];
+    return first ? { phaseKey: first.phaseKey, subKey: first.subKey } : null;
+  });
+
+  readonly activeMatrixSub = computed(() => {
+    const target = this.activeMatrixTarget();
+    if (!target) return null;
+    const phase = this.phases().find((item) => item.key === target.phaseKey);
+    const sub = phase?.subphases.find((item) => item.key === target.subKey) ?? null;
+    return phase && sub ? { phase, sub } : null;
+  });
+
+  readonly matrixReady = computed(() => {
+    const current = this.activeMatrixSub();
+    return current ? this.subphaseReadyForMatrix(current.sub) : false;
+  });
+
+  readonly matrixSubphaseView = computed(() => {
+    const current = this.activeMatrixSub();
+    return current ? this.toMatrixSubphaseView(current.phase, current.sub) : null;
+  });
+
+  readonly matrixAssignmentMap = computed<Readonly<Record<string, DirbeLevel | null>>>(() => {
+    const current = this.activeMatrixSub();
+    if (!current) return {};
+    const map: Record<string, DirbeLevel | null> = {};
+    for (const assignment of current.sub.standardAssignments) {
+      map[standardCellKey(assignment.missionKey, assignment.maneuverId)] = assignment.dirbeLevel ?? null;
+    }
+    return map;
+  });
 
   readonly usedPhaseBankIds = computed(() => new Set(this.phases().map((item) => item.phaseBankId)));
 
@@ -216,9 +432,24 @@ export class ProgramStudioPage {
     this.phaseBanks().filter((item) => item.status === 'active' && !this.usedPhaseBankIds().has(item.id)),
   );
 
-  readonly phaseBankOptions = computed<ChoiceOption[]>(() =>
-    this.unusedPhaseBanks().map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
-  );
+  phaseBankOptionsFor(kind: ProgramModuleKind): ChoiceOption[] {
+    return this.unusedPhaseBanks()
+      .filter((item) => defaultProgramModuleKind(item.id) === kind)
+      .map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` }));
+  }
+
+  nextAvailablePhaseBankIdFor(kind: ProgramModuleKind): string {
+    const chosen = this.nextPhaseBankId();
+    const unused = this.unusedPhaseBanks().filter((item) => defaultProgramModuleKind(item.id) === kind);
+    if (unused.some((item) => item.id === chosen)) return chosen;
+    return unused[0]?.id ?? '';
+  }
+
+  subphaseBankOptionsFor(kind: ProgramModuleKind): ChoiceOption[] {
+    return this.subphaseBanks()
+      .filter((item) => item.status === 'active' && defaultSubphaseModuleKind(item) === kind)
+      .map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` }));
+  }
 
   readonly currentPickerBankId = computed(() => {
     const key = this.phaseBankPickerKey();
@@ -249,13 +480,6 @@ export class ProgramStudioPage {
     const id = this.pickerSelectedId();
     if (!id) return false;
     return id === this.currentPickerBankId() || !this.usedPhaseBankIds().has(id);
-  });
-
-  readonly nextAvailablePhaseBankId = computed(() => {
-    const chosen = this.nextPhaseBankId();
-    const unused = this.unusedPhaseBanks();
-    if (unused.some((item) => item.id === chosen)) return chosen;
-    return unused[0]?.id ?? '';
   });
 
   readonly phaseBankOpen = computed(() => this.phaseBankPickerKey() !== null);
@@ -319,12 +543,6 @@ export class ProgramStudioPage {
       }));
   });
 
-  readonly subphaseBankOptions = computed<ChoiceOption[]>(() =>
-    this.subphaseBanks()
-      .filter((item) => item.status === 'active')
-      .map((item) => ({ value: item.id, label: `${item.code} · ${item.name}` })),
-  );
-
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.left = true;
@@ -334,6 +552,9 @@ export class ProgramStudioPage {
     });
     this.maneuverSearch.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.maneuverQuery.set(value);
+    });
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.formTick.update((value) => value + 1);
     });
     forkJoin({
       programs: this.listPrograms.execute(),
@@ -360,6 +581,9 @@ export class ProgramStudioPage {
               this.loadState.set('error');
               return;
             }
+            this.culminated.set(isProgramCulminated(program));
+            this.academicYear.set(program.academicYear ?? null);
+            this.lifecycleFlag.set(normalizeProgramLifecycleFlag(program.lifecycleFlag));
             this.form.reset({
               code: program.code,
               name: program.name,
@@ -368,6 +592,13 @@ export class ProgramStudioPage {
               status: program.status,
               imageUrl: program.imageUrl,
             });
+            this.periodicExams.set(
+              program.groundPeriodicExams?.length
+                ? program.groundPeriodicExams.map((item) => ({ ...item }))
+                : program.programType === 'HELI'
+                  ? GROUND_PERIODIC_EXAMS.map((item) => ({ ...item }))
+                  : [],
+            );
             const programPhases = bundle.phases
               .filter((item) => item.programId === program.id)
               .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -375,6 +606,7 @@ export class ProgramStudioPage {
               programPhases.map((phase) => ({
                 key: phase.id,
                 phaseBankId: phase.phaseBankId,
+                moduleKind: phase.moduleKind ?? defaultProgramModuleKind(phase.phaseBankId),
                 subphases: bundle.subphases
                   .filter((item) => item.phaseId === phase.id)
                   .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -397,7 +629,29 @@ export class ProgramStudioPage {
                   })),
               })),
             );
-            if (this.isView) this.form.disable({ emitEvent: false });
+            const present: Record<ProgramModuleKind, boolean> = { ground: false, air: false, simulator: false };
+            for (const phase of this.phases()) {
+              present[phase.moduleKind] = true;
+            }
+            const selected: ProgramModuleKind | null = present.air
+              ? 'air'
+              : present.simulator
+                ? 'simulator'
+                : present.ground
+                  ? 'ground'
+                  : null;
+            this.selectedModule.set(selected);
+            this.enabledModules.set(present);
+            this.architectureKind.set(selected ?? 'ground');
+            const firstFlight = this.phases().find(
+              (phase) => (phase.moduleKind === 'air' || phase.moduleKind === 'simulator') && phase.subphases[0],
+            );
+            this.matrixTarget.set(
+              firstFlight
+                ? { phaseKey: firstFlight.key, subKey: firstFlight.subphases[0].key }
+                : null,
+            );
+            if (this.isReadOnly()) this.form.disable({ emitEvent: false });
           }
           this.loadState.set('ready');
         },
@@ -405,22 +659,473 @@ export class ProgramStudioPage {
       });
   }
 
+  isReadOnly(): boolean {
+    return this.isView || this.culminated();
+  }
+
   requiredError(name: 'code' | 'name', fallback: string): string | undefined {
     return touchedError(this.form.controls[name], fallback);
   }
 
+  stepLabel(step: StudioWizardStep): string {
+    if (step === 'plan') return this.copy.stepPlan;
+    if (step === 'modules') return this.copy.stepModules;
+    if (step === 'architecture') return this.copy.stepArchitecture;
+    return this.copy.stepMatrix;
+  }
+
+  planValid(): boolean {
+    this.formTick();
+    return this.form.controls.code.valid && this.form.controls.name.valid;
+  }
+
+  modulesValid(): boolean {
+    const selected = this.selectedModule();
+    return selected !== null && this.enabledModules()[selected];
+  }
+
+  architectureValid(): boolean {
+    const kind = this.selectedModule();
+    if (!kind || !this.enabledModules()[kind]) return false;
+    return this.phasesOf(kind).some((phase) => phase.subphases.length > 0);
+  }
+
+  allEnabledArchitectureValid(): boolean {
+    return (['ground', 'air', 'simulator'] as const).every((kind) => {
+      if (!this.enabledModules()[kind]) return true;
+      return this.phasesOf(kind).some((phase) => phase.subphases.length > 0);
+    });
+  }
+
+  matrixValid(): boolean {
+    return (['air', 'simulator'] as const).every((kind) => {
+      if (!this.enabledModules()[kind]) return true;
+      return this.phasesOf(kind).every(
+        (phase) => phase.subphases.length > 0 && phase.subphases.every((sub) => this.subphaseReadyForMatrix(sub)),
+      );
+    });
+  }
+
+  stepValid(step: StudioWizardStep): boolean {
+    if (step === 'plan') return this.planValid();
+    if (step === 'modules') return this.modulesValid();
+    if (step === 'architecture') return this.architectureValid();
+    return this.matrixValid();
+  }
+
+  canVisitStep(step: StudioWizardStep): boolean {
+    if (step === 'matrix' && this.selectedModule() !== 'air' && this.selectedModule() !== 'simulator') return false;
+    if (this.isReadOnly()) return true;
+    const steps = this.wizardSteps();
+    const index = steps.indexOf(step);
+    if (index < 0) return false;
+    return steps.slice(0, index).every((item) => this.stepValid(item));
+  }
+
+  goToStep(step: StudioWizardStep): void {
+    if (!this.canVisitStep(step)) {
+      const blocked = this.wizardSteps().find((item) => !this.stepValid(item));
+      this.stepError.set(blocked ? this.gateMessage(blocked) : this.copy.planGate);
+      return;
+    }
+    this.stepError.set(null);
+    this.step.set(step);
+    if (step !== 'matrix') this.matrixExpanded.set(false);
+  }
+
+  goNext(): void {
+    const current = this.step();
+    if (current === 'plan') this.form.markAllAsTouched();
+    if (!this.stepValid(current)) {
+      this.stepError.set(this.gateMessage(current));
+      return;
+    }
+    const steps = this.wizardSteps();
+    const next = steps[steps.indexOf(current) + 1];
+    if (!next) return;
+    this.stepError.set(null);
+    this.step.set(next);
+    if (next !== 'matrix') this.matrixExpanded.set(false);
+  }
+
+  goPrev(): void {
+    const steps = this.wizardSteps();
+    const previous = steps[steps.indexOf(this.step()) - 1];
+    if (!previous) return;
+    this.stepError.set(null);
+    this.step.set(previous);
+    this.matrixExpanded.set(false);
+  }
+
+  canContinue(): boolean {
+    const steps = this.wizardSteps();
+    return steps.indexOf(this.step()) < steps.length - 1;
+  }
+
+  nextLabel(): string {
+    if (this.step() === 'modules') {
+      const kind = this.selectedModule();
+      const title = kind ? this.moduleChoiceTitle(kind) : null;
+      return title ? `${this.copy.next} ${title}` : this.copy.next;
+    }
+    return this.copy.next;
+  }
+
+  moduleChoiceTitle(kind: ProgramModuleKind): string {
+    return PROGRAM_MODULE_OPTIONS.find((item) => item.kind === kind)?.title ?? this.moduleTitle(kind);
+  }
+
+  gateMessage(step: StudioWizardStep): string {
+    if (step === 'plan') return this.copy.planGate;
+    if (step === 'modules') return this.copy.modulesGate;
+    if (step === 'architecture') return this.copy.architectureGate;
+    return this.copy.matrixGate;
+  }
+
+  firstInvalidStep(): StudioWizardStep | null {
+    if (!this.planValid()) return 'plan';
+    if (!this.modulesValid()) return 'modules';
+    if (!this.allEnabledArchitectureValid()) return 'architecture';
+    if (this.enabledModules().air && !this.matrixValid()) return 'matrix';
+    if (this.enabledModules().simulator && !this.matrixValid()) return 'matrix';
+    return null;
+  }
+
+  selectModule(kind: ProgramModuleKind): void {
+    if (!this.isReadOnly()) {
+      this.enabledModules.update((current) => ({ ...current, [kind]: true }));
+    }
+    this.selectedModule.set(kind);
+    this.architectureKind.set(kind);
+    if (kind !== 'air' && kind !== 'simulator' && this.step() === 'matrix') this.step.set('architecture');
+  }
+
+  setAdvanceModule(kind: ProgramModuleKind, checked: boolean): void {
+    if (this.isReadOnly()) return;
+    if (checked) {
+      this.selectModule(kind);
+      return;
+    }
+    if (this.selectedModule() === kind) this.selectedModule.set(null);
+  }
+
+  toggleModule(kind: ProgramModuleKind): void {
+    this.selectModule(kind);
+  }
+
+  setModuleEnabled(kind: ProgramModuleKind, enabled: boolean): void {
+    if (this.isReadOnly()) return;
+    this.enabledModules.update((current) => ({ ...current, [kind]: enabled }));
+    const selected = this.selectedModule();
+    if (enabled && !selected) {
+      this.selectedModule.set(kind);
+      this.architectureKind.set(kind);
+      return;
+    }
+    if (!enabled && selected === kind) {
+      const next = (['ground', 'air', 'simulator'] as const).find((item) => item !== kind && this.enabledModules()[item]);
+      this.selectedModule.set(next ?? null);
+      if (next) this.architectureKind.set(next);
+      if (next !== 'air' && this.step() === 'matrix') this.step.set('architecture');
+    }
+  }
+
+  moduleEnabled(kind: ProgramModuleKind): boolean {
+    return this.enabledModules()[kind];
+  }
+
+  moduleAdvance(kind: ProgramModuleKind): boolean {
+    return this.selectedModule() === kind;
+  }
+
+  phasesOf(kind: ProgramModuleKind): StudioPhase[] {
+    return this.phases().filter((phase) => phase.moduleKind === kind);
+  }
+
+  moduleTitle(kind: ProgramModuleKind): string {
+    if (kind === 'ground') return this.copy.architectureGround;
+    if (kind === 'simulator') return this.copy.architectureSim;
+    return this.copy.architectureAir;
+  }
+
+  setMatrixTargetValue(value: string): void {
+    const [phaseKey, subKey] = value.split(':');
+    if (!phaseKey || !subKey) return;
+    this.matrixTarget.set({ phaseKey, subKey });
+    this.calibratorCell.set(null);
+    this.calibratorLevel.set(null);
+  }
+
+  matrixSelectValue(): string {
+    const target = this.activeMatrixTarget();
+    return target ? `${target.phaseKey}:${target.subKey}` : '';
+  }
+
+  courseRows(phase: StudioPhase): UiTableRow[] {
+    return phase.subphases.map((sub) => {
+      const bank = this.subphaseBanks().find((item) => item.id === sub.subphaseBankId);
+      return {
+        id: `${phase.key}:${sub.key}`,
+        cells: {
+          name: this.subphaseName(sub.subphaseBankId),
+          hours: `${this.formatDecimal(sub.hours)} ${this.copy.hoursUnit}`,
+          coefficient: this.formatDecimal(bank?.coefficient),
+          minGrade: this.formatDecimal(bank?.minPassingGrade),
+        },
+      };
+    });
+  }
+
+  removeCourse(rowId: string): void {
+    const [phaseKey, subKey] = rowId.split(':');
+    if (phaseKey && subKey) this.removeSubphase(phaseKey, subKey);
+  }
+
+  subphaseReadyForMatrix(sub: StudioSubphase): boolean {
+    return curriculumMissionRefs(sub).length > 0 && sub.maneuverIds.length > 0;
+  }
+
+  toggleMatrixExpanded(): void {
+    this.matrixExpanded.update((value) => !value);
+  }
+
+  selectMatrixCell(cell: ProgramStandardMatrixCell): void {
+    if (this.isReadOnly()) return;
+    const current = this.activeMatrixSub();
+    const assignment = current?.sub.standardAssignments.find(
+      (item) => item.missionKey === cell.mission.key && item.maneuverId === cell.maneuver.id,
+    );
+    const adds = { ...emptyDirbePointDeltas(), ...assignment?.dirbePointAdds };
+    const subs = { ...emptyDirbePointDeltas(), ...assignment?.dirbePointSubs };
+    if (!assignment?.dirbePointAdds && !assignment?.dirbePointSubs) {
+      for (const level of DIRBE_LEVELS) {
+        const delta = assignment?.dirbePointDeltas?.[level] ?? 0;
+        if (delta > 0) adds[level] = delta;
+        if (delta < 0) subs[level] = Math.abs(delta);
+      }
+    }
+    this.calibratorCell.set(cell);
+    this.calibratorLevel.set(assignment?.dirbeLevel ?? null);
+    this.calibratorStandardIds.set([...(assignment?.standardIds ?? [])]);
+    for (const level of DIRBE_LEVELS) {
+      this.calibratorAdds[level].setValue(adds[level], { emitEvent: false });
+      this.calibratorSubs[level].setValue(subs[level], { emitEvent: false });
+    }
+    this.calibratorAdds.P.setValue(assignment?.dangerousAdd ?? 0, { emitEvent: false });
+    this.calibratorSubs.P.setValue(assignment?.dangerousSub ?? 0, { emitEvent: false });
+    this.calibratorDangerFail.set(assignment?.dangerousOutcome === 'fail-mission');
+  }
+
+  applyCalibrator(): void {
+    const cell = this.calibratorCell();
+    const current = this.activeMatrixSub();
+    if (!cell || !current) return;
+    const standardIds = [...this.calibratorStandardIds()];
+    const dirbeLevel = this.calibratorLevel();
+    const dirbePointAdds = this.compactDirbeScores((level) => this.calibratorAdds[level].value);
+    const dirbePointSubs = this.compactDirbeScores((level) => this.calibratorSubs[level].value);
+    const dirbePointDeltas = this.compactDirbeScores(
+      (level) => this.calibratorAdds[level].value - this.calibratorSubs[level].value,
+    );
+    const pAdd = this.calibratorAdds.P.value;
+    const pSub = this.calibratorSubs.P.value;
+    const failMission = this.calibratorDangerFail();
+    const next: ManeuverStandardAssignment = {
+      missionKey: cell.mission.key,
+      maneuverId: cell.maneuver.id,
+      standardIds,
+      ...(dirbeLevel ? { dirbeLevel } : {}),
+      ...(dirbePointAdds ? { dirbePointAdds } : {}),
+      ...(dirbePointSubs ? { dirbePointSubs } : {}),
+      ...(dirbePointDeltas ? { dirbePointDeltas } : {}),
+      ...(failMission
+        ? { dangerousOutcome: 'fail-mission' as const }
+        : pAdd || pSub
+          ? { dangerousOutcome: 'deduct' as const }
+          : {}),
+      ...(pAdd ? { dangerousAdd: pAdd } : {}),
+      ...(pSub ? { dangerousSub: pSub } : {}),
+    };
+    const assignments = [...current.sub.standardAssignments];
+    const index = assignments.findIndex(
+      (item) => item.missionKey === cell.mission.key && item.maneuverId === cell.maneuver.id,
+    );
+    const hasBody = Boolean(
+      next.standardIds.length || next.dirbeLevel || dirbePointAdds || dirbePointSubs || pAdd || pSub || failMission,
+    );
+    if (!hasBody) {
+      if (index >= 0) assignments.splice(index, 1);
+    } else if (index >= 0) {
+      assignments[index] = next;
+    } else {
+      assignments.push(next);
+    }
+    this.patchSubphase(current.phase.key, current.sub.key, { standardAssignments: assignments });
+    this.closeCalibrator();
+  }
+
+  closeCalibrator(): void {
+    this.calibratorCell.set(null);
+    this.calibratorLevel.set(null);
+    this.calibratorStandardIds.set([]);
+    this.calibratorDangerFail.set(false);
+  }
+
+  toggleCalibratorLevel(level: DirbeLevel): void {
+    if (this.calibratorLevel() === level) {
+      this.calibratorLevel.set(null);
+      this.clearCalibratorScores();
+      return;
+    }
+    this.calibratorLevel.set(level);
+  }
+
+  clearCalibratorScores(): void {
+    for (const code of DIRBEP_CODES) {
+      this.calibratorAdds[code].setValue(0, { emitEvent: false });
+      this.calibratorSubs[code].setValue(0, { emitEvent: false });
+    }
+    this.calibratorDangerFail.set(false);
+  }
+
+  calibratorAddVisible(code: StudioDirbepCode): boolean {
+    return this.calibratorAdds[code].value > 0;
+  }
+
+  calibratorSubVisible(code: StudioDirbepCode): boolean {
+    return this.calibratorSubs[code].value > 0;
+  }
+
+  calibratorScoreCardOn(code: StudioDirbepCode): boolean {
+    if (code === 'P') return this.calibratorDangerFail();
+    return this.calibratorLevel() === code;
+  }
+
+  bumpCalibratorScore(code: StudioDirbepCode, step: 1 | -1): void {
+    const net = this.calibratorAdds[code].value - this.calibratorSubs[code].value + step;
+    if (net >= 0) {
+      this.calibratorAdds[code].setValue(net);
+      this.calibratorSubs[code].setValue(0);
+      return;
+    }
+    this.calibratorAdds[code].setValue(0);
+    this.calibratorSubs[code].setValue(Math.abs(net));
+  }
+
+  onCalibratorAddTyped(code: StudioDirbepCode): void {
+    const value = Math.max(0, this.calibratorAdds[code].value || 0);
+    this.calibratorAdds[code].setValue(value);
+    if (value > 0) this.calibratorSubs[code].setValue(0);
+  }
+
+  onCalibratorSubTyped(code: StudioDirbepCode): void {
+    const value = Math.max(0, this.calibratorSubs[code].value || 0);
+    this.calibratorSubs[code].setValue(value);
+    if (value > 0) this.calibratorAdds[code].setValue(0);
+  }
+
+  toggleCalibratorDischarge(): void {
+    this.calibratorDangerFail.update((value) => !value);
+  }
+
+  calibratorCardClass(code: DirbeLevel | 'P', selected: boolean): string {
+    const tone = code.toLowerCase();
+    return `calibrator__card calibrator__card--${tone}${selected ? ' calibrator__card--on' : ''}`;
+  }
+
+  calibratorAddField(code: StudioDirbepCode): FormControl<number> {
+    return this.calibratorAdds[code];
+  }
+
+  calibratorSubField(code: StudioDirbepCode): FormControl<number> {
+    return this.calibratorSubs[code];
+  }
+
+  dirbepLabel(code: StudioDirbepCode): string {
+    if (code === 'P') return this.copy.calibratorDangerGrade;
+    return this.dirbeOptions.find((item) => item.value === code)?.label ?? code;
+  }
+
+  private compactDirbeScores(read: (level: DirbeLevel) => number): Partial<Record<DirbeLevel, number>> | undefined {
+    const result: Partial<Record<DirbeLevel, number>> = {};
+    for (const level of DIRBE_LEVELS) {
+      const value = read(level);
+      if (value) result[level] = value;
+    }
+    return Object.keys(result).length ? result : undefined;
+  }
+
+  calibratorTargetLabel(): string {
+    const level = this.calibratorLevel();
+    return this.dirbeOptions.find((item) => item.value === level)?.label ?? '';
+  }
+
   phaseName(phaseBankId: string): string {
     const bank = this.phaseBanks().find((item) => item.id === phaseBankId);
-    return bank ? `${bank.code} · ${bank.name}` : 'Fase';
+    return bank ? `${bank.code} · ${bank.name}` : this.copy.phaseMeta;
+  }
+
+  courseTitle(phaseBankId: string): string {
+    const bank = this.phaseBanks().find((item) => item.id === phaseBankId);
+    return bank ? `${bank.code} · ${bank.name}` : this.copy.courseKicker;
+  }
+
+  phaseDescription(phaseBankId: string): string {
+    return this.phaseBanks().find((item) => item.id === phaseBankId)?.description ?? '';
   }
 
   subphaseName(subphaseBankId: string): string {
     const bank = this.subphaseBanks().find((item) => item.id === subphaseBankId);
-    return bank ? `${bank.code} · ${bank.name}` : 'Subfase';
+    return bank ? `${bank.code} · ${bank.name}` : this.copy.subphaseAction;
+  }
+
+  formatDecimal(value: number | undefined): string {
+    if (value === undefined) return this.copy.none;
+    return formatGroundDecimal(value);
+  }
+
+  curriculumHoursOf(kind: ProgramModuleKind): number {
+    return curriculumHours(this.phasesOf(kind));
+  }
+
+  phaseHours(phase: StudioPhase): number {
+    return curriculumHours([phase]);
+  }
+
+  phaseMissionCount(phase: StudioPhase): number {
+    return phase.subphases.reduce((total, sub) => total + this.missionLabels(sub).length, 0);
+  }
+
+  phaseShare(phase: StudioPhase): number {
+    const total = this.totalHours();
+    if (!total) return 0;
+    return Math.round((this.phaseHours(phase) / total) * 1000) / 10;
+  }
+
+  isPhaseCollapsed(key: string): boolean {
+    return this.collapsedPhaseKeys().includes(key);
+  }
+
+  togglePhase(key: string): void {
+    this.collapsedPhaseKeys.update((keys) =>
+      keys.includes(key) ? keys.filter((item) => item !== key) : [...keys, key],
+    );
+  }
+
+  collapseAll(): void {
+    this.collapsedPhaseKeys.set(this.enabledPhases().map((item) => item.key));
+  }
+
+  expandAll(): void {
+    this.collapsedPhaseKeys.set([]);
+  }
+
+  hoursLabel(value: number): string {
+    return `${value} ${this.copy.hoursUnit}`;
   }
 
   setType(value: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     if (
       value === 'PPL' ||
       value === 'CPL' ||
@@ -434,12 +1139,12 @@ export class ProgramStudioPage {
   }
 
   setStatus(value: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.form.controls.status.setValue(value === 'inactive' ? 'inactive' : 'active');
   }
 
   setPoster(value: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.form.controls.imageUrl.setValue(value);
     this.form.controls.imageUrl.markAsTouched();
     this.error.set(null);
@@ -450,7 +1155,7 @@ export class ProgramStudioPage {
   }
 
   openPhaseBankPicker(key: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.phaseBankSearch.setValue('');
     this.phaseBankQuery.set('');
     this.phaseBankPickerKey.set(key);
@@ -468,7 +1173,7 @@ export class ProgramStudioPage {
   }
 
   openMissionPicker(phaseKey: string, subKey: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     const sub = this.phases()
       .find((item) => item.key === phaseKey)
       ?.subphases.find((item) => item.key === subKey);
@@ -486,7 +1191,7 @@ export class ProgramStudioPage {
   }
 
   openManeuverPicker(phaseKey: string, subKey: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     const sub = this.phases()
       .find((item) => item.key === phaseKey)
       ?.subphases.find((item) => item.key === subKey);
@@ -531,7 +1236,7 @@ export class ProgramStudioPage {
   }
 
   showManeuverOrder(phaseKey: string, subKey: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     const sub = this.phases()
       .find((item) => item.key === phaseKey)
       ?.subphases.find((item) => item.key === subKey);
@@ -715,58 +1420,60 @@ export class ProgramStudioPage {
 
   pickPhaseBank(phaseBankId: string): void {
     const key = this.phaseBankPickerKey();
-    if (!key || this.isView) return;
+    if (!key || this.isReadOnly()) return;
     const currentId = this.currentPickerBankId();
     if (phaseBankId !== currentId && this.usedPhaseBankIds().has(phaseBankId)) return;
     this.phases.update((items) => items.map((item) => (item.key === key ? { ...item, phaseBankId } : item)));
     this.closePhaseBankPicker();
   }
 
-  addPhase(): void {
-    const phaseBankId = this.nextAvailablePhaseBankId();
-    if (!phaseBankId || this.isView) return;
-    const defaultSub = this.subphaseBanks().find((item) => item.status === 'active')?.id ?? '';
+  addPhase(kind: ProgramModuleKind = this.architectureKind()): void {
+    const phaseBankId = this.nextAvailablePhaseBankIdFor(kind);
+    if (!phaseBankId || this.isReadOnly()) return;
+    const defaultSub =
+      this.subphaseBanks().find((item) => item.status === 'active' && defaultSubphaseModuleKind(item) === kind)?.id ??
+      '';
     this.phases.update((items) => [
       ...items,
       {
         key: `draft-ph-${this.draftSeq++}`,
         phaseBankId,
-        subphases: defaultSub
-          ? [
-              {
-                key: `draft-sp-${this.draftSeq++}`,
-                subphaseBankId: defaultSub,
-                hours: 2,
-                missionMode: 'manual',
-                missionTypeIds: [],
-                customMissionNames: [],
-                autoMissionCode: '',
-                autoMissionCount: 0,
-                maneuverIds: [],
-                maneuverOperationIds: [],
-                maneuverAssignment: {},
-                standardAssignments: [],
-              },
-            ]
-          : [],
+        moduleKind: kind,
+        subphases: kind === 'ground' ? [] : defaultSub ? [this.emptySubphase(defaultSub)] : [],
       },
     ]);
   }
 
   removePhase(key: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.phases.update((items) => items.filter((item) => item.key !== key));
   }
 
+  canMovePhase(key: string, delta: number): boolean {
+    const items = this.phases();
+    const index = items.findIndex((item) => item.key === key);
+    if (index < 0) return false;
+    const kind = items[index].moduleKind;
+    let target = index + delta;
+    while (target >= 0 && target < items.length && items[target].moduleKind !== kind) {
+      target += delta;
+    }
+    return target >= 0 && target < items.length;
+  }
+
   movePhase(key: string, delta: number): void {
-    if (this.isView) return;
+    if (this.isReadOnly() || !this.canMovePhase(key, delta)) return;
     this.phases.update((items) => {
       const index = items.findIndex((item) => item.key === key);
-      const next = index + delta;
-      if (index < 0 || next < 0 || next >= items.length) return items;
+      if (index < 0) return items;
+      const kind = items[index].moduleKind;
+      let target = index + delta;
+      while (target >= 0 && target < items.length && items[target].moduleKind !== kind) {
+        target += delta;
+      }
+      if (target < 0 || target >= items.length) return items;
       const copy = [...items];
-      const [row] = copy.splice(index, 1);
-      copy.splice(next, 0, row);
+      [copy[index], copy[target]] = [copy[target], copy[index]];
       return copy;
     });
   }
@@ -776,40 +1483,169 @@ export class ProgramStudioPage {
   }
 
   addSubphase(phaseKey: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
+    const phase = this.phases().find((item) => item.key === phaseKey);
+    if (phase?.moduleKind === 'ground') {
+      this.addGroundSubject(phaseKey);
+      return;
+    }
+    const kind = phase?.moduleKind ?? this.architectureKind();
     const bankId =
-      this.nextSubphaseBankId()[phaseKey] || this.subphaseBanks().find((item) => item.status === 'active')?.id || '';
+      this.nextSubphaseBankId()[phaseKey] || this.subphaseBankOptionsFor(kind)[0]?.value || '';
     if (!bankId) return;
     this.phases.update((items) =>
-      items.map((phase) =>
-        phase.key === phaseKey
+      items.map((item) =>
+        item.key === phaseKey
           ? {
-              ...phase,
-              subphases: [
-                ...phase.subphases,
-                {
-                  key: `draft-sp-${this.draftSeq++}`,
-                  subphaseBankId: bankId,
-                  hours: 2,
-                  missionMode: 'manual',
-                  missionTypeIds: [],
-                  customMissionNames: [],
-                  autoMissionCode: '',
-                  autoMissionCount: 0,
-                  maneuverIds: [],
-                  maneuverOperationIds: [],
-                  maneuverAssignment: {},
-                  standardAssignments: [],
-                },
-              ],
+              ...item,
+              subphases: [...item.subphases, this.emptySubphase(bankId)],
             }
-          : phase,
+          : item,
       ),
     );
   }
 
+  addGroundSubject(phaseKey: string): void {
+    if (this.isReadOnly()) return;
+    const draft = this.groundSubjectDraft(phaseKey);
+    const name = draft.name.trim();
+    if (!name) return;
+    const hours = Number.isFinite(draft.hours) ? draft.hours : 1;
+    const coefficient = Number.isFinite(draft.coefficient) ? draft.coefficient : 0;
+    const minPassingGrade = Number.isFinite(draft.minPassingGrade) ? draft.minPassingGrade : 16;
+    const codeBase = academicCodeFromName(name);
+    const used = new Set(this.subphaseBanks().map((item) => item.code));
+    let code = codeBase;
+    let suffix = 2;
+    while (used.has(code)) {
+      code = `${codeBase.slice(0, 10)}${suffix}`.slice(0, 16);
+      suffix += 1;
+    }
+    const bank: SubphaseBankEntity = {
+      id: `draft-sb-${this.draftSeq++}`,
+      code,
+      name,
+      description: '',
+      status: 'active',
+      coefficient,
+      minPassingGrade,
+    };
+    this.subphaseBanks.update((items) => [...items, bank]);
+    this.phases.update((items) =>
+      items.map((item) =>
+        item.key === phaseKey
+          ? { ...item, subphases: [...item.subphases, this.emptySubphase(bank.id, hours)] }
+          : item,
+      ),
+    );
+    this.draftGroundSubjects.update((map) => ({ ...map, [phaseKey]: { ...EMPTY_GROUND_SUBJECT_DRAFT } }));
+    this.groundSubjectNameField(phaseKey);
+    this.groundSubjectHoursField(phaseKey);
+    this.groundSubjectCoefField(phaseKey);
+    this.groundSubjectMinField(phaseKey);
+  }
+
+  groundSubjectDraft(phaseKey: string): GroundSubjectDraft {
+    return this.draftGroundSubjects()[phaseKey] ?? EMPTY_GROUND_SUBJECT_DRAFT;
+  }
+
+  groundSubjectNameField(phaseKey: string): FormControl<string> {
+    return this.textField(`gs-name:${phaseKey}`, this.groundSubjectDraft(phaseKey).name, (name) => {
+      this.patchGroundSubjectDraft(phaseKey, { name });
+    });
+  }
+
+  groundSubjectHoursField(phaseKey: string): FormControl<number> {
+    return this.numberField(`gs-hours:${phaseKey}`, this.groundSubjectDraft(phaseKey).hours, (hours) => {
+      this.patchGroundSubjectDraft(phaseKey, { hours });
+    });
+  }
+
+  groundSubjectCoefField(phaseKey: string): FormControl<number> {
+    return this.numberField(
+      `gs-coef:${phaseKey}`,
+      this.groundSubjectDraft(phaseKey).coefficient,
+      (coefficient) => {
+        this.patchGroundSubjectDraft(phaseKey, { coefficient });
+      },
+    );
+  }
+
+  groundSubjectMinField(phaseKey: string): FormControl<number> {
+    return this.numberField(
+      `gs-min:${phaseKey}`,
+      this.groundSubjectDraft(phaseKey).minPassingGrade,
+      (minPassingGrade) => {
+        this.patchGroundSubjectDraft(phaseKey, { minPassingGrade });
+      },
+    );
+  }
+
+  addPeriodicExam(): void {
+    if (this.isReadOnly()) return;
+    const draft = this.draftPeriodicExam();
+    const period = draft.period.trim();
+    const exam = draft.exam.trim();
+    if (!period || !exam) return;
+    const neiWeight = Number.isFinite(draft.neiWeight) ? draft.neiWeight : 0;
+    const countsTowardNei = neiWeight > 0;
+    this.periodicExams.update((items) => [
+      ...items,
+      {
+        id: `periodic-${this.draftSeq++}`,
+        period,
+        exam,
+        kind: periodicExamKindFromPeriod(period),
+        minPassingGrade: Number.isFinite(draft.minPassingGrade) ? draft.minPassingGrade : 16,
+        countsTowardNei,
+        neiWeight: countsTowardNei ? neiWeight : 0,
+      },
+    ]);
+    this.draftPeriodicExam.set({ ...EMPTY_GROUND_PERIODIC_DRAFT });
+    this.periodicPeriodField();
+    this.periodicExamNameField();
+    this.periodicMinField();
+    this.periodicWeightField();
+  }
+
+  removePeriodicExam(id: string): void {
+    if (this.isReadOnly()) return;
+    this.periodicExams.update((items) => items.filter((item) => item.id !== id));
+  }
+
+  periodicPeriodField(): FormControl<string> {
+    return this.textField('periodic-period', this.draftPeriodicExam().period, (period) => {
+      this.draftPeriodicExam.update((current) => ({ ...current, period }));
+    });
+  }
+
+  periodicExamNameField(): FormControl<string> {
+    return this.textField('periodic-exam', this.draftPeriodicExam().exam, (exam) => {
+      this.draftPeriodicExam.update((current) => ({ ...current, exam }));
+    });
+  }
+
+  periodicMinField(): FormControl<number> {
+    return this.numberField('periodic-min', this.draftPeriodicExam().minPassingGrade, (minPassingGrade) => {
+      this.draftPeriodicExam.update((current) => ({ ...current, minPassingGrade }));
+    });
+  }
+
+  periodicWeightField(): FormControl<number> {
+    return this.numberField('periodic-weight', this.draftPeriodicExam().neiWeight, (neiWeight) => {
+      this.draftPeriodicExam.update((current) => ({ ...current, neiWeight }));
+    });
+  }
+
+  private patchGroundSubjectDraft(phaseKey: string, patch: Partial<GroundSubjectDraft>): void {
+    this.draftGroundSubjects.update((map) => ({
+      ...map,
+      [phaseKey]: { ...this.groundSubjectDraft(phaseKey), ...patch },
+    }));
+  }
+
   removeSubphase(phaseKey: string, subKey: string): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.phases.update((items) =>
       items.map((phase) =>
         phase.key === phaseKey
@@ -854,7 +1690,7 @@ export class ProgramStudioPage {
 
   addCustomMission(phaseKey: string, subKey: string): void {
     const name = (this.draftMissionName()[subKey] ?? '').trim();
-    if (!name || this.isView) return;
+    if (!name || this.isReadOnly()) return;
     this.promoteSeriesToCustom(phaseKey, subKey);
     this.setMissionMode(phaseKey, subKey, 'manual');
     this.phases.update((items) =>
@@ -1058,6 +1894,99 @@ export class ProgramStudioPage {
     return [...catalog, ...custom];
   }
 
+  private emptySubphase(subphaseBankId: string, hours = 2): StudioSubphase {
+    return {
+      key: `draft-sp-${this.draftSeq++}`,
+      subphaseBankId,
+      hours,
+      missionMode: 'manual',
+      missionTypeIds: [],
+      customMissionNames: [],
+      autoMissionCode: '',
+      autoMissionCount: 0,
+      maneuverIds: [],
+      maneuverOperationIds: [],
+      maneuverAssignment: {},
+      standardAssignments: [],
+    };
+  }
+
+  private toMatrixSubphaseView(phase: StudioPhase, sub: StudioSubphase): ProgramStandardSubphaseView {
+    const missions = this.toMissionViews(sub);
+    const maneuvers = this.toManeuverViews(sub);
+    const totalCells = missions.length * maneuvers.length;
+    const configuredCells = sub.standardAssignments.filter((item) => item.dirbeLevel).length;
+    return {
+      id: sub.key,
+      phaseId: phase.key,
+      code: this.subphaseBanks().find((item) => item.id === sub.subphaseBankId)?.code ?? '',
+      name: this.subphaseBanks().find((item) => item.id === sub.subphaseBankId)?.name ?? 'Subfase',
+      label: this.subphaseName(sub.subphaseBankId),
+      hours: sub.hours,
+      missions,
+      maneuvers,
+      configuredCells,
+      totalCells,
+      levelsUsed: new Set(sub.standardAssignments.map((item) => item.dirbeLevel).filter(Boolean)).size,
+      percentage: totalCells ? Math.round((configuredCells / totalCells) * 100) : 0,
+      hasMatrix: missions.length > 0 && maneuvers.length > 0,
+      matrixHint: this.copy.matrixPick,
+    };
+  }
+
+  private toMissionViews(sub: StudioSubphase): ProgramStandardMissionView[] {
+    return curriculumMissionRefs(sub).map((mission, index) => {
+      if (mission.kind === 'catalog') {
+        const catalog = this.missions().find((item) => item.id === mission.value);
+        return {
+          key: mission.key,
+          typeCode: catalog?.code ?? 'CAT',
+          code: catalog?.code ?? `M${index + 1}`,
+          name: catalog?.name ?? 'Misión',
+          label: catalog ? `${catalog.code} · ${catalog.name}` : mission.value,
+          detail: catalog?.description || '',
+          kindLabel: 'Catálogo',
+        };
+      }
+      if (mission.kind === 'automatic') {
+        return {
+          key: mission.key,
+          typeCode: sub.autoMissionCode || 'SER',
+          code: mission.value,
+          name: mission.value,
+          label: mission.value,
+          detail: '',
+          kindLabel: 'Serie',
+        };
+      }
+      return {
+        key: mission.key,
+        typeCode: 'MAN',
+        code: `M${index + 1}`,
+        name: mission.value,
+        label: mission.value,
+        detail: '',
+        kindLabel: 'Propia',
+      };
+    });
+  }
+
+  private toManeuverViews(sub: StudioSubphase): ProgramStandardManeuverView[] {
+    return sub.maneuverIds.map((id) => {
+      const maneuver = this.maneuvers().find((item) => item.id === id);
+      const operationId = sub.maneuverAssignment[id] || maneuver?.operationId || '';
+      const operation = this.operations().find((item) => item.id === operationId);
+      return {
+        id,
+        code: maneuver?.code ?? id,
+        name: maneuver?.name ?? id,
+        description: maneuver?.description ?? '',
+        operationId,
+        operationName: operation?.name ?? '',
+      };
+    });
+  }
+
   private promoteSeriesToCustom(phaseKey: string, subKey: string): void {
     const sub = this.phases()
       .find((item) => item.key === phaseKey)
@@ -1077,7 +2006,7 @@ export class ProgramStudioPage {
   }
 
   private patchSubphase(phaseKey: string, subKey: string, patch: Partial<StudioSubphase>): void {
-    if (this.isView) return;
+    if (this.isReadOnly()) return;
     this.phases.update((items) =>
       items.map((phase) =>
         phase.key !== phaseKey
@@ -1091,39 +2020,62 @@ export class ProgramStudioPage {
   }
 
   async save(): Promise<void> {
-    if (this.isView || this.saving()) return;
+    if (this.isReadOnly() || this.saving()) return;
     this.form.markAllAsTouched();
-    if (this.form.invalid) {
-      this.error.set('Completa el código y el nombre del programa.');
+    const invalid = this.firstInvalidStep();
+    if (invalid) {
+      if (invalid === 'architecture') {
+        const incomplete = (['ground', 'air', 'simulator'] as const).find(
+          (kind) => this.enabledModules()[kind] && !this.phasesOf(kind).some((phase) => phase.subphases.length > 0),
+        );
+        if (incomplete) this.selectModule(incomplete);
+      }
+      if (invalid === 'matrix') {
+        const flight = (['air', 'simulator'] as const).find((kind) => this.enabledModules()[kind]);
+        this.selectModule(flight ?? 'air');
+      }
+      this.error.set(this.gateMessage(invalid));
+      this.stepError.set(this.gateMessage(invalid));
+      this.step.set(invalid);
       return;
     }
     this.error.set(null);
     this.saving.set(true);
-    const phases: PhaseDraftInput[] = this.phases().map((phase, index) => ({
-      phaseBankId: phase.phaseBankId,
-      sortOrder: index + 1,
-      subphases: phase.subphases.map((sub, subIndex) => ({
-        subphaseBankId: sub.subphaseBankId,
-        hours: sub.hours,
-        missionMode: sub.missionMode,
-        missionTypeIds: sub.missionTypeIds,
-        customMissionNames: sub.customMissionNames,
-        autoMissionCode: sub.autoMissionCode,
-        autoMissionCount: sub.autoMissionCount,
-        maneuverIds: sub.maneuverIds,
-        maneuverOperationIds: sub.maneuverOperationIds,
-        maneuverAssignment: sub.maneuverAssignment,
-        standardAssignments: sub.standardAssignments,
-        sortOrder: subIndex + 1,
-      })),
-    }));
+    this.creating.set(true);
     try {
-      this.creating.set(true);
+      await this.ensureDraftSubjectBanks();
+      const enabled = this.enabledModules();
+      const phases: PhaseDraftInput[] = this.phases()
+        .filter((phase) => enabled[phase.moduleKind])
+        .map((phase, index) => ({
+          phaseBankId: phase.phaseBankId,
+          moduleKind: phase.moduleKind,
+          sortOrder: index + 1,
+          subphases: phase.subphases.map((sub, subIndex) => ({
+            subphaseBankId: sub.subphaseBankId,
+            hours: sub.hours,
+            missionMode: sub.missionMode,
+            missionTypeIds: sub.missionTypeIds,
+            customMissionNames: sub.customMissionNames,
+            autoMissionCode: sub.autoMissionCode,
+            autoMissionCount: sub.autoMissionCount,
+            maneuverIds: sub.maneuverIds,
+            maneuverOperationIds: sub.maneuverOperationIds,
+            maneuverAssignment: sub.maneuverAssignment,
+            standardAssignments: sub.standardAssignments,
+            sortOrder: subIndex + 1,
+          })),
+        }));
       await Promise.all([
         firstValueFrom(
           this.saveCurriculum.execute({
             id: this.editingId ?? undefined,
-            program: this.form.getRawValue(),
+            program: {
+              ...this.form.getRawValue(),
+              groundPeriodicExams: this.periodicExams(),
+              academicYear: this.academicYear() ?? undefined,
+              lifecycleFlag: this.lifecycleFlag(),
+            },
             phases,
           }),
         ),
@@ -1142,5 +2094,36 @@ export class ProgramStudioPage {
     } finally {
       if (!this.left) this.saving.set(false);
     }
+  }
+
+  private async ensureDraftSubjectBanks(): Promise<void> {
+    const drafts = this.subphaseBanks().filter((item) => item.id.startsWith('draft-sb-'));
+    if (!drafts.length) return;
+    const mapped = new Map<string, string>();
+    for (const draft of drafts) {
+      const created = await firstValueFrom(
+        this.createSubphaseBank.execute({
+          code: draft.code,
+          name: draft.name,
+          description: draft.description,
+          status: draft.status,
+          coefficient: draft.coefficient,
+          minPassingGrade: draft.minPassingGrade,
+        }),
+      );
+      mapped.set(draft.id, created.id);
+    }
+    this.subphaseBanks.update((items) =>
+      items.map((item) => (mapped.has(item.id) ? { ...item, id: mapped.get(item.id) ?? item.id } : item)),
+    );
+    this.phases.update((items) =>
+      items.map((phase) => ({
+        ...phase,
+        subphases: phase.subphases.map((sub) => ({
+          ...sub,
+          subphaseBankId: mapped.get(sub.subphaseBankId) ?? sub.subphaseBankId,
+        })),
+      })),
+    );
   }
 }

@@ -22,6 +22,9 @@
     @if (error()) {
       <app-alert tone="error">{{ error() }}</app-alert>
     }
+    @if (culminated()) {
+      <app-alert>{{ copy.culminatedBanner(program()?.academicYear ?? null) }}</app-alert>
+    }
 
     <div class="ps__layout">
       <aside class="ps__navigator">
@@ -41,7 +44,7 @@
             [phaseLabel]="activePhase()?.label ?? 'Fase'"
             [subphase]="subphase"
             [assignmentMap]="activeAssignmentMap()"
-            [editProgramHref]="editProgramHref"
+            [editProgramHref]="editProgramHref()"
             [dirty]="activeSubphaseDirty()"
             [saving]="activeSubphaseSaving()"
             (levelChange)="updateDirbeLevel($event)"

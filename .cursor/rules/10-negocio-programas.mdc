@@ -1,0 +1,36 @@
+---
+description: Reglas funcionales para programas de instrucción y calificación
+globs: ["src/app/features/programas/**/*", "src/app/core/domain/**/*"]
+alwaysApply: false
+---
+
+# Modelo funcional de programas
+
+El documento `docs/negocio/programa-ejemplo.pdf` es la referencia funcional
+para implementar el módulo de programas de instrucción.
+
+Antes de modificar o crear funcionalidades relacionadas con:
+
+- Programas
+- Fases
+- Subfases
+- Misiones
+- Maniobras
+- Estándares
+- Ponderaciones
+- Matrices de evaluación
+- Calificaciones
+
+se debe revisar el documento de referencia.
+
+## Reglas
+
+- No inventar entidades que contradigan el modelo del documento.
+- Mantener la relación Unidad → Escuadrón.
+- Mantener la relación Programa → Fases → Subfases.
+- Las misiones y maniobras deben respetar la estructura definida en el modelo.
+- Las calificaciones deben respetar las reglas y ponderaciones definidas.
+- Separar las reglas de negocio de Angular.
+- Las entidades de dominio no deben depender de componentes ni servicios de Angular.
+- Si existe una ambigüedad, no asumir silenciosamente una regla de negocio.
+    

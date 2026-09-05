@@ -1,0 +1,98 @@
+<div class="profile-context">
+  <header class="profile-context__bar">
+    <app-container [wide]="true">
+      <div class="profile-context__bar-inner">
+        <div class="profile-context__brand">
+          <img src="/logo-sgcp.svg" alt="" width="40" height="40" />
+          <div>
+            <strong>{{ copy.brandName }}</strong>
+            <p>{{ copy.brandUnit }}</p>
+          </div>
+        </div>
+        @if (snapshot(); as snap) {
+          <div class="profile-context__who">
+            <div class="profile-context__who-text">
+              <span>{{ snap.identity.displayName }}</span>
+              <small>{{ snap.roleName }}</small>
+            </div>
+            <ui-avatar [name]="snap.identity.displayName" size="sm" />
+          </div>
+        }
+      </div>
+    </app-container>
+  </header>
+
+  <app-container [wide]="true">
+    @if (status() === 'loading') {
+      <div class="profile-context__load">
+        <ui-loading [title]="copy.loadingTitle" [subtitle]="copy.loadingSubtitle" />
+      </div>
+    } @else if (status() === 'error') {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    } @else if (snapshot(); as snap) {
+      <div class="profile-context__layout">
+        <header class="profile-context__intro">
+          <h1>{{ heading() }}</h1>
+          <p>{{ lead() }}</p>
+        </header>
+
+        @if (error(); as message) {
+          <app-alert tone="error">{{ message }}</app-alert>
+        }
+
+        @if (snap.requirements.contextKind === 'audit') {
+          <app-button icon="arrow-right" [disabled]="!canContinue() || submitting()" [loading]="submitting()" (click)="confirm()">
+            {{ copy.continue }}
+          </app-button>
+        } @else {
+          @if (step() === 'units') {
+            <h2 class="profile-context__section">{{ copy.unitLabel }}</h2>
+            <div class="profile-context__grid profile-context__grid--units">
+              @for (card of unitCards(); track card.id) {
+                <app-profile-emblem-card
+                  [card]="card"
+                  size="lg"
+                  [selected]="unitId() === card.id"
+                  [disabled]="!snap.requirements.allowUnitChange && unitId() !== card.id"
+                  (selectedChange)="selectUnit($event)"
+                />
+              }
+            </div>
+          } @else {
+            <div class="profile-context__toolbar">
+              @if (snap.requirements.allowUnitChange) {
+                <app-button variant="ghost" icon="chevron-left" (click)="backToUnits()">{{ copy.backToUnits }}</app-button>
+              }
+              <p>{{ selectedUnitLabel() }}</p>
+            </div>
+            <h2 class="profile-context__section">{{ copy.squadronLabel }}</h2>
+            @if (squadronsEmpty()) {
+              <app-alert tone="empty">{{ copy.emptySquadrons }}</app-alert>
+            }
+            <div class="profile-context__grid">
+              @for (card of squadronCards(); track card.id) {
+                <app-profile-emblem-card
+                  [card]="card"
+                  [selected]="squadronId() === card.id"
+                  [disabled]="!snap.requirements.allowSquadronChange && squadronId() !== card.id"
+                  (selectedChange)="selectSquadron($event)"
+                />
+              }
+            </div>
+          }
+
+          <div class="profile-context__actions">
+            <app-button
+              icon="arrow-right"
+              [disabled]="!canContinue() || submitting()"
+              [loading]="submitting()"
+              (click)="confirm()"
+            >
+              {{ copy.continue }}
+            </app-button>
+          </div>
+        }
+      </div>
+    }
+  </app-container>
+</div>

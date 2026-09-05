@@ -53,7 +53,7 @@ describe('UsersListPage', () => {
     expect(text).toContain('Modificar');
     expect(text).toContain('Baja');
     expect(text).toContain('Por página:');
-    expect(text).toContain('Mostrando 1 - 10 de 32');
+    expect(text).toContain('Mostrando 1 - 10 de 37');
     expect(root.querySelector('ui-table')).not.toBeNull();
     expect(root.querySelector('[aria-label="Primera página"]')).not.toBeNull();
     expect(root.querySelector('app-user-quick-create')).toBeNull();

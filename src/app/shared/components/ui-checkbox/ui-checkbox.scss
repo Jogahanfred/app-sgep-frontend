@@ -2,6 +2,11 @@
   display: block;
 }
 
+:host(.ck-host--compact) {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
 .ck {
   position: relative;
   overflow: hidden;
@@ -82,4 +87,25 @@
   font-size: 0.85rem;
   font-weight: 400;
   line-height: 1.2;
+}
+
+.ck--compact {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: var(--spacing-2xs);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  gap: 0;
+}
+
+.ck--compact:hover:not(:has(.ck__native:disabled)) {
+  border-color: transparent;
+  background: var(--color-surface);
+}
+
+.ck--compact:has(.ck__native:disabled) {
+  background: transparent;
 }

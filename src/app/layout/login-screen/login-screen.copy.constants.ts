@@ -1,6 +1,5 @@
 export const LOGIN_COPY = {
-  dialogLabel: 'Iniciar sesión institucional',
-  close: 'Cerrar acceso',
+  pageLabel: 'Iniciar sesión institucional',
   liveStatus: 'Núcleo operacional listo',
   secureChannel: 'Canal TLS',
   certified: 'Entorno auditado',
@@ -24,6 +23,7 @@ export const LOGIN_COPY = {
   passwordLabel: 'Contraseña de acceso institucional',
   passwordError: 'La contraseña debe tener al menos 6 caracteres.',
   submit: 'Ingresar al portal operacional',
+  credentialsError: 'No hemos podido validar el acceso. Revisa tu identificador y contraseña.',
   classification: 'Clasificación: reservado — uso oficial',
   audited: 'Sistema auditado',
   legal:

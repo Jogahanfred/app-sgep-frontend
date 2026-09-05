@@ -60,6 +60,12 @@ describe('AcademicBankListPage', () => {
     expect(text).toContain('Banco de subfases');
     expect(text).toContain('Aula');
     expect(text).toContain('Dual');
+    expect(text).toContain('Teoría Aeronáutica I');
+    fixture.componentInstance.search.setValue('Aerodinámica');
+    fixture.detectChanges();
+    const filtered = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(filtered).toContain('Aerodinámica');
+    expect(filtered).toContain('0,13');
     expect((fixture.nativeElement as HTMLElement).querySelector('a[href="/catalogo/banco-subfases/nuevo"]')).not.toBeNull();
   });
 });

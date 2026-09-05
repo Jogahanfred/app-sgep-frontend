@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import type { DirbeLevel } from '@core/domain/entities';
+import { MATRIX_PAN_THRESHOLD } from '../../../constants/program-studio.wizard.constants';
 import { DirbeCellSelector } from '../dirbe-cell-selector/dirbe-cell-selector';
 import {
   standardCellKey,
@@ -44,7 +45,17 @@ export class ProgramStandardMatrix {
   readonly mode = input<'embedded' | 'expanded'>('embedded');
   readonly cellSelected = output<ProgramStandardMatrixCell>();
 
+  readonly panning = signal(false);
   private readonly activeAxis = signal<MatrixAxisPosition | null>(null);
+  private panSession: {
+    pointerId: number;
+    originX: number;
+    originY: number;
+    scrollLeft: number;
+    scrollTop: number;
+    moved: boolean;
+  } | null = null;
+  private skipCellClick = false;
 
   readonly activeRowIndex = computed(() => {
     const axis = this.activeAxis();
@@ -102,8 +113,53 @@ export class ProgramStandardMatrix {
   }
 
   selectCell(mission: ProgramStandardMissionView, maneuver: ProgramStandardManeuverView): void {
+    if (this.skipCellClick) {
+      this.skipCellClick = false;
+      return;
+    }
     if (!this.disabled()) {
       this.cellSelected.emit({ mission, maneuver });
     }
+  }
+
+  onPanStart(event: PointerEvent): void {
+    if (event.button !== 0) return;
+    this.skipCellClick = false;
+    const scroller = event.currentTarget as HTMLElement;
+    this.panSession = {
+      pointerId: event.pointerId,
+      originX: event.clientX,
+      originY: event.clientY,
+      scrollLeft: scroller.scrollLeft,
+      scrollTop: scroller.scrollTop,
+      moved: false,
+    };
+  }
+
+  onPanMove(event: PointerEvent): void {
+    const session = this.panSession;
+    if (!session || event.pointerId !== session.pointerId) return;
+    const dx = event.clientX - session.originX;
+    const dy = event.clientY - session.originY;
+    if (!session.moved && Math.hypot(dx, dy) < MATRIX_PAN_THRESHOLD) return;
+    const scroller = event.currentTarget as HTMLElement;
+    if (!session.moved) {
+      session.moved = true;
+      this.panning.set(true);
+      if (typeof scroller.setPointerCapture === 'function') {
+        scroller.setPointerCapture(event.pointerId);
+      }
+    }
+    scroller.scrollLeft = session.scrollLeft - dx;
+    scroller.scrollTop = session.scrollTop - dy;
+    event.preventDefault();
+  }
+
+  onPanEnd(event: PointerEvent): void {
+    const session = this.panSession;
+    if (!session || event.pointerId !== session.pointerId) return;
+    this.skipCellClick = session.moved;
+    this.panSession = null;
+    this.panning.set(false);
   }
 }

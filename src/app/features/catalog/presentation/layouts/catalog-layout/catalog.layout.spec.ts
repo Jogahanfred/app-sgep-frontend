@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { CatalogLayout } from './catalog.layout';
+import { CATALOG_PAGE_HEADERS } from '../../../constants/catalog-section.constants';
 
 @Component({
   standalone: true,
@@ -18,154 +19,98 @@ describe('CatalogLayout', () => {
           { path: 'catalogo/roles', component: BlankPage },
           { path: 'catalogo/roles/nuevo', component: BlankPage },
           { path: 'catalogo/unidades', component: BlankPage },
-          { path: 'catalogo/comisiones-temporales', component: BlankPage },
           { path: 'catalogo/operaciones', component: BlankPage },
-          { path: 'catalogo/ponderaciones/nuevo', component: BlankPage },
-          { path: 'catalogo/ponderaciones/:id/editar', component: BlankPage },
           { path: 'catalogo/aeronaves', component: BlankPage },
-          { path: 'catalogo/aeronaves/nuevo', component: BlankPage },
           { path: 'catalogo/programas', component: BlankPage },
-          { path: 'catalogo/programas/nuevo', component: BlankPage },
-          { path: 'catalogo/banco-fases', component: BlankPage },
-          { path: 'catalogo/banco-fases/nuevo', component: BlankPage },
-          { path: 'catalogo/banco-subfases', component: BlankPage },
+          { path: 'catalogo/ejecucion-misiones', component: BlankPage },
+          { path: 'catalogo/despacho-diario', component: BlankPage },
+          { path: 'catalogo/orden-de-vuelo', component: BlankPage },
+          { path: 'catalogo/matricula/asignacion', component: BlankPage },
+          { path: 'catalogo/programacion-entrenamiento/grupal/nuevo', component: BlankPage },
+          { path: 'catalogo/programacion-entrenamiento/individual/nuevo', component: BlankPage },
         ]),
       ],
     }).compileComponents();
   });
 
-  it('muestra solo Catálogo en usuarios, roles y especialidades', () => {
-    const fixture = TestBed.createComponent(CatalogLayout);
-    fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(text).toContain('Catálogo');
-    expect(text).toContain('Usuarios');
-    expect(text).toContain('Roles');
-    expect(text).toContain('Especialidades');
-    expect(text).toContain('Mi perfil');
-    expect(text).not.toContain('Estructura operativa');
-    expect(text).not.toContain('Unidades');
-    expect(root.querySelectorAll('h1.adm__kicker').length).toBe(1);
-    expect(text).not.toContain('Sprint');
-  });
-
-  it('muestra solo Estructura operativa en unidades, escuadrones y comisiones', async () => {
+  it('muestra el título del catálogo elegido, sin pestañas', async () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/catalogo/comisiones-temporales');
+    await router.navigateByUrl('/catalogo/roles');
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(text).toContain('Estructura operativa');
-    expect(text).toContain('Unidades');
-    expect(text).toContain('Escuadrones');
-    expect(text).toContain('Comisiones temporales');
-    expect(text).toContain('dónde opera el personal');
-    expect(text).not.toContain('Catálogo');
-    expect(text).not.toContain('Usuarios');
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+    expect(root.textContent).toContain('Roles y Permisos');
+    expect(root.querySelector('nav')).toBeNull();
+    expect(root.querySelectorAll('h1.adm__kicker').length).toBe(1);
+
+    await router.navigateByUrl('/catalogo/unidades');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Unidades');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Roles y Permisos');
   });
 
-  it('oculta el cambio de dominio mientras se crea un registro', async () => {
+  it('oculta el encabezado al crear un registro', async () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/catalogo/roles/nuevo');
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('nav[aria-label="Catálogo"]')).toBeNull();
-    expect(root.querySelector('nav[aria-label="Estructura operativa"]')).toBeNull();
     expect(root.querySelector('.adm__kicker')).toBeNull();
-    expect(root.textContent).not.toContain('Catálogo');
-    expect(root.textContent).not.toContain('Estructura operativa');
+    expect(root.textContent).not.toContain('Roles y Permisos');
   });
 
-  it('oculta el título del padre al crear o editar instrucción', async () => {
+  it('usa el nombre de cada pantalla en operaciones, aeronaves, programas y misiones', async () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/catalogo/ponderaciones/nuevo');
-    fixture.detectChanges();
-    const createText = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(createText).not.toContain('Catálogos de instrucción');
-    expect(createText).not.toContain('catálogos maestros');
-    expect((fixture.nativeElement as HTMLElement).querySelector('.adm__kicker')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('nav[aria-label="Catálogos de instrucción"]')).toBeNull();
 
-    await router.navigateByUrl('/catalogo/ponderaciones/wgt-1/editar');
-    fixture.detectChanges();
-    const editText = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(editText).not.toContain('Catálogos de instrucción');
-    expect(editText).not.toContain('catálogos maestros');
-    expect((fixture.nativeElement as HTMLElement).querySelector('.adm__kicker')).toBeNull();
-  });
-
-  it('muestra solo Catálogos de instrucción en operaciones y maestros', async () => {
-    const fixture = TestBed.createComponent(CatalogLayout);
-    fixture.detectChanges();
-    const router = TestBed.inject(Router);
     await router.navigateByUrl('/catalogo/operaciones');
     fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(text).toContain('Catálogos de instrucción');
-    expect(text).toContain('Operaciones');
-    expect(text).toContain('Tipo de misión');
-    expect(text).toContain('Maniobras');
-    expect(text).toContain('Estándares');
-    expect(text).toContain('Ponderaciones');
-    expect(text).not.toContain('Usuarios');
-    expect(text).not.toContain('Estructura operativa');
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
-  });
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Operaciones');
 
-  it('muestra solo Gestión de material aéreo en flotas y aeronaves', async () => {
-    const fixture = TestBed.createComponent(CatalogLayout);
-    fixture.detectChanges();
-    const router = TestBed.inject(Router);
     await router.navigateByUrl('/catalogo/aeronaves');
     fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(text).toContain('Gestión de material aéreo');
-    expect(text).toContain('Flotas');
-    expect(text).toContain('Aeronaves');
-    expect(text).toContain('matrículas');
-    expect(text).not.toContain('Usuarios');
-    expect(text).not.toContain('Estructura operativa');
-    expect(text).not.toContain('Catálogos de instrucción');
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
-  });
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Aeronaves');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Operaciones');
 
-  it('muestra solo Formación académica en programas', async () => {
-    const fixture = TestBed.createComponent(CatalogLayout);
-    fixture.detectChanges();
-    const router = TestBed.inject(Router);
     await router.navigateByUrl('/catalogo/programas');
     fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-    const text = root.textContent ?? '';
-    expect(text).toContain('Formación académica');
-    expect(text).toContain('Programas');
-    expect(text).toContain('Banco de fases');
-    expect(text).toContain('Banco de subfases');
-    expect(text).toContain('fuera del programa');
-    expect(text).not.toContain('Usuarios');
-    expect(text).not.toContain('Catálogos de instrucción');
-    expect(root.querySelectorAll('.adm__kicker').length).toBe(1);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Programas');
+
+    await router.navigateByUrl('/catalogo/ejecucion-misiones');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Ejecución y calificación');
+
+    await router.navigateByUrl('/catalogo/despacho-diario');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Programación y despacho diario');
+
+    await router.navigateByUrl('/catalogo/orden-de-vuelo');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Generación de orden de vuelo y asignación');
   });
 
-  it('oculta el título del padre al editar el banco de fases', async () => {
+  it('conserva el encabezado de Matrícula en el listado y en los formularios', async () => {
     const fixture = TestBed.createComponent(CatalogLayout);
     fixture.detectChanges();
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/catalogo/banco-fases/nuevo');
+    const header = CATALOG_PAGE_HEADERS['matricula'];
+
+    await router.navigateByUrl('/catalogo/matricula/asignacion');
     fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('.adm__kicker')).toBeNull();
-    expect(root.querySelector('nav[aria-label="Formación académica"]')).toBeNull();
-    expect(root.textContent).not.toContain('fuera del programa');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.title);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.lead);
+
+    await router.navigateByUrl('/catalogo/programacion-entrenamiento/grupal/nuevo');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.title);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.lead);
+
+    await router.navigateByUrl('/catalogo/programacion-entrenamiento/individual/nuevo');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.title);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(header.lead);
   });
 });

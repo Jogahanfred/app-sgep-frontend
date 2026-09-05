@@ -1,0 +1,118 @@
+.profile-context {
+  min-height: 100dvh;
+  padding-bottom: var(--spacing-3xl);
+  background: var(--color-background);
+}
+
+.profile-context__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-bottom: var(--spacing-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-context__bar-inner,
+.profile-context__brand,
+.profile-context__who,
+.profile-context__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.profile-context__bar-inner {
+  justify-content: space-between;
+  min-height: 4rem;
+}
+
+.profile-context__brand img {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+.profile-context__brand p,
+.profile-context__who small,
+.profile-context__intro p,
+.profile-context__toolbar p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.profile-context__who-text,
+.profile-context__intro,
+.profile-context__layout {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.profile-context__who-text {
+  text-align: right;
+}
+
+.profile-context__who-text span,
+.profile-context__intro h1,
+.profile-context__section {
+  margin: 0;
+  font-weight: 700;
+}
+
+.profile-context__layout {
+  padding-top: var(--spacing-lg);
+}
+
+.profile-context__intro {
+  justify-items: center;
+  text-align: center;
+}
+
+.profile-context__intro h1 {
+  font-size: var(--fs-2xl);
+}
+
+.profile-context__section {
+  margin-top: var(--spacing-md);
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.profile-context__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xl);
+}
+
+.profile-context__grid app-profile-emblem-card {
+  flex: 0 1 14rem;
+}
+
+.profile-context__grid--units app-profile-emblem-card {
+  flex: 0 1 18rem;
+}
+
+.profile-context__toolbar {
+  justify-content: space-between;
+}
+
+.profile-context__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+.profile-context__load {
+  min-height: 18rem;
+}
+
+@media (max-width: 639px) {
+  .profile-context__who-text {
+    display: none;
+  }
+}

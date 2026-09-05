@@ -1,10 +1,14 @@
-<div class="app-shell">
+<div class="app-shell" [class.app-shell--bare]="bareChrome()">
   <app-skip-link />
-  <app-header />
+  @if (!bareChrome()) {
+    <app-header />
+  }
   <main id="contenido-principal" class="app-shell__main">
     <router-outlet />
   </main>
-  <app-footer />
-  <app-back-to-top />
+  @if (!bareChrome()) {
+    <app-footer />
+    <app-back-to-top />
+  }
   <ui-toast />
 </div>

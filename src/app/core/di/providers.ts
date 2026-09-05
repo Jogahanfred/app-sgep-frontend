@@ -13,6 +13,9 @@ import {
   GetFaqs,
   GetFeaturedProducts,
   GetHelpTopics,
+  GetAcademicRecord,
+  GetDashboardOverview,
+  GetOperationalReport,
   GetHomeContent,
   GetInvestmentProducts,
   GetLoans,
@@ -32,11 +35,22 @@ import {
   CreateUnit,
   CreateWeighting,
   ListAdminUsers,
+  ListAcademicProgress,
   ListPromotions,
   CreatePromotion,
   UpdatePromotion,
   ListPromotionMembers,
   SavePromotionMembers,
+  ListProgramEnrollments,
+  EnrollInProgram,
+  CloseProgramEnrollment,
+  GetProgrammingBoard,
+  GetDailyDispatchBoard,
+  GetFlightOrderBoard,
+  IssueFlightOrder,
+  AssignGroundCourses,
+  StartMissionDispatch,
+  CancelDispatchSlot,
   ListGroupAssignments,
   CreateGroupAssignment,
   UpdateGroupAssignment,
@@ -82,6 +96,9 @@ import {
   UpdateTemporaryCommission,
   UpdateUnit,
   AssignProgramStandards,
+  AuthenticateUser,
+  ConfirmProfileContext,
+  GetProfileContext,
   SaveProgramCurriculum,
   SaveProgramStandardMatrix,
   UpdateWeighting,
@@ -89,6 +106,7 @@ import {
 } from '../application';
 import { MockAccountRepository } from '../adapters/mock/mock-account.repository';
 import { MockAdminCatalogRepository } from '../adapters/mock/mock-admin-catalog.repository';
+import { MockAuthRepository } from '../adapters/mock/mock-auth.repository';
 import { MockCardRepository } from '../adapters/mock/mock-card.repository';
 import { MockFaqRepository } from '../adapters/mock/mock-faq.repository';
 import { MockInvestmentRepository } from '../adapters/mock/mock-investment.repository';
@@ -99,6 +117,7 @@ import { MockUserProfileRepository } from '../adapters/mock/mock-user.repository
 import type {
   AccountRepository,
   AdminCatalogRepository,
+  AuthRepository,
   CardRepository,
   FaqRepository,
   InvestmentRepository,
@@ -110,6 +129,7 @@ import type {
 import {
   ACCOUNT_REPOSITORY,
   ADMIN_CATALOG_REPOSITORY,
+  AUTH_REPOSITORY,
   CARD_REPOSITORY,
   FAQ_REPOSITORY,
   INVESTMENT_REPOSITORY,
@@ -129,6 +149,22 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: FAQ_REPOSITORY, useClass: MockFaqRepository },
   { provide: USER_PROFILE_REPOSITORY, useClass: MockUserProfileRepository },
   { provide: ADMIN_CATALOG_REPOSITORY, useClass: MockAdminCatalogRepository },
+  { provide: AUTH_REPOSITORY, useClass: MockAuthRepository },
+  {
+    provide: AuthenticateUser,
+    useFactory: (repo: AuthRepository) => new AuthenticateUser(repo),
+    deps: [AUTH_REPOSITORY],
+  },
+  {
+    provide: GetProfileContext,
+    useFactory: (repo: AdminCatalogRepository) => new GetProfileContext(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ConfirmProfileContext,
+    useFactory: (repo: AdminCatalogRepository) => new ConfirmProfileContext(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
   { provide: CalculateLoanInstallment, useFactory: () => new CalculateLoanInstallment() },
   { provide: CalculateMortgageInstallment, useFactory: () => new CalculateMortgageInstallment() },
   {
@@ -249,6 +285,56 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: SavePromotionMembers,
     useFactory: (repo: AdminCatalogRepository) => new SavePromotionMembers(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListProgramEnrollments,
+    useFactory: (repo: AdminCatalogRepository) => new ListProgramEnrollments(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: EnrollInProgram,
+    useFactory: (repo: AdminCatalogRepository) => new EnrollInProgram(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CloseProgramEnrollment,
+    useFactory: (repo: AdminCatalogRepository) => new CloseProgramEnrollment(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetProgrammingBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetProgrammingBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetDailyDispatchBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetDailyDispatchBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetFlightOrderBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetFlightOrderBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: IssueFlightOrder,
+    useFactory: (repo: AdminCatalogRepository) => new IssueFlightOrder(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: AssignGroundCourses,
+    useFactory: (repo: AdminCatalogRepository) => new AssignGroundCourses(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: StartMissionDispatch,
+    useFactory: (repo: AdminCatalogRepository) => new StartMissionDispatch(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CancelDispatchSlot,
+    useFactory: (repo: AdminCatalogRepository) => new CancelDispatchSlot(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   { provide: ListGroupAssignments, useFactory: (repo: AdminCatalogRepository) => new ListGroupAssignments(repo), deps: [ADMIN_CATALOG_REPOSITORY] },
@@ -515,5 +601,25 @@ export const CORE_PROVIDERS: Provider[] = [
     useFactory: (products: ProductRepository, promotions: PromotionRepository, faqs: FaqRepository) =>
       new GetHomeContent(products, promotions, faqs),
     deps: [PRODUCT_REPOSITORY, PROMOTION_REPOSITORY, FAQ_REPOSITORY],
+  },
+  {
+    provide: GetDashboardOverview,
+    useFactory: (repo: AdminCatalogRepository) => new GetDashboardOverview(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListAcademicProgress,
+    useFactory: (repo: AdminCatalogRepository) => new ListAcademicProgress(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetAcademicRecord,
+    useFactory: (repo: AdminCatalogRepository) => new GetAcademicRecord(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetOperationalReport,
+    useFactory: (repo: AdminCatalogRepository) => new GetOperationalReport(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
   },
 ];

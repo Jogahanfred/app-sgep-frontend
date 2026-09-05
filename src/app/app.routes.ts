@@ -1,15 +1,45 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './layout/auth.guard';
+import { authGuard, guestGuard, operationalContextGuard } from './layout/auth.guard';
+import { LOGIN_ROUTE_PATH, PROFILE_CONTEXT_ROUTE_PATH } from './layout/auth-routes.constants';
 
 export const routes: Routes = [
   {
+    path: LOGIN_ROUTE_PATH,
+    canActivate: [guestGuard],
+    loadComponent: () => import('./layout/login-screen/login-screen').then((m) => m.LoginScreen),
+    data: {
+      seo: {
+        title: 'Acceso institucional | SIGA',
+        description: 'Inicia sesión en el sistema integral de gestión académica.',
+      },
+    },
+  },
+  {
     path: '',
+    canActivate: [authGuard],
+    children: [
+  {
+    path: PROFILE_CONTEXT_ROUTE_PATH,
+    loadComponent: () =>
+      import('./features/profile-context/presentation/pages/profile-context/profile-context.page').then(
+        (m) => m.ProfileContextPage,
+      ),
+    data: {
+      seo: {
+        title: 'Perfilamiento | SIGA',
+        description: 'Selecciona el contexto operativo de unidad y escuadrón.',
+      },
+    },
+  },
+  {
+    path: '',
+    canActivate: [operationalContextGuard],
     loadComponent: () => import('./features/home/presentation/pages/home/home.page').then((m) => m.HomePage),
     data: {
       seo: {
-        title: 'Helvia Banca | Banca para particulares',
+        title: 'SGEP | Gestión Académica',
         description:
-          'Cuentas, tarjetas, préstamos, hipotecas e inversión con una banca clara. Helvia es una entidad ficticia de demostración.',
+          'Gestión académica para el día a día.',
       },
     },
   },
@@ -75,7 +105,7 @@ export const routes: Routes = [
   },
   {
     path: 'perfil',
-    canActivate: [authGuard],
+    canActivate: [operationalContextGuard],
     loadComponent: () => import('./features/profile/presentation/layouts/profile-layout/profile.layout').then((m) => m.ProfileLayout),
     children: [
       {
@@ -124,7 +154,7 @@ export const routes: Routes = [
   },
   {
     path: 'catalogo',
-    canActivate: [authGuard],
+    canActivate: [operationalContextGuard],
     loadComponent: () => import('./features/catalog/presentation/layouts/catalog-layout/catalog.layout').then((m) => m.CatalogLayout),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'usuarios' },
@@ -519,9 +549,65 @@ export const routes: Routes = [
         data: { mode: 'view', seo: { title: 'Detalle de promoción | SIGA', description: 'Consulta una promoción y sus alumnos.' } },
       },
       {
+        path: 'programacion',
+        pathMatch: 'full',
+        redirectTo: 'matricula',
+      },
+      {
+        path: 'matricula',
+        loadComponent: () =>
+          import('./features/programming/presentation/pages/programming-board/programming-board.page').then(
+            (m) => m.ProgrammingBoardPage,
+          ),
+        data: {
+          seo: {
+            title: 'Matrícula | SIGA',
+            description: 'Matricula una promoción o un alumno a un programa y consulta a los participantes.',
+          },
+        },
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'asignacion' },
+          {
+            path: 'asignacion',
+            loadComponent: () =>
+              import('./features/catalog/presentation/pages/training-programming/training-programming.page').then(
+                (m) => m.TrainingProgrammingPage,
+              ),
+            data: {
+              seo: {
+                title: 'Matrícula | SIGA',
+                description: 'Matricula una promoción o un alumno a un programa y consulta a los participantes.',
+              },
+            },
+          },
+        ],
+      },
+      {
         path: 'programacion-entrenamiento',
-        loadComponent: () => import('./features/catalog/presentation/pages/training-programming/training-programming.page').then((m) => m.TrainingProgrammingPage),
-        data: { seo: { title: 'Programación de entrenamiento | SIGA', description: 'Programa cursos y misiones para grupos y alumnos.' } },
+        pathMatch: 'full',
+        redirectTo: 'matricula/asignacion',
+      },
+      {
+        path: 'despacho-diario',
+        loadComponent: () =>
+          import('./features/dispatch/presentation/pages/daily-dispatch/daily-dispatch.page').then((m) => m.DailyDispatchPage),
+        data: {
+          seo: {
+            title: 'Programación y despacho diario | SIGA',
+            description: 'Supervise los vuelos del día, despache a cabina y habilite la rúbrica del instructor.',
+          },
+        },
+      },
+      {
+        path: 'orden-de-vuelo',
+        loadComponent: () =>
+          import('./features/flight-order/presentation/pages/flight-order/flight-order.page').then((m) => m.FlightOrderPage),
+        data: {
+          seo: {
+            title: 'Orden de vuelo y asignación | SIGA',
+            description: 'Asigna la misión curricular, el instructor, la fecha, la hora y la aeronave.',
+          },
+        },
       },
       {
         path: 'programacion-entrenamiento/grupal/nuevo',
@@ -552,6 +638,48 @@ export const routes: Routes = [
         path: 'ejecucion-misiones/:id',
         loadComponent: () => import('./features/catalog/presentation/pages/mission-workspace/mission-workspace.page').then((m) => m.MissionWorkspacePage),
         data: { seo: { title: 'Workspace de misión | SIGA', description: 'Ejecuta, califica y cierra una misión.' } },
+      },
+      {
+        path: 'avance-academico',
+        loadComponent: () =>
+          import('./features/academic-progress/presentation/pages/academic-progress-list/academic-progress-list.page').then(
+            (m) => m.AcademicProgressListPage,
+          ),
+        data: {
+          seo: {
+            title: 'Avance académico | SIGA',
+            description: 'Consulta el progreso y la trayectoria académica de los alumnos.',
+          },
+        },
+      },
+      {
+        path: 'avance-academico/:userId',
+        loadComponent: () =>
+          import('./features/academic-progress/presentation/pages/academic-progress-detail/academic-progress-detail.page').then(
+            (m) => m.AcademicProgressDetailPage,
+          ),
+        data: {
+          seo: {
+            title: 'Legajo académico | SIGA',
+            description: 'Historial, progreso y hitos de formación de un alumno.',
+          },
+        },
+      },
+      {
+        path: 'reportes',
+        pathMatch: 'full',
+        redirectTo: 'reportes/historial-alumno',
+      },
+      {
+        path: 'reportes/:kind',
+        loadComponent: () =>
+          import('./features/reports/presentation/pages/reports/reports.page').then((m) => m.ReportsPage),
+        data: {
+          seo: {
+            title: 'Reportes | SIGA',
+            description: 'Consulta e exporta reportes académicos y operativos del contexto seleccionado.',
+          },
+        },
       },
       {
         path: 'programas/nuevo',
@@ -727,5 +855,7 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: '' },
+      { path: '**', redirectTo: '' },
+    ],
+  },
 ];

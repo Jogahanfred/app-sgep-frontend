@@ -11,7 +11,7 @@ import {
   UpdateSubphaseBank,
 } from '@core/application';
 import { DomainError } from '@core/domain/errors/domain-error';
-import type { EntityStatus, PhaseBankWriteInput } from '@core/domain/entities';
+import type { EntityStatus, PhaseBankWriteInput, SubphaseBankEntity, SubphaseBankWriteInput } from '@core/domain/entities';
 import { firstValueFrom } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -65,7 +65,9 @@ export class AcademicBankFormPage {
   readonly lead = computed(() =>
     this.isView
       ? `Consulta el ${this.noun}. Esta pantalla no permite cambios.`
-      : `Código, nombre, descripción y estado del ${this.noun}. Este catálogo vive fuera del programa.`,
+      : this.isPhase
+        ? `Código, nombre, descripción y estado del ${this.noun}. Este catálogo vive fuera del programa.`
+        : `Código, nombre, descripción, coeficiente NCT y nota mínima del ${this.noun}. Este catálogo vive fuera del programa.`,
   );
 
   readonly form = new FormGroup({
@@ -73,6 +75,8 @@ export class AcademicBankFormPage {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     description: new FormControl('', { nonNullable: true }),
     status: new FormControl<EntityStatus>('active', { nonNullable: true }),
+    coefficient: new FormControl('', { nonNullable: true }),
+    minPassingGrade: new FormControl('', { nonNullable: true }),
   });
 
   constructor() {
@@ -89,11 +93,14 @@ export class AcademicBankFormPage {
           this.loadState.set('error');
           return;
         }
+        const subphase = item as SubphaseBankEntity;
         this.form.reset({
           code: item.code,
           name: item.name,
           description: item.description,
           status: item.status,
+          coefficient: this.isPhase ? '' : this.formatOptionalNumber(subphase.coefficient),
+          minPassingGrade: this.isPhase ? '' : this.formatOptionalNumber(subphase.minPassingGrade),
         });
         if (this.isView) this.form.disable({ emitEvent: false });
         this.loadState.set('ready');
@@ -113,6 +120,16 @@ export class AcademicBankFormPage {
     this.form.controls.status.setValue(value === 'inactive' ? 'inactive' : 'active');
   }
 
+  private formatOptionalNumber(value: number | undefined): string {
+    return value === undefined ? '' : String(value);
+  }
+
+  private parseOptionalNumber(value: string): number | undefined {
+    const trimmed = value.trim().replace(',', '.');
+    if (!trimmed) return undefined;
+    return Number(trimmed);
+  }
+
   async save(): Promise<void> {
     if (this.isView) return;
     this.error.set(null);
@@ -120,15 +137,28 @@ export class AcademicBankFormPage {
       this.form.markAllAsTouched();
       return;
     }
-    const payload: PhaseBankWriteInput = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const phasePayload: PhaseBankWriteInput = {
+      code: raw.code,
+      name: raw.name,
+      description: raw.description,
+      status: raw.status,
+    };
+    const coefficient = this.parseOptionalNumber(raw.coefficient);
+    const minPassingGrade = this.parseOptionalNumber(raw.minPassingGrade);
+    const subphasePayload: SubphaseBankWriteInput = {
+      ...phasePayload,
+      ...(coefficient !== undefined ? { coefficient } : {}),
+      ...(minPassingGrade !== undefined ? { minPassingGrade } : {}),
+    };
     this.saving.set(true);
     try {
       const id = this.editingId;
       if (id) {
         await firstValueFrom(
           this.isPhase
-            ? this.updatePhaseBank.execute(id, payload)
-            : this.updateSubphaseBank.execute(id, payload),
+            ? this.updatePhaseBank.execute(id, phasePayload)
+            : this.updateSubphaseBank.execute(id, subphasePayload),
         );
         this.toast.success(
           this.isPhase ? 'Banco de fase actualizado' : 'Banco de subfase actualizado',
@@ -139,7 +169,7 @@ export class AcademicBankFormPage {
         this.creating.set(true);
         await Promise.all([
           firstValueFrom(
-            this.isPhase ? this.createPhaseBank.execute(payload) : this.createSubphaseBank.execute(payload),
+            this.isPhase ? this.createPhaseBank.execute(phasePayload) : this.createSubphaseBank.execute(subphasePayload),
           ),
           holdFor(CATALOG_CREATE_HOLD_MS),
         ]);

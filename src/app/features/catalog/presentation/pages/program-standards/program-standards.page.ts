@@ -25,7 +25,7 @@ import type {
   SubphaseEntity,
 } from '@core/domain/entities';
 import { DomainError } from '@core/domain/errors/domain-error';
-import { curriculumMissionRefs } from '@core/domain/services/admin-catalog';
+import { curriculumMissionRefs, isProgramCulminated, PROGRAM_CULMINATED_MESSAGE } from '@core/domain/services/admin-catalog';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { Alert } from '@shared/components/alert/alert';
 import { Button } from '@shared/components/button/button';
@@ -44,6 +44,7 @@ import {
   type ProgramStandardPhaseView,
   type ProgramStandardSubphaseView,
 } from '../../shared/models/program-standard-matrix.types';
+import { PROGRAM_STUDIO_COPY } from '../../../constants/program-studio.copy.constants';
 
 interface ProgramStandardCellAssignment extends ProgramStandardAssignmentTarget {
   standardIds: string[];
@@ -93,11 +94,17 @@ export class ProgramStandardsPage {
 
   readonly programId = this.route.snapshot.paramMap.get('id') ?? '';
   readonly listHref = '/catalogo/programas';
-  readonly editProgramHref = `/catalogo/programas/${this.programId}/editar`;
+  readonly copy = PROGRAM_STUDIO_COPY;
   readonly loadState = signal<'loading' | 'ready' | 'error'>('loading');
   readonly savingSubphaseId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly program = signal<ProgramEntity | null>(null);
+  readonly culminated = computed(() => isProgramCulminated(this.program()));
+  readonly editProgramHref = computed(() =>
+    this.culminated()
+      ? `/catalogo/programas/${this.programId}`
+      : `/catalogo/programas/${this.programId}/editar`,
+  );
   readonly basePhases = signal<ProgramStandardPhaseBase[]>([]);
   readonly assignments = signal<ProgramStandardCellAssignment[]>([]);
   readonly initialSubphaseMatrices = signal<Record<string, string>>({});
@@ -220,6 +227,7 @@ export class ProgramStandardsPage {
   }
 
   updateDirbeLevel(change: ProgramStandardDirbeChange): void {
+    if (this.culminated()) return;
     const subphase = this.basePhases()
       .flatMap((phase) => phase.subphases)
       .find((item) => item.id === change.subphaseId);
@@ -263,6 +271,10 @@ export class ProgramStandardsPage {
   }
 
   async saveSubphase(subphaseId: string): Promise<void> {
+    if (this.culminated()) {
+      this.error.set(PROGRAM_CULMINATED_MESSAGE);
+      return;
+    }
     if (this.savingSubphaseId() || !this.programId || !this.dirtySubphaseIds().has(subphaseId)) return;
     const subphase = this.basePhases()
       .flatMap((phase) => phase.subphases)

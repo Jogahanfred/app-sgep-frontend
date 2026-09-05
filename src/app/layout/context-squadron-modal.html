@@ -1,0 +1,20 @@
+<app-modal [open]="open()" [title]="copy.squadronModalTitle" size="lg" (closed)="close()">
+  @if (error(); as message) {
+    <app-alert tone="error">{{ message }}</app-alert>
+  } @else if (loading()) {
+    <p class="csm__load">{{ copy.loadingSubtitle }}</p>
+  } @else if (squadronsEmpty()) {
+    <app-alert tone="empty">{{ copy.emptySquadrons }}</app-alert>
+  } @else if (open()) {
+    <div class="csm__grid">
+      @for (card of squadronCards(); track card.id) {
+        <app-profile-emblem-card
+          [card]="card"
+          size="sm"
+          [selected]="isSelected(card.id)"
+          (selectedChange)="selectSquadron($event)"
+        />
+      }
+    </div>
+  }
+</app-modal>

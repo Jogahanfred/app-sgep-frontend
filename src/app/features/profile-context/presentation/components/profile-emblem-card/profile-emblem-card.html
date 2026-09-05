@@ -1,0 +1,17 @@
+<button
+  type="button"
+  class="emblem"
+  [class.emblem--selected]="selected()"
+  [disabled]="disabled()"
+  [attr.aria-pressed]="selected()"
+  (click)="pick()"
+>
+  <span class="emblem__mark">
+    @if (card().imageUrl; as imageUrl) {
+      <img [src]="imageUrl" [alt]="card().name" />
+    } @else {
+      <span class="emblem__fallback">{{ card().code }}</span>
+    }
+  </span>
+  <span class="emblem__name">{{ card().name }}</span>
+</button>

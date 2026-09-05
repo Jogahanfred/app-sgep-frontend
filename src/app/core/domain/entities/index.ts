@@ -1,8 +1,23 @@
+export type { RoleCode } from './role-code';
+export { ROLE_CODES, ROLE_PROFILES, isRoleCode } from './role-code';
+export type { OperationalContext, OperationalIdentity, ProfileContextSelection } from './operational-context';
+export { ALL_SQUADRONS_CONTEXT_VALUE } from './operational-context';
+export type {
+  AcademicProgramStatus,
+  AcademicTimelineEvent,
+  AcademicTimelineKind,
+  RecordEntity,
+  RecordEvaluationEntity,
+  RecordProgramEntity,
+  UserProgressEntity,
+} from './academic-record';
+export { ACADEMIC_PROGRAM_STATUSES, MANEUVER_GRADE_SCORES } from './academic-record';
 export type {
   AircraftEntity,
   AircraftWriteInput,
   CatalogWriteInput,
   CommissionWorkflowStatus,
+  DirbeDangerousOutcome,
   DirbeLevel,
   EntityStatus,
   FleetEntity,
@@ -21,12 +36,23 @@ export type {
   PhaseEntity,
   ProgramCurriculumWriteInput,
   ProgramEntity,
+  ProgramLifecycleFlag,
+  ProgramModuleKind,
   ProgramStandardMatrixWriteInput,
   ProgramType,
   ProgramWriteInput,
   PromotionEntity,
   PromotionMemberEntity,
   PromotionWriteInput,
+  ProgramEnrollmentCloseInput,
+  ProgramEnrollmentCloseStatus,
+  ProgramEnrollmentEntity,
+  ProgramEnrollmentSource,
+  ProgramEnrollmentStatus,
+  ProgramEnrollmentWriteInput,
+  GroundEvaluationRecord,
+  GroundPeriodicExamKind,
+  GroundPeriodicExamRule,
   GroupMissionAssignmentEntity,
   GroupMissionAssignmentWriteInput,
   IndividualAssignmentCase,
@@ -67,9 +93,17 @@ export {
   FLEET_TYPES,
   INSTRUCTION_PROGRAMS,
   AUTO_MISSION_COUNT_MAX,
+  DIRBE_DANGEROUS_OUTCOMES,
   DIRBE_LEVELS,
   MISSION_ASSIGN_MODES,
+  PROGRAM_MODULE_KINDS,
+  GROUND_PERIODIC_EXAM_KINDS,
+  PROGRAM_LIFECYCLE_FLAG,
+  PROGRAM_LIFECYCLE_FLAGS,
   PROGRAM_TYPES,
+  PROGRAM_ENROLLMENT_SOURCES,
+  PROGRAM_ENROLLMENT_STATUSES,
+  PROGRAM_ENROLLMENT_CLOSE_STATUSES,
   SESSION_DEMO_USER_ID,
 } from './admin-catalog';
 export type { Account } from './account';

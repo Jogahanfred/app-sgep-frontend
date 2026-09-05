@@ -1,0 +1,140 @@
+.pg__lead {
+  margin: 0 0 var(--spacing-md);
+  max-width: 42rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pg__callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.pg__callout p {
+  margin: 0.35rem 0 0;
+  max-width: 40rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pg__kicker {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pg__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.pg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.pg__programs {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .pg__programs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pg__program {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pg__program strong {
+  font-size: var(--fs-md);
+}
+
+.pg__program--on {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.pg__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pg__roster-head {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.pg__roster-head h2 {
+  margin: 0.2rem 0 0;
+  font-size: var(--fs-lg);
+}
+
+@media (min-width: 720px) {
+  .pg__roster-head {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    align-items: end;
+  }
+}
+
+.pg__form {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.pg__form-program {
+  margin: 0;
+  font-weight: 700;
+}
+
+.pg__form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.pg__candidates {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.pg__candidate-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--spacing-xs);
+  max-height: 16rem;
+  overflow: auto;
+}

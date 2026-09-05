@@ -1,0 +1,20 @@
+.reports__lead {
+  margin: 0 0 1rem;
+  max-width: 42rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.reports__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.reports__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}

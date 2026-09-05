@@ -1,5 +1,8 @@
-:host {
-  display: block;
-  background-color: var(--color-background);
-  min-height: 100vh;
+.app-shell--bare {
+  min-height: 100dvh;
+}
+
+.app-shell--bare .app-shell__main {
+  flex: 1 1 auto;
+  min-height: 100dvh;
 }

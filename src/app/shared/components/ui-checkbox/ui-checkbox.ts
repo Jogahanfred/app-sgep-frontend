@@ -5,8 +5,11 @@ import { RippleDirective } from '@shared/directives/ripple.directive';
   selector: 'ui-checkbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RippleDirective],
+  host: {
+    '[class.ck-host--compact]': 'density() === "compact"',
+  },
   template: `
-    <label class="ck" [attr.for]="id()" appRipple [appRippleDisabled]="disabled()">
+    <label class="ck" [class.ck--compact]="density() === 'compact'" [attr.for]="id()" appRipple [appRippleDisabled]="disabled()">
       <input
         class="ck__native"
         type="checkbox"
@@ -22,7 +25,7 @@ import { RippleDirective } from '@shared/directives/ripple.directive';
           </svg>
         }
       </span>
-      <span class="ck__label">{{ label() }}</span>
+      <span class="ck__label" [class.visually-hidden]="hideLabel()">{{ label() }}</span>
     </label>
   `,
   styleUrl: './ui-checkbox.scss',
@@ -32,6 +35,8 @@ export class UiCheckbox {
   readonly label = input.required<string>();
   readonly checked = input(false);
   readonly disabled = input(false);
+  readonly hideLabel = input(false);
+  readonly density = input<'control' | 'compact'>('control');
   readonly checkedChange = output<boolean>();
 
   onChange(event: Event): void {

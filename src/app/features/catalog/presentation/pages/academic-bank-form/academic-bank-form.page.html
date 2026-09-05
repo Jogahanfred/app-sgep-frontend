@@ -58,6 +58,28 @@
           [disabled]="isView"
           (valueChange)="setStatus($event)"
         />
+        @if (!isPhase) {
+          <div class="ap__grid">
+            <ui-input
+              id="sb-coef"
+              label="Coeficiente NCT"
+              type="number"
+              [min]="0"
+              [max]="1"
+              [step]="0.01"
+              [field]="form.controls.coefficient"
+            />
+            <ui-input
+              id="sb-min-grade"
+              label="Nota mínima"
+              type="number"
+              [min]="0"
+              [max]="20"
+              [step]="1"
+              [field]="form.controls.minPassingGrade"
+            />
+          </div>
+        }
         <div class="ap__actions">
           <app-button variant="ghost" [href]="listHref">{{ isView ? 'Volver al listado' : 'Cancelar' }}</app-button>
           @if (!isView) {

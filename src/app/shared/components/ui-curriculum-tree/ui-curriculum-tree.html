@@ -1,0 +1,103 @@
+<div class="ct">
+  <div class="ct__program">
+    <div>
+      <p class="ct__title">{{ programTitle() }}</p>
+      @if (programMeta()) {
+        <p class="ct__meta">{{ programMeta() }}</p>
+      }
+    </div>
+  </div>
+
+  @for (phase of phases(); track phase.id) {
+    <section class="ct__phase" [class.ct__phase--off]="phase.selectable && !phase.selected">
+      <div class="ct__phase-head">
+        @if (phase.selectable) {
+          <ui-checkbox
+            class="ct__pick"
+            [id]="'ct-course-' + phase.id"
+            [label]="phase.title"
+            [hideLabel]="true"
+            density="compact"
+            [checked]="!!phase.selected"
+            [disabled]="!!phase.selectDisabled"
+            (checkedChange)="setPhaseSelected(phase.id, $event)"
+          />
+        }
+        <button type="button" class="ct__phase-toggle" (click)="toggle(phase.id)">
+          <app-icon [name]="isOpen(phase.id) ? 'chevron' : 'chevron-right'" />
+          <span class="ct__phase-name">{{ phase.title }}</span>
+          <span class="ct__meta">{{ phase.meta }}</span>
+          <span class="ct__progress">{{ phase.progressLabel }}</span>
+        </button>
+      </div>
+      @if (isOpen(phase.id) && (!phase.selectable || phase.selected)) {
+        <div class="ct__phase-body">
+          @for (subphase of phase.subphases; track subphase.id) {
+            <article class="ct__subphase">
+              @if (subphase.title) {
+                <button type="button" class="ct__sub-head" (click)="toggleSub(subphase.id)">
+                  <app-icon [name]="isSubOpen(subphase.id) ? 'chevron' : 'chevron-right'" />
+                  <span class="ct__sub-name">{{ subphase.title }}</span>
+                </button>
+              }
+              @if (!subphase.title || isSubOpen(subphase.id)) {
+                @if (subphase.missions.length) {
+                  <ul class="ct__missions" [class.ct__missions--flush]="!subphase.title">
+                    @for (mission of subphase.missions; track mission.id) {
+                      <li class="ct__slot">
+                        <div
+                          class="ct__mission"
+                          [class]="'ct__mission--' + mission.status"
+                          [class.ct__mission--on]="selectedId() === mission.id"
+                        >
+                          <button
+                            type="button"
+                            class="ct__mission-main"
+                            [disabled]="mission.status === 'blocked'"
+                            (click)="pick(mission.id)"
+                          >
+                            <span class="ct__mark" [class]="'ct__mark--' + mission.status">
+                              <app-icon [name]="statusIcon(mission.status)" />
+                            </span>
+                            <span class="ct__mission-body">
+                              <span class="ct__mission-title">{{ mission.code }} · {{ mission.title }}</span>
+                              <span class="ct__meta">{{ mission.detail }}</span>
+                            </span>
+                            <span class="ct__mission-aside">
+                              @if (mission.scoreLabel) {
+                                <strong>{{ mission.scoreLabel }}</strong>
+                              }
+                              <span class="ct__pill" [class]="'ct__pill--' + mission.status">{{ mission.statusLabel }}</span>
+                            </span>
+                          </button>
+                          @if (mission.actionLabel) {
+                            <app-button class="ct__action" size="sm" (click)="schedule(mission.id, $event)">{{
+                              mission.actionLabel
+                            }}</app-button>
+                          }
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                } @else if (emptyLabel()) {
+                  <app-alert tone="empty">{{ emptyLabel() }}</app-alert>
+                }
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (legend().length) {
+    <ul class="ct__legend">
+      @for (item of legend(); track item.status) {
+        <li>
+          <span class="ct__dot" [class]="'ct__dot--' + item.status"></span>
+          {{ item.label }}
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -2,17 +2,29 @@
   <ul class="nav__list">
     @for (group of groups(); track group.label) {
       <li class="nav__item">
-        <button
-          type="button"
-          class="nav__link"
-          [class.is-open]="openLabel() === group.label"
-          [attr.aria-expanded]="openLabel() === group.label"
-          [attr.aria-controls]="'mega-' + group.label"
-          (click)="toggle(group.label)"
-          (keydown)="onTriggerKey($event, group.label)"
-        >
-          {{ group.label }}
-        </button>
+        @if (group.href; as href) {
+          <a
+            class="nav__link"
+            [class.is-active]="activeLabel() === group.label"
+            [routerLink]="href"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: href === '/' }"
+            (click)="openLabelChange.emit(null)"
+          >{{ group.label }}</a>
+        } @else {
+          <button
+            type="button"
+            class="nav__link"
+            [class.is-open]="openLabel() === group.label"
+            [class.is-active]="activeLabel() === group.label"
+            [attr.aria-expanded]="openLabel() === group.label"
+            [attr.aria-controls]="'mega-' + group.label"
+            (click)="toggle(group.label)"
+            (keydown)="onTriggerKey($event, group.label)"
+          >
+            {{ group.label }}
+          </button>
+        }
       </li>
     }
   </ul>

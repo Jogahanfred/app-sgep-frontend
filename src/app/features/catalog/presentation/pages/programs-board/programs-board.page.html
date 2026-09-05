@@ -35,18 +35,18 @@
     <div class="school__grid">
       @for (card of visible(); track card.program.id) {
         <ui-program-card
-          [href]="'/catalogo/programas/' + card.program.id + '/editar'"
+          [href]="studioHref(card.program)"
           [title]="card.program.name"
           [kicker]="card.program.code + ' · ' + typeLabel(card.program.programType)"
           [description]="card.program.description"
           [imageUrl]="card.program.imageUrl"
           [imageAlt]="'Portada de ' + card.program.name"
           [typeBadge]="card.program.programType"
-          [status]="card.program.status"
-          [statusLabel]="statusText(card.program.status)"
+          [status]="cardStatus(card.program)"
+          [statusLabel]="cardStatusLabel(card.program)"
           [stats]="cardStats(card)"
           [standardsHref]="'/catalogo/programas/' + card.program.id + '/estandares'"
-          [standardsEnabled]="true"
+          [standardsEnabled]="!isCulminated(card.program)"
           [flowHref]="'/catalogo/programas/' + card.program.id + '/flujo'"
         />
       }

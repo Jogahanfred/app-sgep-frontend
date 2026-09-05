@@ -15,26 +15,36 @@
     <ul class="drawer__list">
       @for (group of groups(); track group.label) {
         <li>
-          <button
-            type="button"
-            class="drawer__section"
-            [attr.aria-expanded]="openSection() === group.label"
-            (click)="toggle(group.label)"
-          >
-            {{ group.label }}
-            <app-icon name="chevron" />
-          </button>
-          @if (openSection() === group.label) {
-            @for (column of group.columns; track $index) {
-              @for (block of column.blocks; track block.heading) {
-                <p class="drawer__heading">{{ block.heading }}</p>
-                <ul class="drawer__children">
-                  @for (link of block.links; track link.label) {
-                    <li>
-                      <a [routerLink]="link.href" (click)="close()">{{ link.label }}</a>
-                    </li>
-                  }
-                </ul>
+          @if (group.href; as href) {
+            <a
+              class="drawer__section"
+              [class.is-active]="activeLabel() === group.label"
+              [routerLink]="href"
+              (click)="close()"
+            >{{ group.label }}</a>
+          } @else {
+            <button
+              type="button"
+              class="drawer__section"
+              [class.is-active]="activeLabel() === group.label"
+              [attr.aria-expanded]="openSection() === group.label"
+              (click)="toggle(group.label)"
+            >
+              {{ group.label }}
+              <app-icon name="chevron" />
+            </button>
+            @if (openSection() === group.label) {
+              @for (column of group.columns; track $index) {
+                @for (block of column.blocks; track block.heading) {
+                  <p class="drawer__heading">{{ block.heading }}</p>
+                  <ul class="drawer__children">
+                    @for (link of block.links; track link.label) {
+                      <li>
+                        <a [routerLink]="link.href" (click)="close()">{{ link.label }}</a>
+                      </li>
+                    }
+                  </ul>
+                }
               }
             }
           }
@@ -48,7 +58,6 @@
       } @else {
         <app-button variant="secondary" [fullWidth]="true" (click)="requestLogin()">Acceso clientes</app-button>
       }
-      <app-button href="/hazte-cliente" [fullWidth]="true" (click)="close()">Hazte cliente</app-button>
     </div>
   </div>
 </div>

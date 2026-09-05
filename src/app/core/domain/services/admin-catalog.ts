@@ -3,6 +3,7 @@ import type {
   AircraftWriteInput,
   CatalogWriteInput,
   CommissionWorkflowStatus,
+  DirbeDangerousOutcome,
   DirbeLevel,
   EntityStatus,
   FleetType,
@@ -15,9 +16,12 @@ import type {
   PhaseBankWriteInput,
   PhaseDraftInput,
   ProgramCurriculumWriteInput,
+  ProgramLifecycleFlag,
+  ProgramModuleKind,
   ProgramStandardMatrixWriteInput,
   ProgramType,
   ProgramWriteInput,
+  SubphaseBankEntity,
   SubphaseBankWriteInput,
   SubphaseDraftInput,
   SquadronWriteInput,
@@ -30,12 +34,17 @@ import type {
 import {
   AUTO_MISSION_COUNT_MAX,
   COMMISSION_WORKFLOW,
+  DIRBE_DANGEROUS_OUTCOMES,
   DIRBE_LEVELS,
   FLEET_TYPES,
   INSTRUCTION_PROGRAMS,
   MISSION_ASSIGN_MODES,
+  PROGRAM_MODULE_KINDS,
   PROGRAM_TYPES,
+  PROGRAM_LIFECYCLE_FLAG,
+  PROGRAM_LIFECYCLE_FLAGS,
 } from '../entities/admin-catalog';
+import { assertGroundPeriodicExams } from './ground-instruction-grade';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DOCUMENT = /^[A-Za-z0-9]{6,16}$/;
@@ -118,6 +127,8 @@ export function assertUserWrite(input: UserWriteInput, requirePassword: boolean)
     status: assertStatus(input.status),
     roleIds: [...new Set(input.roleIds)],
     specialtyIds: [...new Set(input.specialtyIds)],
+    assignedUnitId: input.assignedUnitId,
+    assignedSquadronId: input.assignedSquadronId,
   };
 }
 
@@ -157,6 +168,7 @@ export function assertUnitWrite(input: UnitWriteInput): UnitWriteInput {
     name: required(input.name, 'El nombre de la unidad es obligatorio.'),
     abbreviation,
     status: assertStatus(input.status),
+    imageUrl: input.imageUrl,
   };
 }
 
@@ -167,6 +179,7 @@ export function assertSquadronWrite(input: SquadronWriteInput): SquadronWriteInp
     name: required(input.name, 'El nombre del escuadrón es obligatorio.'),
     description: input.description.trim(),
     status: assertStatus(input.status),
+    imageUrl: input.imageUrl,
   };
 }
 
@@ -305,12 +318,38 @@ export function assertPhaseBankWrite(input: PhaseBankWriteInput): PhaseBankWrite
 }
 
 export function assertSubphaseBankWrite(input: SubphaseBankWriteInput): SubphaseBankWriteInput {
+  const coefficient = assertOptionalCoefficient(input.coefficient);
+  const minPassingGrade = assertOptionalMinPassingGrade(input.minPassingGrade);
   return {
     code: assertAcademicCode(input.code, 'del banco de subfase'),
     name: required(input.name, 'El nombre del banco de subfase es obligatorio.'),
     description: input.description.trim(),
     status: assertStatus(input.status),
+    ...(coefficient !== undefined ? { coefficient } : {}),
+    ...(minPassingGrade !== undefined ? { minPassingGrade } : {}),
   };
+}
+
+function assertOptionalCoefficient(value: number | undefined): number | undefined {
+  if (value === undefined || value === null || (typeof value === 'number' && Number.isNaN(value))) {
+    return undefined;
+  }
+  const coefficient = Number(value);
+  if (!Number.isFinite(coefficient) || coefficient < 0 || coefficient > 1) {
+    throw new InvalidAdminCatalogError('El coeficiente NCT debe estar entre 0 y 1.');
+  }
+  return coefficient;
+}
+
+function assertOptionalMinPassingGrade(value: number | undefined): number | undefined {
+  if (value === undefined || value === null || (typeof value === 'number' && Number.isNaN(value))) {
+    return undefined;
+  }
+  const grade = Number(value);
+  if (!Number.isFinite(grade) || grade < 0 || grade > 20) {
+    throw new InvalidAdminCatalogError('La nota mínima debe estar entre 0 y 20.');
+  }
+  return grade;
 }
 
 export function assertProgramStandardIds(ids: readonly string[]): string[] {
@@ -329,7 +368,48 @@ export function assertProgramWrite(input: ProgramWriteInput): ProgramWriteInput 
     description: input.description.trim(),
     status: assertStatus(input.status),
     imageUrl: programCoverUrl(programType, input.imageUrl),
+    ...(input.standardIds ? { standardIds: [...input.standardIds] } : {}),
+    ...(input.academicYear ? { academicYear: input.academicYear } : {}),
+    lifecycleFlag: normalizeProgramLifecycleFlag(input.lifecycleFlag),
+    groundPeriodicExams: assertGroundPeriodicExams(input.groundPeriodicExams),
   };
+}
+
+export const PROGRAM_CULMINATED_MESSAGE =
+  'Este programa está culminado. La calificación finalizó y no se puede modificar.';
+
+export function normalizeProgramLifecycleFlag(
+  value: ProgramLifecycleFlag | string | undefined | null,
+): ProgramLifecycleFlag {
+  return value === PROGRAM_LIFECYCLE_FLAG.culminated
+    ? PROGRAM_LIFECYCLE_FLAG.culminated
+    : PROGRAM_LIFECYCLE_FLAG.open;
+}
+
+export function isProgramCulminated(
+  program: { lifecycleFlag?: ProgramLifecycleFlag } | undefined | null,
+): boolean {
+  return normalizeProgramLifecycleFlag(program?.lifecycleFlag) === PROGRAM_LIFECYCLE_FLAG.culminated;
+}
+
+export function assertProgramWritable(
+  program: { lifecycleFlag?: ProgramLifecycleFlag } | undefined | null,
+): void {
+  if (isProgramCulminated(program)) {
+    throw new InvalidAdminCatalogError(PROGRAM_CULMINATED_MESSAGE);
+  }
+}
+
+export function programLifecycleFlagLabel(flag: ProgramLifecycleFlag): string {
+  return flag === PROGRAM_LIFECYCLE_FLAG.culminated ? 'Culminado' : 'Abierto';
+}
+
+export function programBoardStatusLabel(program: {
+  status: EntityStatus;
+  lifecycleFlag?: ProgramLifecycleFlag;
+}): string {
+  if (isProgramCulminated(program)) return programLifecycleFlagLabel(PROGRAM_LIFECYCLE_FLAG.culminated);
+  return statusLabel(program.status);
 }
 
 export function expandAutoMissions(code: string, count: number): string[] {
@@ -395,6 +475,104 @@ function normalizeDirbeLevel(value: unknown): DirbeLevel | undefined {
   return DIRBE_LEVELS.includes(value as DirbeLevel) ? (value as DirbeLevel) : undefined;
 }
 
+function normalizeDangerousOutcome(value: unknown): DirbeDangerousOutcome | undefined {
+  return DIRBE_DANGEROUS_OUTCOMES.includes(value as DirbeDangerousOutcome)
+    ? (value as DirbeDangerousOutcome)
+    : undefined;
+}
+
+export function emptyDirbePointDeltas(): Record<DirbeLevel, number> {
+  return { D: 0, I: 0, R: 0, B: 0, E: 0 };
+}
+
+function sanitizeDirbePointMap(value: unknown): Partial<Record<DirbeLevel, number>> | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const source = value as Record<string, unknown>;
+  const result: Partial<Record<DirbeLevel, number>> = {};
+  for (const level of DIRBE_LEVELS) {
+    const num = typeof source[level] === 'number' ? source[level] : Number(source[level]);
+    if (Number.isFinite(num) && num !== 0) result[level] = num;
+  }
+  return Object.keys(result).length ? result : undefined;
+}
+
+function splitLegacyDeltas(
+  deltas: Partial<Record<DirbeLevel, number>> | undefined,
+): {
+  adds?: Partial<Record<DirbeLevel, number>>;
+  subs?: Partial<Record<DirbeLevel, number>>;
+} {
+  if (!deltas) return {};
+  const adds: Partial<Record<DirbeLevel, number>> = {};
+  const subs: Partial<Record<DirbeLevel, number>> = {};
+  for (const level of DIRBE_LEVELS) {
+    const value = deltas[level];
+    if (!value) continue;
+    if (value > 0) adds[level] = value;
+    if (value < 0) subs[level] = Math.abs(value);
+  }
+  return {
+    ...(Object.keys(adds).length ? { adds } : {}),
+    ...(Object.keys(subs).length ? { subs } : {}),
+  };
+}
+
+function assignmentPolicy(
+  item: ManeuverStandardAssignment,
+  previous?: ManeuverStandardAssignment,
+): Pick<
+  ManeuverStandardAssignment,
+  | 'dirbePointDeltas'
+  | 'dirbePointAdds'
+  | 'dirbePointSubs'
+  | 'dangerousOutcome'
+  | 'dangerousPoints'
+  | 'dangerousAdd'
+  | 'dangerousSub'
+  | 'requiredToAdvance'
+  | 'requiredToGrade'
+> {
+  const dirbePointDeltas = sanitizeDirbePointMap(item.dirbePointDeltas) ?? previous?.dirbePointDeltas;
+  const fromLegacy = splitLegacyDeltas(dirbePointDeltas);
+  const dirbePointAdds =
+    sanitizeDirbePointMap(item.dirbePointAdds) ?? previous?.dirbePointAdds ?? fromLegacy.adds;
+  const dirbePointSubs =
+    sanitizeDirbePointMap(item.dirbePointSubs) ?? previous?.dirbePointSubs ?? fromLegacy.subs;
+  const dangerousOutcome = normalizeDangerousOutcome(item.dangerousOutcome) ?? previous?.dangerousOutcome;
+  const dangerousRaw = item.dangerousPoints;
+  const dangerousPoints = Number.isFinite(dangerousRaw) ? Number(dangerousRaw) : previous?.dangerousPoints;
+  const dangerousAdd = Number.isFinite(item.dangerousAdd) ? Number(item.dangerousAdd) : previous?.dangerousAdd;
+  const dangerousSub = Number.isFinite(item.dangerousSub) ? Number(item.dangerousSub) : previous?.dangerousSub;
+  const requiredToAdvance = item.requiredToAdvance ?? previous?.requiredToAdvance;
+  const requiredToGrade = item.requiredToGrade ?? previous?.requiredToGrade;
+  return {
+    ...(dirbePointDeltas ? { dirbePointDeltas } : {}),
+    ...(dirbePointAdds ? { dirbePointAdds } : {}),
+    ...(dirbePointSubs ? { dirbePointSubs } : {}),
+    ...(dangerousOutcome ? { dangerousOutcome } : {}),
+    ...(typeof dangerousPoints === 'number' ? { dangerousPoints } : {}),
+    ...(typeof dangerousAdd === 'number' && dangerousAdd !== 0 ? { dangerousAdd } : {}),
+    ...(typeof dangerousSub === 'number' && dangerousSub !== 0 ? { dangerousSub } : {}),
+    ...(requiredToAdvance ? { requiredToAdvance: true } : {}),
+    ...(requiredToGrade ? { requiredToGrade: true } : {}),
+  };
+}
+
+function assignmentHasContent(item: ManeuverStandardAssignment): boolean {
+  return Boolean(
+    item.standardIds.length ||
+      item.dirbeLevel ||
+      item.dirbePointDeltas ||
+      item.dirbePointAdds ||
+      item.dirbePointSubs ||
+      item.dangerousOutcome ||
+      item.dangerousAdd ||
+      item.dangerousSub ||
+      item.requiredToAdvance ||
+      item.requiredToGrade,
+  );
+}
+
 function sanitizeStandardAssignments(
   assignments: readonly ManeuverStandardAssignment[],
   missionKeys?: ReadonlySet<string>,
@@ -409,19 +587,18 @@ function sanitizeStandardAssignments(
     if (maneuverIds && !maneuverIds.has(maneuverId)) continue;
     const standardIds = [...new Set((item.standardIds ?? []).map((id) => id.trim()).filter(Boolean))];
     const dirbeLevel = normalizeDirbeLevel(item.dirbeLevel);
-    if (!standardIds.length && !dirbeLevel) continue;
-    const cellKey = `${missionKey}\u001f${maneuverId}`;
-    const previous = cells.get(cellKey);
-    const mergedStandardIds = previous
-      ? [...new Set([...previous.standardIds, ...standardIds])]
-      : standardIds;
-    const mergedDirbeLevel = dirbeLevel ?? previous?.dirbeLevel;
-    cells.set(cellKey, {
+    const previous = cells.get(`${missionKey}\u001f${maneuverId}`);
+    const merged: ManeuverStandardAssignment = {
       missionKey,
       maneuverId,
-      standardIds: mergedStandardIds,
-      ...(mergedDirbeLevel ? { dirbeLevel: mergedDirbeLevel } : {}),
-    });
+      standardIds: previous ? [...new Set([...previous.standardIds, ...standardIds])] : standardIds,
+      ...(dirbeLevel || previous?.dirbeLevel
+        ? { dirbeLevel: dirbeLevel ?? previous?.dirbeLevel }
+        : {}),
+      ...assignmentPolicy(item, previous),
+    };
+    if (!assignmentHasContent(merged)) continue;
+    cells.set(`${missionKey}\u001f${maneuverId}`, merged);
   }
   return [...cells.values()];
 }
@@ -528,6 +705,42 @@ function sanitizeManeuverAssignment(
   return next;
 }
 
+export function defaultProgramModuleKind(phaseBankId: string): ProgramModuleKind {
+  const id = phaseBankId.toLowerCase();
+  if (id.includes('teo') || id.includes('nit') || id.includes('ground') || id.includes('ctph') || id.includes('ccam')) {
+    return 'ground';
+  }
+  if (id.includes('sim')) return 'simulator';
+  return 'air';
+}
+
+export function defaultSubphaseModuleKind(
+  bank: Pick<SubphaseBankEntity, 'id' | 'code' | 'name' | 'coefficient' | 'minPassingGrade'>,
+): ProgramModuleKind {
+  if (bank.coefficient !== undefined || bank.minPassingGrade !== undefined) return 'ground';
+  const token = `${bank.id} ${bank.code} ${bank.name}`.toLowerCase();
+  if (
+    token.includes('aula') ||
+    token.includes('teo') ||
+    token.includes('ctph') ||
+    token.includes('ccam') ||
+    token.includes('tierra') ||
+    token.includes('asignatura') ||
+    token.includes('nit')
+  ) {
+    return 'ground';
+  }
+  if (token.includes('sim')) return 'simulator';
+  return 'air';
+}
+
+export function assertProgramModuleKind(value: string | undefined): ProgramModuleKind {
+  if (value && (PROGRAM_MODULE_KINDS as readonly string[]).includes(value)) {
+    return value as ProgramModuleKind;
+  }
+  return 'air';
+}
+
 export function assertPhaseDraft(input: PhaseDraftInput): PhaseDraftInput {
   const sortOrder = Number(input.sortOrder);
   if (!Number.isInteger(sortOrder) || sortOrder < 1) {
@@ -538,6 +751,7 @@ export function assertPhaseDraft(input: PhaseDraftInput): PhaseDraftInput {
   }
   return {
     phaseBankId: required(input.phaseBankId, 'El banco de fase es obligatorio.'),
+    moduleKind: assertProgramModuleKind(input.moduleKind),
     sortOrder,
     subphases: input.subphases.map((item, index) => assertSubphaseDraft({ ...item, sortOrder: index + 1 })),
   };

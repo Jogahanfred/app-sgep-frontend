@@ -12,7 +12,7 @@ import { ListUnits } from './list-units';
 describe('estructura operativa', () => {
   it('lista las unidades de ejemplo', async () => {
     const units = await firstValueFrom(new ListUnits(new MockAdminCatalogRepository()).execute());
-    expect(units.map((unit) => unit.code)).toEqual(['U-NORTE', 'U-SUR', 'U-ACA', 'U-PLT']);
+    expect(units.map((unit) => unit.code)).toEqual(['U-NORTE', 'U-SUR', 'U-ACA', 'U-PLT', 'GA-51', 'GA-8']);
   });
 
   it('crea una unidad y rechaza un código repetido', async () => {

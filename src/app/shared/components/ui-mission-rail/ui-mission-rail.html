@@ -1,0 +1,23 @@
+<nav class="rail" [attr.aria-label]="label()">
+  <ol class="rail__list">
+    @for (item of items(); track item.id) {
+      <li>
+        <button
+          type="button"
+          class="rail__step"
+          [class]="'rail__step--' + item.status"
+          [class.rail__step--on]="selectedId() === item.id"
+          (click)="pick(item.id)"
+        >
+          <span class="rail__mark">
+            <app-icon [name]="statusIcon(item.status)" />
+          </span>
+          <span class="rail__code">{{ item.code }}</span>
+          @if (item.scoreLabel) {
+            <span class="rail__score">{{ item.scoreLabel }}</span>
+          }
+        </button>
+      </li>
+    }
+  </ol>
+</nav>

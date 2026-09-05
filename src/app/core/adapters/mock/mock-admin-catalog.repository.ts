@@ -20,6 +20,9 @@ import type {
   PromotionEntity,
   PromotionMemberEntity,
   PromotionWriteInput,
+  ProgramEnrollmentCloseInput,
+  ProgramEnrollmentEntity,
+  ProgramEnrollmentWriteInput,
   GroupMissionAssignmentEntity,
   GroupMissionAssignmentWriteInput,
   IndividualMissionAssignmentEntity,
@@ -45,9 +48,10 @@ import type {
   UserRoleEntity,
   UserWriteInput,
 } from '../../domain/entities/admin-catalog';
-import { DIRBE_LEVELS } from '../../domain/entities/admin-catalog';
+import { DIRBE_DANGEROUS_OUTCOMES, DIRBE_LEVELS } from '../../domain/entities/admin-catalog';
 import { InvalidAdminCatalogError } from '../../domain/errors/domain-error';
-import { curriculumMissionRefs } from '../../domain/services/admin-catalog';
+import { curriculumMissionRefs, assertProgramWritable, normalizeProgramLifecycleFlag } from '../../domain/services/admin-catalog';
+import { assertProgramEnrollmentClose, assertStudentCanReceiveAssignment } from '../../domain/services/program-enrollment';
 import type { AdminCatalogRepository } from '../../ports/admin-catalog.repository';
 import {
   buildSpecialtyUsers,
@@ -62,6 +66,7 @@ import {
   SEED_PROGRAMS,
   SEED_PROMOTIONS,
   SEED_PROMOTION_MEMBERS,
+  SEED_PROGRAM_ENROLLMENTS,
   SEED_GROUP_ASSIGNMENTS,
   SEED_INDIVIDUAL_ASSIGNMENTS,
   SEED_MISSION_EXECUTIONS,
@@ -83,6 +88,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   private users: UserEntity[] = structuredClone(SEED_USERS);
   private promotions: PromotionEntity[] = structuredClone(SEED_PROMOTIONS);
   private promotionMembers: PromotionMemberEntity[] = structuredClone(SEED_PROMOTION_MEMBERS);
+  private enrollments: ProgramEnrollmentEntity[] = structuredClone(SEED_PROGRAM_ENROLLMENTS);
   private groupAssignments: GroupMissionAssignmentEntity[] = structuredClone(SEED_GROUP_ASSIGNMENTS);
   private individualAssignments: IndividualMissionAssignmentEntity[] = structuredClone(SEED_INDIVIDUAL_ASSIGNMENTS);
   private missionExecutions: MissionExecutionEntity[] = structuredClone(SEED_MISSION_EXECUTIONS);
@@ -139,7 +145,13 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     }
     try {
       this.assertUnique(input.email, input.documentNumber, id);
-      const user = this.toUser(id, input);
+      const previous = this.users[index];
+      const user = this.toUser(id, {
+        ...input,
+        assignedUnitId: input.assignedUnitId !== undefined ? input.assignedUnitId : previous.assignedUnitId,
+        assignedSquadronId:
+          input.assignedSquadronId !== undefined ? input.assignedSquadronId : previous.assignedSquadronId,
+      });
       this.users[index] = user;
       if (input.password) {
         this.passwords.set(id, input.password);
@@ -191,6 +203,112 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     return this.listPromotionMembers(promotionId);
   }
 
+  listProgramEnrollments(): Observable<ProgramEnrollmentEntity[]> {
+    return of(structuredClone(this.enrollments)).pipe(delay(LATENCY));
+  }
+
+  enrollInProgram(input: ProgramEnrollmentWriteInput): Observable<ProgramEnrollmentEntity[]> {
+    try {
+      const program = this.programs.find((item) => item.id === input.programId);
+      if (!program) throw new InvalidAdminCatalogError('No encontramos ese programa.');
+      assertProgramWritable(program);
+      if (program.status !== 'active') {
+        throw new InvalidAdminCatalogError('Solo se puede matricular en un programa de alta.');
+      }
+      const memberIds = this.promotionMembers
+        .filter((item) => item.promotionId === input.promotionId)
+        .map((item) => item.userId);
+      const selectedIds = input.userIds?.filter((id) => memberIds.includes(id)) ?? [];
+      const targets =
+        input.source === 'promotion'
+          ? selectedIds.map((userId) => ({
+              userId,
+              promotionId: input.promotionId,
+            }))
+          : [{ userId: input.userId ?? '', promotionId: null as string | null }];
+      if (input.source === 'promotion' && selectedIds.length === 0) {
+        throw new InvalidAdminCatalogError('Selecciona alumnos de la promoción.');
+      }
+      if (input.source === 'promotion' && targets.length === 0) {
+        throw new InvalidAdminCatalogError('La promoción no tiene alumnos para matricular.');
+      }
+      if (input.source === 'individual' && !this.users.some((item) => item.id === input.userId)) {
+        throw new InvalidAdminCatalogError('No encontramos al alumno.');
+      }
+      const created: ProgramEnrollmentEntity[] = [];
+      for (const target of targets) {
+        if (!target.userId) continue;
+        const exists = this.enrollments.some(
+          (item) => item.programId === input.programId && item.userId === target.userId,
+        );
+        if (exists) continue;
+        const enrollment: ProgramEnrollmentEntity = {
+          id: `enrollment-${this.seq++}`,
+          programId: input.programId,
+          userId: target.userId,
+          promotionId: target.promotionId,
+          source: input.source,
+          enrolledAt: input.enrolledAt,
+          status: 'active',
+          closedAt: null,
+          closeReason: null,
+        };
+        this.enrollments = [enrollment, ...this.enrollments];
+        created.push(enrollment);
+      }
+      if (created.length === 0) {
+        throw new InvalidAdminCatalogError(
+          input.source === 'promotion'
+            ? 'Los alumnos de la promoción ya están matriculados en este programa.'
+            : 'El alumno ya está matriculado en este programa.',
+        );
+      }
+      return of(structuredClone(created)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  closeProgramEnrollment(id: string, input: ProgramEnrollmentCloseInput): Observable<ProgramEnrollmentEntity> {
+    try {
+      const closed = assertProgramEnrollmentClose(input);
+      const index = this.enrollments.findIndex((item) => item.id === id);
+      if (index < 0) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const current = this.enrollments[index];
+      if (!current) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      if (current.status !== 'active') {
+        throw new InvalidAdminCatalogError('Esa matrícula ya está cerrada.');
+      }
+      const enrollment: ProgramEnrollmentEntity = {
+        ...current,
+        status: closed.status,
+        closedAt: closed.closedAt,
+        closeReason: closed.closeReason,
+      };
+      this.enrollments[index] = enrollment;
+      return of(structuredClone(enrollment)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  saveEnrollmentGroundCourses(id: string, groundCourseIds: readonly string[]): Observable<ProgramEnrollmentEntity> {
+    try {
+      const index = this.enrollments.findIndex((item) => item.id === id);
+      if (index < 0) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const current = this.enrollments[index];
+      if (!current) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const enrollment: ProgramEnrollmentEntity = {
+        ...current,
+        groundCourseIds: [...groundCourseIds],
+      };
+      this.enrollments[index] = enrollment;
+      return of(structuredClone(enrollment)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
   listGroupAssignments(): Observable<GroupMissionAssignmentEntity[]> {
     return of(structuredClone(this.groupAssignments)).pipe(delay(LATENCY));
   }
@@ -214,9 +332,14 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   }
 
   createIndividualAssignment(input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity> {
-    const assignment = { id: `individual-assignment-${this.seq++}`, ...input };
-    this.individualAssignments = [assignment, ...this.individualAssignments];
-    return of(structuredClone(assignment)).pipe(delay(LATENCY));
+    try {
+      assertStudentCanReceiveAssignment(this.enrollments, input.studentId, input.programId);
+      const assignment = { id: `individual-assignment-${this.seq++}`, ...input };
+      this.individualAssignments = [assignment, ...this.individualAssignments];
+      return of(structuredClone(assignment)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
   }
 
   updateIndividualAssignment(id: string, input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity> {
@@ -234,6 +357,19 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
   getMissionExecution(id: string): Observable<MissionExecutionEntity> {
     const execution = this.missionExecutions.find((item) => item.id === id);
     if (!execution) return throwError(() => new InvalidAdminCatalogError('No encontramos la ejecución de misión.'));
+    return of(structuredClone(execution)).pipe(delay(LATENCY));
+  }
+
+  createMissionExecution(
+    individualAssignmentId: string,
+    input: MissionExecutionWriteInput,
+  ): Observable<MissionExecutionEntity> {
+    const execution: MissionExecutionEntity = {
+      id: `execution-${this.seq++}`,
+      individualAssignmentId,
+      ...input,
+    };
+    this.missionExecutions = [execution, ...this.missionExecutions];
     return of(structuredClone(execution)).pipe(delay(LATENCY));
   }
 
@@ -270,7 +406,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     }
     try {
       this.assertUniqueName(this.roles, input.name, 'Ya existe un rol con ese nombre.', id);
-      const role: UserRoleEntity = { id, ...input };
+      const role: UserRoleEntity = { ...this.roles[index], ...input, id };
       this.roles[index] = role;
       return of({ ...role }).pipe(delay(LATENCY));
     } catch (error) {
@@ -334,7 +470,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     }
     try {
       this.assertUniqueCode(this.units, input.code, 'Ya existe una unidad con ese código.', id);
-      const unit: UnitEntity = { id, ...input };
+      const unit: UnitEntity = { ...this.units[index], ...input, id };
       this.units[index] = unit;
       return of({ ...unit }).pipe(delay(LATENCY));
     } catch (error) {
@@ -366,7 +502,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     try {
       this.assertUnitExists(input.unitId);
       this.assertUniqueCode(this.squadrons, input.code, 'Ya existe un escuadrón con ese código.', id);
-      const squadron: SquadronEntity = { id, ...input };
+      const squadron: SquadronEntity = { ...this.squadrons[index], ...input, id };
       this.squadrons[index] = squadron;
       return of({ ...squadron }).pipe(delay(LATENCY));
     } catch (error) {
@@ -714,14 +850,16 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
         throw new InvalidAdminCatalogError('No encontramos ese programa.');
       }
       const programId = input.id ?? `prg-${this.seq++}`;
+      const previous = this.programs.find((item) => item.id === programId);
+      assertProgramWritable(previous);
       this.assertUniqueCode(this.programs, input.program.code, 'Ya existe un programa con ese código.', programId);
       this.assertCurriculumRefs(input);
-      const previous = this.programs.find((item) => item.id === programId);
       const program: ProgramEntity = {
         id: programId,
         ...input.program,
         imageUrl: input.program.imageUrl ?? `/programs/${input.program.programType.toLowerCase()}.jpg`,
         standardIds: [...(input.program.standardIds ?? previous?.standardIds ?? [])],
+        lifecycleFlag: normalizeProgramLifecycleFlag(input.program.lifecycleFlag ?? previous?.lifecycleFlag),
       };
       const nextPhases: PhaseEntity[] = [];
       const nextSubphases: SubphaseEntity[] = [];
@@ -731,6 +869,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
           id: phaseId,
           programId,
           phaseBankId: phaseDraft.phaseBankId,
+          moduleKind: phaseDraft.moduleKind ?? 'air',
           sortOrder: phaseIndex + 1,
         });
         phaseDraft.subphases.forEach((subDraft, subIndex) => {
@@ -775,15 +914,20 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     if (index < 0) {
       return throwError(() => new InvalidAdminCatalogError('No encontramos ese programa.'));
     }
-    const unique = [...new Set(standardIds.filter(Boolean))];
-    for (const standardId of unique) {
-      if (!this.standards.some((item) => item.id === standardId)) {
-        return throwError(() => new InvalidAdminCatalogError('Uno de los estándares indicados no existe.'));
+    try {
+      assertProgramWritable(this.programs[index]);
+      const unique = [...new Set(standardIds.filter(Boolean))];
+      for (const standardId of unique) {
+        if (!this.standards.some((item) => item.id === standardId)) {
+          throw new InvalidAdminCatalogError('Uno de los estándares indicados no existe.');
+        }
       }
+      const item: ProgramEntity = { ...this.programs[index], standardIds: unique };
+      this.programs[index] = item;
+      return of({ ...item, standardIds: [...item.standardIds] }).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
     }
-    const item: ProgramEntity = { ...this.programs[index], standardIds: unique };
-    this.programs[index] = item;
-    return of({ ...item, standardIds: [...item.standardIds] }).pipe(delay(LATENCY));
   }
 
   saveProgramStandardMatrix(id: string, input: ProgramStandardMatrixWriteInput): Observable<ProgramEntity> {
@@ -792,6 +936,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       return throwError(() => new InvalidAdminCatalogError('No encontramos ese programa.'));
     }
     try {
+      assertProgramWritable(this.programs[programIndex]);
       const phaseIds = new Set(this.phases.filter((item) => item.programId === id).map((item) => item.id));
       const programSubphases = this.subphases.filter((item) => phaseIds.has(item.phaseId));
       const byId = new Map(programSubphases.map((item) => [item.id, item]));
@@ -822,13 +967,30 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
           if (dirbeLevel && !DIRBE_LEVELS.includes(dirbeLevel)) {
             throw new InvalidAdminCatalogError('El nivel DIRBE indicado no es válido.');
           }
-          if (!standardIds.length && !dirbeLevel) continue;
+          if (assignment.dangerousOutcome && !DIRBE_DANGEROUS_OUTCOMES.includes(assignment.dangerousOutcome)) {
+            throw new InvalidAdminCatalogError('La consecuencia de una calificación peligrosa no es válida.');
+          }
+          const policy = {
+            ...(assignment.dirbePointDeltas ? { dirbePointDeltas: { ...assignment.dirbePointDeltas } } : {}),
+            ...(assignment.dirbePointAdds ? { dirbePointAdds: { ...assignment.dirbePointAdds } } : {}),
+            ...(assignment.dirbePointSubs ? { dirbePointSubs: { ...assignment.dirbePointSubs } } : {}),
+            ...(assignment.dangerousOutcome ? { dangerousOutcome: assignment.dangerousOutcome } : {}),
+            ...(typeof assignment.dangerousPoints === 'number'
+              ? { dangerousPoints: assignment.dangerousPoints }
+              : {}),
+            ...(typeof assignment.dangerousAdd === 'number' ? { dangerousAdd: assignment.dangerousAdd } : {}),
+            ...(typeof assignment.dangerousSub === 'number' ? { dangerousSub: assignment.dangerousSub } : {}),
+            ...(assignment.requiredToAdvance ? { requiredToAdvance: true } : {}),
+            ...(assignment.requiredToGrade ? { requiredToGrade: true } : {}),
+          };
+          if (!standardIds.length && !dirbeLevel && !Object.keys(policy).length) continue;
           const cellKey = `${assignment.missionKey}\u001f${assignment.maneuverId}`;
           cells.set(cellKey, {
             missionKey: assignment.missionKey,
             maneuverId: assignment.maneuverId,
             standardIds,
             ...(dirbeLevel ? { dirbeLevel } : {}),
+            ...policy,
           });
         }
         updates.set(matrix.subphaseId, [...cells.values()]);
@@ -978,6 +1140,8 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       status: input.status,
       roleIds: [...input.roleIds],
       specialtyIds: [...input.specialtyIds],
+      assignedUnitId: input.assignedUnitId ?? null,
+      assignedSquadronId: input.assignedSquadronId ?? null,
     };
   }
 

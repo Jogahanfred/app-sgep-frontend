@@ -19,6 +19,9 @@ import type {
   PromotionEntity,
   PromotionMemberEntity,
   PromotionWriteInput,
+  ProgramEnrollmentCloseInput,
+  ProgramEnrollmentEntity,
+  ProgramEnrollmentWriteInput,
   GroupMissionAssignmentEntity,
   GroupMissionAssignmentWriteInput,
   IndividualMissionAssignmentEntity,
@@ -58,6 +61,11 @@ export interface AdminCatalogRepository {
   listPromotionMembers(promotionId: string): Observable<PromotionMemberEntity[]>;
   savePromotionMembers(promotionId: string, userIds: string[], entryDate: string): Observable<PromotionMemberEntity[]>;
 
+  listProgramEnrollments(): Observable<ProgramEnrollmentEntity[]>;
+  enrollInProgram(input: ProgramEnrollmentWriteInput): Observable<ProgramEnrollmentEntity[]>;
+  closeProgramEnrollment(id: string, input: ProgramEnrollmentCloseInput): Observable<ProgramEnrollmentEntity>;
+  saveEnrollmentGroundCourses(id: string, groundCourseIds: readonly string[]): Observable<ProgramEnrollmentEntity>;
+
   listGroupAssignments(): Observable<GroupMissionAssignmentEntity[]>;
   createGroupAssignment(input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity>;
   updateGroupAssignment(id: string, input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity>;
@@ -66,6 +74,10 @@ export interface AdminCatalogRepository {
   updateIndividualAssignment(id: string, input: IndividualMissionAssignmentWriteInput): Observable<IndividualMissionAssignmentEntity>;
   listMissionExecutions(): Observable<MissionExecutionEntity[]>;
   getMissionExecution(id: string): Observable<MissionExecutionEntity>;
+  createMissionExecution(
+    individualAssignmentId: string,
+    input: MissionExecutionWriteInput,
+  ): Observable<MissionExecutionEntity>;
   updateMissionExecution(id: string, input: MissionExecutionWriteInput): Observable<MissionExecutionEntity>;
 
   listRoles(): Observable<UserRoleEntity[]>;

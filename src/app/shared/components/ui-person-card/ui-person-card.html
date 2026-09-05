@@ -1,0 +1,67 @@
+<article
+  class="pc"
+  appRipple
+  [class.pc--on]="selected()"
+  [attr.aria-pressed]="selected()"
+  tabindex="0"
+  (click)="pick()"
+  (keydown.enter)="pick()"
+  (keydown.space)="$event.preventDefault(); pick()"
+>
+  <div class="pc__head">
+    <ui-avatar [name]="name()" [src]="photoUrl()" size="md" shape="rounded" [marker]="marker()" />
+    <div class="pc__who">
+      <div class="pc__name-row">
+        <span class="pc__name">{{ name() }}</span>
+        @if (badge()) {
+          <span class="pc__badge">{{ badge() }}</span>
+        }
+      </div>
+      @if (meta()) {
+        <p class="pc__meta">{{ meta() }}</p>
+      }
+    </div>
+    @if (actionLabel()) {
+      <app-button
+        type="button"
+        variant="ghost"
+        size="xs"
+        icon="arrow-right"
+        [disabled]="actionDisabled()"
+        (click)="runAction($event)"
+      >
+        {{ actionLabel() }}
+      </app-button>
+    }
+  </div>
+
+  <ui-progress
+    [value]="progressValue()"
+    [caption]="progressCaption()"
+    [valueLabel]="progressValueLabel()"
+    [label]="progressCaption() || name()"
+  />
+
+  @if (highlightText()) {
+    <p class="pc__next">
+      <app-icon name="trend" />
+      <span>
+        @if (highlightLabel()) {
+          <strong>{{ highlightLabel() }}:</strong>
+        }
+        {{ highlightText() }}
+      </span>
+      @if (highlightHint()) {
+        <span class="pc__hint">{{ highlightHint() }}</span>
+      }
+    </p>
+  }
+
+  @if (tags().length) {
+    <div class="pc__tags">
+      @for (tag of tags(); track tag) {
+        <ui-chip [label]="tag" />
+      }
+    </div>
+  }
+</article>

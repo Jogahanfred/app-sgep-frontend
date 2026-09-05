@@ -86,7 +86,7 @@ describe('ProgramFlowPage', () => {
     expect(root.querySelectorAll('.flow__time-num')).toHaveLength(5);
     expect(root.querySelector('.flow__time-kicker')?.textContent).toContain('Fase 1');
     expect(text).not.toContain('PPL-AF');
-    expect(text).not.toContain('89 h');
+    expect(text).not.toContain('133 h');
     expect(root.querySelector('.flow__crumb')).toBeNull();
     expect(root.querySelectorAll('.flow__time li')).toHaveLength(5);
     expect(root.querySelector('.flow__time [aria-current="step"]')).toBeNull();
@@ -111,7 +111,9 @@ describe('ProgramFlowPage', () => {
     expect(root.querySelector('.flow__time [aria-current="step"]')?.textContent).toContain('TEO · Teoría en aula');
     expect(root.querySelector('.flow__on')?.textContent).toContain('FASE 1');
     expect(root.querySelector('.flow__on')?.textContent).not.toContain('Cuadro en la fase');
-    expect(root.textContent).toContain('AULA · Aula');
+    expect(root.textContent).toContain('TEA · Teoría Aeronáutica I');
+    expect(root.textContent).toContain('MEA · Meteorología Aeronáutica');
+    expect(root.textContent).toContain('EIN · Evaluación Integral');
     expect(root.textContent).not.toContain('Ver maniobras');
     expect(root.textContent).not.toContain('DUAL · Dual');
     expect(root.textContent).not.toContain('Circuito corto');
@@ -121,7 +123,7 @@ describe('ProgramFlowPage', () => {
     page.goNext();
     fixture.detectChanges();
     expect(page.depth()).toBe('lesson');
-    expect(page.currentLesson()?.name).toBe('AULA · Aula');
+    expect(page.currentLesson()?.name).toBe('TEA · Teoría Aeronáutica I');
     expect(root.querySelector('.flow__on')?.textContent).toContain('SUBFASE 1');
     expect(root.textContent).toContain('0 misiones');
     expect(root.querySelector('[data-tour="matrix"]')).toBeNull();
@@ -133,7 +135,7 @@ describe('ProgramFlowPage', () => {
       'Esta subfase no tiene misiones ni maniobras.',
     );
 
-    page.goNext();
+    page.goTo(1);
     fixture.detectChanges();
     expect(page.depth()).toBe('phase');
     expect(page.currentPhase()?.name).toBe('BAS · Vuelo básico');

@@ -1,55 +1,42 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { GetHomeContent, type HomeContent } from '@core/application';
+import { RouterLink } from '@angular/router';
+import { GetDashboardOverview, type RoleDashboard } from '@core/application';
 import { Alert } from '@shared/components/alert/alert';
-import { Button } from '@shared/components/button/button';
 import { Container } from '@shared/components/container/container';
-import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
 import { Section } from '@shared/components/section/section';
 import { UiLoading } from '@shared/components/ui';
-import { LoanCalculator } from '@features/loans/presentation/components/loan-calculator/loan-calculator';
-import { FaqSection } from '../../sections/faq/faq.section';
-import { HelpSection } from '../../sections/help/help.section';
-import { NeedSelectorSection } from '../../sections/need-selector/need-selector.section';
-import { ProductSection } from '../../sections/product/product.section';
-import { PromotionSection } from '../../sections/promotion/promotion.section';
-import { ThemeSection } from '../../sections/theme/theme.section';
+import { ClientSession } from '../../../../../layout/client-session.service';
+import { DASHBOARD_COPY } from '../../../constants/dashboard.copy.constants';
 
 @Component({
   selector: 'app-home-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    HeroBanner,
-    NeedSelectorSection,
-    ThemeSection,
-    ProductSection,
-    PromotionSection,
-    HelpSection,
-    FaqSection,
-    LoanCalculator,
-    Section,
-    Container,
-    Button,
-    Alert,
-    UiLoading,
-  ],
+  imports: [Alert, Container, RouterLink, Section, UiLoading],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
 })
 export class HomePage {
-  private readonly getHome = inject(GetHomeContent);
+  private readonly getOverview = inject(GetDashboardOverview);
   private readonly destroyRef = inject(DestroyRef);
+  readonly session = inject(ClientSession);
 
-  readonly content = signal<HomeContent | null>(null);
-  readonly status = signal<'loading' | 'ready' | 'error'>('loading');
+  readonly copy = DASHBOARD_COPY;
+  readonly dashboard = signal<RoleDashboard | null>(null);
+  readonly status = signal<'loading' | 'ready' | 'error' | 'missing'>('loading');
 
   constructor() {
-    this.getHome
-      .execute()
+    const context = this.session.operationalContext();
+    if (!context) {
+      this.status.set('missing');
+      return;
+    }
+    this.getOverview
+      .execute(context)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
-          this.content.set(data);
+          this.dashboard.set(data);
           this.status.set('ready');
         },
         error: () => this.status.set('error'),

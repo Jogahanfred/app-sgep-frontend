@@ -48,4 +48,17 @@ describe('UiCheckbox', () => {
     expect(styles.height).toMatch(/2\.5rem|40px|control-height/);
     expect(styles.minHeight).toMatch(/2\.5rem|40px|control-height/);
   });
+
+  it('en densidad compacta deja solo la casilla', () => {
+    const fixture = TestBed.createComponent(UiCheckbox);
+    fixture.componentRef.setInput('id', 'ck-compact');
+    fixture.componentRef.setInput('label', 'Procedimientos de Vuelo');
+    fixture.componentRef.setInput('hideLabel', true);
+    fixture.componentRef.setInput('density', 'compact');
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.classList.contains('ck-host--compact')).toBe(true);
+    expect(host.querySelector('.ck--compact')).not.toBeNull();
+    expect(host.querySelector('.ck__label')?.classList.contains('visually-hidden')).toBe(true);
+  });
 });

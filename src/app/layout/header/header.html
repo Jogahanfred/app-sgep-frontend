@@ -11,16 +11,36 @@
     </a>
 
     <div class="header__desktop">
-      <app-navigation-menu [groups]="groups" [openLabel]="megaLabel()" (openLabelChange)="setMega($event)" />
+      <app-navigation-menu
+        [groups]="groups"
+        [openLabel]="megaLabel()"
+        [activeLabel]="activeNavLabel()"
+        (openLabelChange)="setMega($event)"
+      />
     </div>
 
     <div class="header__actions">
-      <button type="button" class="util" aria-label="Idioma: Español">
-        <span class="util__flag" aria-hidden="true"></span>
-        Español
-        <app-icon name="chevron" />
-      </button>
       @if (session.loggedIn()) {
+        @if (contextEmblems().length || showSquadronPicker()) {
+          <div class="context-emblems" aria-label="Contexto operativo">
+            @for (emblem of contextEmblems(); track emblem.id) {
+              <span class="context-emblems__item" [attr.title]="emblem.name">
+                <img [src]="emblem.imageUrl" [alt]="emblem.name" />
+              </span>
+            }
+            @if (showSquadronPicker()) {
+              <button
+                type="button"
+                class="context-emblems__item context-emblems__pick"
+                [attr.title]="squadronPickerLabel"
+                [attr.aria-label]="squadronPickerLabel"
+                (click)="openSquadronModal(); $event.stopPropagation()"
+              >
+                <app-icon name="plus" />
+              </button>
+            }
+          </div>
+        }
         <div class="usermenu" [class.usermenu--open]="userMenuOpen()">
           <button
             type="button"
@@ -32,6 +52,16 @@
           >
             <ui-avatar [name]="session.displayName()" size="sm" />
             <span>{{ session.displayName() }}</span>
+            <svg class="userchip__chev" [class.userchip__chev--up]="userMenuOpen()" viewBox="0 0 12 8" aria-hidden="true">
+              <path
+                d="M1 1.5 6 6.5 11 1.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </button>
           @if (userMenuOpen()) {
             <div id="user-menu" class="usermenu__panel" role="menu">
@@ -41,12 +71,11 @@
           }
         </div>
       } @else {
-        <button type="button" class="util header__login" (click)="openLogin()">
+        <a [routerLink]="loginRoute" class="util header__login">
           Acceso clientes
           <app-icon name="chevron" />
-        </button>
+        </a>
       }
-      <app-button href="/hazte-cliente" size="sm" (click)="closeMega()">Hazte cliente</app-button>
       <button
         type="button"
         class="header__burger"
@@ -76,6 +105,7 @@
 <div id="mobile-nav">
   <app-mobile-menu
     [groups]="groups"
+    [activeLabel]="activeNavLabel()"
     [open]="mobileOpen()"
     (closed)="closeMobile()"
     (loginRequested)="openLogin()"
@@ -83,4 +113,4 @@
   />
 </div>
 
-<app-login-screen [open]="loginOpen()" [nextUrl]="pendingNext()" (closed)="closeLogin()" (signedIn)="onSignedIn()" />
+<app-context-squadron-modal [open]="squadronModalOpen()" (closed)="closeSquadronModal()" />

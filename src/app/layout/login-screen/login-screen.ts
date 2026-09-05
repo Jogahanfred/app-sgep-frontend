@@ -1,12 +1,16 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthenticateUser } from '@core/application';
+import { DomainError } from '@core/domain/errors/domain-error';
+import { Alert } from '@shared/components/alert/alert';
 import { Badge } from '@shared/components/badge/badge';
 import { Button } from '@shared/components/button/button';
 import { Icon } from '@shared/components/icon/icon';
 import { UiChip } from '@shared/components/ui-chip/ui-chip';
 import { UiInput } from '@shared/components/ui-input/ui-input';
-import { DocumentScrollLock } from '@shared/utils/document-scroll-lock';
+import { firstValueFrom } from 'rxjs';
+import { PROFILE_CONTEXT_ROUTE, safeInternalUrl } from '../auth-routes.constants';
 import { ClientSession } from '../client-session.service';
 import {
   LOGIN_DEFAULT_NEXT_URL,
@@ -20,24 +24,20 @@ import { LOGIN_COPY } from './login-screen.copy.constants';
 @Component({
   selector: 'app-login-screen',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Badge, Button, Icon, UiChip, UiInput],
+  imports: [ReactiveFormsModule, Alert, Badge, Button, Icon, UiChip, UiInput],
   templateUrl: './login-screen.html',
   styleUrl: './login-screen.scss',
 })
 export class LoginScreen {
-  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly session = inject(ClientSession);
   private readonly router = inject(Router);
-  private readonly scrollLock = inject(DocumentScrollLock);
-  private locked = false;
-  readonly open = input(false);
-  readonly nextUrl = input(LOGIN_DEFAULT_NEXT_URL);
-  readonly closed = output<void>();
-  readonly signedIn = output<void>();
-  readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly route = inject(ActivatedRoute);
+  private readonly authenticateUser = inject(AuthenticateUser);
   readonly copy = LOGIN_COPY;
   readonly metrics = LOGIN_SHOWCASE_METRICS;
   readonly showcaseImage = LOGIN_SHOWCASE_IMAGE;
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
   readonly form = new FormGroup({
     user: new FormControl('', {
       nonNullable: true,
@@ -49,49 +49,25 @@ export class LoginScreen {
     }),
   });
 
-  constructor() {
-    inject(DestroyRef).onDestroy(() => this.releaseScroll());
-    effect(() => {
-      const el = this.dialog()?.nativeElement;
-      if (!el) return;
-      if (this.open()) {
-        this.holdScroll();
-        if (!el.open) {
-          el.showModal();
-        }
-        const field = this.host.nativeElement.querySelector('#login-user');
-        if (field instanceof HTMLElement) {
-          field.focus();
-        }
-      } else {
-        if (el.open) {
-          el.close();
-        }
-        this.releaseScroll();
-      }
-    });
-  }
-
-  close(): void {
-    this.closed.emit();
-  }
-
-  onCancel(event: Event): void {
-    event.preventDefault();
-    this.close();
-  }
-
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    this.session.signIn('Elena');
-    this.form.reset();
-    const next = this.nextUrl() || LOGIN_DEFAULT_NEXT_URL;
-    this.signedIn.emit();
-    this.close();
-    void this.router.navigateByUrl(next);
+    this.error.set(null);
+    this.submitting.set(true);
+    try {
+      const { user, password } = this.form.getRawValue();
+      const identity = await firstValueFrom(this.authenticateUser.execute(user, password));
+      this.session.signInIdentity(identity);
+      this.form.reset();
+      const next = safeInternalUrl(this.route.snapshot.queryParamMap.get('next'), LOGIN_DEFAULT_NEXT_URL);
+      await this.router.navigate([PROFILE_CONTEXT_ROUTE], { queryParams: { next } });
+    } catch (err: unknown) {
+      this.error.set(err instanceof DomainError ? err.message : this.copy.credentialsError);
+    } finally {
+      this.submitting.set(false);
+    }
   }
 
   userError(): string | undefined {
@@ -104,17 +80,5 @@ export class LoginScreen {
     const control = this.form.controls.password;
     if (!control.touched || !control.invalid) return undefined;
     return LOGIN_COPY.passwordError;
-  }
-
-  private holdScroll(): void {
-    if (this.locked) return;
-    this.scrollLock.lock();
-    this.locked = true;
-  }
-
-  private releaseScroll(): void {
-    if (!this.locked) return;
-    this.scrollLock.unlock();
-    this.locked = false;
   }
 }

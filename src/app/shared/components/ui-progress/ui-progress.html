@@ -1,0 +1,23 @@
+<div
+  class="pg"
+  [class]="'pg--' + scale()"
+  role="progressbar"
+  [attr.aria-label]="label()"
+  [attr.aria-valuenow]="clamped()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+>
+  @if (caption() || valueLabel()) {
+    <div class="pg__row">
+      @if (caption()) {
+        <span>{{ caption() }}</span>
+      }
+      @if (valueLabel()) {
+        <strong>{{ valueLabel() }}</strong>
+      }
+    </div>
+  }
+  <div class="pg__track">
+    <span class="pg__fill" [style.width.%]="clamped()"></span>
+  </div>
+</div>

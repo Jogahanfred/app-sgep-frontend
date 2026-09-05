@@ -46,9 +46,9 @@ describe('ProgramsBoardPage', () => {
     expect(root.querySelectorAll('ui-program-card').length).toBe(5);
     const actions = [...root.querySelectorAll<HTMLAnchorElement>('.pcard__actions a.btn')];
     expect(actions.length).toBe(8);
-    expect(actions.every((node) => !node.classList.contains('btn--disabled'))).toBe(true);
-    expect(actions[0]?.getAttribute('href')).toBe('/catalogo/programas/prg-heli-2023/estandares');
+    expect(actions[0]?.classList.contains('btn--disabled')).toBe(true);
     expect(actions[1]?.getAttribute('href')).toBe('/catalogo/programas/prg-heli-2023/flujo');
+    expect(root.querySelector('a[href="/catalogo/programas/prg-heli-2023"]')).not.toBeNull();
     expect(root.textContent).toContain('Asignar estándares');
     expect(root.textContent).toContain('Ver flujo');
     const photos = [...root.querySelectorAll<HTMLImageElement>('.pcard__photo')];

@@ -1,0 +1,78 @@
+.rail {
+  overflow-x: auto;
+}
+
+.rail__list {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  min-width: min-content;
+  margin: 0;
+  padding: var(--spacing-sm) 0;
+  list-style: none;
+}
+
+.rail__step {
+  display: flex;
+  min-width: 4.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rail__step:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.rail__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+
+.rail__step--completed .rail__mark {
+  background: var(--color-control-soft);
+  color: var(--color-success);
+}
+
+.rail__step--available .rail__mark,
+.rail__step--on .rail__mark {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.rail__step--scheduled .rail__mark {
+  background: var(--color-peach);
+  color: var(--color-primary-dark);
+}
+
+.rail__step--blocked .rail__mark {
+  opacity: 0.55;
+}
+
+.rail__step--recovery .rail__mark {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+
+.rail__code {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+
+.rail__score {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+}

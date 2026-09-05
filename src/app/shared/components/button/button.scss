@@ -116,12 +116,18 @@
 }
 
 .btn--secondary:disabled,
+.btn--secondary.btn--disabled {
+  opacity: 1;
+  color: var(--color-text-muted, #9aa4ae);
+  border-color: var(--color-border);
+  background: var(--color-surface-warm, #f3f5f7);
+}
+
 .btn--ghost:disabled,
 .btn--inverse:disabled,
-.btn--secondary.btn--disabled,
 .btn--ghost.btn--disabled,
 .btn--inverse.btn--disabled {
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .btn--loading {

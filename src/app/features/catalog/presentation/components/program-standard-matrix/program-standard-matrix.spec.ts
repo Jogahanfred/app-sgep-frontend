@@ -157,6 +157,21 @@ describe('ProgramStandardMatrix', () => {
     expect(selected).toEqual(['mission-1:maneuver-1']);
   });
 
+  it('arrastra el recuadro sin abrir el calibrador', async () => {
+    const fixture = await createFixture();
+    const selected: string[] = [];
+    fixture.componentInstance.cellSelected.subscribe((cell) => selected.push(cell.maneuver.id));
+    const scroll = (fixture.nativeElement as HTMLElement).querySelector('.psm__scroll') as HTMLElement;
+    scroll.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 40, clientY: 40, pointerId: 1 }));
+    scroll.dispatchEvent(new PointerEvent('pointermove', { button: 0, clientX: 90, clientY: 80, pointerId: 1 }));
+    scroll.dispatchEvent(new PointerEvent('pointerup', { button: 0, clientX: 90, clientY: 80, pointerId: 1 }));
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      'app-dirbe-cell-selector button',
+    ) as HTMLButtonElement;
+    button.click();
+    expect(selected).toEqual([]);
+  });
+
   it('resalta una guía en L solo hasta el cuadrante señalado', async () => {
     const fixture = await createFixture(axisSubphase);
     const root = fixture.nativeElement as HTMLElement;

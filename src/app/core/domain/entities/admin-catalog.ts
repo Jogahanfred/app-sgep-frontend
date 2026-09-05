@@ -1,4 +1,7 @@
+import type { RoleCode } from './role-code';
+
 export type EntityStatus = 'active' | 'inactive';
+export type { RoleCode } from './role-code';
 
 export const SESSION_DEMO_USER_ID = 'usr-elena-martin';
 
@@ -7,6 +10,7 @@ export interface UserRoleEntity {
   name: string;
   description: string;
   status: EntityStatus;
+  code?: RoleCode;
 }
 
 export interface SpecialtyEntity {
@@ -33,6 +37,8 @@ export interface UserEntity {
   status: EntityStatus;
   roleIds: string[];
   specialtyIds: string[];
+  assignedUnitId: string | null;
+  assignedSquadronId: string | null;
 }
 
 export interface UserWriteInput {
@@ -46,6 +52,8 @@ export interface UserWriteInput {
   status: EntityStatus;
   roleIds: string[];
   specialtyIds: string[];
+  assignedUnitId?: string | null;
+  assignedSquadronId?: string | null;
 }
 
 export interface PromotionEntity {
@@ -74,6 +82,50 @@ export interface PromotionMemberEntity {
   promotionId: string;
   userId: string;
   entryDate: string;
+}
+
+export const PROGRAM_ENROLLMENT_SOURCES = ['promotion', 'individual'] as const;
+export type ProgramEnrollmentSource = (typeof PROGRAM_ENROLLMENT_SOURCES)[number];
+
+export const PROGRAM_ENROLLMENT_STATUSES = ['active', 'suspended', 'withdrawn', 'dropped', 'completed'] as const;
+export type ProgramEnrollmentStatus = (typeof PROGRAM_ENROLLMENT_STATUSES)[number];
+export const PROGRAM_ENROLLMENT_CLOSE_STATUSES = ['suspended', 'withdrawn', 'dropped'] as const;
+export type ProgramEnrollmentCloseStatus = (typeof PROGRAM_ENROLLMENT_CLOSE_STATUSES)[number];
+
+export interface ProgramEnrollmentEntity {
+  id: string;
+  programId: string;
+  userId: string;
+  promotionId: string | null;
+  source: ProgramEnrollmentSource;
+  enrolledAt: string;
+  status: ProgramEnrollmentStatus;
+  closedAt: string | null;
+  closeReason: string | null;
+  groundCourseIds?: string[];
+  groundEvaluations?: GroundEvaluationRecord[];
+}
+
+export interface GroundEvaluationRecord {
+  courseId: string;
+  code: string;
+  status: 'completed' | 'available' | 'blocked';
+  grade: number | null;
+}
+
+export interface ProgramEnrollmentWriteInput {
+  programId: string;
+  source: ProgramEnrollmentSource;
+  promotionId: string | null;
+  userId: string | null;
+  userIds?: string[] | null;
+  enrolledAt: string;
+}
+
+export interface ProgramEnrollmentCloseInput {
+  status: ProgramEnrollmentCloseStatus;
+  closedAt: string;
+  closeReason: string;
 }
 
 export type TrainingAssignmentStatus = 'scheduled' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
@@ -185,6 +237,7 @@ export interface UnitEntity {
   name: string;
   abbreviation: string;
   status: EntityStatus;
+  imageUrl?: string;
 }
 
 export interface UnitWriteInput {
@@ -192,6 +245,7 @@ export interface UnitWriteInput {
   name: string;
   abbreviation: string;
   status: EntityStatus;
+  imageUrl?: string;
 }
 
 export interface SquadronEntity {
@@ -201,6 +255,7 @@ export interface SquadronEntity {
   name: string;
   description: string;
   status: EntityStatus;
+  imageUrl?: string;
 }
 
 export interface SquadronWriteInput {
@@ -209,6 +264,7 @@ export interface SquadronWriteInput {
   name: string;
   description: string;
   status: EntityStatus;
+  imageUrl?: string;
 }
 
 export type CommissionWorkflowStatus = 'registered' | 'approved' | 'active' | 'finished';
@@ -356,6 +412,28 @@ export interface AircraftWriteInput {
 
 export const PROGRAM_TYPES = ['PPL', 'CPL', 'ATPL', 'IR', 'FI', 'HELI'] as const;
 export type ProgramType = (typeof PROGRAM_TYPES)[number];
+export const PROGRAM_LIFECYCLE_FLAGS = ['open', 'culminated'] as const;
+export type ProgramLifecycleFlag = (typeof PROGRAM_LIFECYCLE_FLAGS)[number];
+export const PROGRAM_LIFECYCLE_FLAG = {
+  open: 'open',
+  culminated: 'culminated',
+} as const satisfies Record<string, ProgramLifecycleFlag>;
+
+export const PROGRAM_MODULE_KINDS = ['ground', 'air', 'simulator'] as const;
+export type ProgramModuleKind = (typeof PROGRAM_MODULE_KINDS)[number];
+
+export const GROUND_PERIODIC_EXAM_KINDS = ['weekly', 'biweekly', 'monthly', 'semester', 'unannounced'] as const;
+export type GroundPeriodicExamKind = (typeof GROUND_PERIODIC_EXAM_KINDS)[number];
+
+export interface GroundPeriodicExamRule {
+  id: string;
+  period: string;
+  exam: string;
+  kind: GroundPeriodicExamKind;
+  minPassingGrade: number;
+  countsTowardNei: boolean;
+  neiWeight: number;
+}
 
 export interface PhaseBankEntity {
   id: string;
@@ -378,6 +456,8 @@ export interface SubphaseBankEntity {
   name: string;
   description: string;
   status: EntityStatus;
+  coefficient?: number;
+  minPassingGrade?: number;
 }
 
 export interface SubphaseBankWriteInput {
@@ -385,6 +465,8 @@ export interface SubphaseBankWriteInput {
   name: string;
   description: string;
   status: EntityStatus;
+  coefficient?: number;
+  minPassingGrade?: number;
 }
 
 export interface ProgramEntity {
@@ -396,6 +478,9 @@ export interface ProgramEntity {
   status: EntityStatus;
   imageUrl: string;
   standardIds: string[];
+  academicYear?: number;
+  lifecycleFlag: ProgramLifecycleFlag;
+  groundPeriodicExams?: GroundPeriodicExamRule[];
 }
 
 export interface ProgramWriteInput {
@@ -406,12 +491,16 @@ export interface ProgramWriteInput {
   status: EntityStatus;
   imageUrl?: string;
   standardIds?: string[];
+  academicYear?: number;
+  lifecycleFlag?: ProgramLifecycleFlag;
+  groundPeriodicExams?: GroundPeriodicExamRule[];
 }
 
 export interface PhaseEntity {
   id: string;
   programId: string;
   phaseBankId: string;
+  moduleKind: ProgramModuleKind;
   sortOrder: number;
 }
 
@@ -422,11 +511,23 @@ export const AUTO_MISSION_COUNT_MAX = 20;
 export const DIRBE_LEVELS = ['D', 'I', 'R', 'B', 'E'] as const;
 export type DirbeLevel = (typeof DIRBE_LEVELS)[number];
 
+export const DIRBE_DANGEROUS_OUTCOMES = ['deduct', 'fail-mission'] as const;
+export type DirbeDangerousOutcome = (typeof DIRBE_DANGEROUS_OUTCOMES)[number];
+
 export interface ManeuverStandardAssignment {
   missionKey: string;
   maneuverId: string;
   standardIds: string[];
   dirbeLevel?: DirbeLevel;
+  dirbePointDeltas?: Partial<Record<DirbeLevel, number>>;
+  dirbePointAdds?: Partial<Record<DirbeLevel, number>>;
+  dirbePointSubs?: Partial<Record<DirbeLevel, number>>;
+  dangerousOutcome?: DirbeDangerousOutcome;
+  dangerousPoints?: number;
+  dangerousAdd?: number;
+  dangerousSub?: number;
+  requiredToAdvance?: boolean;
+  requiredToGrade?: boolean;
 }
 
 export interface SubphaseEntity {
@@ -472,6 +573,7 @@ export interface ProgramStandardMatrixWriteInput {
 
 export interface PhaseDraftInput {
   phaseBankId: string;
+  moduleKind?: ProgramModuleKind;
   sortOrder: number;
   subphases: SubphaseDraftInput[];
 }

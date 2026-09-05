@@ -1,0 +1,37 @@
+<div class="ap">
+  <p class="ap__lead">{{ copy.listLead }}</p>
+
+  @if (needsSquadron()) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else {
+    <div class="ap__toolbar">
+      <ui-input
+        id="academic-progress-search"
+        [label]="copy.searchLabel"
+        type="search"
+        icon="search"
+        [placeholder]="copy.searchPlaceholder"
+        [field]="search"
+      />
+    </div>
+
+    @if (loadState() === 'error') {
+      <app-alert tone="error">{{ copy.loadError }}</app-alert>
+    } @else {
+      <ui-table
+        [heading]="copy.tableHeading"
+        [caption]="copy.tableCaption"
+        [columns]="columns"
+        [rows]="tableRows()"
+        [selectedId]="selectedId()"
+        [loading]="loadState() === 'loading'"
+        [emptyTitle]="copy.empty"
+        (selectedIdChange)="selectedId.set($event)"
+      >
+        <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="goDetail()">
+          {{ copy.view }}
+        </app-button>
+      </ui-table>
+    }
+  }
+</div>

@@ -1,0 +1,25 @@
+@if (items().length) {
+  <ul class="sl">
+    @for (item of items(); track item.id) {
+      <li class="sl__row" [class.sl__row--on]="isEnabled(item.id)">
+        <div class="sl__text">
+          <p class="sl__title">{{ item.title }}</p>
+          @if (item.hint) {
+            <p class="sl__hint">{{ item.hint }}</p>
+          }
+          @if (item.meta) {
+            <p class="sl__meta">{{ item.meta }}</p>
+          }
+        </div>
+        <ui-toggle
+          [id]="'switch-' + item.id"
+          [label]="item.title"
+          [checked]="isEnabled(item.id)"
+          (checkedChange)="toggle(item.id, $event)"
+        />
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="sl__empty">{{ emptyTitle() }}</p>
+}

@@ -5,16 +5,22 @@ import {
   assertCatalogWrite,
   assertProgramStandardMatrixWrite,
   assertPhaseBankWrite,
+  assertSubphaseBankWrite,
   assertSubphaseDraft,
   catalogMissionKey,
   curriculumMissionRefs,
   customMissionKey,
+  defaultProgramModuleKind,
   expandAutoMissions,
   assertProgramWrite,
   assertUserWrite,
+  isProgramCulminated,
   matchesAdminSearch,
+  normalizeProgramLifecycleFlag,
   passwordStrengthError,
   programTypeLabel,
+  PROGRAM_CULMINATED_MESSAGE,
+  assertProgramWritable,
 } from './admin-catalog';
 
 const validUser = {
@@ -81,6 +87,7 @@ describe('admin-catalog domain', () => {
     expect(result.code).toBe('PPL-AF');
     expect(result.description).toBe('');
     expect(result.imageUrl).toBe('/programs/ppl.jpg');
+    expect(result.lifecycleFlag).toBe('open');
     expect(programTypeLabel('IR')).toMatch(/instrumental/i);
     expect(programTypeLabel('HELI')).toMatch(/helicóptero/i);
     expect(
@@ -93,6 +100,25 @@ describe('admin-catalog domain', () => {
         imageUrl: '/programs/custom.jpg',
       }).imageUrl,
     ).toBe('/programs/custom.jpg');
+  });
+
+  it('bloquea escritura cuando el flag de ciclo de vida es culminado', () => {
+    expect(normalizeProgramLifecycleFlag('culminated')).toBe('culminated');
+    expect(isProgramCulminated({ lifecycleFlag: 'open' })).toBe(false);
+    expect(isProgramCulminated({ lifecycleFlag: 'culminated' })).toBe(true);
+    expect(() => assertProgramWritable({ lifecycleFlag: 'culminated' })).toThrow(InvalidAdminCatalogError);
+    expect(() => assertProgramWritable({ lifecycleFlag: 'culminated' })).toThrow(PROGRAM_CULMINATED_MESSAGE);
+    expect(
+      assertProgramWrite({
+        code: 'pdi-heli-2023',
+        name: 'Curso',
+        programType: 'HELI',
+        description: '',
+        status: 'active',
+        lifecycleFlag: 'culminated',
+        academicYear: 2025,
+      }).lifecycleFlag,
+    ).toBe('culminated');
   });
 
   it('normaliza el código del banco de fase', () => {
@@ -209,6 +235,40 @@ describe('admin-catalog domain', () => {
     ]);
   });
 
+  it('conserva el ajuste de puntos DIRBE y la regla de peligroso', () => {
+    const result = assertProgramStandardMatrixWrite({
+      subphases: [
+        {
+          subphaseId: 'sp-1',
+          assignments: [
+            {
+              missionKey: 'catalog:mt-local',
+              maneuverId: 'man-toff',
+              standardIds: ['std-1'],
+              dirbeLevel: 'R',
+              dirbePointDeltas: { D: -2, I: -1, R: 0, B: 1, E: 3 },
+              dangerousOutcome: 'fail-mission',
+              requiredToAdvance: true,
+              requiredToGrade: true,
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.subphases[0].assignments[0]).toEqual({
+      missionKey: 'catalog:mt-local',
+      maneuverId: 'man-toff',
+      standardIds: ['std-1'],
+      dirbeLevel: 'R',
+      dirbePointDeltas: { D: -2, I: -1, B: 1, E: 3 },
+      dirbePointAdds: { B: 1, E: 3 },
+      dirbePointSubs: { D: 2, I: 1 },
+      dangerousOutcome: 'fail-mission',
+      requiredToAdvance: true,
+      requiredToGrade: true,
+    });
+  });
+
   it('limita la serie automática a 20 misiones', () => {
     expect(expandAutoMissions('CER', 50)).toHaveLength(AUTO_MISSION_COUNT_MAX);
     expect(() =>
@@ -224,5 +284,34 @@ describe('admin-catalog domain', () => {
         sortOrder: 1,
       }),
     ).toThrow(InvalidAdminCatalogError);
+  });
+
+  it('conserva coeficiente NCT y nota mínima en el banco de subfase', () => {
+    expect(
+      assertSubphaseBankWrite({
+        code: 'aero',
+        name: 'Aerodinámica',
+        description: '',
+        status: 'active',
+        coefficient: 0.13,
+        minPassingGrade: 16,
+      }),
+    ).toMatchObject({ coefficient: 0.13, minPassingGrade: 16 });
+    expect(() =>
+      assertSubphaseBankWrite({
+        code: 'aero',
+        name: 'Aerodinámica',
+        description: '',
+        status: 'active',
+        coefficient: 1.2,
+      }),
+    ).toThrow(InvalidAdminCatalogError);
+  });
+
+  it('clasifica cursos de tierra por el banco de fase', () => {
+    expect(defaultProgramModuleKind('pb-heli-ctph-p1')).toBe('ground');
+    expect(defaultProgramModuleKind('pb-heli-ccam')).toBe('ground');
+    expect(defaultProgramModuleKind('pb-heli-sim')).toBe('simulator');
+    expect(defaultProgramModuleKind('pb-sim')).toBe('simulator');
   });
 });
