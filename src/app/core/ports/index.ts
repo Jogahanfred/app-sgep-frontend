@@ -3,6 +3,7 @@ export type { AuthRepository } from './auth.repository';
 export type { AccountRepository } from './account.repository';
 export type { CardRepository } from './card.repository';
 export type { FaqRepository } from './faq.repository';
+export type { FlightIncidentRepository } from './flight-incident.repository';
 export type { InvestmentRepository } from './investment.repository';
 export type { LoanRepository } from './loan.repository';
 export type { ProductRepository } from './product.repository';

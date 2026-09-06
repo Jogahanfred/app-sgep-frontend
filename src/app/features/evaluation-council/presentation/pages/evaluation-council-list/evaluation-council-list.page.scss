@@ -1,0 +1,133 @@
+.ap__lead {
+  margin: 0 0 1rem;
+  max-width: 46rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ecl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.ecl__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.ecl__stat {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.ecl__stat span {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ecl__stat strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: var(--fs-2xl);
+}
+
+.ecl__stat--warn {
+  background: #fbf3f1;
+  border-color: #e3b8b1;
+}
+
+.ecl__stat--warn strong {
+  color: var(--color-error);
+}
+
+.ecl__heading {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.ecl__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--spacing-md);
+}
+
+.ecl__card {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ecl__card-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ecl__kicker {
+  margin: 0;
+  color: var(--color-error);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ecl__card h3 {
+  margin: 0.1rem 0 0;
+}
+
+.ecl__card p {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ecl__meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.ecl__meter span {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ecl__bar {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e3b8b1;
+}
+
+.ecl__bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-error);
+}
+
+.ecl__cta {
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+}

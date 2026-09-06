@@ -31,6 +31,14 @@ describe('MissionWorkspacePage', () => {
   beforeEach(async () => {
     sessionStorage.clear();
     localStorage.clear();
+    if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+      HTMLDialogElement.prototype.showModal = function showModal() {
+        this.setAttribute('open', '');
+      };
+      HTMLDialogElement.prototype.close = function close() {
+        this.removeAttribute('open');
+      };
+    }
     await TestBed.configureTestingModule({
       imports: [MissionWorkspacePage],
       providers: [
@@ -77,7 +85,15 @@ describe('MissionWorkspacePage', () => {
     const head = root.querySelector('.acc__head') as HTMLElement;
     expect(head.lastElementChild?.classList.contains('acc__chevron')).toBe(true);
     expect(root.querySelector('.ap__head')?.textContent).not.toContain(MISSION_WORKSPACE_COPY.closeMission);
+    expect(root.querySelector('.ap__head')?.textContent).not.toContain(MISSION_WORKSPACE_COPY.saveDraft);
     expect(root.querySelector('.mw__signs')?.textContent).toContain(MISSION_WORKSPACE_COPY.closeMission);
+    expect(root.querySelector('.mw__signs')?.textContent).toContain(MISSION_WORKSPACE_COPY.saveDraft);
+    expect(root.querySelector('.mw__signs')?.textContent).toContain(MISSION_WORKSPACE_COPY.reportIncident);
+    page.openIncidentPrompt();
+    fixture.detectChanges();
+    expect(root.textContent).toContain(MISSION_WORKSPACE_COPY.postponeMessage);
+    expect(root.textContent).toContain(MISSION_WORKSPACE_COPY.postponeYes);
+    expect(root.textContent).toContain(MISSION_WORKSPACE_COPY.postponeNo);
     expect(page.canSignInstructor()).toBe(true);
     expect(page.canSignStudent()).toBe(false);
     const levels = new Set(page.rows().map((row) => row.expectedStandard).filter(Boolean));
@@ -166,5 +182,29 @@ describe('MissionWorkspacePage', () => {
       expect(delta()?.classList.contains('mw__delta--up')).toBe(true);
       expect(delta()?.textContent?.replace(/\s+/g, '')).toContain('+1');
     }
+  });
+
+  it('limpia los datos de la hoja si se posterga el vuelo', async () => {
+    const fixture = TestBed.createComponent(MissionWorkspacePage);
+    await waitReady(fixture);
+    const page = fixture.componentInstance;
+    const first = page.rows()[0]!;
+    page.setGrade(first.maneuver.id, 'B');
+    page.form.patchValue({
+      takeoffTime: '08:00',
+      landingTime: '09:10',
+      observations: 'Notas de vuelo',
+    });
+    fixture.detectChanges();
+    expect(page.rows()[0]?.grade).toBe('B');
+
+    await page.postponeMission();
+    fixture.detectChanges();
+    expect(page.form.controls.takeoffTime.value).toBe('');
+    expect(page.form.controls.landingTime.value).toBe('');
+    expect(page.form.controls.observations.value).toBe('');
+    expect(page.rows().every((row) => row.grade === null)).toBe(true);
+    expect(page.instructorSignature()).toBeNull();
+    expect(page.studentSignature()).toBeNull();
   });
 });

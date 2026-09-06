@@ -1,0 +1,69 @@
+<div class="ap pdc">
+  <div class="ap__head">
+    <div>
+      <p class="pdc__kicker">{{ copy.curriculumKicker }}</p>
+    </div>
+    <app-button variant="ghost" size="sm" icon="chevron-left" [href]="backHref">{{ copy.curriculumBack }}</app-button>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading [title]="copy.curriculumKicker" [subtitle]="copy.programsLead" [label]="copy.curriculumKicker" />
+  } @else if (curriculum(); as data) {
+    <header class="pdc__hero">
+      @if (data.imageUrl) {
+        <img [src]="data.imageUrl" [alt]="data.programName" />
+      }
+      <div>
+        <p class="pdc__kicker">{{ data.programCode }}</p>
+        <h1>{{ data.programName }}</h1>
+        <p>{{ data.description }}</p>
+      </div>
+    </header>
+
+    <div class="pdc__phases">
+      @for (phase of data.phases; track phase.id) {
+        <details class="pdc__phase" open>
+          <summary>
+            <div>
+              <h2>{{ phase.indexLabel }}. {{ phase.name }}</h2>
+              <p>{{ phase.description }}</p>
+            </div>
+            <span class="pdc__badge" [class.pdc__badge--on]="phase.accredited">
+              {{ phase.missionCount }} {{ copy.missionsWord }} · {{ phase.evaluatedCount }} {{ copy.evaluatedWord }}
+              · {{ phase.accredited ? copy.phaseAccredited : copy.phaseInProgress }}
+            </span>
+          </summary>
+          <div class="pdc__subs">
+            @for (subphase of phase.subphases; track subphase.id) {
+              <app-card [interactive]="false" [padded]="true">
+                <div class="pdc__sub-head">
+                  <div>
+                    <h3>{{ subphase.indexLabel }} {{ subphase.name }}</h3>
+                    <p>
+                      {{ copy.subphaseAverage }}:
+                      {{ subphase.average === null ? copy.none : subphase.average }}
+                      · {{ subphase.percentFlown }}% {{ copy.flownWord }}
+                    </p>
+                  </div>
+                  <span class="pdc__badge" [class.pdc__badge--on]="subphase.completed">
+                    {{ subphase.completed ? copy.subphaseDone : copy.subphaseOpen }}
+                  </span>
+                </div>
+                <div class="pdc__tiles">
+                  @for (mission of subphase.missions; track mission.key) {
+                    <article class="pdc__tile" [attr.data-tone]="tileTone(mission.score, mission.evaluated)">
+                      <span>{{ mission.code }}</span>
+                      <strong>{{ mission.score === null ? copy.none : mission.score }}</strong>
+                    </article>
+                  }
+                </div>
+              </app-card>
+            }
+          </div>
+        </details>
+      }
+    </div>
+  }
+</div>

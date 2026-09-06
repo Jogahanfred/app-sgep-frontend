@@ -246,6 +246,7 @@ const EXTRA_USERS: UserEntity[] = EXTRA_PEOPLE.map(([firstName, lastName], index
     specialtyIds: index === 2 || index === 3 ? [] : ['spc-pilot'],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
+    photoUrl: `/portraits/p${(index % 8) + 1}.jpg`,
   };
 });
 
@@ -333,6 +334,7 @@ export const SEED_USERS: UserEntity[] = [
     specialtyIds: ['spc-pilot'],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
+    photoUrl: '/portraits/sofia.jpg',
   },
   {
     id: 'usr-diego-molina',
@@ -347,6 +349,7 @@ export const SEED_USERS: UserEntity[] = [
     specialtyIds: [],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
+    photoUrl: '/portraits/diego.jpg',
   },
   {
     id: 'usr-mario-castillo',

@@ -15,6 +15,7 @@ import type {
   SpecialtyEntity,
   SubphaseBankEntity,
   SubphaseEntity,
+  UnitEntity,
   UserEntity,
   UserRoleEntity,
 } from '../domain/entities/admin-catalog';
@@ -36,6 +37,7 @@ export interface AcademicCatalogSnapshot {
   assignments: IndividualMissionAssignmentEntity[];
   executions: MissionExecutionEntity[];
   squadrons: SquadronEntity[];
+  units: UnitEntity[];
   aircraft: AircraftEntity[];
   specialties: SpecialtyEntity[];
 }
@@ -56,6 +58,7 @@ export function loadAcademicCatalog(catalog: AdminCatalogRepository): Observable
     assignments: catalog.listIndividualAssignments(),
     executions: catalog.listMissionExecutions(),
     squadrons: catalog.listSquadrons(),
+    units: catalog.listUnits(),
     aircraft: catalog.listAircraft(),
     specialties: catalog.listSpecialties(),
   }).pipe(

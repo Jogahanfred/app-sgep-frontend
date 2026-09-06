@@ -154,3 +154,20 @@ export {
   isDirbepGradeCode,
 } from '../constants/dirbep-grade.constants';
 export type { DirbepGradeCode } from '../constants/dirbep-grade.constants';
+export type {
+  FlightIncidentActionInput,
+  FlightIncidentActionOutcome,
+  FlightIncidentEntity,
+  FlightIncidentPhase,
+  FlightIncidentSeverity,
+  FlightIncidentStatus,
+  FlightIncidentType,
+  FlightIncidentWriteInput,
+} from './flight-incident';
+export {
+  FLIGHT_INCIDENT_ACTION_OUTCOMES,
+  FLIGHT_INCIDENT_PHASES,
+  FLIGHT_INCIDENT_SEVERITIES,
+  FLIGHT_INCIDENT_STATUSES,
+  FLIGHT_INCIDENT_TYPES,
+} from './flight-incident';

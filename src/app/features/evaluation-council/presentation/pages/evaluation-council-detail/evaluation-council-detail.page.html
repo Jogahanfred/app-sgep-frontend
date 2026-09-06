@@ -1,0 +1,138 @@
+<div class="ap ec">
+  <div class="ap__head">
+    <div>
+      <p class="ec__kicker">{{ copy.kicker }}</p>
+      <h1>{{ copy.title }}</h1>
+      <p class="ap__lead">{{ copy.lead }}</p>
+    </div>
+    <div class="ec__actions">
+      <app-button variant="ghost" size="sm" icon="chevron-left" [href]="listHref">{{ copy.back }}</app-button>
+      <app-button variant="secondary" size="sm" (click)="printSheet()">{{ copy.print }}</app-button>
+      <app-button size="sm" (click)="validateQuorum()">{{ copy.validate }}</app-button>
+    </div>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ errorMessage() }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.title" [subtitle]="copy.lead" [label]="copy.title" />
+  } @else if (sessionData(); as data) {
+    <p class="ec__session">{{ copy.sessionOn }} · {{ data.unitName }} / {{ data.squadronName }}</p>
+
+    <app-card [interactive]="false">
+      <div class="ec__banner">
+        <div class="ec__student">
+          <ui-avatar [name]="data.displayName" size="lg" />
+          <div>
+            <p class="ec__kicker">{{ copy.student }}</p>
+            <h2>{{ data.displayName }}</h2>
+            <p class="ec__meta">
+              {{ data.documentNumber }}
+              @if (data.indicative) {
+                · {{ data.indicative }}
+              }
+              · {{ data.programName || copy.none }}
+            </p>
+          </div>
+        </div>
+        <div class="ec__cause">
+          <p class="ec__kicker">{{ copy.cause }}</p>
+          <p>{{ data.cause }}</p>
+          <small>{{ data.failedMissions }} / {{ data.threshold }}</small>
+        </div>
+        <div class="ec__score">
+          <p class="ec__kicker">{{ copy.provisional }}</p>
+          <strong>{{ data.average === null ? copy.none : data.average.toFixed(2) }}</strong>
+          <span>{{ copy.below }}</span>
+        </div>
+      </div>
+    </app-card>
+
+    <section>
+      <div class="ec__section-head">
+        <h2>{{ copy.membersTitle }}</h2>
+        <span>{{ copy.quorum }}</span>
+      </div>
+      <div class="ec__members">
+        @for (member of data.members; track member.userId) {
+          <app-card [interactive]="false" [padded]="true">
+            <article class="ec__member">
+              <p class="ec__kicker">{{ copy.seat[member.seat] }}</p>
+              <h3>{{ member.displayName }}</h3>
+              <p class="ec__meta">{{ member.roleName }}</p>
+              <span>{{ copy.signed }}</span>
+            </article>
+          </app-card>
+        }
+      </div>
+    </section>
+
+    <section>
+      <h2>{{ copy.flightsTitle }}</h2>
+      <div class="ec__flights">
+        @for (flight of data.flights; track flight.executionId) {
+          <app-card [interactive]="false" [padded]="true">
+            <article class="ec__flight" [class.ec__flight--critical]="flight.critical">
+              <strong>{{ flight.score === null ? copy.none : flight.score.toFixed(1) }}</strong>
+              <div>
+                <p class="ec__kicker">{{ flight.date }} · {{ flight.missionCode }}</p>
+                <h3>{{ flight.missionName }}</h3>
+                <p>{{ flight.observations || copy.none }}</p>
+                <small>{{ flight.instructorName }} · {{ flight.hours }} h</small>
+              </div>
+            </article>
+          </app-card>
+        }
+      </div>
+    </section>
+
+    <section>
+      <h2>{{ copy.optionsTitle }}</h2>
+      <div class="ec__options">
+        <button type="button" class="ec__option" [class.ec__option--on]="selectedOption() === 'reinforcement'" (click)="selectedOption.set('reinforcement')">
+          <span>{{ copy.optionA }}</span>
+          <p>{{ copy.optionALead }}</p>
+        </button>
+        <button type="button" class="ec__option" [class.ec__option--on]="selectedOption() === 'reclassify'" (click)="selectedOption.set('reclassify')">
+          <span>{{ copy.optionB }}</span>
+          <p>{{ copy.optionBLead }}</p>
+        </button>
+        <button type="button" class="ec__option" [class.ec__option--on]="selectedOption() === 'medical-hold'" (click)="selectedOption.set('medical-hold')">
+          <span>{{ copy.optionC }}</span>
+          <p>{{ copy.optionCLead }}</p>
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h2>{{ copy.votesTitle }}</h2>
+      <div class="ec__votes">
+        @for (vote of data.votes; track vote.userId) {
+          <app-card [interactive]="false" [padded]="true">
+            <article class="ec__vote">
+              <p class="ec__kicker">{{ copy.colMember }}</p>
+              <h3>{{ memberName(vote.userId) }}</h3>
+              <p><strong>{{ optionLabel(vote.option) }}</strong></p>
+              <p class="ec__meta">{{ vote.rationale }}</p>
+              <small>{{ copy.signed }} {{ vote.signedAt }}</small>
+            </article>
+          </app-card>
+        }
+      </div>
+    </section>
+
+    <app-card [interactive]="false" [padded]="true">
+      <div class="ec__final">
+        <h2>{{ copy.finalTitle }}</h2>
+        <p>{{ copy.finalLead }}: <strong>{{ majorityLabel() }}</strong></p>
+        <p>
+          {{ data.displayName }} · {{ data.failedMissions }} {{ copy.colFailed.toLowerCase() }} (tope {{ data.threshold }}).
+        </p>
+        <div class="ec__final-actions">
+          <app-button variant="secondary" (click)="printSheet()">{{ copy.download }}</app-button>
+          <app-button (click)="elevate()">{{ copy.elevate }}</app-button>
+        </div>
+      </div>
+    </app-card>
+  }
+</div>

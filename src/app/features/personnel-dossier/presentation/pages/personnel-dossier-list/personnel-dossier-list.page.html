@@ -1,0 +1,145 @@
+<div class="ap pdl">
+  <p class="ap__lead">{{ copy.listLead }}</p>
+
+  @if (needsSquadron()) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading [title]="copy.tableHeading" [subtitle]="copy.listLead" [label]="copy.tableHeading" />
+  } @else {
+    <div class="pdl__stats">
+      <article class="pdl__stat">
+        <span>{{ copy.summaryPeople }}</span>
+        <strong>{{ filtered().length }}</strong>
+      </article>
+      <article class="pdl__stat">
+        <span>{{ copy.summaryHours }}</span>
+        <strong>{{ totalHours() }} <small>{{ copy.hoursUnit }}</small></strong>
+      </article>
+      <article class="pdl__stat" [class.pdl__stat--warn]="atRiskCount() > 0">
+        <span>{{ copy.summaryAtRisk }}</span>
+        <strong>{{ atRiskCount() }}</strong>
+      </article>
+    </div>
+
+    <div class="pdl__toolbar">
+      <ui-input
+        id="dossier-search"
+        [label]="copy.searchLabel"
+        type="search"
+        icon="search"
+        [placeholder]="copy.searchPlaceholder"
+        [field]="search"
+      />
+    </div>
+
+    @if (!filtered().length) {
+      <app-alert>{{ copy.empty }}</app-alert>
+    } @else {
+      <section class="pdl__board">
+        <div class="pdl__bar">
+          <h2>{{ copy.tableHeading }}</h2>
+        </div>
+        <div class="pdl__grid">
+          @for (row of paged(); track row.userId) {
+            <div class="pdl__slot" [style.--i]="$index">
+              <article class="pdl__id">
+                <img class="pdl__id-bg" src="/id-card-template.jpg" alt="" />
+                <div class="pdl__id-fill">
+                  <dl class="pdl__id-data">
+                    <div>
+                      <dt>{{ copy.cardGrade }}</dt>
+                      <dd>{{ row.gradeLabel }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.cardSurnames }}</dt>
+                      <dd>{{ row.lastName }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.cardNames }}</dt>
+                      <dd>{{ row.firstName }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.cardNsa }}</dt>
+                      <dd>{{ row.serial }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ copy.cardSituation }}:</dt>
+                      <dd class="pdl__id-situacion">{{ situationLabel(row) }}</dd>
+                    </div>
+                  </dl>
+                  <div class="pdl__photo">
+                    @if (row.photoUrl) {
+                      <img [src]="row.photoUrl" [alt]="row.displayName" />
+                    } @else {
+                      <ui-avatar [name]="row.displayName" size="lg" shape="rounded" />
+                    }
+                  </div>
+                  <p class="pdl__id-caducidad">
+                    <!-- <span>{{ copy.cardExpiry }}:</span> -->
+                    <strong>{{ row.gradeLabel }}</strong>
+                  </p>
+                </div>
+                <span class="pdl__id-veil" aria-hidden="true"></span>
+                <app-button class="pdl__open" size="xs" [href]="detailHref(row.userId)">
+                  {{ copy.openFile }}
+                </app-button>
+              </article>
+            </div>
+          }
+        </div>
+        @if (showPager()) {
+          <div class="pdl__pager">
+            <div class="pdl__pager-meta">
+              <p class="pdl__pager-range">{{ rangeLabel() }}</p>
+              <div class="pdl__pager-show">
+                <span class="pdl__pager-show-label">{{ copy.pagerPerPage }}</span>
+                <ui-select
+                  id="dossier-page-size"
+                  [label]="copy.pagerPerPageLabel"
+                  size="sm"
+                  [compact]="true"
+                  [uppercase]="false"
+                  [options]="pageSizeChoices()"
+                  [value]="'' + pageSize()"
+                  (valueChange)="onPageSize($event)"
+                />
+              </div>
+            </div>
+            <nav class="pdl__pager-nav" aria-label="Paginación">
+              <button type="button" class="pdl__pager-btn" [disabled]="!canPrev()" aria-label="Primera página" (click)="first()">
+                <app-icon class="pdl__pager-icon" name="chevron-first" />
+              </button>
+              <button type="button" class="pdl__pager-btn" [disabled]="!canPrev()" aria-label="Página anterior" (click)="prev()">
+                <app-icon class="pdl__pager-icon" name="chevron-left" />
+              </button>
+              @for (item of pageItems(); track $index) {
+                @if (item === 'ellipsis') {
+                  <span class="pdl__pager-ellipsis" aria-hidden="true">…</span>
+                } @else {
+                  <button
+                    type="button"
+                    class="pdl__pager-btn"
+                    [class.pdl__pager-btn--on]="item === page()"
+                    [attr.aria-current]="item === page() ? 'page' : null"
+                    [attr.aria-label]="'Página ' + item"
+                    (click)="goToPage(item)"
+                  >
+                    {{ item }}
+                  </button>
+                }
+              }
+              <button type="button" class="pdl__pager-btn" [disabled]="!canNext()" aria-label="Página siguiente" (click)="next()">
+                <app-icon class="pdl__pager-icon" name="chevron-right" />
+              </button>
+              <button type="button" class="pdl__pager-btn" [disabled]="!canNext()" aria-label="Última página" (click)="last()">
+                <app-icon class="pdl__pager-icon" name="chevron-last" />
+              </button>
+            </nav>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

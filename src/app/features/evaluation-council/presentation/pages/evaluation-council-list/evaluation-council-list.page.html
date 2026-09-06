@@ -1,0 +1,62 @@
+<div class="ap ecl">
+  <p class="ap__lead">{{ copy.listLead }}</p>
+
+  @if (needsSquadron()) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading [title]="copy.tableHeading" [subtitle]="copy.listLead" [label]="copy.tableHeading" />
+  } @else {
+    <div class="ecl__stats">
+      <article class="ecl__stat">
+        <span>{{ copy.summaryCases }}</span>
+        <strong>{{ filtered().length }}</strong>
+      </article>
+      <article class="ecl__stat ecl__stat--warn">
+        <span>{{ copy.summaryOver }}</span>
+        <strong>{{ filtered().length }}</strong>
+      </article>
+    </div>
+
+    <ui-input
+      id="council-search"
+      [label]="copy.searchLabel"
+      type="search"
+      icon="search"
+      [placeholder]="copy.searchPlaceholder"
+      [field]="search"
+    />
+
+    @if (!filtered().length) {
+      <app-alert>{{ copy.empty }}</app-alert>
+    } @else {
+      <h2 class="ecl__heading">{{ copy.tableHeading }}</h2>
+      <div class="ecl__grid">
+        @for (row of filtered(); track row.userId) {
+          <app-card [interactive]="true" [padded]="true">
+            <button class="ecl__card" type="button" (click)="open(row.userId)">
+              <div class="ecl__card-head">
+                <ui-avatar [name]="row.displayName" size="lg" />
+                <div>
+                  <p class="ecl__kicker">{{ copy.overThreshold }}</p>
+                  <h3>{{ row.displayName }}</h3>
+                  <p>{{ row.indicative || copy.none }}</p>
+                </div>
+              </div>
+              <p>{{ row.programName || copy.none }}</p>
+              <div class="ecl__meter">
+                <span>{{ copy.colFailed }}</span>
+                <strong>{{ row.failedMissions }} / {{ row.threshold }}</strong>
+                <div class="ecl__bar" role="progressbar" [attr.aria-valuenow]="row.failedMissions" [attr.aria-valuemax]="row.threshold">
+                  <span [style.width.%]="100"></span>
+                </div>
+              </div>
+              <span class="ecl__cta">{{ copy.openSession }}</span>
+            </button>
+          </app-card>
+        }
+      </div>
+    }
+  }
+</div>

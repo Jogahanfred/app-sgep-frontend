@@ -350,16 +350,6 @@
   color: #111;
 }
 
-.ags__pads {
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.ags__pads .ags__sign-grid {
-  margin-top: 0;
-}
-
 :host ::ng-deep .ags__acc--locked .acc__chevron {
   visibility: hidden;
   pointer-events: none;
@@ -374,35 +364,57 @@
 }
 
 .ags__signs {
+  display: grid;
+  gap: 0.85rem;
   scroll-margin-top: 5rem;
+}
+
+.ags__signs h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+
+.ags__signs p {
+  margin: 0 0 0.85rem;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.ags__signs .ags__kicker {
+  color: var(--color-primary);
+  font-size: 0.72rem;
 }
 
 .ags__sign-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-sm);
-}
-
-@media (min-width: 720px) {
-  .ags__sign-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .ags__signed {
-  color: var(--color-success);
+  color: var(--grade-e) !important;
   font-weight: 800;
 }
 
 .ags__objected {
-  color: var(--color-error);
+  color: var(--color-error) !important;
   font-weight: 800;
 }
 
+.ags__autograph {
+  margin: 0.35rem 0 0 !important;
+  color: #111 !important;
+  font-family: 'Segoe Script', 'Lucida Handwriting', cursive;
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
 .ags__autograph-img {
-  max-width: 12rem;
-  background: #fff;
+  display: block;
+  max-width: 100%;
+  height: 4.5rem;
+  margin-top: 0.35rem;
+  object-fit: contain;
 }
 
 .ags__sign-actions {
@@ -419,9 +431,10 @@
   color: #fff;
 }
 
-.ags__autograph {
-  font-size: var(--fs-xl);
-  font-weight: 700;
+@media (max-width: 980px) {
+  .ags__sign-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {

@@ -1,0 +1,59 @@
+<div class="ap">
+  <div class="ap__head">
+    <div>
+      <h1>{{ readOnly ? copy.actionViewTitle : copy.actionTitle }}</h1>
+      <p class="ap__lead">{{ readOnly ? copy.actionViewLead : copy.actionLead }}</p>
+    </div>
+    <app-button [href]="listHref" variant="ghost">{{ copy.backToList }}</app-button>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.actionLoadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.actionTitle" [subtitle]="copy.actionLead" [label]="copy.actionTitle" />
+  } @else {
+    <ui-form-card>
+      <form class="ap__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="ap__grid">
+          <p>
+            <strong>{{ copy.boardFolio }}:</strong>
+            {{ folio() }}
+          </p>
+          <p>
+            <strong>{{ copy.boardAircraft }}:</strong>
+            {{ aircraftLabel() }}
+          </p>
+        </div>
+        <p>
+          <strong>{{ copy.boardSummary }}:</strong>
+          {{ summary() }}
+        </p>
+        <ui-textarea
+          id="inc-action-taken"
+          [label]="copy.boardAction"
+          [field]="form.controls.crewAction"
+        />
+        <ui-select
+          id="inc-action-outcome"
+          [label]="copy.actionOutcome"
+          [uppercase]="false"
+          [options]="outcomeOptions"
+          [value]="form.controls.outcome.value"
+          (valueChange)="setOutcome($event)"
+        />
+        <ui-textarea
+          id="inc-action-note"
+          [label]="copy.actionWorkshop"
+          [hint]="copy.actionWorkshopHint"
+          [field]="form.controls.workshopNote"
+        />
+        <div class="ap__actions">
+          <app-button variant="ghost" [href]="listHref">{{ readOnly ? copy.backToList : 'Cancelar' }}</app-button>
+          @if (!readOnly) {
+            <app-button type="submit" [disabled]="saving()">{{ copy.actionSave }}</app-button>
+          }
+        </div>
+      </form>
+    </ui-form-card>
+  }
+</div>

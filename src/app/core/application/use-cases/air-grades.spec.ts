@@ -131,4 +131,19 @@ describe('calificaciones de aire', () => {
       firstValueFrom(new SignAirGradeMission(repo).execute(sofiaPilot, tile!.executionId!, { method: 'type', value: 'Sofía' })),
     ).rejects.toBeInstanceOf(InvalidAdminCatalogError);
   });
+
+  it('deja la firma mecanografiada del instructor en la misión de demostración y la del alumno pendiente', async () => {
+    const sheet = await firstValueFrom(
+      new GetAirGradeSheet(new MockAdminCatalogRepository()).execute(
+        sofiaPilot,
+        'usr-sofia-vidal',
+        'sofia-heli-ex-014',
+      ),
+    );
+    expect(sheet.instructorSignature?.method).toBe('type');
+    expect(sheet.instructorSignature?.value).toBeTruthy();
+    expect(sheet.studentSignature).toBeNull();
+    expect(sheet.pendingStudentSignature).toBe(true);
+    expect(sheet.canSignStudent).toBe(true);
+  });
 });

@@ -1,0 +1,262 @@
+<div class="ap fi">
+  @if (loadState() === 'error') {
+    <div class="ap__head">
+      <div>
+        <h1>{{ copy.pageTitle }}</h1>
+        <p class="ap__lead">{{ copy.pageLead }}</p>
+      </div>
+      <app-button variant="ghost" size="sm" icon="chevron-left" [href]="exitHref()">{{ exitLabel() }}</app-button>
+    </div>
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.pageTitle" [subtitle]="copy.pageLead" [label]="copy.pageTitle" />
+  } @else if (context(); as data) {
+    <div class="fi__meta">
+      @if (!readOnly) {
+        <nav class="fi__crumb" aria-label="Ubicación">
+          <span>{{ copy.crumbOps }}</span>
+          <span aria-hidden="true">/</span>
+          <span>{{ copy.crumbFleet }}</span>
+          <span aria-hidden="true">/</span>
+          <span>{{ copy.crumbReport }}</span>
+        </nav>
+      }
+      <div class="fi__pills">
+        <span class="fi__pill">{{ copy.folioLabel }}: #{{ folio() }}</span>
+        <span class="fi__pill fi__pill--accent">{{ readOnly ? copy.viewBadge : copy.draftBadge }}</span>
+      </div>
+    </div>
+
+    <div class="ap__head">
+      <div>
+        <h1>{{ copy.pageTitle }}</h1>
+        <p class="ap__lead">{{ copy.pageLead }}</p>
+      </div>
+      <div class="fi__head-side">
+        @if (!readOnly) {
+          <span class="fi__edition">{{ copy.formEdition }}</span>
+        }
+        <app-button variant="ghost" size="sm" icon="chevron-left" [href]="exitHref()">{{ exitLabel() }}</app-button>
+      </div>
+    </div>
+
+    <form class="fi__form" [formGroup]="form" novalidate>
+      <app-card [interactive]="false">
+        <div class="fi__card-head">
+          <span class="fi__num">01</span>
+          <div>
+            <h2>{{ copy.sectionOps }}</h2>
+            <p>{{ copy.sectionOpsLead }}</p>
+          </div>
+          <span class="fi__pill fi__pill--accent">{{ copy.required }}</span>
+        </div>
+        <div class="fi__card-body">
+          <div class="fi__grid-4">
+            <ui-select
+              id="inc-mission"
+              [label]="copy.missionLabel"
+              [subLabel]="copy.missionHint"
+              [uppercase]="false"
+              [options]="missionOptions()"
+              [value]="form.controls.missionId.value"
+              [disabled]="readOnly"
+              (valueChange)="form.controls.missionId.setValue($event)"
+            />
+            <ui-select
+              id="inc-aircraft"
+              [label]="copy.aircraftLabel"
+              [subLabel]="copy.aircraftHint"
+              [uppercase]="false"
+              [options]="aircraftOptions()"
+              [value]="form.controls.aircraftId.value"
+              [disabled]="readOnly"
+              (valueChange)="form.controls.aircraftId.setValue($event)"
+            />
+            <ui-input id="inc-detected" [label]="copy.detectedAtLabel" [hint]="copy.detectedHint" [field]="form.controls.detectedAt" />
+            <ui-input id="inc-sector" [label]="copy.sectorLabel" [hint]="copy.sectorHint" [field]="form.controls.sector" />
+          </div>
+          <div class="fi__phase-wrap">
+            <p class="fi__kicker">{{ copy.phaseLabel }}</p>
+            <div class="fi__phases" role="radiogroup" [attr.aria-label]="copy.phaseLabel">
+              @for (option of phaseOptions; track option.value) {
+                <button
+                  type="button"
+                  class="fi__phase"
+                  role="radio"
+                  [class.fi__phase--on]="form.controls.phase.value === option.value"
+                  [attr.aria-checked]="form.controls.phase.value === option.value"
+                  [disabled]="readOnly"
+                  (click)="setPhase(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </app-card>
+
+      <app-card [interactive]="false">
+        <div class="fi__card-head">
+          <span class="fi__num">02</span>
+          <div>
+            <h2>{{ copy.sectionClass }}</h2>
+            <p>{{ copy.sectionClassLead }}</p>
+          </div>
+          <span class="fi__pill fi__pill--accent">{{ copy.riskTag }}</span>
+        </div>
+        <div class="fi__card-body fi__split">
+          <div>
+            <p class="fi__kicker">{{ copy.typeLabel }}</p>
+            <div class="fi__stack" role="radiogroup" [attr.aria-label]="copy.typeLabel">
+              @for (option of typeOptions; track option.value) {
+                <button
+                  type="button"
+                  class="fi__choice"
+                  role="radio"
+                  [class.fi__choice--on]="form.controls.incidentType.value === option.value"
+                  [attr.aria-checked]="form.controls.incidentType.value === option.value"
+                  (click)="setType(option.value)"
+                >
+                  <span class="fi__choice-top">
+                    <strong>{{ option.label }}</strong>
+                    <span class="fi__tag">{{ typeTag(option.value) }}</span>
+                  </span>
+                  <span>{{ typeHint(option.value) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <div>
+            <p class="fi__kicker">{{ copy.severityLabel }}</p>
+            <div class="fi__sev" role="radiogroup" [attr.aria-label]="copy.severityLabel">
+              @for (option of severityOptions; track option.value) {
+                <button
+                  type="button"
+                  class="fi__sev-card"
+                  role="radio"
+                  [class.fi__sev-card--on]="form.controls.severity.value === option.value"
+                  [class.fi__sev-card--critical]="option.value === 'critical'"
+                  [attr.aria-checked]="form.controls.severity.value === option.value"
+                  (click)="setSeverity(option.value)"
+                >
+                  <strong>{{ option.label }}</strong>
+                  <span>{{ severityHint(option.value) }}</span>
+                  <em>{{ severityStatus(option.value) }}</em>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </app-card>
+
+      <app-card [interactive]="false">
+        <div class="fi__card-head">
+          <span class="fi__num">03</span>
+          <div>
+            <h2>{{ copy.sectionDetail }}</h2>
+            <p>{{ copy.sectionDetailLead }}</p>
+          </div>
+          <span class="fi__pill fi__pill--accent">{{ copy.telemetryTag }}</span>
+        </div>
+        <div class="fi__card-body">
+          <ui-input
+            id="inc-summary"
+            [label]="copy.summaryLabel"
+            [hint]="copy.summaryHint"
+            [field]="form.controls.summary"
+            [maxlength]="120"
+          />
+          <div class="fi__grid-3">
+            <ui-select
+              id="inc-ata"
+              [label]="copy.ataLabel"
+              [subLabel]="copy.ataHint"
+              [uppercase]="false"
+              [options]="ataOptions"
+              [value]="form.controls.ataCode.value"
+              [disabled]="readOnly"
+              (valueChange)="form.controls.ataCode.setValue($event)"
+            />
+            <ui-input id="inc-reading" [label]="copy.readingLabel" [hint]="copy.readingHint" [field]="form.controls.instrumentReading" />
+            <ui-input id="inc-caution" [label]="copy.cautionLabel" [hint]="copy.cautionHint" [field]="form.controls.caution" />
+          </div>
+          <ui-textarea
+            id="inc-desc"
+            [label]="copy.descriptionLabel"
+            [hint]="descriptionLen() + ' / ' + descriptionMax + ' · ' + copy.descriptionHint"
+            [field]="form.controls.description"
+            [placeholder]="copy.descriptionHint"
+            [rows]="4"
+          />
+          <ui-textarea id="inc-action" [label]="copy.crewActionLabel" [field]="form.controls.crewAction" [rows]="3" />
+        </div>
+      </app-card>
+
+      <app-card [interactive]="false">
+        <div class="fi__card-head">
+          <span class="fi__num">04</span>
+          <div>
+            <h2>{{ copy.sectionCrew }}</h2>
+            <p>{{ copy.sectionCrewLead }}</p>
+          </div>
+          <span class="fi__pill fi__pill--accent">{{ copy.signaturesTag }}</span>
+        </div>
+        <div class="fi__card-body">
+          <div class="fi__crew">
+            <div class="fi__person-card">
+              <p class="fi__kicker">{{ copy.studentLabel }}</p>
+              <div class="fi__person">
+                <ui-avatar [name]="data.studentName || copy.none" size="sm" />
+                <div>
+                  <strong>{{ data.studentName || copy.none }}</strong>
+                  <span>{{ copy.studentSeat }}</span>
+                </div>
+              </div>
+              <p class="fi__status">{{ copy.studentStatus }}</p>
+            </div>
+            <div class="fi__person-card">
+              <p class="fi__kicker">{{ copy.instructorLabel }}</p>
+              <div class="fi__person">
+                <ui-avatar [name]="data.instructorName || copy.none" size="sm" />
+                <div>
+                  <strong>{{ data.instructorName || copy.none }}</strong>
+                  <span>{{ copy.instructorSeat }}</span>
+                </div>
+              </div>
+              <p class="fi__status">{{ copy.instructorStatus }}</p>
+            </div>
+          </div>
+          <ui-poster-field
+            [label]="copy.evidenceLabel"
+            [hint]="copy.evidenceHint"
+            [emptyText]="copy.evidenceEmpty"
+            [value]="evidence()"
+            [disabled]="readOnly"
+            (valueChange)="setEvidence($event)"
+          />
+          <div class="fi__declare">
+            <strong>{{ copy.declarationTitle }}</strong>
+            <ui-checkbox
+              id="inc-declare"
+              [label]="copy.declaration"
+              [checked]="form.controls.declared.value"
+              [disabled]="readOnly"
+              (checkedChange)="form.controls.declared.setValue($event)"
+            />
+          </div>
+        </div>
+      </app-card>
+
+      <div class="fi__bar">
+        <app-button variant="ghost" [href]="exitHref()">{{ readOnly ? copy.backToList : copy.discard }}</app-button>
+        @if (!readOnly) {
+          <div class="fi__bar-actions">
+            <app-button variant="secondary" [disabled]="saving()" (click)="saveDraft()">{{ copy.saveDraft }}</app-button>
+            <app-button [disabled]="saving()" (click)="submitReport()">{{ copy.submit }}</app-button>
+          </div>
+        }
+      </div>
+    </form>
+  }
+</div>

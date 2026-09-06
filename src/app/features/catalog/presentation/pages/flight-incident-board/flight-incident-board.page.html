@@ -1,0 +1,56 @@
+<div class="ap fib">
+  <div class="fib__toolbar">
+    <div class="fib__toolbar-main">
+      <div class="fib__filters">
+        <ui-select
+          id="inc-board-aircraft"
+          [label]="copy.boardAircraftFilter"
+          [uppercase]="false"
+          [options]="aircraftOptions()"
+          [value]="aircraftFilter()"
+          (valueChange)="onAircraft($event)"
+        />
+        <ui-date-picker id="inc-board-from" [label]="copy.boardFrom" [field]="from" />
+        <ui-date-picker id="inc-board-to" [label]="copy.boardTo" [field]="to" />
+      </div>
+    </div>
+    <ui-segmented-control
+      class="fib__tabs"
+      [label]="copy.boardStatusFilter"
+      [options]="statusOptions()"
+      [value]="bucket()"
+      (valueChange)="onBucket($event)"
+    /> 
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.boardLoadError }}</app-alert>
+  } @else if (loadState() === 'loading' && !board()) {
+    <ui-loading class="ap__loading" [title]="copy.boardLogTitle" [subtitle]="copy.pageLead" [label]="copy.boardLogTitle" />
+  } @else {
+    <ui-table
+      [heading]="copy.boardLogTitle"
+      caption="Incidencias registradas"
+      [columns]="columns"
+      [rows]="tableRows()"
+      [selectedId]="selectedId()"
+      [loading]="loadState() === 'loading'"
+      loadingTitle="Cargando incidencias"
+      loadingSubtitle="Un momento."
+      loadingLabel="Cargando incidencias"
+      [emptyTitle]="copy.boardEmpty"
+      (selectedIdChange)="selectedId.set($event)"
+    >
+      <app-button [href]="reportHref" icon="plus" size="sm">{{ copy.boardReport }}</app-button>
+      <app-button variant="secondary" size="sm" icon="eye" [disabled]="!selectedId()" (click)="openIncident()">
+        {{ copy.boardViewIncident }}
+      </app-button>
+      <app-button variant="secondary" size="sm" icon="info" [disabled]="!selectedId()" (click)="openAction()">
+        {{ copy.boardViewAction }}
+      </app-button>
+      <app-button variant="secondary" size="sm" icon="pencil" [disabled]="!canTakeAction()" (click)="takeAction()">
+        {{ copy.boardTakeAction }}
+      </app-button>
+    </ui-table>
+  }
+</div>

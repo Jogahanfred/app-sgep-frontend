@@ -79,6 +79,15 @@ const programming: NavColumn[] = [
 //     links(['Ejecución y calificación', NAV_ROUTES.missionExecution]),
 //   ),
 // ];
+const incidents: NavColumn[] = [
+  column(
+    'Gestión de Incidencias',
+    links(
+      ['Incidencias', NAV_ROUTES.incidents],
+      ['Registro de Incidencias', NAV_ROUTES.incidentRegister],
+    ),
+  ),
+];
 
 const grades: NavColumn[] = [
   column(
@@ -110,6 +119,16 @@ const grades: NavColumn[] = [
   ),
 ];
 
+const personnel: NavColumn[] = [
+  column(
+    'Expediente',
+    links(
+      ['Legajo personal', NAV_ROUTES.personnelDossier],
+      ['Consejo de evaluación', NAV_ROUTES.evaluationCouncil],
+    ),
+  ),
+];
+
 const reports: NavColumn[] = [
   column(
     'Académicos',
@@ -136,8 +155,9 @@ export const MAIN_NAV: NavGroup[] = [
   { label: 'Administración', columns: administration },
   { label: 'Catálogos', columns: catalogs },
   { label: 'Programación', columns: programming, matchHrefs: [NAV_ROUTES.training] },
-  // { label: 'Misiones', columns: missions },
   { label: 'Calificaciones', columns: grades },
+  { label: 'Personal', columns: personnel },
+  { label: 'Incidencias', columns: incidents },
   { label: 'Reportes', columns: reports },
 ];
 

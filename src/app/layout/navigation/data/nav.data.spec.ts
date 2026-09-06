@@ -34,6 +34,7 @@ describe('MAIN_NAV', () => {
       NAV_ROUTES.flightOrder,
       NAV_ROUTES.dispatch,
     ]);
+    expect(byLabel['Incidencias']).toEqual([NAV_ROUTES.incidents, NAV_ROUTES.incidentRegister]);
     expect(byLabel['Calificaciones']).toEqual([
       NAV_ROUTES.groundGrading,
       NAV_ROUTES.groundGrading,
@@ -43,12 +44,14 @@ describe('MAIN_NAV', () => {
       NAV_ROUTES.simulatorGrading,
       NAV_ROUTES.academicProgress,
     ]);
+    expect(byLabel['Personal']).toEqual([NAV_ROUTES.personnelDossier, NAV_ROUTES.evaluationCouncil]);
     expect(byLabel['Administración']).not.toContain(NAV_ROUTES.profile);
   });
 
   it('omite módulos que aún no existen', () => {
     const labels = MAIN_NAV.flatMap((group) => [group.label, ...flattenNavLinks(group).map((item) => item.label)]);
-    expect(labels).not.toContain('Incidencias');
+    expect(labels).toContain('Incidencias');
+    expect(labels).toContain('Registro de Incidencias');
     expect(labels).not.toContain('Configuración General');
     expect(labels).not.toContain('Constructor curricular');
     expect(labels).not.toContain('Programación PDE');

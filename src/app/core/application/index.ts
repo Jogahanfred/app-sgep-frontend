@@ -83,6 +83,24 @@ export { CreateIndividualAssignment } from './use-cases/create-individual-assign
 export { UpdateIndividualAssignment } from './use-cases/update-individual-assignment';
 export { ListMissionExecutions } from './use-cases/list-mission-executions';
 export { GetMissionExecution } from './use-cases/get-mission-execution';
+export { GetFlightIncidentContext } from './use-cases/get-flight-incident-context';
+export type { FlightIncidentContext } from './use-cases/get-flight-incident-context';
+export { CreateFlightIncident } from './use-cases/create-flight-incident';
+export { GetFlightIncident } from './use-cases/get-flight-incident';
+export { TakeFlightIncidentAction } from './use-cases/take-flight-incident-action';
+export {
+  GetFlightIncidentBoard,
+  incidentLifecycle,
+  incidentOccurredOn,
+  isIncidentInDateRange,
+  matchesIncidentBucket,
+} from './use-cases/get-flight-incident-board';
+export type {
+  FlightIncidentBoard,
+  FlightIncidentBoardBucket,
+  FlightIncidentBoardRow,
+  FlightIncidentLifecycle,
+} from './use-cases/get-flight-incident-board';
 export { UpdateMissionExecution } from './use-cases/update-mission-execution';
 export { ListSpecialties } from './use-cases/list-specialties';
 export { ListUserRoles } from './use-cases/list-user-roles';
@@ -152,6 +170,17 @@ export { GetHelpTopics } from './use-cases/get-help-topics';
 export { ListAcademicProgress } from './use-cases/list-academic-progress';
 export type { AcademicProgressBoard, AcademicProgressRow } from './use-cases/list-academic-progress';
 export { GetAcademicRecord } from './use-cases/get-academic-record';
+export { ListPersonnelDossiers } from './use-cases/list-personnel-dossiers';
+export type { PersonnelDossierBoard, PersonnelDossierListRow } from './use-cases/list-personnel-dossiers';
+export { GetPersonnelDossier } from './use-cases/get-personnel-dossier';
+export type { PersonnelDossierDetail } from './use-cases/get-personnel-dossier';
+export { GetPersonnelDossierCurriculum } from './use-cases/get-personnel-dossier-curriculum';
+export type { DossierCurriculum } from './use-cases/get-personnel-dossier-curriculum';
+export { ListEvaluationCouncils } from './use-cases/list-evaluation-councils';
+export type { EvaluationCouncilBoard, EvaluationCouncilListRow } from './use-cases/list-evaluation-councils';
+export { GetEvaluationCouncil } from './use-cases/get-evaluation-council';
+export type { EvaluationCouncilSession } from './use-cases/get-evaluation-council';
+export type { EvaluationCouncilResolutionOption } from '../domain/constants/evaluation-council.constants';
 export { GetAirGradeBoard } from './use-cases/get-air-grade-board';
 export type {
   AirGradeBoard,

@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,7 +31,7 @@ import { AIR_GRADE_COPY, AIR_GRADE_ROUTES } from '../../../constants/air-grades.
 @Component({
   selector: 'app-air-grade-sheet-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, Accordion, AccordionItem, Alert, Button, Card, Icon, UiAvatar, UiLoading, MissionSignatureDialog],
+  imports: [Accordion, AccordionItem, Alert, Button, Card, Icon, UiAvatar, UiLoading, MissionSignatureDialog],
   templateUrl: './air-grade-sheet.page.html',
   styleUrl: './air-grade-sheet.page.scss',
 })
@@ -135,14 +134,6 @@ export class AirGradeSheetPage {
 
   hasCor(row: AirGradeManeuverView): boolean {
     return row.corrected || !!row.cause || !!row.recommendation || !!row.observation;
-  }
-
-  hasAnyCor(rows: readonly AirGradeManeuverView[]): boolean {
-    return rows.some((row) => this.hasCor(row));
-  }
-
-  isSignatureAnchor(row: AirGradeManeuverView, rows: readonly AirGradeManeuverView[]): boolean {
-    return rows.find((item) => this.hasCor(item))?.id === row.id;
   }
 
   gradeDelta(row: AirGradeManeuverView): number {

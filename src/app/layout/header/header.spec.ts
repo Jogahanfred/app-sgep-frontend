@@ -47,10 +47,9 @@ describe('Header', () => {
     expect(text).toContain('Administración');
     expect(text).toContain('Catálogos');
     expect(text).toContain('Programación');
-    expect(text).toContain('Misiones');
     expect(text).toContain('Calificaciones');
+    expect(text).toContain('Incidencias');
     expect(text).toContain('Reportes');
-    expect(text).not.toContain('Incidencias');
     expect(text).not.toContain('Particulares');
     expect(text).not.toContain('Configuración');
     expect(text).not.toContain('Instrucción');
@@ -182,7 +181,6 @@ describe('Header', () => {
     const text = root.textContent ?? '';
     expect(component.openGroup()?.label).toBe('Catálogos');
     expect(text).toContain('Académico');
-    expect(text).toContain('Programas');
     expect(text).toContain('Estándares');
     expect(text).toContain('Operaciones');
     expect(text).toContain('Tipos de Misión');
@@ -220,6 +218,19 @@ describe('Header', () => {
     expect(text).not.toContain('Programación PDE');
     expect(text).not.toContain('Matricular promoción');
     expect(text).not.toContain('Matricular alumno');
+  });
+
+  it('abre Incidencias con el listado y el formulario de registro', async () => {
+    const fixture = TestBed.createComponent(Header);
+    const component = fixture.componentInstance;
+    component.setMega('Incidencias');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Gestión de Incidencias');
+    expect(text).toContain('Incidencias');
+    expect(text).toContain('Registro de Incidencias');
   });
 
   it('colorea en el header la sección de la ruta actual', async () => {

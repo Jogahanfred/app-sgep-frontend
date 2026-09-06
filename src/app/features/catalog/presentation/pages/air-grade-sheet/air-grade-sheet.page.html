@@ -185,11 +185,6 @@
               <p>{{ row.recommendation || copy.none }}</p>
             </div>
           </div>
-          @if (hasCor(row)) {
-            <div class="ags__pads" [id]="isSignatureAnchor(row, data.maneuvers) ? 'ags-firma' : null">
-              <ng-container *ngTemplateOutlet="signaturePads; context: { data }" />
-            </div>
-          }
         </app-accordion-item>
       }
     </app-accordion>
@@ -199,14 +194,8 @@
       <blockquote>{{ data.observations || data.recommendations || data.improvements || copy.noDebrief }}</blockquote>
     </app-card>
 
-    @if (!hasAnyCor(data.maneuvers)) {
-      <section class="ags__signs" id="ags-firma">
-        <h2>{{ copy.signaturesTitle }}</h2>
-        <ng-container *ngTemplateOutlet="signaturePads; context: { data }" />
-      </section>
-    }
-
-    <ng-template #signaturePads let-data="data">
+    <section class="ags__signs" id="ags-firma">
+      <h2>{{ copy.signaturesTitle }}</h2>
       <div class="ags__sign-grid">
         <app-card [interactive]="false" [padded]="true">
           <p class="ags__kicker">{{ copy.signInstructor }}</p>
@@ -249,7 +238,7 @@
           }
         </app-card>
       </div>
-    </ng-template>
+    </section>
 
     <app-mission-signature-dialog
       [open]="signing()"

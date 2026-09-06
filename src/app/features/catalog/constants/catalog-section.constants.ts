@@ -88,6 +88,10 @@ export const CATALOG_PAGE_HEADERS: Record<string, CatalogPageHeader> = {
     title: 'Generación de orden de vuelo y asignación',
     lead: 'Enlace al alumno con la siguiente misión curricular, el instructor, la fecha y hora previstas y la aeronave asignada.',
   },
+  incidencias: {
+    title: 'Registro de incidencias técnicas y discrepancias post-vuelo',
+    lead: 'Consulta las novedades reportadas, filtra por fecha y matrícula, y abre el detalle vinculado a la misión.',
+  },
   'ejecucion-misiones': {
     title: 'Ejecución y calificación',
     lead: 'Centro de operaciones diario: misiones del día, próximas ejecuciones y alertas de turno.',
@@ -99,6 +103,14 @@ export const CATALOG_PAGE_HEADERS: Record<string, CatalogPageHeader> = {
   'avance-academico': {
     title: 'Avance Académico',
     lead: 'Consulta el progreso actual y el historial de formación de cada alumno.',
+  },
+  'legajo-personal': {
+    title: 'Legajo personal',
+    lead: 'Expediente digital del alumno: bitácora, horas y habilitaciones del programa.',
+  },
+  'consejo-evaluacion': {
+    title: 'Consejo de evaluación',
+    lead: 'Junta para alumnos que superan el tope de misiones reprobadas.',
   },
   'calificacion-tierra': {
     title: 'Cursos en tierra',
@@ -123,7 +135,7 @@ export function catalogPageHeader(url: string): CatalogPageHeader | null {
 
 export function isCatalogRecordUrl(url: string): boolean {
   if (isEnrollmentWorkspaceUrl(url)) return false;
-  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas|banco-fases|banco-subfases|promociones|matricula|programacion-entrenamiento|despacho-diario|orden-de-vuelo|ejecucion-misiones|calificaciones-aire|avance-academico|calificacion-tierra|calificacion-simulador)\/[^/?#]+/.test(
+  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas|banco-fases|banco-subfases|promociones|matricula|programacion-entrenamiento|despacho-diario|orden-de-vuelo|ejecucion-misiones|incidencias|calificaciones-aire|avance-academico|legajo-personal|consejo-evaluacion|calificacion-tierra|calificacion-simulador)\/[^/?#]+/.test(
     url,
   );
 }

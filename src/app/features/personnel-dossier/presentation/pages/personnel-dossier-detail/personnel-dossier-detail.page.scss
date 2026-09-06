@@ -1,0 +1,256 @@
+@use '../../../../catalog/presentation/shared/styles/panel';
+
+.pd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.pd__kicker {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pd__cv {
+  display: grid;
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+@media (min-width: 800px) {
+  .pd__cv {
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+  }
+}
+
+.pd__photo {
+  margin: 0;
+}
+
+.pd__photo img,
+.pd__photo ui-avatar {
+  display: block;
+  width: 100%;
+  max-width: 13.5rem;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-warm);
+}
+
+.pd__program-grid {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 720px) {
+  .pd__program-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .pd__program-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pd__identity h1 {
+  margin: 0.15rem 0;
+}
+
+.pd__meta,
+.pd__role {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pd__badge {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-warm);
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pd__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.pd__facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pd__facts dd {
+  margin: 0.15rem 0 0;
+  font-weight: 700;
+}
+
+.pd__hours-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pd__hours-head h2,
+.pd__chart h2 {
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-lg);
+}
+
+.pd__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+@media (min-width: 800px) {
+  .pd__metrics {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+}
+
+.pd__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pd__metric--hero {
+  background: var(--color-primary);
+  color: var(--color-on-primary, #fff);
+  border: 0;
+}
+
+.pd__metric span,
+.pd__metric small {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pd__metric strong {
+  font-size: var(--fs-2xl);
+}
+
+.pd__bar {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 28%);
+}
+
+.pd__bar span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+}
+
+.pd__layout {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 960px) {
+  .pd__layout {
+    grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 0.9fr);
+    align-items: start;
+  }
+}
+
+.pd__main,
+.pd__side,
+.pd__missions {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.pd__log-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  align-items: end;
+}
+
+.pd__log-head h2 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.pd__mission {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+.pd__mission h3 {
+  margin: 0.15rem 0;
+  font-size: var(--fs-md);
+}
+
+.pd__mission p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pd__mission-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.pd__mission-score strong {
+  font-size: var(--fs-xl);
+  color: var(--color-primary);
+}
+
+.pd__svg {
+  width: 100%;
+  height: 10rem;
+  color: var(--color-primary);
+}
+
+.pd__licenses,
+.pd__timeline {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd__licenses li,
+.pd__timeline li {
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.pd__licenses li div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+}

@@ -147,12 +147,16 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     try {
       this.assertUnique(input.email, input.documentNumber, id);
       const previous = this.users[index];
-      const user = this.toUser(id, {
-        ...input,
-        assignedUnitId: input.assignedUnitId !== undefined ? input.assignedUnitId : previous.assignedUnitId,
-        assignedSquadronId:
-          input.assignedSquadronId !== undefined ? input.assignedSquadronId : previous.assignedSquadronId,
-      });
+      const user = this.toUser(
+        id,
+        {
+          ...input,
+          assignedUnitId: input.assignedUnitId !== undefined ? input.assignedUnitId : previous.assignedUnitId,
+          assignedSquadronId:
+            input.assignedSquadronId !== undefined ? input.assignedSquadronId : previous.assignedSquadronId,
+        },
+        previous,
+      );
       this.users[index] = user;
       if (input.password) {
         this.passwords.set(id, input.password);
@@ -1169,7 +1173,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
     }
   }
 
-  private toUser(id: string, input: UserWriteInput): UserEntity {
+  private toUser(id: string, input: UserWriteInput, previous?: UserEntity): UserEntity {
     return {
       id,
       firstName: input.firstName,
@@ -1183,6 +1187,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       specialtyIds: [...input.specialtyIds],
       assignedUnitId: input.assignedUnitId ?? null,
       assignedSquadronId: input.assignedSquadronId ?? null,
+      photoUrl: previous?.photoUrl ?? null,
     };
   }
 

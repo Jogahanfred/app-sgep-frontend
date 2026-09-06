@@ -15,7 +15,6 @@
       </div>
       <div class="mw__bar-actions">
         <app-button variant="ghost" size="sm" icon="chevron-left" [href]="inboxHref">{{ copy.back }}</app-button>
-        <app-button variant="secondary" size="sm" [disabled]="saving()" (click)="save()">{{ copy.saveDraft }}</app-button>
       </div>
     </div>
 
@@ -281,6 +280,8 @@
         @if (failedMission()) {
           <app-button variant="secondary" [disabled]="saving()" (click)="requestCounsel()">{{ copy.counselQuestion }}</app-button>
         }
+        <app-button class="mw__danger" variant="secondary" (click)="openIncidentPrompt()">{{ copy.reportIncident }}</app-button>
+        <app-button variant="secondary" [disabled]="saving()" (click)="save()">{{ copy.saveDraft }}</app-button>
         <app-button icon="check" [disabled]="!canClose() || saving()" (click)="close()">{{ copy.closeMission }}</app-button>
       </div>
     </section>
@@ -292,5 +293,13 @@
       (closed)="closeSignature()"
       (applied)="applySignature($event)"
     />
+
+    <app-modal [title]="copy.postponeTitle" [open]="reportPromptOpen()" (closed)="closeIncidentPrompt()">
+      <p>{{ copy.postponeMessage }}</p>
+      <div class="mw__prompt-actions">
+        <app-button variant="ghost" (click)="continueIncidentReport()">{{ copy.postponeNo }}</app-button>
+        <app-button (click)="postponeMission()">{{ copy.postponeYes }}</app-button>
+      </div>
+    </app-modal>
   }
 </div>

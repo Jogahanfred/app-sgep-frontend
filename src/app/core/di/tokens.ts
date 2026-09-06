@@ -5,6 +5,7 @@ import type {
   AuthRepository,
   CardRepository,
   FaqRepository,
+  FlightIncidentRepository,
   InvestmentRepository,
   LoanRepository,
   ProductRepository,
@@ -19,6 +20,7 @@ export const CARD_REPOSITORY = new InjectionToken<CardRepository>('CARD_REPOSITO
 export const LOAN_REPOSITORY = new InjectionToken<LoanRepository>('LOAN_REPOSITORY');
 export const INVESTMENT_REPOSITORY = new InjectionToken<InvestmentRepository>('INVESTMENT_REPOSITORY');
 export const FAQ_REPOSITORY = new InjectionToken<FaqRepository>('FAQ_REPOSITORY');
+export const FLIGHT_INCIDENT_REPOSITORY = new InjectionToken<FlightIncidentRepository>('FLIGHT_INCIDENT_REPOSITORY');
 export const USER_PROFILE_REPOSITORY = new InjectionToken<UserProfileRepository>('USER_PROFILE_REPOSITORY');
 export const ADMIN_CATALOG_REPOSITORY = new InjectionToken<AdminCatalogRepository>('ADMIN_CATALOG_REPOSITORY');
 export const AUTH_REPOSITORY = new InjectionToken<AuthRepository>('AUTH_REPOSITORY');

@@ -50,10 +50,12 @@ import { UiLoading } from '@shared/components/ui-loading/ui-loading';
 import { UiSelect } from '@shared/components/ui-select/ui-select';
 import { UiTextarea } from '@shared/components/ui-textarea/ui-textarea';
 import { ToastService } from '@shared/components/ui-toast/toast.service';
+import { Modal } from '@shared/components/modal/modal';
 import type { ChoiceOption } from '@shared/models/choice.model';
 import { ClientSession } from '@layout/client-session.service';
 import { MISSION_WORKSPACE_COPY, MISSION_WORKSPACE_INBOX } from './mission-workspace.copy.constants';
 import { MissionSignatureDialog, type MissionSignatureDraft } from './mission-signature-dialog';
+import { FLIGHT_INCIDENT_ROUTES } from '../../../constants/flight-incident.copy.constants';
 
 interface EvaluationRow {
   maneuver: ManeuverBankEntity;
@@ -103,6 +105,7 @@ interface NoteSnapshot {
     UiSelect,
     UiTextarea,
     MissionSignatureDialog,
+    Modal,
   ],
   templateUrl: './mission-workspace.page.html',
   styleUrl: './mission-workspace.page.scss',
@@ -126,6 +129,63 @@ export class MissionWorkspacePage {
 
   readonly copy = MISSION_WORKSPACE_COPY;
   readonly inboxHref = MISSION_WORKSPACE_INBOX;
+
+  incidentHref(): string {
+    const id = this.execution()?.id;
+    return id ? FLIGHT_INCIDENT_ROUTES.fromExecution(id, true) : this.inboxHref;
+  }
+
+  openIncidentPrompt(): void {
+    this.reportPromptOpen.set(true);
+  }
+
+  closeIncidentPrompt(): void {
+    this.reportPromptOpen.set(false);
+  }
+
+  continueIncidentReport(): void {
+    this.reportPromptOpen.set(false);
+    void this.router.navigateByUrl(this.incidentHref());
+  }
+
+  async postponeMission(): Promise<void> {
+    this.reportPromptOpen.set(false);
+    this.clearFilledMissionData();
+    await this.save('completed', MISSION_WORKSPACE_COPY.postponed, MISSION_WORKSPACE_COPY.postponedLead);
+  }
+
+  private clearFilledMissionData(): void {
+    this.rows.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        grade: null,
+        observation: '',
+        cause: '',
+        recommendation: '',
+        corrected: false,
+        evidenceName: null,
+      })),
+    );
+    for (const fields of this.noteFields.values()) {
+      fields.cause.setValue('');
+      fields.observation.setValue('');
+      fields.recommendation.setValue('');
+    }
+    this.savedNotes.clear();
+    this.form.patchValue({
+      takeoffTime: '',
+      landingTime: '',
+      executedHours: 0,
+      observations: '',
+      strengths: '',
+      improvements: '',
+      recommendations: '',
+      result: null,
+    });
+    this.instructorSignature.set(null);
+    this.studentSignature.set(null);
+    this.counselRequested.set(false);
+  }
   readonly gradeScale = MISSION_GRADE_SCALE;
   readonly resultOptions: ChoiceOption[] = [
     { value: 'approved', label: MISSION_WORKSPACE_COPY.results.approved },
@@ -151,6 +211,7 @@ export class MissionWorkspacePage {
   readonly studentSignature = signal<MissionSignature | null>(null);
   readonly counselRequested = signal(false);
   readonly signingPad = signal<MissionSignPad | null>(null);
+  readonly reportPromptOpen = signal(false);
   private readonly noteFields = new Map<string, NoteFields>();
   private readonly savedNotes = new Map<string, NoteSnapshot>();
 
@@ -428,7 +489,11 @@ export class MissionWorkspacePage {
     await this.save('completed', MISSION_WORKSPACE_COPY.closed);
   }
 
-  async save(status = this.execution()?.status ?? 'scheduled', message: string = MISSION_WORKSPACE_COPY.saved): Promise<void> {
+  async save(
+    status = this.execution()?.status ?? 'scheduled',
+    message: string = MISSION_WORKSPACE_COPY.saved,
+    lead = 'La misión ya está actualizada.',
+  ): Promise<void> {
     const current = this.execution();
     if (!current) return;
     this.flushNotesIntoRows();
@@ -468,7 +533,7 @@ export class MissionWorkspacePage {
       this.instructorSignature.set(updated.instructorSignature ?? this.instructorSignature());
       this.studentSignature.set(updated.studentSignature ?? this.studentSignature());
       this.counselRequested.set(updated.counselRequested ?? this.counselRequested());
-      this.toast.success(message, 'La misión ya está actualizada.');
+      this.toast.success(message, lead);
       if (status === 'completed') await this.router.navigateByUrl(MISSION_WORKSPACE_INBOX);
     } catch (err: unknown) {
       this.error.set(err instanceof DomainError ? err.message : MISSION_WORKSPACE_COPY.saveError);

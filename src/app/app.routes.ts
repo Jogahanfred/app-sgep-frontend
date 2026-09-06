@@ -630,6 +630,46 @@ export const routes: Routes = [
         data: { assignmentType: 'individual', mode: 'edit', seo: { title: 'Reprogramar asignación individual | SIGA', description: 'Modifica la fecha, instructor o estado de una asignación individual.' } },
       },
       {
+        path: 'incidencias',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/flight-incident-board/flight-incident-board.page').then(
+            (m) => m.FlightIncidentBoardPage,
+          ),
+        data: {
+          seo: {
+            title: 'Registro de incidencias | SIGA',
+            description: 'Consulta las incidencias y discrepancias registradas, con filtro de fecha.',
+          },
+        },
+      },
+      {
+        path: 'incidencias/:id',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/flight-incident/flight-incident.page').then(
+            (m) => m.FlightIncidentPage,
+          ),
+        data: {
+          mode: 'view',
+          seo: {
+            title: 'Incidencia registrada | SIGA',
+            description: 'Consulta el registro oficial de la incidencia seleccionada.',
+          },
+        },
+      },
+      {
+        path: 'incidencias/:id/accion',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/flight-incident-action/flight-incident-action.page').then(
+            (m) => m.FlightIncidentActionPage,
+          ),
+        data: {
+          seo: {
+            title: 'Tomar acción sobre incidencia | SIGA',
+            description: 'Registra la acción tomada y el resultado de una incidencia.',
+          },
+        },
+      },
+      {
         path: 'ejecucion-misiones',
         loadComponent: () => import('./features/catalog/presentation/pages/mission-execution-inbox/mission-execution-inbox.page').then((m) => m.MissionExecutionInboxPage),
         data: { seo: { title: 'Ejecución y calificación de misiones | SIGA', description: 'Bandeja de misiones pendientes y calificación académica.' } },
@@ -638,6 +678,19 @@ export const routes: Routes = [
         path: 'ejecucion-misiones/tablero',
         loadComponent: () => import('./features/catalog/presentation/pages/mission-execution-inbox/mission-execution-inbox.page').then((m) => m.MissionExecutionInboxPage),
         data: { seo: { title: 'Próximas ejecuciones | SIGA', description: 'Tablero de próximas ejecuciones del día.' } },
+      },
+      {
+        path: 'ejecucion-misiones/:id/incidencia',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/flight-incident/flight-incident.page').then(
+            (m) => m.FlightIncidentPage,
+          ),
+        data: {
+          seo: {
+            title: 'Reporte de incidencia de vuelo | SIGA',
+            description: 'Registra una discrepancia o incidencia vinculada a la misión.',
+          },
+        },
       },
       {
         path: 'ejecucion-misiones/:id',
@@ -763,6 +816,71 @@ export const routes: Routes = [
           seo: {
             title: 'Legajo académico | SIGA',
             description: 'Historial, progreso y hitos de formación de un alumno.',
+          },
+        },
+      },
+      {
+        path: 'legajo-personal',
+        loadComponent: () =>
+          import('./features/personnel-dossier/presentation/pages/personnel-dossier-list/personnel-dossier-list.page').then(
+            (m) => m.PersonnelDossierListPage,
+          ),
+        data: {
+          seo: {
+            title: 'Legajo personal | SIGA',
+            description: 'Expediente digital con bitácora y horas de vuelo del alumno.',
+          },
+        },
+      },
+      {
+        path: 'legajo-personal/:userId/programa/:programId',
+        loadComponent: () =>
+          import('./features/personnel-dossier/presentation/pages/personnel-dossier-curriculum/personnel-dossier-curriculum.page').then(
+            (m) => m.PersonnelDossierCurriculumPage,
+          ),
+        data: {
+          seo: {
+            title: 'Currículo del programa | SIGA',
+            description: 'Fases, subfases y calificaciones de misión del alumno.',
+          },
+        },
+      },
+      {
+        path: 'legajo-personal/:userId',
+        loadComponent: () =>
+          import('./features/personnel-dossier/presentation/pages/personnel-dossier-detail/personnel-dossier-detail.page').then(
+            (m) => m.PersonnelDossierDetailPage,
+          ),
+        data: {
+          seo: {
+            title: 'Expediente personal | SIGA',
+            description: 'Consulta el legajo operacional del alumno seleccionado.',
+          },
+        },
+      },
+      {
+        path: 'consejo-evaluacion',
+        loadComponent: () =>
+          import('./features/evaluation-council/presentation/pages/evaluation-council-list/evaluation-council-list.page').then(
+            (m) => m.EvaluationCouncilListPage,
+          ),
+        data: {
+          seo: {
+            title: 'Consejo de evaluación | SIGA',
+            description: 'Alumnos que superan el tope de misiones reprobadas.',
+          },
+        },
+      },
+      {
+        path: 'consejo-evaluacion/:userId',
+        loadComponent: () =>
+          import('./features/evaluation-council/presentation/pages/evaluation-council-detail/evaluation-council-detail.page').then(
+            (m) => m.EvaluationCouncilDetailPage,
+          ),
+        data: {
+          seo: {
+            title: 'Sesión de consejo | SIGA',
+            description: 'Junta de evaluación del alumno convocado.',
           },
         },
       },

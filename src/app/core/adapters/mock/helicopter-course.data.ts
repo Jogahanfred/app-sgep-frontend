@@ -169,10 +169,10 @@ function applyDemoAirGradeSamples(track: {
       evidenceName: null,
       ...(index === 0 && gradeIndex === 0
         ? {
-            corrected: true,
-            cause: 'Desvío respecto al estándar esperado.',
-            observation: 'Control de pedales irregular en el primer metro.',
-            recommendation: 'Repetir la secuencia con corrección del instructor.',
+          corrected: true,
+          cause: 'Desviación respecto al estándar de ejecución establecido.',
+          observation: 'Se observó un control irregular de los pedales durante el primer metro de desplazamiento, afectando la precisión inicial de la maniobra.',
+          recommendation: 'Repetir la secuencia bajo supervisión del instructor, reforzando la coordinación y el control progresivo de los pedales.',          
           }
         : {}),
     }));

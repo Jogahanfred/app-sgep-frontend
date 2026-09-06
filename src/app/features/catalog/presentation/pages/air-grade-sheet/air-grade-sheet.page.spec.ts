@@ -97,8 +97,13 @@ describe('AirGradeSheetPage', () => {
     expect(root.querySelector('.ags__note--obs span')?.textContent).toContain(AIR_GRADE_COPY.observationLabel);
     expect(root.querySelector('.ags__note--rec span')?.textContent).toContain(AIR_GRADE_COPY.instructionLabel);
     expect(root.querySelector('.ags__autograph')?.textContent?.trim()).toBeTruthy();
-    expect(root.querySelector('.ags__pads')).not.toBeNull();
-    expect(root.querySelector('.ags__sign-actions')).not.toBeNull();
+    expect(root.querySelector('#ags-firma .ags__autograph')).not.toBeNull();
+    expect(getComputedStyle(root.querySelector('.ags__autograph')!).fontFamily).toMatch(/Segoe Script|cursive/i);
+    expect(root.querySelector('.ags__pads')).toBeNull();
+    expect(root.querySelector('#ags-firma .ags__sign-actions')).not.toBeNull();
     expect(root.textContent).toContain(AIR_GRADE_COPY.signPad);
+    const comments = root.querySelector('blockquote');
+    const signs = root.querySelector('#ags-firma');
+    expect(comments && signs && (comments.compareDocumentPosition(signs) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
   });
 });

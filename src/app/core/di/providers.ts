@@ -14,6 +14,11 @@ import {
   GetFeaturedProducts,
   GetHelpTopics,
   GetAcademicRecord,
+  ListPersonnelDossiers,
+  GetPersonnelDossier,
+  GetPersonnelDossierCurriculum,
+  ListEvaluationCouncils,
+  GetEvaluationCouncil,
   GetAirGradeBoard,
   GetAirGradeSheet,
   SignAirGradeMission,
@@ -69,6 +74,11 @@ import {
   UpdateIndividualAssignment,
   ListMissionExecutions,
   GetMissionExecution,
+  GetFlightIncidentContext,
+  CreateFlightIncident,
+  GetFlightIncident,
+  TakeFlightIncidentAction,
+  GetFlightIncidentBoard,
   UpdateMissionExecution,
   ListAircraft,
   ListFleets,
@@ -119,6 +129,7 @@ import { MockAdminCatalogRepository } from '../adapters/mock/mock-admin-catalog.
 import { MockAuthRepository } from '../adapters/mock/mock-auth.repository';
 import { MockCardRepository } from '../adapters/mock/mock-card.repository';
 import { MockFaqRepository } from '../adapters/mock/mock-faq.repository';
+import { MockFlightIncidentRepository } from '../adapters/mock/mock-flight-incident.repository';
 import { MockInvestmentRepository } from '../adapters/mock/mock-investment.repository';
 import { MockLoanRepository } from '../adapters/mock/mock-loan.repository';
 import { MockProductRepository } from '../adapters/mock/mock-product.repository';
@@ -130,6 +141,7 @@ import type {
   AuthRepository,
   CardRepository,
   FaqRepository,
+  FlightIncidentRepository,
   InvestmentRepository,
   LoanRepository,
   ProductRepository,
@@ -142,6 +154,7 @@ import {
   AUTH_REPOSITORY,
   CARD_REPOSITORY,
   FAQ_REPOSITORY,
+  FLIGHT_INCIDENT_REPOSITORY,
   INVESTMENT_REPOSITORY,
   LOAN_REPOSITORY,
   PRODUCT_REPOSITORY,
@@ -157,6 +170,7 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: LOAN_REPOSITORY, useClass: MockLoanRepository },
   { provide: INVESTMENT_REPOSITORY, useClass: MockInvestmentRepository },
   { provide: FAQ_REPOSITORY, useClass: MockFaqRepository },
+  { provide: FLIGHT_INCIDENT_REPOSITORY, useClass: MockFlightIncidentRepository },
   { provide: USER_PROFILE_REPOSITORY, useClass: MockUserProfileRepository },
   { provide: ADMIN_CATALOG_REPOSITORY, useClass: MockAdminCatalogRepository },
   { provide: AUTH_REPOSITORY, useClass: MockAuthRepository },
@@ -385,6 +399,32 @@ export const CORE_PROVIDERS: Provider[] = [
   { provide: UpdateIndividualAssignment, useFactory: (repo: AdminCatalogRepository) => new UpdateIndividualAssignment(repo), deps: [ADMIN_CATALOG_REPOSITORY] },
   { provide: ListMissionExecutions, useFactory: (repo: AdminCatalogRepository) => new ListMissionExecutions(repo), deps: [ADMIN_CATALOG_REPOSITORY] },
   { provide: GetMissionExecution, useFactory: (repo: AdminCatalogRepository) => new GetMissionExecution(repo), deps: [ADMIN_CATALOG_REPOSITORY] },
+  {
+    provide: GetFlightIncidentContext,
+    useFactory: (repo: AdminCatalogRepository) => new GetFlightIncidentContext(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: CreateFlightIncident,
+    useFactory: (repo: FlightIncidentRepository) => new CreateFlightIncident(repo),
+    deps: [FLIGHT_INCIDENT_REPOSITORY],
+  },
+  {
+    provide: GetFlightIncident,
+    useFactory: (repo: FlightIncidentRepository) => new GetFlightIncident(repo),
+    deps: [FLIGHT_INCIDENT_REPOSITORY],
+  },
+  {
+    provide: TakeFlightIncidentAction,
+    useFactory: (repo: FlightIncidentRepository) => new TakeFlightIncidentAction(repo),
+    deps: [FLIGHT_INCIDENT_REPOSITORY],
+  },
+  {
+    provide: GetFlightIncidentBoard,
+    useFactory: (incidents: FlightIncidentRepository, catalog: AdminCatalogRepository) =>
+      new GetFlightIncidentBoard(incidents, catalog),
+    deps: [FLIGHT_INCIDENT_REPOSITORY, ADMIN_CATALOG_REPOSITORY],
+  },
   { provide: UpdateMissionExecution, useFactory: (repo: AdminCatalogRepository) => new UpdateMissionExecution(repo), deps: [ADMIN_CATALOG_REPOSITORY] },
   {
     provide: CreateAdminUser,
@@ -655,6 +695,31 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: GetAcademicRecord,
     useFactory: (repo: AdminCatalogRepository) => new GetAcademicRecord(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListPersonnelDossiers,
+    useFactory: (repo: AdminCatalogRepository) => new ListPersonnelDossiers(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetPersonnelDossier,
+    useFactory: (repo: AdminCatalogRepository) => new GetPersonnelDossier(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetPersonnelDossierCurriculum,
+    useFactory: (repo: AdminCatalogRepository) => new GetPersonnelDossierCurriculum(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: ListEvaluationCouncils,
+    useFactory: (repo: AdminCatalogRepository) => new ListEvaluationCouncils(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetEvaluationCouncil,
+    useFactory: (repo: AdminCatalogRepository) => new GetEvaluationCouncil(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {

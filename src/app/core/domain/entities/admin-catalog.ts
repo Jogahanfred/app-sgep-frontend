@@ -39,6 +39,7 @@ export interface UserEntity {
   specialtyIds: string[];
   assignedUnitId: string | null;
   assignedSquadronId: string | null;
+  photoUrl?: string | null;
 }
 
 export interface UserWriteInput {

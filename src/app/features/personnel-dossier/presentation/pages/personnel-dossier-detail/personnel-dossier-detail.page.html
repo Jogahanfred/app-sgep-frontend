@@ -1,0 +1,205 @@
+<div class="ap pd">
+  @if (session.roleCode() !== 'PILOT') {
+    <div class="ap__head">
+      <div>
+        <p class="pd__kicker">{{ copy.watermark }}</p>
+      </div>
+      <app-button variant="ghost" size="sm" icon="chevron-left" [href]="listHref">{{ copy.back }}</app-button>
+    </div>
+  }
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.tableHeading" [subtitle]="copy.listLead" [label]="copy.tableHeading" />
+  } @else if (detail(); as data) {
+    @if (data.councilEligible) {
+      <div class="pd__alert">
+        <app-alert>{{ copy.councilBanner }}</app-alert>
+        <app-button size="sm" [href]="councilHref()">{{ copy.openCouncil }}</app-button>
+      </div>
+    }
+
+    <app-card [interactive]="false" [padded]="true">
+      <div class="pd__cv">
+        <figure class="pd__photo">
+          @if (data.photoUrl) {
+            <img [src]="data.photoUrl" [alt]="data.displayName" />
+          } @else {
+            <ui-avatar [name]="data.displayName" size="lg" shape="rounded" />
+          }
+        </figure>
+        <div class="pd__identity">
+          <p class="pd__kicker">{{ copy.identity }}</p>
+          <h1>{{ data.displayName }}</h1>
+          <p class="pd__meta">
+            {{ copy.document }}: {{ data.documentNumber }}
+            @if (data.indicative) {
+              · {{ data.indicative }}
+            }
+          </p>
+          <p class="pd__role">{{ data.specialtyNames.join(', ') || copy.none }}</p>
+          <span class="pd__badge">{{ copy.statusActive }}</span>
+          <dl class="pd__facts">
+            <div>
+              <dt>{{ copy.unit }}</dt>
+              <dd>{{ data.unitName }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.squadron }}</dt>
+              <dd>{{ data.squadronName }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.promotion }}</dt>
+              <dd>{{ data.promotionName || copy.none }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.colProgram }}</dt>
+              <dd>{{ data.programName || copy.none }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </app-card>
+
+    <section class="pd__programs">
+      <div class="pd__hours-head">
+        <h2>{{ copy.programsTitle }}</h2>
+        <span>{{ copy.programsLead }}</span>
+      </div>
+      @if (!data.programs.length) {
+        <app-alert>{{ copy.noPrograms }}</app-alert>
+      } @else {
+        <div class="pd__program-grid">
+          @for (program of data.programs; track program.programId) {
+            <ui-program-card
+              [href]="programHref(program.programId)"
+              [title]="program.name"
+              [kicker]="program.code"
+              [description]="program.description"
+              [imageUrl]="program.imageUrl"
+              [imageAlt]="program.name"
+              [typeBadge]="copy.openProgram"
+              [status]="program.status === 'suspended' ? 'inactive' : 'active'"
+              [statusLabel]="copy.status[program.status]"
+              [stats]="programStats(program)"
+            />
+          }
+        </div>
+      }
+    </section>
+
+    <div class="pd__hours-head">
+      <h2>{{ copy.hoursTitle }}</h2>
+      <span>{{ copy.hoursCut }}</span>
+    </div>
+    <div class="pd__metrics">
+      <app-card [interactive]="false" [padded]="true">
+        <div class="pd__metric pd__metric--hero">
+          <span>{{ copy.hoursTotal }}</span>
+          <strong>{{ data.hours.total }} <small>{{ copy.hoursUnit }}</small></strong>
+          @if (data.percentComplete !== null) {
+            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="data.percentComplete" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="data.percentComplete"></span>
+            </div>
+            <small>{{ data.percentComplete }}%</small>
+          }
+        </div>
+      </app-card>
+      <app-card [interactive]="false" [padded]="true">
+        <div class="pd__metric">
+          <span>{{ copy.hoursDual }}</span>
+          <strong>{{ data.hours.dual }} <small>{{ copy.hoursUnit }}</small></strong>
+          <small>{{ percent(data.hours.dual, data.hours.total) }}</small>
+        </div>
+      </app-card>
+      <app-card [interactive]="false" [padded]="true">
+        <div class="pd__metric">
+          <span>{{ copy.hoursNight }}</span>
+          <strong>{{ data.hours.night }} <small>{{ copy.hoursUnit }}</small></strong>
+        </div>
+      </app-card>
+      <app-card [interactive]="false" [padded]="true">
+        <div class="pd__metric">
+          <span>{{ copy.hoursIfr }}</span>
+          <strong>{{ data.hours.ifr }} <small>{{ copy.hoursUnit }}</small></strong>
+        </div>
+      </app-card>
+    </div>
+
+    <div class="pd__layout">
+      <div class="pd__main">
+        <app-card [interactive]="false" [padded]="true">
+          <p class="pd__kicker">{{ copy.chartTitle }}</p>
+          <h2>{{ copy.chartLead }}</h2>
+          @if (chartPath()) {
+            <svg class="pd__svg" viewBox="0 0 700 160" role="img" [attr.aria-label]="copy.chartTitle">
+              <path [attr.d]="chartPath()" fill="none" stroke="currentColor" stroke-width="3" />
+            </svg>
+          }
+          @if (data.average !== null) {
+            <p class="pd__meta">{{ copy.colAverage }}: {{ data.average.toFixed(2) }}</p>
+          }
+        </app-card>
+
+        <div class="pd__log-head">
+          <h2>{{ copy.logTitle }}</h2>
+          <ui-input id="dossier-log-filter" [label]="copy.logFilter" type="search" icon="search" [field]="filter" />
+        </div>
+        <div class="pd__missions">
+          @for (row of filteredLog(); track row.executionId) {
+            <app-card [interactive]="false" [padded]="true">
+              <article class="pd__mission">
+                <div>
+                  <p class="pd__kicker">{{ row.date }} @if (row.window) { · {{ row.window }} }</p>
+                  <h3>{{ row.missionCode }} · {{ row.missionName }}</h3>
+                  <p>{{ row.aircraft }} · {{ row.instructorName }} · {{ row.hours }} {{ copy.hoursUnit }}</p>
+                </div>
+                <div class="pd__mission-score">
+                  <strong>{{ row.score === null ? copy.none : row.score.toFixed(1) }}</strong>
+                  <span>{{ resultLabel(row.result) }}</span>
+                  <small>{{ row.signed ? copy.signed : copy.unsigned }}</small>
+                </div>
+              </article>
+            </app-card>
+          } @empty {
+            <app-alert>{{ copy.none }}</app-alert>
+          }
+        </div>
+      </div>
+
+      <aside class="pd__side">
+        <app-card [interactive]="false" [padded]="true">
+          <h2>{{ copy.licensesTitle }}</h2>
+          <p class="pd__meta">{{ copy.licensesLead }}</p>
+          <ul class="pd__licenses">
+            @for (item of data.licenses; track item.id) {
+              <li>
+                <div>
+                  <strong>{{ item.title }}</strong>
+                  <span class="pd__badge">{{ copy.licenseStatus[item.status] }}</span>
+                </div>
+                <p>{{ item.detail }}</p>
+                <small>{{ item.expires }}</small>
+              </li>
+            }
+          </ul>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <h2>{{ copy.rulingsTitle }}</h2>
+          <ol class="pd__timeline">
+            @for (item of data.resolutions; track item.id) {
+              <li>
+                <span class="pd__kicker">{{ item.date }}</span>
+                <strong>{{ item.title }}</strong>
+                <p>{{ item.summary }}</p>
+              </li>
+            } @empty {
+              <li>{{ copy.none }}</li>
+            }
+          </ol>
+        </app-card>
+      </aside>
+    </div>
+  }
+</div>
