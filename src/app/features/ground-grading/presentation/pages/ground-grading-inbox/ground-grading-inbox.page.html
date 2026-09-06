@@ -1,0 +1,87 @@
+<div class="gg">
+  <p class="gg__lead">{{ copy.lead }}</p>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (board()?.needsSquadron) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else {
+    <div class="gg__filters">
+      <ui-select
+        id="ground-grading-program"
+        [label]="copy.programLabel"
+        [uppercase]="false"
+        [options]="programOptions()"
+        [value]="programId()"
+        [loading]="loadState() === 'loading'"
+        (valueChange)="onProgram($event)"
+      />
+      <ui-select
+        id="ground-grading-promotion"
+        [label]="copy.promotionLabel"
+        [uppercase]="false"
+        [options]="promotionOptions()"
+        [value]="promotionId()"
+        [disabled]="!programId()"
+        (valueChange)="onPromotion($event)"
+      />
+      @if (offering()) {
+        <ui-input
+          id="ground-grading-search"
+          [label]="copy.searchLabel"
+          type="search"
+          icon="search"
+          [placeholder]="copy.searchPlaceholder"
+          [field]="search"
+        />
+      }
+    </div>
+
+    @if (!offering()) {
+      <app-alert>{{ copy.pickFilters }}</app-alert>
+    } @else {
+      <div class="gg__table">
+        <table>
+          <caption class="visually-hidden">{{ copy.tableCaption }}</caption>
+          <thead>
+            <tr>
+              <th rowspan="2" class="gg__cell--start">{{ copy.colCode }}</th>
+              <th rowspan="2" class="gg__cell--start">{{ copy.colName }}</th>
+              <th rowspan="2">{{ copy.colCredits }}</th>
+              <th colspan="4" class="gg__hours">{{ copy.colHours }}</th>
+              <th rowspan="2" class="gg__cell--start">{{ copy.colRequirements }}</th>
+            </tr>
+            <tr>
+              <th class="gg__hours">{{ copy.colTheory }}</th>
+              <th class="gg__hours">{{ copy.colLab }}</th>
+              <th class="gg__hours">{{ copy.colOther }}</th>
+              <th class="gg__hours">{{ copy.colTotal }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (course of courses(); track course.id; let index = $index) {
+              <tr [style.--i]="index" (click)="openCourse(course)">
+                <td class="gg__cell--start">
+                  <button type="button" class="gg__code" (click)="openCourse(course); $event.stopPropagation()">
+                    {{ course.code }}
+                  </button>
+                </td>
+                <td class="gg__cell--start gg__name">{{ course.name }}</td>
+                <td class="gg__num">{{ course.credits }}</td>
+                <td class="gg__hours">{{ hoursLabel(course.theoryHours) }}</td>
+                <td class="gg__hours">{{ hoursLabel(course.labHours) }}</td>
+                <td class="gg__hours">{{ hoursLabel(course.otherHours) }}</td>
+                <td class="gg__hours gg__num">{{ hoursLabel(course.hours) }}</td>
+                <td class="gg__cell--start">{{ course.requirement }}</td>
+              </tr>
+            } @empty {
+              <tr class="gg__empty">
+                <td colspan="8">{{ copy.emptyCourses }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

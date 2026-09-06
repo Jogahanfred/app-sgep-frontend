@@ -12,8 +12,11 @@ import type { ChoiceOption } from '@shared/models/choice.model';
           class="sp__btn"
           role="radio"
           [attr.aria-checked]="value() === option.value"
+          [attr.aria-disabled]="option.disabled ? true : null"
           [class.sp__btn--on]="value() === option.value"
-          (click)="valueChange.emit(option.value)"
+          [class.sp__btn--disabled]="!!option.disabled"
+          [disabled]="!!option.disabled"
+          (click)="pick(option)"
         >
           {{ option.label }}
         </button>
@@ -28,4 +31,9 @@ export class UiSegmentedControl {
   readonly value = input.required<string>();
   readonly wrap = input(false);
   readonly valueChange = output<string>();
+
+  pick(option: ChoiceOption): void {
+    if (option.disabled) return;
+    this.valueChange.emit(option.value);
+  }
 }

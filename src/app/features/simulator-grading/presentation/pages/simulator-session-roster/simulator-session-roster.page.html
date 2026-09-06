@@ -1,0 +1,89 @@
+<div class="gr">
+  <div class="gr__nav">
+    <app-button variant="ghost" size="sm" icon="chevron-left" (click)="back()">{{ copy.back }}</app-button>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (roster(); as board) {
+    <p class="gr__kicker">{{ board.programName }} · {{ board.promotionName }}</p>
+    <h2 class="gr__title">{{ board.sessionCode }} · {{ board.sessionName }}</h2>
+
+    @if (!board.canGrade) {
+      <app-alert>{{ copy.forbidden }}</app-alert>
+    }
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+
+    <div class="gr__search">
+      <ui-input
+        id="simulator-session-student-search"
+        [label]="copy.searchLabel"
+        type="search"
+        icon="search"
+        [placeholder]="copy.studentSearchPlaceholder"
+        [field]="search"
+      />
+    </div>
+
+    <div class="gr__sheet">
+      <table>
+        <thead>
+          <tr>
+            <th class="gr__index">{{ copy.indexLabel }}</th>
+            <th class="gr__name-h">{{ copy.nameLabel }}</th>
+            @for (column of columns(); track column.code) {
+              <th class="gr__topic" [attr.title]="column.name">{{ column.sheetCode }}</th>
+            }
+            <th class="gr__avg-h">{{ copy.averageLabel }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of students(); track student.enrollmentId; let index = $index) {
+            <tr [style.--i]="index">
+              <td class="gr__index">{{ rowIndex(index) }}</td>
+              <td class="gr__name">{{ student.displayName }}</td>
+              @for (column of student.assessments; track column.code) {
+                <td>
+                  <input
+                    class="gr__mark"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    maxlength="4"
+                    (keydown)="onGradeKeydown($event)"
+                    [attr.aria-label]="column.sheetCode + ' · ' + student.displayName"
+                    [value]="cellValue(student, column.code)"
+                    [disabled]="!student.canGrade || savingId() === student.enrollmentId"
+                    (input)="onGradeInput(student, column.code, $event)"
+                  />
+                </td>
+              }
+              <td class="gr__avg">
+                <div class="gr__avg-cell">
+                  @if (isDirty(student)) {
+                    <app-button
+                      size="xs"
+                      variant="primary"
+                      icon="check"
+                      [loading]="savingId() === student.enrollmentId"
+                      (click)="saveRow(student)"
+                    >
+                      {{ copy.save }}
+                    </app-button>
+                  }
+                  <span>{{ average(student) }}</span>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr class="gr__empty">
+              <td [attr.colspan]="3 + columns().length">{{ copy.emptyStudents }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

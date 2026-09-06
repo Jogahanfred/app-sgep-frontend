@@ -22,6 +22,7 @@ import type {
   ProgramEnrollmentCloseInput,
   ProgramEnrollmentEntity,
   ProgramEnrollmentWriteInput,
+  GroundEvaluationRecord,
   GroupMissionAssignmentEntity,
   GroupMissionAssignmentWriteInput,
   IndividualMissionAssignmentEntity,
@@ -65,6 +66,14 @@ export interface AdminCatalogRepository {
   enrollInProgram(input: ProgramEnrollmentWriteInput): Observable<ProgramEnrollmentEntity[]>;
   closeProgramEnrollment(id: string, input: ProgramEnrollmentCloseInput): Observable<ProgramEnrollmentEntity>;
   saveEnrollmentGroundCourses(id: string, groundCourseIds: readonly string[]): Observable<ProgramEnrollmentEntity>;
+  saveEnrollmentGroundEvaluations(
+    id: string,
+    groundEvaluations: readonly GroundEvaluationRecord[],
+  ): Observable<ProgramEnrollmentEntity>;
+  saveEnrollmentSimulatorEvaluations(
+    id: string,
+    simulatorEvaluations: readonly GroundEvaluationRecord[],
+  ): Observable<ProgramEnrollmentEntity>;
 
   listGroupAssignments(): Observable<GroupMissionAssignmentEntity[]>;
   createGroupAssignment(input: GroupMissionAssignmentWriteInput): Observable<GroupMissionAssignmentEntity>;

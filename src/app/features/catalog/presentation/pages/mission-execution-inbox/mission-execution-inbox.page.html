@@ -1,9 +1,344 @@
-<div class="ap">
-  <div class="ap__head"><div><h1>Bandeja de misiones</h1><p class="ap__lead">Inicia, califica y cierra las misiones pendientes desde un único workspace.</p></div></div>
-  <div class="inbox__filters"><ui-input id="mission-search" label="Buscar misión" type="search" icon="search" placeholder="Alumno, programa o misión" [field]="search" /><ui-select id="mission-status" label="Estado" [uppercase]="false" [options]="statusOptions" [value]="status()" (valueChange)="status.set($event)" /></div>
-  <div class="mission-grid">
-    @for (assignment of visible(); track assignment.id) {
-      <app-card class="mission-card" [interactive]="true" [padded]="true"><div class="mission-card__top"><span class="mission-card__eyebrow">{{ mission(assignment.missionId) }}</span><span class="mission-card__status">{{ label(executionFor(assignment.id)?.status ?? 'scheduled') }}</span></div><h2>{{ person(assignment) }}</h2><dl><div><dt>Programa</dt><dd>{{ program(assignment.programId) }}</dd></div><div><dt>Fecha</dt><dd>{{ date(assignment.date) }}</dd></div><div><dt>Instructor</dt><dd>{{ userName(assignment.instructorId) }}</dd></div></dl><app-button icon="arrow-right" (click)="open(assignment.id)">Abrir misión</app-button></app-card>
-    } @empty { <p class="empty-state">No hay misiones que coincidan con los filtros.</p> }
+<div class="mx">
+  @if (!fidsExpanded()) {
+    <p class="mx__lead">{{ copy.kicker }} · {{ copy.datePrefix }} {{ board().operationDate }}</p>
+  }
+
+  <div class="mx__shell">
+    <div class="mx__fids" [class.mx__fids--theater]="fidsExpanded()">
+      <div class="mx__fids-toolbar">
+        <p class="mx__fids-title">{{ copy.nextTitle }}</p>
+        <div class="mx__fids-actions">
+          @if (fidsExpanded()) {
+            <app-button variant="inverse" size="sm" icon="close" [ariaLabel]="copy.fidsCollapse" (click)="collapseFids()">{{
+              copy.fidsCollapse
+            }}</app-button>
+          } @else {
+            <app-button variant="inverse" size="sm" icon="maximize" [ariaLabel]="copy.fidsExpand" (click)="expandFids()">{{
+              copy.fidsExpand
+            }}</app-button>
+          }
+          <app-button variant="inverse" size="sm" icon="refresh" [ariaLabel]="copy.fidsReload" (click)="reloadFids()">{{
+            copy.fidsReload
+          }}</app-button>
+        </div>
+      </div>
+      @if (fidsExpanded()) {
+        <ng-container *ngTemplateOutlet="fidsPane; context: { $implicit: upcomingBoard(), flipFirst: true }" />
+      } @else {
+        <div class="mx__fids-split">
+          <ng-container *ngTemplateOutlet="fidsPane; context: { $implicit: upcomingLeft(), flipFirst: true }" />
+          <ng-container *ngTemplateOutlet="fidsPane; context: { $implicit: upcomingRight(), flipFirst: false }" />
+        </div>
+      }
+    </div>
+
+    <ng-template #fidsPane let-items let-flipFirst="flipFirst">
+      <div class="mx__fids-pane">
+        <div class="mx__fids-row mx__fids-row--head">
+          <span>{{ copy.nextTime }}</span>
+          <span>{{ copy.nextCrew }}</span>
+          <span>{{ copy.nextAircraft }}</span>
+          <span>{{ copy.nextBoarding }}</span>
+          <span>{{ copy.nextState }}</span>
+        </div>
+        <ol class="mx__board">
+          @for (item of items; track (item?.id ?? $index) + '-' + fidsNonce()) {
+            <li
+              class="mx__fids-row"
+              [class.mx__board-row--on]="item?.id === nextId()"
+              [class.mx__fids-row--empty]="!item"
+              [class.mx__fids-row--arrive]="flipFirst && $index === 0 && !!item"
+            >
+              <span class="mx__fids-cells mx__fids-cells--time" [attr.aria-label]="item?.time ?? ''">
+                @for (ch of fidsChars(item?.time ?? '', fidsTimeCells); track $index) {
+                  <span
+                    class="mx__fids-ch"
+                    [class.mx__fids-ch--empty]="!ch"
+                    [style.--fids-i]="fidsFlipIndex('time', $index)"
+                    aria-hidden="true"
+                  ><span>{{ ch }}</span></span>
+                }
+              </span>
+              <span class="mx__fids-cells mx__fids-cells--crew" [attr.aria-label]="item ? crewStrip(item) : ''">
+                @for (ch of fidsChars(item ? crewStrip(item) : '', fidsCrewCells); track $index) {
+                  <span
+                    class="mx__fids-ch"
+                    [class.mx__fids-ch--empty]="!ch"
+                    [style.--fids-i]="fidsFlipIndex('crew', $index)"
+                    aria-hidden="true"
+                  ><span>{{ ch }}</span></span>
+                }
+              </span>
+              <span class="mx__fids-cells mx__fids-cells--ac" [attr.aria-label]="item?.aircraft ?? ''">
+                @for (ch of fidsChars(item?.aircraft ?? '', fidsAircraftCells); track $index) {
+                  <span
+                    class="mx__fids-ch"
+                    [class.mx__fids-ch--empty]="!ch"
+                    [style.--fids-i]="fidsFlipIndex('ac', $index)"
+                    aria-hidden="true"
+                  ><span>{{ ch }}</span></span>
+                }
+              </span>
+              <span class="mx__fids-cells mx__fids-cells--gate" [attr.aria-label]="item ? boardingTime(item) : ''">
+                @for (ch of fidsChars(item ? boardingTime(item) : '', fidsBoardingCells); track $index) {
+                  <span
+                    class="mx__fids-ch"
+                    [class.mx__fids-ch--empty]="!ch"
+                    [style.--fids-i]="fidsFlipIndex('gate', $index)"
+                    aria-hidden="true"
+                  ><span>{{ ch }}</span></span>
+                }
+              </span>
+              <span
+                class="mx__fids-cells mx__fids-cells--status"
+                [class.mx__fids-remark--boarding]="item && remarkKind(item) === 'boarding'"
+                [class.mx__fids-remark--closing]="item && remarkKind(item) === 'closing'"
+                [attr.aria-label]="item ? remarkLabel(item) : ''"
+              >
+                @for (ch of fidsChars(item ? remarkLabel(item) : '', fidsStatusCells); track $index) {
+                  <span
+                    class="mx__fids-ch"
+                    [class.mx__fids-ch--empty]="!ch"
+                    [style.--fids-i]="fidsFlipIndex('status', $index)"
+                    aria-hidden="true"
+                  ><span>{{ ch }}</span></span>
+                }
+              </span>
+            </li>
+          }
+        </ol>
+      </div>
+    </ng-template>
+
+    @if (!fidsExpanded()) {
+    <div class="mx__kpis">
+      <app-card [padded]="true" [interactive]="false">
+        <p class="mx__kicker">{{ copy.kpi.scheduled }}</p>
+        <p class="mx__metric">{{ kpis().scheduled }}</p>
+      </app-card>
+      <app-card [padded]="true" [interactive]="false">
+        <p class="mx__kicker">{{ copy.kpi.inProgress }}</p>
+        <p class="mx__metric">{{ kpis().inProgress }}</p>
+      </app-card>
+      <app-card [padded]="true" [interactive]="false">
+        <p class="mx__kicker">{{ copy.kpi.completed }}</p>
+        <p class="mx__metric">{{ kpis().completed }}</p>
+      </app-card>
+      <app-card [padded]="true" [interactive]="false">
+        <p class="mx__kicker">{{ copy.kpi.cancelled }}</p>
+        <p class="mx__metric mx__metric--alert">{{ kpis().cancelled }}</p>
+      </app-card>
+    </div>
+
+    <div class="mx__filters">
+      <ui-segmented-control [label]="copy.filterLabel" [options]="filterOptions()" [value]="filter()" [wrap]="true"
+        (valueChange)="setFilter($event)" />
+    </div>
+
+    <div class="mx__search">
+      <ui-input
+        id="mission-execution-search"
+        [label]="copy.searchLabel"
+        type="search"
+        icon="search"
+        [placeholder]="copy.searchPlaceholder"
+        [field]="search"
+      />
+      <ui-date-picker id="mission-execution-date" [label]="copy.dateLabel" [field]="boardDate" />
+    </div>
+
+    <section class="mx__main">
+      <div class="mx__list-head">
+        <p class="mx__section">{{ copy.listTitle }}</p>
+        <p class="mx__meta">{{ total() }} {{ copy.listCount }}</p>
+      </div>
+      <div class="mx__grid">
+        @for (item of pagedVisible(); track item.id) {
+        <div class="mx__slot" [class.mx__slot--next]="item.id === nextId()">
+          <app-card [padded]="true" [interactive]="false">
+            <div class="mx__card">
+              <div class="mx__card-top">
+                <p class="mx__code">{{ item.code }} · {{ item.mission }}</p>
+                <span class="mx__status" [class]="'mx__status--' + item.status">{{ copy.status[item.status] }}</span>
+              </div>
+              <div class="mx__person">
+                <ui-avatar [name]="item.student" size="sm" />
+                <div>
+                  <p class="mx__name">{{ item.student }}</p>
+                  <p class="mx__meta">{{ item.program }}</p>
+                </div>
+              </div>
+              <dl class="mx__facts">
+                <div>
+                  <dt>{{ copy.fields.phase }}</dt>
+                  <dd>{{ item.phase }}</dd>
+                </div>
+                <div>
+                  <dt>{{ copy.fields.subphase }}</dt>
+                  <dd>{{ item.subphase }}</dd>
+                </div>
+                <div>
+                  <dt>{{ copy.fields.instructor }}</dt>
+                  <dd>{{ item.instructor }}</dd>
+                </div>
+                <div>
+                  <dt>{{ copy.fields.aircraft }}</dt>
+                  <dd>{{ item.aircraft }}</dd>
+                </div>
+                <div>
+                  <dt>{{ copy.fields.time }}</dt>
+                  <dd>{{ item.time }}</dd>
+                </div>
+              </dl>
+              <ui-progress [value]="item.progress" [caption]="copy.fields.progress" [valueLabel]="item.progressLabel"
+                [label]="copy.fields.progress" scale="sm" />
+              <div class="mx__actions">
+                @if (canViewDetail(item)) {
+                <app-button size="sm" variant="ghost" (click)="openDetail(item)">{{ copy.detail }}</app-button>
+                }
+                @if (canGrade(item)) {
+                <app-button size="sm" variant="primary" (click)="openGrade(item)">{{ copy.grade }}</app-button>
+                }
+                <app-button size="sm" variant="secondary" (click)="openOrder(item)">{{ copy.flightOrder }}</app-button>
+              </div>
+            </div>
+          </app-card>
+        </div>
+        } @empty {
+        <app-alert>{{ copy.empty }}</app-alert>
+        }
+      </div>
+      @if (showPager()) {
+      <div class="mx__pager">
+        <div class="mx__pager-meta">
+          <p class="mx__pager-range">{{ rangeLabel() }}</p>
+          <div class="mx__pager-show">
+            <span class="mx__pager-show-label">{{ copy.pagerPerPage }}</span>
+            <ui-select id="mission-execution-page-size" [label]="copy.pagerPerPageLabel" size="sm" [compact]="true"
+              [uppercase]="false" [options]="pageSizeChoices()" [value]="'' + pageSize()"
+              (valueChange)="onPageSize($event)" />
+          </div>
+        </div>
+        <nav class="mx__pager-nav" aria-label="Paginación">
+          <button type="button" class="mx__pager-btn" [disabled]="!canPrev()" aria-label="Primera página"
+            (click)="first()">
+            <app-icon class="mx__pager-icon" name="chevron-first" />
+          </button>
+          <button type="button" class="mx__pager-btn" [disabled]="!canPrev()" aria-label="Página anterior"
+            (click)="prev()">
+            <app-icon class="mx__pager-icon" name="chevron-left" />
+          </button>
+          @for (item of pageItems(); track $index) {
+          @if (item === 'ellipsis') {
+          <span class="mx__pager-ellipsis" aria-hidden="true">…</span>
+          } @else {
+          <button type="button" class="mx__pager-btn" [class.mx__pager-btn--on]="item === page()"
+            [attr.aria-current]="item === page() ? 'page' : null" [attr.aria-label]="'Página ' + item"
+            (click)="goToPage(item)">
+            {{ item }}
+          </button>
+          }
+          }
+          <button type="button" class="mx__pager-btn" [disabled]="!canNext()" aria-label="Página siguiente"
+            (click)="next()">
+            <app-icon class="mx__pager-icon" name="chevron-right" />
+          </button>
+          <button type="button" class="mx__pager-btn" [disabled]="!canNext()" aria-label="Última página"
+            (click)="last()">
+            <app-icon class="mx__pager-icon" name="chevron-last" />
+          </button>
+        </nav>
+      </div>
+      }
+    </section>
+    }
   </div>
 </div>
+
+<app-modal [open]="orderOpen()" [title]="copy.orderTitle" size="lg" [roomy]="true" (closed)="closeOrder()">
+  @if (orderItem(); as item) {
+  <div class="mx__order">
+    <div class="mx__order-head">
+      <span class="mx__order-num">N.º {{ item.order.number }}</span>
+      <span class="mx__status" [class]="'mx__status--' + item.order.status">{{ copy.orderStatus[item.order.status]
+        }}</span>
+    </div>
+    <p class="mx__lead">{{ copy.orderLead }}</p>
+
+    <app-card [padded]="true" [interactive]="false">
+      <div class="mx__order-kicker">
+        <app-icon name="inbox" />
+        <span>{{ copy.orderMission }}</span>
+      </div>
+      <span class="mx__order-chip">{{ item.program }}</span>
+      <p class="mx__name">{{ item.code }} · {{ item.mission }}</p>
+      <p class="mx__meta">{{ item.phase }} · {{ item.subphase }}</p>
+    </app-card>
+
+    <div class="mx__order-split">
+      <app-card [padded]="true" [interactive]="false">
+        <div class="mx__order-kicker">
+          <app-icon name="user" />
+          <span>{{ copy.orderCrew }}</span>
+        </div>
+        <div class="mx__order-crew">
+          <div class="mx__order-person">
+            <ui-avatar [name]="item.order.student" size="sm" />
+            <div>
+              <p class="mx__name">{{ item.order.student }}</p>
+              <p class="mx__meta">{{ copy.orderCallsign }}: {{ crewMark(item.studentCallsign, copy.roleAp) }}</p>
+            </div>
+            <span class="mx__order-role">{{ copy.orderStudentRole }}</span>
+          </div>
+          <div class="mx__order-person">
+            <ui-avatar [name]="item.order.instructor" size="sm" />
+            <div>
+              <p class="mx__name">{{ item.order.instructor }}</p>
+              <p class="mx__meta">{{ copy.orderCallsign }}: {{ crewMark(item.instructorCallsign, copy.roleIp) }}</p>
+            </div>
+            <span class="mx__order-role">{{ copy.orderInstructorRole }}</span>
+          </div>
+        </div>
+      </app-card>
+
+      <app-card [padded]="true" [interactive]="false">
+        <div class="mx__order-kicker">
+          <app-icon name="pin" />
+          <span>{{ copy.orderAircraftBlock }}</span>
+        </div>
+        <p class="mx__order-ac">{{ item.order.aircraft }}</p>
+        <p class="mx__meta">{{ copy.orderFields.date }}: {{ item.order.date }}</p>
+        <p class="mx__meta">{{ copy.orderFields.authorizer }}: {{ item.order.authorizer }}</p>
+      </app-card>
+    </div>
+
+    <app-card [padded]="true" [interactive]="false">
+      <div class="mx__order-kicker">
+        <app-icon name="calendar" />
+        <span>{{ copy.orderSlotBlock }}</span>
+      </div>
+      <div class="mx__order-times">
+        <div>
+          <span>{{ copy.orderSlotLabel }}</span>
+          <strong>{{ slotRange(item) }}</strong>
+        </div>
+        <div>
+          <span>{{ copy.orderDurationLabel }}</span>
+          <strong>{{ item.order.duration }}</strong>
+        </div>
+      </div>
+    </app-card>
+
+    <div>
+      <div class="mx__order-kicker">
+        <app-icon name="pencil" />
+        <span>{{ copy.orderNotesBlock }}</span>
+      </div>
+      <p class="mx__order-notes">{{ item.order.observations }}</p>
+    </div>
+  </div>
+  <div class="mx__actions mx__actions--end">
+    <app-button variant="ghost" icon="close" (click)="closeOrder()">{{ copy.orderClose }}</app-button>
+  </div>
+  }
+</app-modal>

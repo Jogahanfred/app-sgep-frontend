@@ -96,6 +96,9 @@ export class StartMissionDispatch {
           recommendations: execution.recommendations,
           evaluations: execution.evaluations,
           result: execution.result,
+          instructorSignature: execution.instructorSignature ?? null,
+          studentSignature: execution.studentSignature ?? null,
+          counselRequested: execution.counselRequested ?? false,
         };
         return this.catalog.updateIndividualAssignment(assignment.id, assignmentInput(assignment, 'in-progress')).pipe(
           switchMap(() => this.catalog.updateMissionExecution(execution.id, write)),

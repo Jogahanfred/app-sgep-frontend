@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Footer } from '@layout/footer/footer';
 import { Header } from '@layout/header/header';
 import { isBareChromeUrl } from '@layout/auth-routes.constants';
+import { isMissionExecutionBoardUrl } from '@layout/navigation/data/nav-routes.constants';
 import { BackToTop } from '@shared/components/back-to-top/back-to-top';
 import { SkipLink } from '@shared/components/skip-link/skip-link';
 import { UiToast } from '@shared/components/ui-toast/ui-toast';
@@ -28,6 +29,7 @@ export class App {
     { initialValue: this.router.url },
   );
   readonly bareChrome = computed(() => isBareChromeUrl(this.url()));
+  readonly boardScreen = computed(() => isMissionExecutionBoardUrl(this.url()));
 
   constructor() {
     inject(SeoService);

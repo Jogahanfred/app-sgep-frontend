@@ -1,0 +1,45 @@
+<app-modal [open]="open()" [title]="title()" size="lg" [roomy]="true" (closed)="cancel()">
+  <div class="sig">
+    <div class="sig__tabs" role="tablist">
+      <app-button type="button" size="sm" [variant]="method() === 'type' ? 'primary' : 'ghost'" (click)="selectMethod('type')">
+        {{ copy.type }}
+      </app-button>
+      <app-button type="button" size="sm" [variant]="method() === 'draw' ? 'primary' : 'ghost'" (click)="selectMethod('draw')">
+        {{ copy.draw }}
+      </app-button>
+      <app-button type="button" size="sm" [variant]="method() === 'image' ? 'primary' : 'ghost'" (click)="selectMethod('image')">
+        {{ copy.image }}
+      </app-button>
+    </div>
+
+    <div class="sig__pad">
+      @if (method() === 'type') {
+        <p class="sig__preview">{{ typedTick() ? typedName.value : typedName.value }}</p>
+        <ui-input id="signature-name" [label]="copy.typedPlaceholder" [field]="typedName" [placeholder]="copy.typedPlaceholder" />
+      } @else if (method() === 'draw') {
+        <canvas
+          #pad
+          class="sig__canvas"
+          width="640"
+          height="180"
+          (pointerdown)="onPointerDown($event)"
+          (pointermove)="onPointerMove($event)"
+          (pointerup)="onPointerUp()"
+          (pointerleave)="onPointerUp()"
+        ></canvas>
+      } @else {
+        @if (imageValue(); as image) {
+          <img class="sig__image" [src]="image" alt="" />
+        }
+        <input type="file" accept="image/*" (change)="onImageSelected($event)" />
+      }
+    </div>
+
+    <ui-checkbox id="save-signature" [label]="copy.save" [checked]="remember()" (checkedChange)="remember.set($event)" />
+
+    <div class="sig__actions">
+      <app-button type="button" variant="ghost" (click)="cancel()">{{ copy.cancel }}</app-button>
+      <app-button type="button" [disabled]="!canApply()" (click)="apply()">{{ copy.apply }}</app-button>
+    </div>
+  </div>
+</app-modal>

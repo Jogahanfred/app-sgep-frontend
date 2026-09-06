@@ -67,26 +67,23 @@ import {
   FLIGHT_ORDER_CONTEXT_USERS,
 } from './flight-order-context.data';
 
-function seededDirbeLevel(missionIndex: number, missionCount: number): DirbeLevel {
-  if (missionCount <= 1) return 'B';
-  const progress = missionIndex / Math.max(1, missionCount - 1);
-  if (progress === 0) return 'D';
-  if (progress <= 0.25) return 'I';
-  if (progress <= 0.55) return 'R';
-  if (progress < 1) return 'B';
-  return 'E';
+const DIRBE_SEED_CYCLE: readonly DirbeLevel[] = ['D', 'I', 'R', 'B'];
+
+function seededDirbeLevel(missionIndex: number, maneuverIndex: number): DirbeLevel {
+  return DIRBE_SEED_CYCLE[(missionIndex + maneuverIndex) % DIRBE_SEED_CYCLE.length];
 }
 
 function standardAssignmentsFor(
   missionKeys: readonly string[],
   standardsByManeuver: Readonly<Record<string, readonly string[]>>,
 ): SubphaseEntity['standardAssignments'] {
+  const maneuvers = Object.entries(standardsByManeuver);
   return missionKeys.flatMap((missionKey, missionIndex) =>
-    Object.entries(standardsByManeuver).map(([maneuverId, standardIds]) => ({
+    maneuvers.map(([maneuverId, standardIds], maneuverIndex) => ({
       missionKey,
       maneuverId,
       standardIds: [...standardIds],
-      dirbeLevel: seededDirbeLevel(missionIndex, missionKeys.length),
+      dirbeLevel: seededDirbeLevel(missionIndex, maneuverIndex),
     })),
   );
 }
@@ -1212,12 +1209,22 @@ export const SEED_SUBPHASES: SubphaseEntity[] = [
     customMissionNames: ['Circuito corto', 'Circuito largo'],
     autoMissionCode: '',
     autoMissionCount: 0,
-    maneuverIds: ['man-toff', 'man-land'],
-    maneuverOperationIds: ['op-vfr'],
-    maneuverAssignment: { 'man-toff': 'op-vfr', 'man-land': 'op-vfr' },
+    maneuverIds: ['man-toff', 'man-land', 'man-stall', 'man-hold'],
+    maneuverOperationIds: ['op-vfr', 'op-emer', 'op-ifr'],
+    maneuverAssignment: {
+      'man-toff': 'op-vfr',
+      'man-land': 'op-vfr',
+      'man-stall': 'op-emer',
+      'man-hold': 'op-ifr',
+    },
     standardAssignments: standardAssignmentsFor(
       [catalogMissionKey('mt-local'), customMissionKey('Circuito corto'), customMissionKey('Circuito largo')],
-      { 'man-toff': ['std-toff'], 'man-land': ['std-land'] },
+      {
+        'man-toff': ['std-toff'],
+        'man-land': ['std-land'],
+        'man-stall': ['std-crm'],
+        'man-hold': ['std-hold'],
+      },
     ),
     sortOrder: 2,
   },

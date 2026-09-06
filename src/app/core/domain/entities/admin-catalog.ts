@@ -104,6 +104,7 @@ export interface ProgramEnrollmentEntity {
   closeReason: string | null;
   groundCourseIds?: string[];
   groundEvaluations?: GroundEvaluationRecord[];
+  simulatorEvaluations?: GroundEvaluationRecord[];
 }
 
 export interface GroundEvaluationRecord {
@@ -182,6 +183,15 @@ export interface IndividualMissionAssignmentWriteInput {
 export type MissionExecutionStatus = 'scheduled' | 'in-progress' | 'completed';
 export type ManeuverGrade = 'D' | 'I' | 'R' | 'B' | 'E' | 'NC' | 'P';
 export type MissionResult = 'approved' | 'approved-observations' | 'reinforcement' | 'failed';
+export type MissionSignatureMethod = 'type' | 'draw' | 'image';
+
+export interface MissionSignature {
+  signerUserId: string;
+  signerName: string;
+  signedAt: string;
+  method: MissionSignatureMethod;
+  value: string;
+}
 
 export interface ManeuverEvaluationEntity {
   id: string;
@@ -189,6 +199,9 @@ export interface ManeuverEvaluationEntity {
   grade: ManeuverGrade | null;
   observation: string;
   evidenceName: string | null;
+  cause?: string;
+  recommendation?: string;
+  corrected?: boolean;
 }
 
 export interface MissionExecutionEntity {
@@ -207,6 +220,9 @@ export interface MissionExecutionEntity {
   recommendations: string;
   evaluations: ManeuverEvaluationEntity[];
   result: MissionResult | null;
+  instructorSignature?: MissionSignature | null;
+  studentSignature?: MissionSignature | null;
+  counselRequested?: boolean;
 }
 
 export interface MissionExecutionWriteInput {
@@ -223,6 +239,9 @@ export interface MissionExecutionWriteInput {
   recommendations: string;
   evaluations: ManeuverEvaluationEntity[];
   result: MissionResult | null;
+  instructorSignature?: MissionSignature | null;
+  studentSignature?: MissionSignature | null;
+  counselRequested?: boolean;
 }
 
 export interface CatalogWriteInput {

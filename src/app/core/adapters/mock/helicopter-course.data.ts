@@ -1,7 +1,10 @@
 import type {
   GroupMissionAssignmentEntity,
   IndividualMissionAssignmentEntity,
+  ManeuverGrade,
   MissionExecutionEntity,
+  MissionResult,
+  MissionSignature,
   ProgramEnrollmentEntity,
 } from '../../domain/entities/admin-catalog';
 import { curriculumMissionRefs } from '../../domain/services/admin-catalog';
@@ -27,6 +30,25 @@ export {
 export const HELICOPTER_COURSE_ID = HELICOPTER_PROGRAMS[0]?.id ?? 'prg-heli-2023';
 export const HELICOPTER_COURSE_PROMOTION_ID = 'promotion-2025-alfa';
 export const HELICOPTER_COURSE_INSTRUCTORS = ['usr-pablo-nunez', 'usr-carmen-lopez'] as const;
+
+const HELICOPTER_INSTRUCTOR_NAMES: Record<(typeof HELICOPTER_COURSE_INSTRUCTORS)[number], string> = {
+  'usr-pablo-nunez': 'Pablo Núñez Ortega',
+  'usr-carmen-lopez': 'Carmen López Vidal',
+};
+
+function instructorSignature(instructorId: string, date: string): MissionSignature {
+  const name =
+    instructorId in HELICOPTER_INSTRUCTOR_NAMES
+      ? HELICOPTER_INSTRUCTOR_NAMES[instructorId as keyof typeof HELICOPTER_INSTRUCTOR_NAMES]
+      : instructorId;
+  return {
+    signerUserId: instructorId,
+    signerName: name,
+    signedAt: `${date}T09:25:00.000Z`,
+    method: 'type',
+    value: name,
+  };
+}
 
 function isoDate(start: string, offsetDays: number): string {
   const date = new Date(`${start}T12:00:00.000Z`);
@@ -104,9 +126,61 @@ function seedHelicopterTrack(input: {
       recommendations: '',
       result: failed ? 'failed' : 'approved',
       evaluations: [{ id: `${executionId}-ev`, maneuverId: 'man-toff', grade, observation: '', evidenceName: null }],
+      instructorSignature: instructorSignature(instructorId, date),
     });
   });
   return { assignments, executions };
+}
+
+const DEMO_AIR_GRADE_SAMPLES: readonly { grades: readonly ManeuverGrade[]; result: MissionResult }[] = [
+  { grades: ['D', 'I', 'I'], result: 'approved' },
+  { grades: ['I', 'R', 'R'], result: 'approved' },
+];
+
+const DEMO_AIR_MANEUVER_IDS = ['man-heli-hover-takeoff', 'man-heli-hover', 'man-heli-landing'] as const;
+
+function airMissionIds(): Set<string> {
+  const airPhaseIds = new Set(HELICOPTER_PHASES.filter((phase) => phase.moduleKind === 'air').map((phase) => phase.id));
+  return new Set(
+    HELICOPTER_SUBPHASES.filter((item) => airPhaseIds.has(item.phaseId)).flatMap((item) =>
+      curriculumMissionRefs(item).map((ref) => ref.value),
+    ),
+  );
+}
+
+function applyDemoAirGradeSamples(track: {
+  assignments: IndividualMissionAssignmentEntity[];
+  executions: MissionExecutionEntity[];
+}): void {
+  const airIds = airMissionIds();
+  const executions = track.assignments
+    .filter((item) => airIds.has(item.missionId))
+    .map((item) => track.executions.find((execution) => execution.individualAssignmentId === item.id))
+    .filter((item): item is MissionExecutionEntity => !!item);
+  DEMO_AIR_GRADE_SAMPLES.forEach((sample, index) => {
+    const execution = executions[index];
+    if (!execution) return;
+    execution.result = sample.result;
+    execution.evaluations = sample.grades.map((grade, gradeIndex) => ({
+      id: `${execution.id}-ev-${gradeIndex + 1}`,
+      maneuverId: DEMO_AIR_MANEUVER_IDS[gradeIndex] ?? DEMO_AIR_MANEUVER_IDS[0],
+      grade,
+      observation: '',
+      evidenceName: null,
+      ...(index === 0 && gradeIndex === 0
+        ? {
+            corrected: true,
+            cause: 'Desvío respecto al estándar esperado.',
+            observation: 'Control de pedales irregular en el primer metro.',
+            recommendation: 'Repetir la secuencia con corrección del instructor.',
+          }
+        : {}),
+    }));
+  });
+  executions.slice(DEMO_AIR_GRADE_SAMPLES.length, DEMO_AIR_GRADE_SAMPLES.length + 2).forEach((execution) => {
+    execution.result = null;
+    execution.evaluations = [];
+  });
 }
 
 function promotionEnrollment(id: string, userId: string): ProgramEnrollmentEntity {
@@ -203,6 +277,9 @@ const silvia = seedHelicopterTrack({
   completeCount: silviaCount,
   gradePattern: 'solid',
 });
+applyDemoAirGradeSamples(sofia);
+applyDemoAirGradeSamples(diego);
+
 const silviaNext = slots[silviaCount];
 const silviaOpenDate = isoDate('2025-03-03', silviaCount);
 

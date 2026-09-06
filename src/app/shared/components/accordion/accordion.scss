@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .acc {
   display: grid;
   gap: var(--spacing-sm);
@@ -9,11 +13,51 @@
   border-radius: var(--radius-md);
 }
 
+.acc__head {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
 .acc__heading {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
   font-family: var(--font-body);
   font-size: var(--fs-md);
   font-weight: 600;
   letter-spacing: 0;
+}
+
+.acc__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  padding: 0.55rem 0.35rem 0.55rem 0;
+}
+
+.acc__chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.05rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.acc__chevron app-icon {
+  transition: transform var(--duration-med) var(--ease-out);
+}
+
+.acc__item--open .acc__chevron app-icon,
+.acc__item--open .acc__trigger app-icon {
+  transform: rotate(180deg);
 }
 
 .acc__trigger {
@@ -30,10 +74,6 @@
 
 .acc__trigger app-icon {
   transition: transform var(--duration-med) var(--ease-out);
-}
-
-.acc__item--open .acc__trigger app-icon {
-  transform: rotate(180deg);
 }
 
 .acc__panel {

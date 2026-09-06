@@ -1,0 +1,227 @@
+<div class="ap agb">
+  <div class="ap__head">
+    <div>
+      <h1>{{ program()?.programName ?? copy.boardTitle }}</h1>
+      <p class="ap__lead">{{ copy.boardLead }}</p>
+    </div>
+    <app-button variant="ghost" size="sm" icon="chevron-left" [href]="listHref">{{ copy.back }}</app-button>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.boardTitle" [subtitle]="copy.boardLead" [label]="copy.boardTitle" />
+  } @else if (board(); as data) {
+    @if (program(); as current) {
+      <app-card [interactive]="false" [padded]="false">
+        <div class="agb__hero">
+          <p class="agb__badges">
+            <span>{{ copy.programBadge }}</span>
+            <span>{{ current.programCode }}</span>
+          </p>
+          <dl class="agb__facts">
+            <div>
+              <dt>{{ copy.studentLabel }}</dt>
+              <dd>{{ data.displayName }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.indicativeLabel }}</dt>
+              <dd>{{ data.indicative || copy.none }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.unitLabel }}</dt>
+              <dd>{{ current.squadronName || copy.none }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.operationalLabel }}</dt>
+              <dd>{{ data.active ? copy.operationalActive : copy.operationalInactive }}</dd>
+            </div>
+          </dl>
+          <div class="agb__metrics">
+            <div>
+              <span>{{ copy.progressLabel }}</span>
+              <strong>{{ current.percentComplete }}%</strong>
+              <div class="agb__bar" role="progressbar" [attr.aria-valuenow]="current.percentComplete" aria-valuemin="0" aria-valuemax="100">
+                <span [style.width.%]="current.percentComplete"></span>
+              </div>
+              <small>{{ current.completedMissions }} {{ copy.outOf }} {{ current.completedMissions + current.pendingMissions }} {{ copy.phaseMissions }}</small>
+            </div>
+            <div>
+              <span>{{ copy.averageLabel }}</span>
+              <strong>{{ formatScore(current.average) }}</strong>
+              <small>{{ copy.scaleMax }}</small>
+            </div>
+            <div>
+              <span>{{ copy.hoursLabel }}</span>
+              <strong>{{ formatScore(current.accumulatedHours) }}</strong>
+              <small>{{ copy.outOf }} {{ formatScore(current.plannedHours) }} {{ copy.hoursUnit }}</small>
+            </div>
+            <div>
+              <span>{{ copy.missionsLabel }}</span>
+              <strong>{{ current.completedMissions }}</strong>
+              <small>{{ copy.approvedSuffix }}: {{ current.approvedMissions }}</small>
+              @if (current.failedMissions > 0) {
+                <small class="agb__warn">{{ current.failedMissions }} {{ copy.failedHint }}</small>
+              }
+            </div>
+          </div>
+        </div>
+      </app-card>
+
+      <app-card [interactive]="false" [padded]="true">
+        <div class="agb__legend-head">
+          <h2>{{ copy.legendTitle }}</h2>
+          <p>{{ copy.legendLead }}</p>
+        </div>
+        <ul class="agb__legend">
+          <li>
+            <span class="agb__swatch agb__swatch--pass"></span>
+            <div>
+              <strong>{{ copy.legendPass }}</strong>
+              <span>{{ copy.legendPassRange }}</span>
+            </div>
+          </li>
+          <li>
+            <span class="agb__swatch agb__swatch--regular"></span>
+            <div>
+              <strong>{{ copy.legendRegular }}</strong>
+              <span>{{ copy.legendRegularRange }}</span>
+            </div>
+          </li>
+          <li>
+            <span class="agb__swatch agb__swatch--fail"></span>
+            <div>
+              <strong>{{ copy.legendFail }}</strong>
+              <span>{{ copy.legendFailRange }}</span>
+            </div>
+          </li>
+          <li>
+            <span class="agb__swatch agb__swatch--pending"></span>
+            <div>
+              <strong>{{ copy.legendPending }}</strong>
+              <span>{{ copy.legendPendingRange }}</span>
+            </div>
+          </li>
+          <li>
+            <span class="agb__swatch agb__swatch--check"><app-icon name="check" /></span>
+            <div>
+              <strong>{{ copy.legendCheck }}</strong>
+            </div>
+          </li>
+        </ul>
+      </app-card>
+
+      <div class="agb__layout">
+        <div class="agb__matrix">
+          <app-accordion #phases>
+            @for (phase of current.phases; track phase.id; let phaseIndex = $index) {
+              <app-accordion-item
+                [itemId]="phase.id"
+                [open]="phases.isOpen(phase.id)"
+                (toggle)="phases.toggle($event)"
+              >
+                <span accTitle class="agb__acc-title">
+                  <span class="agb__acc-name">{{ phaseIndex + 1 }}. {{ phase.name }}</span>
+                  @if (phase.description) {
+                    <span class="agb__acc-hint">{{ phase.description }}</span>
+                  }
+                </span>
+                <div accMeta>
+                  <span class="agb__chip" [class.agb__chip--done]="phase.completed">
+                    {{ phase.totalMissions }} {{ copy.phaseMissions }} · {{ phase.evaluatedCount }} {{ copy.phaseEvaluated }}
+                    @if (phase.completed) {
+                      · {{ copy.phaseAccredited }}
+                    }
+                  </span>
+                </div>
+
+                <app-accordion class="agb__subs">
+                  @for (subphase of phase.subphases; track subphase.id; let subIndex = $index) {
+                    <app-accordion-item
+                      [itemId]="subphase.id"
+                      [open]="isSubphaseOpen(phase.id, subphase.id)"
+                      (toggle)="toggleSubphase(phase.id, $event)"
+                    >
+                      <span accTitle class="agb__acc-title">
+                        <span class="agb__acc-name">{{ phaseIndex + 1 }}.{{ subIndex + 1 }} {{ subphase.name }}</span>
+                        <span class="agb__acc-hint">
+                          {{ copy.subphaseAverage }}:
+                          {{ formatScore(subphase.average) }}
+                          · {{ subphase.flownLabel }} {{ copy.flown }}
+                        </span>
+                      </span>
+                      <div accMeta>
+                        @if (subphase.completed) {
+                          <span class="agb__done">
+                            <app-icon name="check" />
+                            {{ copy.subphaseDone }}
+                          </span>
+                        } @else {
+                          <span class="agb__progress">{{ copy.subphaseProgress }}</span>
+                        }
+                      </div>
+                      <div class="agb__tiles">
+                        @for (tile of subphase.tiles; track tile.code) {
+                          <button
+                            type="button"
+                            class="agb__tile"
+                            [class.agb__tile--pass]="tile.tone === 'pass'"
+                            [class.agb__tile--regular]="tile.tone === 'regular'"
+                            [class.agb__tile--fail]="tile.tone === 'fail'"
+                            [class.agb__tile--pending]="tile.tone === 'pending'"
+                            [attr.aria-label]="tileLabel(tile)"
+                            [disabled]="!tile.clickable"
+                            (click)="openTile(tile)"
+                          >
+                            <span class="agb__tile-code">{{ tile.code }}</span>
+                            <span class="agb__tile-score">{{ formatScore(tile.average) }}</span>
+                          </button>
+                        }
+                      </div>
+                    </app-accordion-item>
+                  }
+                </app-accordion>
+              </app-accordion-item>
+            }
+          </app-accordion>
+        </div>
+
+        <aside class="agb__side">
+          @if (data.spotlight; as spot) {
+            <app-card [interactive]="false" [padded]="true">
+              <h2>{{ copy.logTitle }} · {{ spot.code }}</h2>
+              <p>{{ spot.missionName }}</p>
+              <p>
+                {{ copy.aircraftLabel }}: <strong>{{ spot.aircraftLabel || copy.none }}</strong>
+                · {{ copy.flightTime }}: <strong>{{ formatScore(spot.executedHours) }} {{ copy.hoursUnit }}</strong>
+              </p>
+              <p>{{ copy.instructorLabel }}: {{ spot.instructorName || copy.none }}</p>
+              @if (spot.observations) {
+                <blockquote>{{ spot.observations }}</blockquote>
+              }
+              <app-button [disabled]="!spot.clickable" (click)="openSpotlight()">{{ copy.logOpen }}</app-button>
+            </app-card>
+          }
+
+          <app-card [interactive]="false" [padded]="true">
+            <h2>{{ copy.hoursDistribution }}</h2>
+            <p>{{ copy.hoursTotal }}: {{ formatScore(current.accumulatedHours) }} {{ copy.hoursUnit }}</p>
+            @for (phase of current.phases; track phase.id) {
+              <div class="agb__hours">
+                <div>
+                  <span>{{ phase.name }}</span>
+                  <strong>{{ formatScore(phase.hoursFlown) }} {{ copy.outOf }} {{ formatScore(phase.hoursPlanned) }} {{ copy.hoursUnit }}</strong>
+                </div>
+                <div class="agb__bar">
+                  <span [style.width.%]="hoursPercent(phase.hoursFlown, phase.hoursPlanned)"></span>
+                </div>
+              </div>
+            }
+          </app-card>
+        </aside>
+      </div>
+    } @else {
+      <app-alert>{{ copy.noPrograms }}</app-alert>
+    }
+  }
+</div>

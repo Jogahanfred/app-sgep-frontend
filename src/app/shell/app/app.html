@@ -6,7 +6,7 @@
   <main id="contenido-principal" class="app-shell__main">
     <router-outlet />
   </main>
-  @if (!bareChrome()) {
+  @if (!bareChrome() && !boardScreen()) {
     <app-footer />
     <app-back-to-top />
   }

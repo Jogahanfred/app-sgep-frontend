@@ -23,6 +23,9 @@ export const NAV_ROUTES = {
   flightOrder: '/catalogo/orden-de-vuelo',
   dispatch: '/catalogo/despacho-diario',
   missionExecution: '/catalogo/ejecucion-misiones',
+  airGrades: '/catalogo/calificaciones-aire',
+  groundGrading: '/catalogo/calificacion-tierra',
+  simulatorGrading: '/catalogo/calificacion-simulador',
   academicProgress: '/catalogo/avance-academico',
   reports: '/catalogo/reportes',
   reportStudentHistory: '/catalogo/reportes/historial-alumno',
@@ -34,3 +37,9 @@ export const NAV_ROUTES = {
   reportHoursAircraft: '/catalogo/reportes/horas-aeronave',
   reportInstructor: '/catalogo/reportes/rendimiento-instructor',
 } as const;
+
+export const MISSION_EXECUTION_BOARD_PATH = `${NAV_ROUTES.missionExecution}/tablero`;
+
+export function isMissionExecutionBoardUrl(url: string): boolean {
+  return url.split('?')[0].replace(/\/$/, '') === MISSION_EXECUTION_BOARD_PATH;
+}

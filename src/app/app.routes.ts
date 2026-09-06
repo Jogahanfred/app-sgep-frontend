@@ -635,9 +635,110 @@ export const routes: Routes = [
         data: { seo: { title: 'Ejecución y calificación de misiones | SIGA', description: 'Bandeja de misiones pendientes y calificación académica.' } },
       },
       {
+        path: 'ejecucion-misiones/tablero',
+        loadComponent: () => import('./features/catalog/presentation/pages/mission-execution-inbox/mission-execution-inbox.page').then((m) => m.MissionExecutionInboxPage),
+        data: { seo: { title: 'Próximas ejecuciones | SIGA', description: 'Tablero de próximas ejecuciones del día.' } },
+      },
+      {
         path: 'ejecucion-misiones/:id',
         loadComponent: () => import('./features/catalog/presentation/pages/mission-workspace/mission-workspace.page').then((m) => m.MissionWorkspacePage),
         data: { seo: { title: 'Workspace de misión | SIGA', description: 'Ejecuta, califica y cierra una misión.' } },
+      },
+      {
+        path: 'calificaciones-aire',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/air-grade-list/air-grade-list.page').then((m) => m.AirGradeListPage),
+        data: {
+          seo: {
+            title: 'Calificaciones de vuelo | SIGA',
+            description: 'Elige un programa para ver tu progresión de misiones aéreas.',
+          },
+        },
+      },
+      {
+        path: 'calificaciones-aire/:userId/programa/:programId',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/air-grade-board/air-grade-board.page').then((m) => m.AirGradeBoardPage),
+        data: {
+          seo: {
+            title: 'Progresión de misiones aéreas | SIGA',
+            description: 'Consulta las calificaciones de vuelo por fase y subfase.',
+          },
+        },
+      },
+      {
+        path: 'calificaciones-aire/:userId/mision/:executionId',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/air-grade-sheet/air-grade-sheet.page').then((m) => m.AirGradeSheetPage),
+        data: {
+          seo: {
+            title: 'Cartilla de vuelo | SIGA',
+            description: 'Revisa el calificativo de la misión y firma de conformidad.',
+          },
+        },
+      },
+      {
+        path: 'calificaciones-aire/:userId',
+        loadComponent: () =>
+          import('./features/catalog/presentation/pages/air-grade-board/air-grade-board.page').then((m) => m.AirGradeBoardPage),
+        data: {
+          seo: {
+            title: 'Progresión de misiones aéreas | SIGA',
+            description: 'Consulta las calificaciones de vuelo por fase y subfase.',
+          },
+        },
+      },
+      {
+        path: 'calificacion-tierra',
+        loadComponent: () =>
+          import('./features/ground-grading/presentation/pages/ground-grading-inbox/ground-grading-inbox.page').then(
+            (m) => m.GroundGradingInboxPage,
+          ),
+        data: {
+          seo: {
+            title: 'Cursos en tierra | SIGA',
+            description: 'Selecciona programa y promoción para calificar las asignaturas de aula.',
+          },
+        },
+      },
+      {
+        path: 'calificacion-tierra/:programId/:promotionId/:courseId',
+        loadComponent: () =>
+          import('./features/ground-grading/presentation/pages/ground-course-roster/ground-course-roster.page').then(
+            (m) => m.GroundCourseRosterPage,
+          ),
+        data: {
+          seo: {
+            title: 'Acta de curso en tierra | SIGA',
+            description: 'Califica a los alumnos de una asignatura en tierra.',
+          },
+        },
+      },
+      {
+        path: 'calificacion-simulador',
+        loadComponent: () =>
+          import('./features/simulator-grading/presentation/pages/simulator-grading-inbox/simulator-grading-inbox.page').then(
+            (m) => m.SimulatorGradingInboxPage,
+          ),
+        data: {
+          seo: {
+            title: 'Cursos en simulador | SIGA',
+            description: 'Selecciona programa y promoción para calificar las sesiones de simulador.',
+          },
+        },
+      },
+      {
+        path: 'calificacion-simulador/:programId/:promotionId/:sessionId',
+        loadComponent: () =>
+          import('./features/simulator-grading/presentation/pages/simulator-session-roster/simulator-session-roster.page').then(
+            (m) => m.SimulatorSessionRosterPage,
+          ),
+        data: {
+          seo: {
+            title: 'Acta de simulador | SIGA',
+            description: 'Califica a los alumnos de una sesión de simulador.',
+          },
+        },
       },
       {
         path: 'avance-academico',

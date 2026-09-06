@@ -27,6 +27,19 @@
   --color-focus: #1e8ae6;
   --color-overlay: rgb(20 20 20 / 48%);
 
+  --grade-p: #d32f2f;
+  --grade-p-ink: #ffffff;
+  --grade-d: #00bcd4;
+  --grade-d-ink: #ffffff;
+  --grade-i: #f5c400;
+  --grade-i-ink: #1a1a1a;
+  --grade-r: #4fc3f7;
+  --grade-r-ink: #07344a;
+  --grade-b: #1e8ae6;
+  --grade-b-ink: #ffffff;
+  --grade-e: #2e7d32;
+  --grade-e-ink: #ffffff;
+
   --font-display: 'Manrope', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: 'Manrope', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
@@ -84,4 +97,80 @@
     --duration-fast: 0ms;
     --duration-med: 0ms;
   }
+}
+
+.grade-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.55rem;
+  height: 2.55rem;
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+button.grade-chip {
+  cursor: pointer;
+}
+
+.grade-chip--empty {
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+
+.grade-chip--p:hover,
+.grade-chip--p.grade-chip--on {
+  background: var(--grade-p);
+  color: var(--grade-p-ink);
+}
+
+.grade-chip--d:hover,
+.grade-chip--d.grade-chip--on {
+  background: var(--grade-d);
+  color: var(--grade-d-ink);
+}
+
+.grade-chip--i:hover,
+.grade-chip--i.grade-chip--on {
+  background: var(--grade-i);
+  color: var(--grade-i-ink);
+}
+
+.grade-chip--r:hover,
+.grade-chip--r.grade-chip--on {
+  background: var(--grade-r);
+  color: var(--grade-r-ink);
+}
+
+.grade-chip--b:hover,
+.grade-chip--b.grade-chip--on {
+  background: var(--grade-b);
+  color: var(--grade-b-ink);
+}
+
+.grade-chip--e:hover,
+.grade-chip--e.grade-chip--on {
+  background: var(--grade-e);
+  color: var(--grade-e-ink);
+}
+
+.grade-chip--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.grade-chip--sm {
+  min-width: 1.85rem;
+  height: 1.85rem;
+  font-size: 0.72rem;
 }

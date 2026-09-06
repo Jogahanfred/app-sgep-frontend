@@ -32,7 +32,6 @@ const catalogs: NavColumn[] = [
   column(
     'Académico',
     links(
-      ['Programas', NAV_ROUTES.programs],
       ['Estándares', NAV_ROUTES.standards],
       ['Ponderaciones', NAV_ROUTES.weightings],
       ['Operaciones', NAV_ROUTES.operations],
@@ -60,12 +59,13 @@ const programming: NavColumn[] = [
   column(
     'Formación',
     links(
+      ['Programas', NAV_ROUTES.programs],
       ['Promociones', NAV_ROUTES.promotions],
       ['Matrícula', NAV_ROUTES.enrollment],
     ),
   ),
   column(
-    'Entrenamiento',
+    'Planificación',
     links(
       ['Orden de vuelo y asignación', NAV_ROUTES.flightOrder],
       ['Programación y despacho diario', NAV_ROUTES.dispatch],
@@ -73,17 +73,40 @@ const programming: NavColumn[] = [
   ),
 ];
 
-const missions: NavColumn[] = [
-  column(
-    'Ejecución',
-    links(['Ejecución y calificación', NAV_ROUTES.missionExecution]),
-  ),
-];
+// const missions: NavColumn[] = [
+//   column(
+//     'Ejecución',
+//     links(['Ejecución y calificación', NAV_ROUTES.missionExecution]),
+//   ),
+// ];
 
 const grades: NavColumn[] = [
   column(
+    'Curso en Tierra',
+    links(
+      ['Calificación de Materias', NAV_ROUTES.groundGrading],
+      ['Ver calificaciones', NAV_ROUTES.groundGrading],
+    ),
+  ),
+  column(
+    'Curso en el Aire',
+    links(
+      ['Ejecución y calificación', NAV_ROUTES.missionExecution],
+      ['Ver calificaciones', NAV_ROUTES.airGrades],
+    ),
+  ),
+  column(
+    'Curso en Simulador',
+    links(
+      ['Calificación de Sesiones', NAV_ROUTES.simulatorGrading],
+      ['Ver calificaciones', NAV_ROUTES.simulatorGrading]
+    ),
+  ),
+  column(
     'Seguimiento',
-    links(['Avance Académico', NAV_ROUTES.academicProgress]),
+    links(
+      ['Avance Académico', NAV_ROUTES.academicProgress],
+    ),
   ),
 ];
 
@@ -113,7 +136,7 @@ export const MAIN_NAV: NavGroup[] = [
   { label: 'Administración', columns: administration },
   { label: 'Catálogos', columns: catalogs },
   { label: 'Programación', columns: programming, matchHrefs: [NAV_ROUTES.training] },
-  { label: 'Misiones', columns: missions },
+  // { label: 'Misiones', columns: missions },
   { label: 'Calificaciones', columns: grades },
   { label: 'Reportes', columns: reports },
 ];

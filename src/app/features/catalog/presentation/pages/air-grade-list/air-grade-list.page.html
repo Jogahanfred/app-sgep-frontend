@@ -1,0 +1,28 @@
+<div class="ag-list">
+  <p class="ag-list__lead">{{ copy.listLead }}</p>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading />
+  } @else if (programs().length === 0) {
+    <app-alert>{{ copy.empty }}</app-alert>
+  } @else {
+    <div class="ag-list__grid">
+      @for (program of programs(); track program.programId) {
+        <ui-program-card
+          [href]="href(program)"
+          [title]="program.programName"
+          [kicker]="program.programCode"
+          [description]="program.description"
+          [imageUrl]="program.imageUrl"
+          [imageAlt]="program.programName"
+          [typeBadge]="program.programType"
+          [status]="program.academicStatus === 'suspended' ? 'inactive' : 'active'"
+          [statusLabel]="copy.status[program.academicStatus]"
+          [stats]="stats(program)"
+        />
+      }
+    </div>
+  }
+</div>

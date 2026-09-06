@@ -501,18 +501,9 @@ const subphaseSeeds: SubphaseSeed[] = [
 const maneuverById = new Map(HELICOPTER_MANEUVERS.map((item) => [item.id, item] as const));
 
 function dirbeLevel(index: number, count: number, maneuverIdValue: string): DirbeLevel {
-  if (count <= 1) return 'B';
-  if (count === 2) return index === 0 ? 'B' : 'E';
-
-  const levels: readonly DirbeLevel[] = ['D', 'I', 'R', 'B', 'E'];
-  const progress = index / (count - 1);
-  const operation = maneuverById.get(maneuverIdValue)?.operationId;
-  const foundational = operation === operationId.ground || operation === operationId.general;
+  const levels: readonly DirbeLevel[] = ['D', 'I', 'R', 'B'];
   const signature = [...maneuverIdValue].reduce((total, character) => total + character.charCodeAt(0), 0);
-  const variation = ((signature % 5) - 2) * 0.3;
-  const expected = foundational ? 3 + progress : progress * 4;
-  const levelIndex = Math.max(0, Math.min(levels.length - 1, Math.round(expected + variation)));
-  return levels[levelIndex];
+  return levels[(index + signature + count) % levels.length];
 }
 
 function toSubphase(seed: SubphaseSeed): SubphaseEntity {

@@ -1,5 +1,9 @@
 import { InvalidAdminCatalogError } from '../errors/domain-error';
-import type { GroundPeriodicExamKind, GroundPeriodicExamRule } from '../entities/admin-catalog';
+import type {
+  GroundEvaluationRecord,
+  GroundPeriodicExamKind,
+  GroundPeriodicExamRule,
+} from '../entities/admin-catalog';
 
 export const GROUND_PROGRAM_WEIGHT = {
   nit: 0.2,
@@ -328,6 +332,97 @@ export function programFinalGrade(nit: number, nia: number): number {
 
 export function applyLateExamFactor(score: number, unjustifiedAbsence: boolean): number {
   return unjustifiedAbsence ? score * GROUND_UNJUSTIFIED_ABSENCE_FACTOR : score;
+}
+
+export function assertGroundNumericGrade(grade: number): number {
+  if (!Number.isFinite(grade) || grade < 0 || grade > 20) {
+    throw new InvalidAdminCatalogError('La nota debe estar entre 0 y 20.');
+  }
+  return Math.round(grade * 10) / 10;
+}
+
+export function sanitizeGroundGradeInput(raw: string): string {
+  let integer = '';
+  let fraction = '';
+  let hasSeparator = false;
+  for (const char of raw.replace(',', '.')) {
+    if (char >= '0' && char <= '9') {
+      if (hasSeparator) {
+        if (fraction.length < 1) fraction += char;
+      } else {
+        integer += char;
+      }
+    } else if (char === '.' && !hasSeparator) {
+      hasSeparator = true;
+    }
+  }
+  integer = integer.replace(/^0+(?=\d)/, '');
+  if (!integer && (hasSeparator || fraction)) integer = '0';
+  if (!integer && !hasSeparator) return '';
+  const numeric = Number(fraction ? `${integer}.${fraction}` : integer);
+  if (Number.isFinite(numeric) && numeric > 20) return '20';
+  return hasSeparator ? `${integer}.${fraction}` : integer;
+}
+
+export function groundCourseRecords(
+  existing: readonly GroundEvaluationRecord[],
+  courseId: string,
+  syllabus: readonly GroundSyllabusItem[],
+): GroundEvaluationRecord[] {
+  const byCode = new Map(existing.filter((item) => item.courseId === courseId).map((item) => [item.code, item]));
+  return syllabus.map((item) => {
+    const recorded = byCode.get(item.code);
+    if (recorded) return recorded;
+    return { courseId, code: item.code, status: 'available', grade: null };
+  });
+}
+
+export function groundSheetCode(syllabus: readonly GroundSyllabusItem[], index: number): string {
+  const item = syllabus[index];
+  if (!item) return '';
+  const hasExam = syllabus.some((entry) => entry.kind === 'exam');
+  if (item.kind === 'test') {
+    return `TB${syllabus.filter((entry, offset) => offset <= index && entry.kind === 'test').length}`;
+  }
+  if (item.kind === 'exam') {
+    const count = syllabus.filter((entry, offset) => offset <= index && entry.kind === 'exam').length;
+    return count === 1 ? 'EP' : `EP${count}`;
+  }
+  if (item.kind === 'partial') return hasExam ? 'PP' : 'EP';
+  if (item.kind === 'final') return 'EX';
+  if (item.kind === 'talk') return 'EXP';
+  if (item.kind === 'oral') return 'OR';
+  return item.code;
+}
+
+export function groundRunningAverage(grades: readonly (number | null | undefined)[]): number | null {
+  const values = grades.filter((value): value is number => value !== null && value !== undefined && Number.isFinite(value));
+  if (!values.length) return null;
+  return Math.round((values.reduce((total, value) => total + value, 0) / values.length) * 10) / 10;
+}
+
+export function applyGroundAssessmentGrade(
+  existing: readonly GroundEvaluationRecord[],
+  courseId: string,
+  syllabus: readonly GroundSyllabusItem[],
+  code: string,
+  grade: number,
+): GroundEvaluationRecord[] {
+  const value = assertGroundNumericGrade(grade);
+  const index = syllabus.findIndex((item) => item.code === code);
+  if (index < 0) {
+    throw new InvalidAdminCatalogError('Esa evaluación no pertenece al curso.');
+  }
+  const course = groundCourseRecords(existing, courseId, syllabus);
+  const nextCode = syllabus[index + 1]?.code;
+  const updated = course.map((item) => {
+    if (item.code === code) return { ...item, status: 'completed' as const, grade: value };
+    if (nextCode && item.code === nextCode && item.status === 'blocked') {
+      return { ...item, status: 'available' as const };
+    }
+    return item;
+  });
+  return [...existing.filter((item) => item.courseId !== courseId), ...updated];
 }
 
 export function academicCodeFromName(name: string): string {

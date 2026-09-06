@@ -40,6 +40,17 @@
   font-weight: 700;
 }
 
+.sp__btn--disabled,
+.sp__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sp__btn--disabled:hover,
+.sp__btn:disabled:hover {
+  background: transparent;
+}
+
 .sp--wrap {
   flex-wrap: wrap;
   width: 100%;

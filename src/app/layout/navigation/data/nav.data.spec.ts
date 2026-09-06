@@ -4,9 +4,14 @@ import { NAV_ROUTES } from './nav-routes.constants';
 import { flattenNavLinks } from '@shared/models/nav.model';
 
 describe('MAIN_NAV', () => {
-  it('no reutiliza la misma ruta con etiquetas distintas', () => {
-    const hrefs = MAIN_NAV.flatMap((group) => flattenNavLinks(group).map((item) => item.href));
+  it('no reutiliza la misma ruta con etiquetas distintas, salvo las vistas pendientes de tierra y simulador', () => {
+    const links = MAIN_NAV.flatMap((group) => flattenNavLinks(group));
+    const allowedDuplicates = new Set<string>([NAV_ROUTES.groundGrading, NAV_ROUTES.simulatorGrading]);
+    const hrefs = links
+      .filter((item) => !allowedDuplicates.has(item.href))
+      .map((item) => item.href);
     expect(hrefs).toEqual([...new Set(hrefs)]);
+    expect(links.some((item) => item.label === 'Ver calificaciones' && item.href === NAV_ROUTES.airGrades)).toBe(true);
   });
 
   it('expone cada pantalla real una sola vez y en el grupo que le corresponde', () => {
@@ -19,17 +24,25 @@ describe('MAIN_NAV', () => {
       NAV_ROUTES.squadrons,
       NAV_ROUTES.commissions,
     ]);
-    expect(byLabel['Catálogos']).toContain(NAV_ROUTES.programs);
+    expect(byLabel['Catálogos']).toContain(NAV_ROUTES.standards);
     expect(byLabel['Catálogos']).toContain(NAV_ROUTES.phaseBanks);
     expect(byLabel['Catálogos']).toContain(NAV_ROUTES.aircraft);
     expect(byLabel['Programación']).toEqual([
+      NAV_ROUTES.programs,
       NAV_ROUTES.promotions,
       NAV_ROUTES.enrollment,
       NAV_ROUTES.flightOrder,
       NAV_ROUTES.dispatch,
     ]);
-    expect(byLabel['Misiones']).toEqual([NAV_ROUTES.missionExecution]);
-    expect(byLabel['Calificaciones']).toEqual([NAV_ROUTES.academicProgress]);
+    expect(byLabel['Calificaciones']).toEqual([
+      NAV_ROUTES.groundGrading,
+      NAV_ROUTES.groundGrading,
+      NAV_ROUTES.missionExecution,
+      NAV_ROUTES.airGrades,
+      NAV_ROUTES.simulatorGrading,
+      NAV_ROUTES.simulatorGrading,
+      NAV_ROUTES.academicProgress,
+    ]);
     expect(byLabel['Administración']).not.toContain(NAV_ROUTES.profile);
   });
 

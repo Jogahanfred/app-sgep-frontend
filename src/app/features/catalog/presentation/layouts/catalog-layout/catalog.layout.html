@@ -1,5 +1,5 @@
 <app-container [wide]="true">
-  <div class="adm">
+  <div class="adm" [class.adm--flush]="boardScreen()">
     @if (pageHeader(); as header) {
       <header class="adm__intro">
         <h1 class="adm__kicker">{{ header.title }}</h1>

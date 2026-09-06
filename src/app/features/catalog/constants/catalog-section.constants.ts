@@ -90,11 +90,23 @@ export const CATALOG_PAGE_HEADERS: Record<string, CatalogPageHeader> = {
   },
   'ejecucion-misiones': {
     title: 'Ejecución y calificación',
-    lead: 'Bandeja de misiones pendientes y calificación académica.',
+    lead: 'Centro de operaciones diario: misiones del día, próximas ejecuciones y alertas de turno.',
+  },
+  'calificaciones-aire': {
+    title: 'Calificaciones de vuelo',
+    lead: 'Elige un programa para consultar tu progresión de misiones aéreas y firmar las cartillas pendientes.',
   },
   'avance-academico': {
     title: 'Avance Académico',
     lead: 'Consulta el progreso actual y el historial de formación de cada alumno.',
+  },
+  'calificacion-tierra': {
+    title: 'Cursos en tierra',
+    lead: 'Califica las asignaturas de aula por programa y promoción, como un acta académica.',
+  },
+  'calificacion-simulador': {
+    title: 'Cursos en simulador',
+    lead: 'Califica las sesiones de dispositivo por programa y promoción, como un acta académica.',
   },
   reportes: {
     title: 'Reportes',
@@ -111,7 +123,7 @@ export function catalogPageHeader(url: string): CatalogPageHeader | null {
 
 export function isCatalogRecordUrl(url: string): boolean {
   if (isEnrollmentWorkspaceUrl(url)) return false;
-  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas|banco-fases|banco-subfases|promociones|matricula|programacion-entrenamiento|despacho-diario|orden-de-vuelo|ejecucion-misiones|avance-academico)\/[^/?#]+/.test(
+  return /\/catalogo\/(usuarios|roles|especialidades|unidades|escuadrones|comisiones-temporales|operaciones|tipos-de-mision|maniobras|estandares|ponderaciones|flotas|aeronaves|programas|banco-fases|banco-subfases|promociones|matricula|programacion-entrenamiento|despacho-diario|orden-de-vuelo|ejecucion-misiones|calificaciones-aire|avance-academico|calificacion-tierra|calificacion-simulador)\/[^/?#]+/.test(
     url,
   );
 }

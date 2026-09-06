@@ -38,7 +38,8 @@ export type IconName =
   | 'eye'
   | 'pencil'
   | 'trash'
-  | 'inbox';
+  | 'inbox'
+  | 'refresh';
 
 const PATHS: Record<IconName, string> = {
   'arrow-right': 'M5 12h14M13 6l6 6-6 6',
@@ -79,6 +80,7 @@ const PATHS: Record<IconName, string> = {
   pencil: 'M4 20h4L18 10l-4-4L4 16v4ZM13.5 6.5l4 4',
   trash: 'M5 7h14M10 7V5h4v2M8 7l1 13h6l1-13',
   inbox: 'M3 8h18l-2 11H5L3 8Zm0 0 9 6 9-6M8 8V5h8v3',
+  refresh: 'M21 12a9 9 0 1 1-3.16-6.76M21 3v6h-6',
 }
 
 @Component({

@@ -1,0 +1,157 @@
+.gr {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.gr__nav,
+.gr__kicker,
+.gr__title {
+  margin: 0;
+}
+
+.gr__kicker {
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gr__title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+}
+
+.gr__search {
+  max-width: 24rem;
+}
+
+.gr__sheet {
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+  border-spacing: 0;
+  caret-color: transparent;
+  user-select: none;
+}
+
+th,
+td {
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #e4e4e4;
+  text-align: center;
+  vertical-align: middle;
+  font-size: var(--fs-sm);
+}
+
+th {
+  color: #4a4a4a;
+  background: color-mix(in srgb, var(--color-primary) 8%, #fff);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+td {
+  background: #fff;
+}
+
+.gr__index {
+  width: 2.6rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.gr__name-h,
+.gr__name {
+  min-width: 14rem;
+  text-align: left;
+}
+
+.gr__name {
+  font-weight: 800;
+}
+
+.gr__topic {
+  min-width: 4.2rem;
+}
+
+.gr__avg-h,
+.gr__avg {
+  min-width: 9.5rem;
+  background: color-mix(in srgb, var(--color-primary) 16%, #fff);
+  font-weight: 800;
+}
+
+.gr__avg-cell {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+tbody tr:not(.gr__empty) {
+  animation: fade-row 0.38s both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes fade-row {
+  from {
+    opacity: 0;
+    transform: translateY(-0.4rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gr__mark {
+  box-sizing: border-box;
+  width: 3.85rem;
+  height: var(--control-height, 2.5rem);
+  min-height: var(--control-height, 2.5rem);
+  padding: 0 0.45rem;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  appearance: textfield;
+  caret-color: #111;
+  user-select: text;
+}
+
+.gr__mark:hover:not(:disabled) {
+  border-color: #d4d4d4;
+}
+
+.gr__mark:focus {
+  border-color: var(--color-control);
+  outline: none;
+}
+
+.gr__mark:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.gr__mark::-webkit-outer-spin-button,
+.gr__mark::-webkit-inner-spin-button {
+  display: none;
+  margin: 0;
+  appearance: none;
+}

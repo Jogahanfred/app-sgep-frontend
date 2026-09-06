@@ -1,19 +1,296 @@
-<div class="ap">
-  <div class="ap__head"><div><h1>Workspace de misión</h1><p class="ap__lead">Ejecuta la misión, registra las horas y califica cada maniobra.</p></div><app-button variant="ghost" href="/catalogo/ejecucion-misiones">Volver a la bandeja</app-button></div>
-  @if (loading() || saving()) { <ui-loading [title]="saving() ? 'Guardando misión' : 'Cargando misión'" [subtitle]="saving() ? 'Actualizando el expediente académico.' : 'Un momento.'" [label]="saving() ? 'Guardando misión' : 'Cargando misión'" /> } @else if (error() && !execution()) { <app-alert tone="error">{{ error() }}</app-alert> } @else if (execution(); as current) {
-    <div class="workspace-layout">
-      <main>
-        <ui-form-card>
-          <section class="mission-summary"><div><span class="workspace__eyebrow">{{ current.status === 'in-progress' ? 'En ejecución' : current.status === 'completed' ? 'Completada' : 'Programada' }}</span><h2>{{ title() }}</h2><p>{{ person() }} · {{ instructor() }}</p></div><ui-avatar [name]="person()" size="md" /></section>
-          @if (error()) { <app-alert tone="error">{{ error() }}</app-alert> }
-          @if (current.status === 'scheduled') { <div class="start-banner"><div><strong>La misión está lista para comenzar.</strong><p>Registra la hora de inicio cuando el alumno esté preparado.</p></div><app-button icon="arrow-right" (click)="start()">Iniciar misión</app-button></div> }
-          <section class="execution-section"><div class="section-title"><h2>Registro de ejecución</h2><span>{{ current.status === 'in-progress' ? 'En curso' : 'Horas reales' }}</span></div><div class="ap__grid"><ui-input id="start-time" label="Hora de inicio" type="text" icon="calendar" placeholder="09:00" [field]="form.controls.startTime" /><ui-input id="takeoff-time" label="Hora despegue" type="text" icon="calendar" placeholder="09:15" [field]="form.controls.takeoffTime" /><ui-input id="landing-time" label="Hora aterrizaje" type="text" icon="calendar" placeholder="10:45" [field]="form.controls.landingTime" /><ui-input id="executed-hours" label="Horas ejecutadas" type="number" icon="calendar" [field]="form.controls.executedHours" /><ui-select id="aircraft" label="Aeronave utilizada" [uppercase]="false" [options]="aircraft()" [value]="form.controls.aircraftId.value" (valueChange)="form.controls.aircraftId.setValue($event)" /></div><ui-textarea id="execution-observations" label="Observaciones de ejecución" icon="info" placeholder="Describe el desarrollo de la misión" [field]="form.controls.observations" [rows]="3" /></section>
-          <section class="evaluation-section"><div class="section-title"><div><h2>Calificación de maniobras</h2><p>Evalúa todas las maniobras antes de cerrar.</p></div><strong>{{ evaluatedCount() }}/{{ rows().length }} evaluadas</strong></div><div class="maneuvers">@for (row of rows(); track row.maneuver.id) { <article class="maneuver" [class.maneuver--open]="openManeuver() === row.maneuver.id"><button type="button" class="maneuver__trigger" (click)="toggle(row.maneuver.id)"><span><strong>{{ row.maneuver.code }} · {{ row.maneuver.name }}</strong><small>{{ row.maneuver.description }}</small></span><span>{{ row.grade || 'Pendiente' }} <span aria-hidden="true">⌄</span></span></button>@if (openManeuver() === row.maneuver.id) { <div class="maneuver__body"><ui-select [id]="'grade-' + row.maneuver.id" label="Calificación" [uppercase]="false" [options]="grades" [value]="row.grade ?? ''" (valueChange)="setGrade(row.maneuver.id, $event)" /><ui-textarea [id]="'observation-' + row.maneuver.id" label="Observación" placeholder="Añade una observación sobre esta maniobra" [field]="form.controls.observations" [rows]="3" /></div> }</article> }</div></section>
-          <section class="observations"><h2>Resultado y observaciones generales</h2><div class="ap__grid"><ui-select id="mission-result" label="Resultado final" [uppercase]="false" [options]="results" [value]="form.controls.result.value ?? ''" (valueChange)="setResult($event)" /><ui-textarea id="strengths" label="Fortalezas" placeholder="Qué hizo bien el alumno" [field]="form.controls.strengths" [rows]="2" /></div><div class="ap__grid"><ui-textarea id="improvements" label="Aspectos a mejorar" placeholder="Qué debe reforzar" [field]="form.controls.improvements" [rows]="2" /><ui-textarea id="recommendations" label="Recomendaciones" placeholder="Próximos pasos" [field]="form.controls.recommendations" [rows]="2" /></div></section>
-          <div class="workspace-actions"><app-button variant="secondary" [disabled]="saving()" (click)="save()">Guardar avances</app-button><app-button [disabled]="!canClose() || saving()" (click)="close()">Finalizar misión</app-button></div>
-        </ui-form-card>
-      </main>
-      <app-card class="result-panel" [interactive]="false" [padded]="true"><p class="workspace__eyebrow">Resultado preliminar</p><h2>{{ average() }}%</h2><p>Promedio de maniobras</p><div class="result-panel__metric"><strong>{{ evaluatedCount() }}/{{ rows().length }}</strong><span>Maniobras evaluadas</span></div><div class="result-panel__metric"><strong>{{ form.controls.executedHours.value || 0 }} h</strong><span>Horas registradas</span></div><ui-steps [steps]="steps" [current]="statusStep()" label="Estado de la misión" />@if (!canClose()) { <p class="result-panel__warning">Completa todas las calificaciones y registra horas para finalizar.</p> }</app-card>
+<div class="ap mw">
+  @if (loading() || (saving() && !savingNotesId())) {
+    <ui-loading
+      [title]="saving() ? copy.saveDraft : copy.sheetKicker"
+      [subtitle]="saving() ? copy.saved : copy.maneuversLead"
+      [label]="saving() ? copy.saveDraft : copy.sheetKicker"
+    />
+  } @else if (error() && !execution()) {
+    <app-alert tone="error">{{ error() }}</app-alert>
+  } @else if (execution(); as current) {
+    <div class="ap__head">
+      <div>
+        <h1>{{ copy.pageTitle }}</h1>
+        <p class="ap__lead">{{ copy.pageLead }}</p>
+      </div>
+      <div class="mw__bar-actions">
+        <app-button variant="ghost" size="sm" icon="chevron-left" [href]="inboxHref">{{ copy.back }}</app-button>
+        <app-button variant="secondary" size="sm" [disabled]="saving()" (click)="save()">{{ copy.saveDraft }}</app-button>
+      </div>
     </div>
+
+    @if (history().length) {
+      <div class="mw__history">
+        <span class="mw__history-label">{{ copy.historyLabel }}</span>
+        @for (chip of history(); track chip.id) {
+          @if (chip.current) {
+            <span class="mw__chip mw__chip--on">{{ chip.code }} · {{ copy.currentMission }}</span>
+          } @else {
+            <a class="mw__chip" [routerLink]="[inboxHref, chip.id]">{{ chip.code }} <strong>{{ chip.score }}</strong></a>
+          }
+        }
+      </div>
+    }
+
+    <section class="mw__hero">
+      <div class="mw__hero-copy">
+        <p class="mw__kicker">{{ copy.sheetKicker }}@if (missionCode()) { <span>· {{ missionCode() }}</span> }</p>
+        <h2>{{ missionName() }}</h2>
+        <span class="mw__phase">{{ phaseLabel() }}</span>
+      </div>
+      <div class="mw__status">
+        <span>{{ copy.results.failed === resultLabel() || form.controls.result.value ? resultLabel() : copy.pending }}</span>
+      </div>
+      <div class="mw__facts">
+        <div class="mw__fact">
+          <ui-avatar [name]="studentName()" size="sm" />
+          <div>
+            <span>{{ copy.studentLabel }}</span>
+            <strong>{{ studentName() }}</strong>
+          </div>
+        </div>
+        <div class="mw__fact">
+          <ui-avatar [name]="instructorName()" size="sm" />
+          <div>
+            <span>{{ copy.instructorLabel }}</span>
+            <strong>{{ instructorName() }}</strong>
+          </div>
+        </div>
+        <div class="mw__fact">
+          <div>
+            <span>{{ copy.aircraftLabel }}</span>
+            <strong>{{ aircraftLabel() }}</strong>
+          </div>
+        </div>
+        <div class="mw__fact">
+          <div>
+            <span>{{ copy.dateLabel }}</span>
+            <strong>{{ dateLabel() }}</strong>
+            <small>{{ hoursLabel() }}</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    @if (error()) {
+      <app-alert tone="error">{{ error() }}</app-alert>
+    }
+    @if (failedByDangerous()) {
+      <app-alert tone="error">{{ copy.failedBanner }}</app-alert>
+    }
+
+    <div class="mw__layout">
+      <div class="mw__main">
+        <div class="mw__legend">
+          <div>
+            <h2>{{ copy.maneuversTitle }}</h2>
+            <p>{{ copy.maneuversLead }}</p>
+          </div>
+          <div class="mw__scale">
+            <span>{{ copy.scaleLabel }}</span>
+            @for (grade of gradeScale; track grade) {
+              <span
+                [class]="gradeChipClass(grade, true) + ' grade-chip--sm grade-chip--static'"
+                [attr.title]="gradeTitle(grade)"
+              >{{ grade }}</span>
+            }
+          </div>
+        </div>
+
+        <app-accordion #maneuvers>
+          @for (row of rows(); track row.maneuver.id; let index = $index) {
+            <app-accordion-item
+              [itemId]="row.maneuver.id"
+              [open]="maneuvers.isOpen(row.maneuver.id)"
+              (toggle)="maneuvers.toggle($event)"
+            >
+              <span accTitle class="mw__acc-title">
+                <span
+                  [class]="gradeChipClass(row.expectedStandard, true) + ' grade-chip--static mw__expected'"
+                  [attr.title]="copy.expectedStandard"
+                >
+                  {{ row.expectedStandard ?? copy.none }}
+                </span>
+                <span class="mw__acc-copy">
+                  <span class="mw__maneuver-meta">{{ row.maneuver.code }}</span>
+                  <span class="mw__maneuver-name">{{ index + 1 }}. {{ row.maneuver.name }}</span>
+                </span>
+              </span>
+              <div accMeta class="mw__maneuver-tools">
+                @if (showCor(row.maneuver.id)) {
+                  <span class="mw__cor">
+                    <app-icon name="check" />
+                    {{ copy.corLabel }}
+                  </span>
+                }
+                <div class="mw__grades" role="group" [attr.aria-label]="copy.scaleLabel">
+                  @for (grade of gradeScale; track grade) {
+                    <button
+                      type="button"
+                      [class]="gradeChipClass(grade, row.grade === grade)"
+                      [attr.title]="gradeTitle(grade)"
+                      (click)="$event.stopPropagation(); setGrade(row.maneuver.id, grade)"
+                    >
+                      {{ grade }}
+                    </button>
+                  }
+                </div>
+                <span
+                  class="mw__delta"
+                  [class.mw__delta--up]="gradeDelta(row) > 0"
+                  [class.mw__delta--down]="gradeDelta(row) < 0"
+                  [class.mw__delta--flat]="gradeDelta(row) === 0"
+                  [attr.title]="copy.deltaLabel"
+                >
+                  @if (gradeDelta(row) > 0) {
+                    <app-icon name="arrow-up" />
+                  } @else if (gradeDelta(row) < 0) {
+                    <app-icon name="arrow-down" />
+                  }
+                  <span>{{ gradeDeltaLabel(row) }}</span>
+                </span>
+              </div>
+              @if (row.maneuver.description) {
+                <p class="mw__maneuver-desc">{{ row.maneuver.description }}</p>
+              }
+              <div class="mw__notes mw__notes--cause">
+                <ui-textarea
+                  [id]="'cause-' + row.maneuver.id"
+                  [label]="copy.causeLabel"
+                  [field]="notesOf(row.maneuver.id).cause"
+                  [rows]="3"
+                  [placeholder]="copy.causePlaceholder"
+                />
+              </div>
+              <div class="mw__notes mw__notes--rec">
+                <ui-textarea
+                  [id]="'recommendation-' + row.maneuver.id"
+                  [label]="copy.recommendationLabel"
+                  [field]="notesOf(row.maneuver.id).recommendation"
+                  [rows]="3"
+                  [placeholder]="copy.recommendationPlaceholder"
+                />
+              </div>
+              <div class="mw__notes mw__notes--obs">
+                <ui-textarea
+                  [id]="'observation-' + row.maneuver.id"
+                  [label]="copy.observationLabel"
+                  [field]="notesOf(row.maneuver.id).observation"
+                  [rows]="3"
+                  [placeholder]="copy.observationPlaceholder"
+                />
+              </div>
+              @if (hasPendingNotes(row.maneuver.id)) {
+                <div class="mw__notes-save">
+                  <app-button
+                    size="sm"
+                    [disabled]="savingNotesId() === row.maneuver.id"
+                    (click)="saveNotes(row.maneuver.id)"
+                  >
+                    {{ copy.save }}
+                  </app-button>
+                </div>
+              }
+            </app-accordion-item>
+          }
+        </app-accordion>
+      </div>
+
+      <aside class="mw__side">
+        <app-card [interactive]="false" [padded]="true">
+          <p class="mw__kicker">{{ copy.scoreTitle }}</p>
+          <p class="mw__score">{{ scoreLabel() }} <small>{{ copy.scoreUnit }}</small></p>
+          <div class="mw__bar-track"><span [style.width]="scoreWidth()"></span></div>
+          <p class="mw__verdict">{{ resultLabel() }}</p>
+          @if (failedByDangerous()) {
+            <p class="mw__fail-note">{{ copy.failedBanner }}</p>
+          }
+          <dl class="mw__metrics">
+            <div>
+              <dt>{{ copy.evaluatedLabel }}</dt>
+              <dd>{{ evaluatedCount() }} / {{ rows().length }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.hoursLabel }}</dt>
+              <dd>{{ form.controls.executedHours.value || 0 }} h</dd>
+            </div>
+          </dl>
+          <ui-select
+            id="mission-result"
+            [label]="copy.scoreTitle"
+            [uppercase]="false"
+            [options]="resultOptions"
+            [value]="form.controls.result.value ?? ''"
+            [disabled]="failedByDangerous()"
+            (valueChange)="setResult($event)"
+          />
+        </app-card>
+      </aside>
+    </div>
+
+    <section class="mw__comments">
+      <app-card [interactive]="false" [padded]="true">
+        <h2>{{ copy.commentsTitle }}</h2>
+        <p>{{ copy.commentsLead }}</p>
+        <ui-textarea id="mission-comments" [label]="copy.commentsTitle" [field]="form.controls.observations" [rows]="5" [placeholder]="copy.commentsLead" />
+        <div class="mw__hours">
+          <ui-input id="executed-hours" [label]="copy.hoursLabel" type="number" [field]="form.controls.executedHours" />
+        </div>
+      </app-card>
+    </section>
+
+    <section class="mw__signs">
+      <h2>{{ copy.signaturesTitle }}</h2>
+      <div class="mw__sign-grid">
+        <app-card [interactive]="false" [padded]="true">
+          <p class="mw__kicker">{{ copy.signInstructor }}</p>
+          <strong>{{ instructorName() }}</strong>
+          @if (instructorSignature(); as signed) {
+            <p class="mw__signed">{{ copy.signed }}</p>
+            @if (signed.method === 'type') {
+              <p class="mw__autograph">{{ signed.value }}</p>
+            } @else {
+              <img class="mw__autograph-img" [src]="signed.value" alt="" />
+            }
+          } @else {
+            <p>{{ copy.pendingSignature }}</p>
+            <app-button size="sm" [disabled]="!canSignInstructor() || saving()" (click)="openSignature('instructor')">
+              {{ copy.signCta }}
+            </app-button>
+          }
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <p class="mw__kicker">{{ copy.signStudent }}</p>
+          <strong>{{ studentName() }}</strong>
+          @if (studentSignature(); as signed) {
+            <p class="mw__signed">{{ copy.signed }}</p>
+            @if (signed.method === 'type') {
+              <p class="mw__autograph">{{ signed.value }}</p>
+            } @else {
+              <img class="mw__autograph-img" [src]="signed.value" alt="" />
+            }
+          } @else {
+            <p>{{ copy.pendingSignature }}</p>
+            <app-button size="sm" [disabled]="!canSignStudent() || saving()" (click)="openSignature('student')">
+              {{ copy.signCta }}
+            </app-button>
+          }
+        </app-card>
+      </div>
+      <div class="mw__close-bar">
+        @if (failedMission()) {
+          <app-button variant="secondary" [disabled]="saving()" (click)="requestCounsel()">{{ copy.counselQuestion }}</app-button>
+        }
+        <app-button icon="check" [disabled]="!canClose() || saving()" (click)="close()">{{ copy.closeMission }}</app-button>
+      </div>
+    </section>
+
+    <app-mission-signature-dialog
+      [open]="!!signingPad()"
+      [title]="signingTitle()"
+      [defaultName]="signingDefaultName()"
+      (closed)="closeSignature()"
+      (applied)="applySignature($event)"
+    />
   }
 </div>

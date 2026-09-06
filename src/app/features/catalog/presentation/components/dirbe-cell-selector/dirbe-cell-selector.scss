@@ -58,35 +58,35 @@
   background: var(--color-surface-alt);
   color: #8a8a8a;
 }
-
+ 
 .dcs--empty .dcs__value {
   font-size: var(--fs-md);
   font-weight: 600;
 }
 
 .dcs--d {
-  background: #dceef8;
-  color: #17689f;
+  background: var(--grade-d);
+  color: var(--grade-d-ink);
 }
 
 .dcs--i {
-  background: #ffe4e4;
-  color: #a52f2f;
+  background: var(--grade-i);
+  color: var(--grade-i-ink);
 }
 
 .dcs--r {
-  background: #fff3c8;
-  color: #7a5700;
+  background: var(--grade-r);
+  color: var(--grade-r-ink);
 }
 
 .dcs--b {
-  background: #dcf2e6;
-  color: #246c45;
+  background: var(--grade-b);
+  color: var(--grade-b-ink);
 }
 
 .dcs--e {
-  background: #e8e4fc;
-  color: #5146a5;
+  background: var(--grade-e);
+  color: var(--grade-e-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {

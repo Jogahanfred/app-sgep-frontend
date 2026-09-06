@@ -1,0 +1,46 @@
+.sig {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.sig__tabs,
+.sig__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sig__actions {
+  justify-content: flex-end;
+}
+
+.sig__pad {
+  min-height: 10rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.sig__preview {
+  min-height: 4.5rem;
+  margin: 0 0 0.85rem;
+  border-bottom: 2px solid var(--color-primary);
+  color: #111;
+  font-family: 'Segoe Script', 'Lucida Handwriting', cursive;
+  font-size: 2rem;
+}
+
+.sig__canvas,
+.sig__image {
+  display: block;
+  width: 100%;
+  height: 11rem;
+  border-bottom: 2px solid var(--color-primary);
+  cursor: crosshair;
+}
+
+.sig__image {
+  object-fit: contain;
+  cursor: default;
+}

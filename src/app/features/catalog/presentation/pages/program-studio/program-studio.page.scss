@@ -678,12 +678,12 @@
 }
 
 .calibrator {
-  --cal-d: #c9f4f6;
-  --cal-i: #ffe9a8;
-  --cal-r: #c5e7fb;
-  --cal-b: #c5d9f8;
-  --cal-e: #c9ecd6;
-  --cal-p: #f8c9c4;
+  --cal-d: color-mix(in srgb, var(--grade-d) 28%, #fff);
+  --cal-i: color-mix(in srgb, var(--grade-i) 38%, #fff);
+  --cal-r: color-mix(in srgb, var(--grade-r) 32%, #fff);
+  --cal-b: color-mix(in srgb, var(--grade-b) 28%, #fff);
+  --cal-e: color-mix(in srgb, var(--grade-e) 28%, #fff);
+  --cal-p: color-mix(in srgb, var(--grade-p) 28%, #fff);
   display: grid;
   gap: var(--spacing-lg);
   padding: var(--spacing-md);

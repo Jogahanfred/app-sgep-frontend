@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { isMissionExecutionBoardUrl } from '@layout/navigation/data/nav-routes.constants';
+import { Container } from '@shared/components/container/container';
 import { filter, map } from 'rxjs';
 import { catalogPageHeader, isCatalogRecordUrl } from '../../../constants/catalog-section.constants';
-import { Container } from '@shared/components/container/container';
 
 @Component({
   selector: 'app-catalog-layout',
@@ -14,6 +15,14 @@ import { Container } from '@shared/components/container/container';
 })
 export class CatalogLayout {
   private readonly router = inject(Router);
+
+  readonly boardScreen = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => isMissionExecutionBoardUrl(event.urlAfterRedirects)),
+    ),
+    { initialValue: isMissionExecutionBoardUrl(this.router.url) },
+  );
 
   readonly pageHeader = toSignal(
     this.router.events.pipe(

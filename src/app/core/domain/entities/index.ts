@@ -64,6 +64,8 @@ export type {
   MissionExecutionStatus,
   MissionExecutionWriteInput,
   MissionResult,
+  MissionSignature,
+  MissionSignatureMethod,
   TrainingAssignmentStatus,
   OperationEntity,
   SquadronEntity,
@@ -142,3 +144,13 @@ export type {
   UserProfile,
 } from './user-profile';
 export { DEMO_PASSWORD } from './user-profile';
+export {
+  DIRBEP_GRADE_CODES,
+  DIRBEP_GRADE_COLOR_VARS,
+  dirbepGradeChipClass,
+  dirbepGradeTone,
+  dirbeLevelDelta,
+  formatDirbeLevelDelta,
+  isDirbepGradeCode,
+} from '../constants/dirbep-grade.constants';
+export type { DirbepGradeCode } from '../constants/dirbep-grade.constants';

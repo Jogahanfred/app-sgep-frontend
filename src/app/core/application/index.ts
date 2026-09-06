@@ -27,6 +27,38 @@ export type {
 } from './use-cases/get-daily-dispatch-board';
 export { AssignGroundCourses } from './use-cases/assign-ground-courses';
 export type { AssignGroundCoursesInput } from './use-cases/assign-ground-courses';
+export { GetGroundInstructionBoard } from './use-cases/get-ground-instruction-board';
+export type {
+  GroundInstructionBoard,
+  GroundInstructionCourseCard,
+  GroundInstructionOffering,
+  GroundInstructionProgramOption,
+  GroundInstructionPromotionOption,
+} from './use-cases/get-ground-instruction-board';
+export { GetGroundCourseRoster } from './use-cases/get-ground-course-roster';
+export type {
+  GroundCourseAssessmentView,
+  GroundCourseRoster,
+  GroundCourseStudentRow,
+} from './use-cases/get-ground-course-roster';
+export { SaveGroundCourseGrade } from './use-cases/save-ground-course-grade';
+export type { SaveGroundCourseGradeInput } from './use-cases/save-ground-course-grade';
+export { GetSimulatorInstructionBoard } from './use-cases/get-simulator-instruction-board';
+export type {
+  SimulatorInstructionBoard,
+  SimulatorInstructionOffering,
+  SimulatorInstructionProgramOption,
+  SimulatorInstructionPromotionOption,
+  SimulatorInstructionSessionCard,
+} from './use-cases/get-simulator-instruction-board';
+export { GetSimulatorSessionRoster } from './use-cases/get-simulator-session-roster';
+export type {
+  SimulatorSessionAssessmentView,
+  SimulatorSessionRoster,
+  SimulatorSessionStudentRow,
+} from './use-cases/get-simulator-session-roster';
+export { SaveSimulatorSessionGrade } from './use-cases/save-simulator-session-grade';
+export type { SaveSimulatorSessionGradeInput } from './use-cases/save-simulator-session-grade';
 export { GetFlightOrderBoard, flightOrderCorrelative } from './use-cases/get-flight-order-board';
 export type {
   FlightOrderBoard,
@@ -120,6 +152,19 @@ export { GetHelpTopics } from './use-cases/get-help-topics';
 export { ListAcademicProgress } from './use-cases/list-academic-progress';
 export type { AcademicProgressBoard, AcademicProgressRow } from './use-cases/list-academic-progress';
 export { GetAcademicRecord } from './use-cases/get-academic-record';
+export { GetAirGradeBoard } from './use-cases/get-air-grade-board';
+export type {
+  AirGradeBoard,
+  AirGradeMissionTile,
+  AirGradePhaseView,
+  AirGradeProgramView,
+  AirGradeSubphaseView,
+} from './use-cases/get-air-grade-board';
+export { GetAirGradeSheet } from './use-cases/get-air-grade-sheet';
+export type { AirGradeManeuverView, AirGradeSheet } from './use-cases/get-air-grade-sheet';
+export { SignAirGradeMission } from './use-cases/sign-air-grade-mission';
+export type { SignAirGradeMissionInput } from './use-cases/sign-air-grade-mission';
+export { RequestAirGradeObjection } from './use-cases/request-air-grade-objection';
 export type {
   AcademicRecordDetail,
   AcademicRecordEvaluationView,

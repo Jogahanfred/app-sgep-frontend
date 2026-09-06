@@ -176,7 +176,7 @@ describe('formación académica', () => {
     expect(subphases.every((item) => item.standardAssignments.every((cell) => cell.dirbeLevel))).toBe(true);
     expect(
       [...new Set(subphases.flatMap((item) => item.standardAssignments.map((cell) => cell.dirbeLevel)))].sort(),
-    ).toEqual(['B', 'D', 'E', 'I', 'R']);
+    ).toEqual(['B', 'D', 'I', 'R']);
   });
 
   it('crea un plan de estudios y rechaza horas inválidas', async () => {

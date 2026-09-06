@@ -10,7 +10,7 @@ import { Icon } from '../icon/icon';
   styleUrl: './accordion.scss',
 })
 export class Accordion {
-  readonly items = input.required<FaqItem[]>();
+  readonly items = input<FaqItem[]>([]);
   readonly openId = signal<string | null>(null);
 
   isOpen(id: string): boolean {

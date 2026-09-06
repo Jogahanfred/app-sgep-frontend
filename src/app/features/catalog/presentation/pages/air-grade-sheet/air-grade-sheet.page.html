@@ -1,0 +1,262 @@
+<div class="ap ags">
+  <div class="ap__head">
+    <div>
+      <h1>{{ copy.sheetTitle }}</h1>
+      <p class="ap__lead">{{ headingLead() }}</p>
+    </div>
+    <app-button variant="ghost" size="sm" icon="chevron-left" [href]="boardHref()">{{ copy.backBoard }}</app-button>
+  </div>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (loadState() === 'loading') {
+    <ui-loading class="ap__loading" [title]="copy.sheetTitle" [subtitle]="copy.sheetLead" [label]="copy.sheetTitle" />
+  } @else if (sheet(); as data) {
+    @if (data.pendingStudentSignature && data.canSignStudent) {
+      <app-alert>
+        {{ copy.actionRequired }} · {{ copy.pendingReview }}
+        <a class="ags__jump" href="#ags-firma">{{ copy.goSign }}</a>
+      </app-alert>
+    }
+
+    <app-card [interactive]="false" [padded]="false">
+      <section class="ags__hero">
+        <div class="ags__hero-copy">
+          <ui-avatar [name]="data.studentName" size="sm" />
+          <div>
+            <p class="ags__kicker">{{ copy.studentPilot }}</p>
+            <h2>{{ data.studentName }}</h2>
+            <p class="ags__meta">
+              {{ copy.indicativeLabel }}: {{ data.indicative || copy.none }}
+              · {{ data.specialtyNames.join(', ') || copy.none }}
+            </p>
+          </div>
+          <div class="ags__hero-tags">
+            <span class="ags__phase">{{ data.phaseName }} · {{ data.subphaseName }}</span>
+            <span class="ags__status">{{ resultLabel() }}</span>
+          </div>
+        </div>
+        <div class="ags__facts">
+          <div class="ags__fact">
+            <span>{{ copy.dateLabel }}</span>
+            <strong>{{ formatDate(data.date) }}</strong>
+            <small>{{ data.startTime || copy.none }}</small>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.aircraftLabel }}</span>
+            <strong>{{ data.aircraftLabel || copy.none }}</strong>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.flightTime }}</span>
+            <strong>{{ formatScore(data.executedHours) }} {{ copy.hoursUnit }}</strong>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.instructorLabel }}</span>
+            <strong>{{ data.instructorName || copy.none }}</strong>
+          </div>
+        </div>
+        <div class="ags__facts">
+          <div class="ags__fact">
+            <span>{{ copy.verdictTitle }}</span>
+            <strong>{{ formatScore(data.average) }} <small>{{ copy.scaleMax }}</small></strong>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.academicStatus }}</span>
+            <strong>{{ resultLabel() }}</strong>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.thresholdShort }}</span>
+            <strong>{{ formatScore(passThreshold) }}</strong>
+          </div>
+          <div class="ags__fact">
+            <span>{{ copy.deltaLabel }}</span>
+            <strong>
+              @if (delta() !== null) {
+                {{ delta()! > 0 ? '+' : '' }}{{ formatScore(delta()) }}
+              } @else {
+                {{ copy.none }}
+              }
+            </strong>
+          </div>
+        </div>
+      </section>
+    </app-card>
+
+    @if (data.history.length) {
+      <div class="ags__history">
+        <span class="ags__kicker">{{ copy.historyTitle }}</span>
+        @for (item of data.history; track item.code) {
+          <button
+            type="button"
+            class="ags__hist"
+            [class.ags__hist--current]="item.executionId === data.executionId"
+            [class.ags__hist--pass]="item.tone === 'pass'"
+            [class.ags__hist--regular]="item.tone === 'regular'"
+            [class.ags__hist--fail]="item.tone === 'fail'"
+            [class.ags__hist--pending]="item.tone === 'pending'"
+            [disabled]="item.executionId === data.executionId || !item.clickable"
+            (click)="openHistory(item)"
+          >
+            <span>{{ item.code }}</span>
+            <strong>{{ formatScore(item.average) }}</strong>
+          </button>
+        }
+      </div>
+    }
+
+    <div class="ags__legend">
+      <div>
+        <h2>{{ copy.maneuversTitle }}</h2>
+        <p>{{ copy.maneuversLead }}</p>
+      </div>
+      <div class="ags__scale">
+        <span>{{ copy.scaleLabel }}</span>
+        @for (grade of gradeScale; track grade) {
+          <span [class]="gradeClass(grade, true) + ' grade-chip--sm grade-chip--static'" [attr.title]="gradeTitle(grade)">
+            {{ grade }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <app-accordion #maneuvers>
+      @for (row of data.maneuvers; track row.id) {
+        <app-accordion-item
+          class="ags__acc"
+          [class.ags__acc--locked]="!hasCor(row)"
+          [itemId]="row.id"
+          [open]="maneuvers.isOpen(row.id)"
+          (toggle)="toggleManeuver(maneuvers, row, $event)"
+        >
+          <span accTitle class="ags__acc-title">
+            <span [class]="gradeClass(row.grade, true) + ' grade-chip--static'">
+              {{ row.grade || copy.none }}
+            </span>
+            <span class="ags__acc-copy">
+              <span class="ags__acc-code">{{ row.code || pad(row.index) }}</span>
+              <span class="ags__acc-name">{{ row.index }}. {{ row.name }}</span>
+            </span>
+          </span>
+          <div accMeta class="ags__maneuver-tools">
+            @if (hasCor(row)) {
+              <span class="ags__cor">
+                <app-icon name="check" />
+                {{ copy.corLabel }}
+              </span>
+            }
+            <div class="ags__grades" role="group" [attr.aria-label]="copy.scaleLabel">
+              @for (grade of gradeScale; track grade) {
+                <button
+                  type="button"
+                  disabled
+                  [class]="gradeClass(grade, row.grade === grade)"
+                  [attr.title]="gradeTitle(grade)"
+                >
+                  {{ grade }}
+                </button>
+              }
+            </div>
+            <span
+              class="ags__delta"
+              [class.ags__delta--up]="gradeDelta(row) > 0"
+              [class.ags__delta--down]="gradeDelta(row) < 0"
+              [class.ags__delta--flat]="gradeDelta(row) === 0"
+              [attr.title]="copy.deltaLabel"
+            >
+              @if (gradeDelta(row) > 0) {
+                <app-icon name="arrow-up" />
+              } @else if (gradeDelta(row) < 0) {
+                <app-icon name="arrow-down" />
+              }
+              <span>{{ gradeDeltaLabel(row) }}</span>
+            </span>
+          </div>
+          <div class="ags__notes">
+            <div class="ags__note ags__note--cause">
+              <span>{{ copy.causeLabel }}</span>
+              <p>{{ row.cause || copy.none }}</p>
+            </div>
+            <div class="ags__note ags__note--obs">
+              <span>{{ copy.observationLabel }}</span>
+              <p>{{ row.observation || copy.none }}</p>
+            </div>
+            <div class="ags__note ags__note--rec">
+              <span>{{ copy.instructionLabel }}</span>
+              <p>{{ row.recommendation || copy.none }}</p>
+            </div>
+          </div>
+          @if (hasCor(row)) {
+            <div class="ags__pads" [id]="isSignatureAnchor(row, data.maneuvers) ? 'ags-firma' : null">
+              <ng-container *ngTemplateOutlet="signaturePads; context: { data }" />
+            </div>
+          }
+        </app-accordion-item>
+      }
+    </app-accordion>
+
+    <app-card [interactive]="false" [padded]="true">
+      <h2>{{ copy.commentsTitle }}</h2>
+      <blockquote>{{ data.observations || data.recommendations || data.improvements || copy.noDebrief }}</blockquote>
+    </app-card>
+
+    @if (!hasAnyCor(data.maneuvers)) {
+      <section class="ags__signs" id="ags-firma">
+        <h2>{{ copy.signaturesTitle }}</h2>
+        <ng-container *ngTemplateOutlet="signaturePads; context: { data }" />
+      </section>
+    }
+
+    <ng-template #signaturePads let-data="data">
+      <div class="ags__sign-grid">
+        <app-card [interactive]="false" [padded]="true">
+          <p class="ags__kicker">{{ copy.signInstructor }}</p>
+          <strong>{{ data.instructorName || copy.none }}</strong>
+          @if (data.instructorSignature; as signed) {
+            <p class="ags__signed">{{ copy.signed }}</p>
+            @if (signed.method === 'type') {
+              <p class="ags__autograph">{{ signed.value }}</p>
+            } @else {
+              <img class="ags__autograph-img" [src]="signed.value" alt="" />
+            }
+          } @else {
+            <p>{{ copy.pendingSignature }}</p>
+          }
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <p class="ags__kicker">{{ copy.signStudent }}</p>
+          <strong>{{ data.studentName }}</strong>
+          @if (data.studentSignature; as signed) {
+            <p class="ags__signed">{{ copy.signed }}</p>
+            @if (signed.method === 'type') {
+              <p class="ags__autograph">{{ signed.value }}</p>
+            } @else {
+              <img class="ags__autograph-img" [src]="signed.value" alt="" />
+            }
+          } @else if (data.counselRequested) {
+            <p class="ags__objected">{{ copy.objectionRecorded }}</p>
+          } @else if (data.canSignStudent) {
+            <p>{{ copy.pendingSignature }}</p>
+            <div class="ags__sign-actions">
+              <app-button class="ags__danger" variant="secondary" size="sm" [disabled]="saving()" (click)="sendObjection()">
+                {{ copy.objection }}
+              </app-button>
+              <app-button size="sm" icon="check" [disabled]="!canSubmit()" (click)="openSign()">
+                {{ copy.signPad }}
+              </app-button>
+            </div>
+          } @else {
+            <p>{{ copy.pendingSignature }}</p>
+          }
+        </app-card>
+      </div>
+    </ng-template>
+
+    <app-mission-signature-dialog
+      [open]="signing()"
+      [title]="copy.signatureDialog"
+      [defaultName]="data.studentName"
+      (closed)="closeSign()"
+      (applied)="applySign($event)"
+    />
+  }
+</div>

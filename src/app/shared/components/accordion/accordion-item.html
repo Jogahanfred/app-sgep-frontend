@@ -1,0 +1,42 @@
+<div class="acc__item" [class.acc__item--open]="open()">
+  <div class="acc__head">
+    <h3 class="acc__heading">
+      <button
+        type="button"
+        class="acc__trigger"
+        [id]="'acc-btn-' + itemId()"
+        [attr.aria-expanded]="open()"
+        [attr.aria-controls]="'acc-panel-' + itemId()"
+        (click)="toggle.emit(itemId())"
+        (keydown)="onKeydown($event)"
+      >
+        <span>
+          <ng-content select="[accTitle]" />
+        </span>
+      </button>
+    </h3>
+    <div class="acc__meta" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <ng-content select="[accMeta]" />
+    </div>
+    <button
+      type="button"
+      class="acc__chevron"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="'acc-panel-' + itemId()"
+      [attr.aria-label]="open() ? 'Ocultar detalle' : 'Desplegar detalle'"
+      (click)="toggle.emit(itemId())"
+      (keydown)="onKeydown($event)"
+    >
+      <app-icon name="chevron" />
+    </button>
+  </div>
+  <div
+    class="acc__panel"
+    [id]="'acc-panel-' + itemId()"
+    role="region"
+    [attr.aria-labelledby]="'acc-btn-' + itemId()"
+    [hidden]="!open()"
+  >
+    <ng-content />
+  </div>
+</div>

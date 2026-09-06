@@ -211,28 +211,28 @@
 }
 
 .dlp__card--d .dlp__badge {
-  background: #dceffc;
-  color: #17689f;
+  background: var(--grade-d);
+  color: var(--grade-d-ink);
 }
 
 .dlp__card--i .dlp__badge {
-  background: #ffe1e1;
-  color: #a52f2f;
+  background: var(--grade-i);
+  color: var(--grade-i-ink);
 }
 
 .dlp__card--r .dlp__badge {
-  background: #fff0ba;
-  color: #7a5700;
+  background: var(--grade-r);
+  color: var(--grade-r-ink);
 }
 
 .dlp__card--b .dlp__badge {
-  background: #dff4e8;
-  color: #246c45;
+  background: var(--grade-b);
+  color: var(--grade-b-ink);
 }
 
 .dlp__card--e .dlp__badge {
-  background: #e8e4ff;
-  color: #5146a5;
+  background: var(--grade-e);
+  color: var(--grade-e-ink);
 }
 
 .dlp__actions,

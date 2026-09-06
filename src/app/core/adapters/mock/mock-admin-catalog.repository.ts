@@ -23,6 +23,7 @@ import type {
   ProgramEnrollmentCloseInput,
   ProgramEnrollmentEntity,
   ProgramEnrollmentWriteInput,
+  GroundEvaluationRecord,
   GroupMissionAssignmentEntity,
   GroupMissionAssignmentWriteInput,
   IndividualMissionAssignmentEntity,
@@ -301,6 +302,46 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       const enrollment: ProgramEnrollmentEntity = {
         ...current,
         groundCourseIds: [...groundCourseIds],
+      };
+      this.enrollments[index] = enrollment;
+      return of(structuredClone(enrollment)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  saveEnrollmentGroundEvaluations(
+    id: string,
+    groundEvaluations: readonly GroundEvaluationRecord[],
+  ): Observable<ProgramEnrollmentEntity> {
+    try {
+      const index = this.enrollments.findIndex((item) => item.id === id);
+      if (index < 0) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const current = this.enrollments[index];
+      if (!current) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const enrollment: ProgramEnrollmentEntity = {
+        ...current,
+        groundEvaluations: groundEvaluations.map((item) => ({ ...item })),
+      };
+      this.enrollments[index] = enrollment;
+      return of(structuredClone(enrollment)).pipe(delay(LATENCY));
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
+
+  saveEnrollmentSimulatorEvaluations(
+    id: string,
+    simulatorEvaluations: readonly GroundEvaluationRecord[],
+  ): Observable<ProgramEnrollmentEntity> {
+    try {
+      const index = this.enrollments.findIndex((item) => item.id === id);
+      if (index < 0) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const current = this.enrollments[index];
+      if (!current) throw new InvalidAdminCatalogError('No encontramos esa matrícula.');
+      const enrollment: ProgramEnrollmentEntity = {
+        ...current,
+        simulatorEvaluations: simulatorEvaluations.map((item) => ({ ...item })),
       };
       this.enrollments[index] = enrollment;
       return of(structuredClone(enrollment)).pipe(delay(LATENCY));

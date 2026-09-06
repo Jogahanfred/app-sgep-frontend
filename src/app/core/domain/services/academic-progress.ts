@@ -192,6 +192,36 @@ export function nextSchedulablePlannerSlot(
   return items.find((item) => isCurriculumSchedulable(item.status)) ?? null;
 }
 
+export function classifyAirGradeSlots(
+  userId: string,
+  programId: string,
+  sources: Pick<AcademicProgressSources, 'phases' | 'subphases' | 'assignments' | 'executions'>,
+): CurriculumPlannerSlot[] {
+  const airPhaseIds = new Set(
+    sources.phases
+      .filter((phase) => phase.programId === programId && phase.moduleKind === 'air')
+      .map((phase) => phase.id),
+  );
+  const slots = plannedSlotsForProgram(programId, sources.phases, sources.subphases).filter((slot) =>
+    airPhaseIds.has(slot.phaseId),
+  );
+  const assignments = studentAssignments(userId, sources.assignments).filter((item) => item.programId === programId);
+  const executions = executionByAssignment(sources.executions);
+  const used = new Set<string>();
+  return slots.map((slot) => {
+    const assignment = findAssignmentForSlot(assignments, slot, used) ?? null;
+    if (assignment) used.add(assignment.id);
+    const execution = assignment ? executions.get(assignment.id) : undefined;
+    return {
+      slot,
+      status: assignment && isCompleted(assignment, execution) ? 'completed' : assignment ? 'scheduled' : 'available',
+      assignment,
+      execution,
+      average: evaluationAverage(execution),
+    };
+  });
+}
+
 function isCompleted(
   assignment: IndividualMissionAssignmentEntity,
   execution: MissionExecutionEntity | undefined,

@@ -1,0 +1,78 @@
+<div class="gg">
+  <p class="gg__lead">{{ copy.lead }}</p>
+
+  @if (loadState() === 'error') {
+    <app-alert tone="error">{{ copy.loadError }}</app-alert>
+  } @else if (board()?.needsSquadron) {
+    <app-alert>{{ copy.needsSquadron }}</app-alert>
+  } @else {
+    <div class="gg__filters">
+      <ui-select
+        id="simulator-grading-program"
+        [label]="copy.programLabel"
+        [uppercase]="false"
+        [options]="programOptions()"
+        [value]="programId()"
+        [loading]="loadState() === 'loading'"
+        (valueChange)="onProgram($event)"
+      />
+      <ui-select
+        id="simulator-grading-promotion"
+        [label]="copy.promotionLabel"
+        [uppercase]="false"
+        [options]="promotionOptions()"
+        [value]="promotionId()"
+        [disabled]="!programId()"
+        (valueChange)="onPromotion($event)"
+      />
+      @if (offering()) {
+        <ui-input
+          id="simulator-grading-search"
+          [label]="copy.searchLabel"
+          type="search"
+          icon="search"
+          [placeholder]="copy.searchPlaceholder"
+          [field]="search"
+        />
+      }
+    </div>
+
+    @if (!offering()) {
+      <app-alert>{{ copy.pickFilters }}</app-alert>
+    } @else {
+      <div class="gg__table">
+        <table>
+          <caption class="visually-hidden">{{ copy.tableCaption }}</caption>
+          <thead>
+            <tr>
+              <th class="gg__cell--start">{{ copy.colCode }}</th>
+              <th class="gg__cell--start">{{ copy.colName }}</th>
+              <th class="gg__hours">{{ copy.colHours }}</th>
+              <th class="gg__hours">{{ copy.colMissions }}</th>
+              <th class="gg__cell--start">{{ copy.colRequirements }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (session of sessions(); track session.id; let index = $index) {
+              <tr [style.--i]="index" (click)="openSession(session)">
+                <td class="gg__cell--start">
+                  <button type="button" class="gg__code" (click)="openSession(session); $event.stopPropagation()">
+                    {{ session.code }}
+                  </button>
+                </td>
+                <td class="gg__cell--start gg__name">{{ session.name }}</td>
+                <td class="gg__hours gg__num">{{ hoursLabel(session.hours) }}</td>
+                <td class="gg__hours gg__num">{{ session.missionCount }}</td>
+                <td class="gg__cell--start">{{ session.requirement }}</td>
+              </tr>
+            } @empty {
+              <tr class="gg__empty">
+                <td colspan="5">{{ copy.emptySessions }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

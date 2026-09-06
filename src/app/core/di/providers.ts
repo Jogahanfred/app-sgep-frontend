@@ -14,6 +14,10 @@ import {
   GetFeaturedProducts,
   GetHelpTopics,
   GetAcademicRecord,
+  GetAirGradeBoard,
+  GetAirGradeSheet,
+  SignAirGradeMission,
+  RequestAirGradeObjection,
   GetDashboardOverview,
   GetOperationalReport,
   GetHomeContent,
@@ -49,6 +53,12 @@ import {
   GetFlightOrderBoard,
   IssueFlightOrder,
   AssignGroundCourses,
+  GetGroundInstructionBoard,
+  GetGroundCourseRoster,
+  SaveGroundCourseGrade,
+  GetSimulatorInstructionBoard,
+  GetSimulatorSessionRoster,
+  SaveSimulatorSessionGrade,
   StartMissionDispatch,
   CancelDispatchSlot,
   ListGroupAssignments,
@@ -325,6 +335,36 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: AssignGroundCourses,
     useFactory: (repo: AdminCatalogRepository) => new AssignGroundCourses(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetGroundInstructionBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetGroundInstructionBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetGroundCourseRoster,
+    useFactory: (repo: AdminCatalogRepository) => new GetGroundCourseRoster(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: SaveGroundCourseGrade,
+    useFactory: (repo: AdminCatalogRepository) => new SaveGroundCourseGrade(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetSimulatorInstructionBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetSimulatorInstructionBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetSimulatorSessionRoster,
+    useFactory: (repo: AdminCatalogRepository) => new GetSimulatorSessionRoster(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: SaveSimulatorSessionGrade,
+    useFactory: (repo: AdminCatalogRepository) => new SaveSimulatorSessionGrade(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {
@@ -615,6 +655,26 @@ export const CORE_PROVIDERS: Provider[] = [
   {
     provide: GetAcademicRecord,
     useFactory: (repo: AdminCatalogRepository) => new GetAcademicRecord(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetAirGradeBoard,
+    useFactory: (repo: AdminCatalogRepository) => new GetAirGradeBoard(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: GetAirGradeSheet,
+    useFactory: (repo: AdminCatalogRepository) => new GetAirGradeSheet(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: SignAirGradeMission,
+    useFactory: (repo: AdminCatalogRepository) => new SignAirGradeMission(repo),
+    deps: [ADMIN_CATALOG_REPOSITORY],
+  },
+  {
+    provide: RequestAirGradeObjection,
+    useFactory: (repo: AdminCatalogRepository) => new RequestAirGradeObjection(repo),
     deps: [ADMIN_CATALOG_REPOSITORY],
   },
   {
