@@ -9,6 +9,7 @@ import {
   dossierCardBloodType,
   dossierCardExpiry,
   dossierCardSerial,
+  dossierGradeLabel,
   dossierHoursBreakdown,
   studentMissionExecutions,
 } from '../../domain/services/personnel-dossier';
@@ -32,6 +33,7 @@ export interface PersonnelDossierListRow {
   academicStatus: AcademicProgramStatus | null;
   userStatus: EntityStatus;
   gradeLabel: string;
+  specialtyLabel: string;
   serial: string;
   expiresOn: string;
   failedMissions: number;
@@ -87,6 +89,7 @@ function rowFor(userId: string, snapshot: AcademicCatalogSnapshot): PersonnelDos
       academicStatus: null,
       userStatus: 'inactive',
       gradeLabel: '',
+      specialtyLabel: '',
       serial: '',
       expiresOn: '',
       failedMissions: 0,
@@ -113,7 +116,6 @@ function rowFor(userId: string, snapshot: AcademicCatalogSnapshot): PersonnelDos
   const specialties = user.specialtyIds
     .map((id) => snapshot.specialties.find((item) => item.id === id)?.name)
     .filter((item): item is string => !!item);
-  const roleName = snapshot.roles.find((item) => item.id === user.roleIds[0])?.name ?? '';
   return {
     userId,
     displayName,
@@ -129,7 +131,8 @@ function rowFor(userId: string, snapshot: AcademicCatalogSnapshot): PersonnelDos
     average: built.progress?.average ?? null,
     academicStatus: built.progress?.academicStatus ?? null,
     userStatus: user.status,
-    gradeLabel: specialties.join(', ') || roleName,
+    gradeLabel: dossierGradeLabel(user.rankCode),
+    specialtyLabel: specialties[0] ?? '—',
     serial: dossierCardSerial(user.documentNumber, dossierCardBloodType(user.id)),
     expiresOn: dossierCardExpiry(user.entryDate),
     failedMissions: failed,

@@ -42,7 +42,7 @@ export class PersonnelDossierListPage {
     const needle = this.query();
     return this.rows().filter((row) =>
       matchesAdminSearch(
-        [row.displayName, row.firstName, row.lastName, row.indicative, row.documentNumber, row.programName],
+        [row.displayName, row.firstName, row.lastName, row.indicative, row.documentNumber, row.programName, row.gradeLabel, row.specialtyLabel],
         needle,
       ),
     );
@@ -106,10 +106,6 @@ export class PersonnelDossierListPage {
 
   detailHref(userId: string): string {
     return PERSONNEL_DOSSIER_ROUTES.detail(userId);
-  }
-
-  situationLabel(row: PersonnelDossierListRow): string {
-    return row.userStatus === 'active' ? this.copy.cardSituationActive : this.copy.cardSituationInactive;
   }
 
   onPageSize(value: string): void {

@@ -177,7 +177,7 @@
 .pdl__id-data dd {
   margin: 0;
   overflow: hidden;
-  font-size: clamp(0.62rem, 1.45vw, 0.86rem);
+  font-size: clamp(0.58rem, 1.35vw, 0.8rem);
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.15;
@@ -193,12 +193,12 @@
 
 .pdl__photo {
   position: absolute;
-  top: 29%;
+  top: 26.7%;
   right: 4.4%;
   overflow: hidden;
   width: 29.6%;
-  height: 58%;
-  background: #d8dce0;
+  height: 63%;
+  background: #fff;
 }
 
 .pdl__photo>img,
@@ -209,6 +209,8 @@
   min-width: 0;
   min-height: 0;
   object-fit: cover;
+  object-position: center top;
+  background: #fff;
 }
 
 .pdl__photo ::ng-deep .av-wrap,
@@ -247,28 +249,22 @@ app-button.pdl__open ::ng-deep .btn {
   pointer-events: auto;
 }
 
-.pdl__id-caducidad {
+.pdl__id-specialty {
   position: absolute;
-  right: 8.4%;
-  bottom: 1.4%;
-  display: grid;
-  gap: 0.05rem;
+  right: 4.4%;
+  bottom: 2.5%;
+  width: 29.6%;
   margin: 0;
-  text-align: center;
-}
-
-// .pdl__id-caducidad span {
-//   color: #111;
-//   font-size: clamp(0.42rem, 0.95vw, 0.58rem);
-//   font-weight: 700;
-// }
-
-.pdl__id-caducidad strong {
+  overflow: hidden;
   color: #c41212;
-  font-size: clamp(0.72rem, 1.7vw, .9rem);
+  font-size: clamp(0.62rem, 1.45vw, 0.82rem);
   font-weight: 800;
   letter-spacing: 0.02em;
-  line-height: 1;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pdl__pager {

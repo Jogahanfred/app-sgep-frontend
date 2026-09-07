@@ -68,6 +68,8 @@ function userBase(
   squadronId: string,
   specialtyId: string,
   documentNumber: string,
+  rankCode: string,
+  photoUrl?: string | null,
 ): UserEntity {
   return {
     id,
@@ -82,6 +84,8 @@ function userBase(
     specialtyIds: [specialtyId],
     assignedUnitId: unitId,
     assignedSquadronId: squadronId,
+    rankCode,
+    photoUrl: photoUrl ?? null,
   };
 }
 
@@ -144,6 +148,7 @@ const built = ROSTERS.map((roster, rosterIndex) => {
     roster.squadronId,
     'spc-flight-inst',
     `${String(60000000 + rosterIndex).slice(0, 8)}A`,
+    'CAP',
   );
   const roles = ['ready', 'next', 'scheduled', 'done', 'direct'] as const;
   const students = STUDENT_NAMES.map(([firstName, lastName], index) =>
@@ -158,6 +163,8 @@ const built = ROSTERS.map((roster, rosterIndex) => {
       roster.squadronId,
       'spc-pilot',
       `${String(61000000 + rosterIndex * 10 + index).slice(0, 8)}B`,
+      (['ALF', 'TEN', 'CAP', 'MAY'] as const)[index % 4],
+      `/carnets/p${(index % 8) + 1}.jpg`,
     ),
   );
   const [ready, next, scheduled, done, direct] = students;

@@ -293,6 +293,11 @@ function roundHours(value: number): number {
 const CARD_BLOOD_TYPES = ['O+', 'A+', 'B+', 'AB+', 'O-', 'A-', 'B-', 'AB-'] as const;
 const CARD_EXPIRY_YEARS = 4;
 
+export function dossierGradeLabel(rankCode: string | null | undefined): string {
+  const value = rankCode?.trim();
+  return value ? value.toUpperCase() : '—';
+}
+
 export function dossierCardBloodType(userId: string): string {
   let hash = 0;
   for (const char of userId) hash = (hash + char.charCodeAt(0)) % CARD_BLOOD_TYPES.length;

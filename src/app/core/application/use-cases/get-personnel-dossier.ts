@@ -5,6 +5,7 @@ import { AcademicRecordAccessError } from '../../domain/errors/domain-error';
 import { EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD } from '../../domain/constants/evaluation-council.constants';
 import { buildAcademicRecord } from '../../domain/services/academic-progress';
 import {
+  dossierGradeLabel,
   dossierHoursBreakdown,
   dossierLicenses,
   dossierMissionLog,
@@ -31,6 +32,7 @@ export interface PersonnelDossierDetail {
   indicative: string | null;
   documentNumber: string;
   photoUrl: string | null;
+  rankCode: string;
   specialtyNames: string[];
   promotionName: string | null;
   programName: string | null;
@@ -87,6 +89,7 @@ export class GetPersonnelDossier {
           indicative: user.indicative,
           documentNumber: user.documentNumber,
           photoUrl: user.photoUrl ?? null,
+          rankCode: dossierGradeLabel(user.rankCode),
           specialtyNames: user.specialtyIds
             .map((id) => snapshot.specialties.find((item) => item.id === id)?.name)
             .filter((item): item is string => !!item),

@@ -64,10 +64,6 @@
                       <dt>{{ copy.cardNsa }}</dt>
                       <dd>{{ row.serial }}</dd>
                     </div>
-                    <div>
-                      <dt>{{ copy.cardSituation }}:</dt>
-                      <dd class="pdl__id-situacion">{{ situationLabel(row) }}</dd>
-                    </div>
                   </dl>
                   <div class="pdl__photo">
                     @if (row.photoUrl) {
@@ -76,10 +72,7 @@
                       <ui-avatar [name]="row.displayName" size="lg" shape="rounded" />
                     }
                   </div>
-                  <p class="pdl__id-caducidad">
-                    <!-- <span>{{ copy.cardExpiry }}:</span> -->
-                    <strong>{{ row.gradeLabel }}</strong>
-                  </p>
+                  <p class="pdl__id-specialty">{{ row.specialtyLabel }}</p>
                 </div>
                 <span class="pdl__id-veil" aria-hidden="true"></span>
                 <app-button class="pdl__open" size="xs" [href]="detailHref(row.userId)">

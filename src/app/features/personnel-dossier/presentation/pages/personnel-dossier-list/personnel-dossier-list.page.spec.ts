@@ -58,6 +58,8 @@ describe('PersonnelDossierListPage', () => {
     expect(root.querySelector('.pdl__pager')).not.toBeNull();
     expect(root.querySelector('.pdl__id')).not.toBeNull();
     expect(root.textContent).toMatch(/O-\d{5}-/);
-    expect(root.querySelector('.pdl__id-caducidad')?.textContent).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+    expect(root.textContent).toContain('ALF');
+    expect(root.textContent).toContain('Pilotaje');
+    expect(root.querySelector('.pdl__id-specialty')?.textContent?.trim()).toBe('Pilotaje');
   });
 });

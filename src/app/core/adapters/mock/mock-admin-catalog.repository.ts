@@ -1188,6 +1188,7 @@ export class MockAdminCatalogRepository implements AdminCatalogRepository {
       assignedUnitId: input.assignedUnitId ?? null,
       assignedSquadronId: input.assignedSquadronId ?? null,
       photoUrl: previous?.photoUrl ?? null,
+      rankCode: previous?.rankCode ?? null,
     };
   }
 

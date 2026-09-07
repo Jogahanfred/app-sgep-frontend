@@ -40,6 +40,8 @@ export interface UserEntity {
   assignedUnitId: string | null;
   assignedSquadronId: string | null;
   photoUrl?: string | null;
+  /** Abreviatura de grado (p. ej. ALF, TEN, CAP, MAY). */
+  rankCode?: string | null;
 }
 
 export interface UserWriteInput {

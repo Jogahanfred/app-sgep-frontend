@@ -243,14 +243,15 @@ const EXTRA_USERS: UserEntity[] = EXTRA_PEOPLE.map(([firstName, lastName], index
     indicative: `ALU-${300 + index}`,
     status: 'active',
     roleIds: ['role-student'],
-    specialtyIds: index === 2 || index === 3 ? [] : ['spc-pilot'],
+    specialtyIds: ['spc-pilot'],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
-    photoUrl: `/portraits/p${(index % 8) + 1}.jpg`,
+    photoUrl: `/carnets/p${(index % 8) + 1}.jpg`,
+    rankCode: (['ALF', 'TEN', 'CAP', 'MAY'] as const)[index % 4],
   };
 });
 
-export const SEED_USERS: UserEntity[] = [
+const SEED_USERS_BASE: UserEntity[] = [
   {
     id: 'usr-elena-martin',
     firstName: 'Elena',
@@ -334,7 +335,7 @@ export const SEED_USERS: UserEntity[] = [
     specialtyIds: ['spc-pilot'],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
-    photoUrl: '/portraits/sofia.jpg',
+    photoUrl: '/carnets/sofia.jpg',
   },
   {
     id: 'usr-diego-molina',
@@ -346,10 +347,10 @@ export const SEED_USERS: UserEntity[] = [
     indicative: 'ALU-221',
     status: 'active',
     roleIds: ['role-student'],
-    specialtyIds: [],
+    specialtyIds: ['spc-pilot'],
     assignedUnitId: 'unit-norte',
     assignedSquadronId: 'sq-alfa',
-    photoUrl: '/portraits/diego.jpg',
+    photoUrl: '/carnets/diego.jpg',
   },
   {
     id: 'usr-mario-castillo',
@@ -452,6 +453,18 @@ export const SEED_USERS: UserEntity[] = [
   ...EXTRA_USERS,
   ...FLIGHT_ORDER_CONTEXT_USERS,
 ];
+
+const PERSON_RANKS = ['ALF', 'TEN', 'CAP', 'MAY'] as const;
+
+export const SEED_USERS: UserEntity[] = SEED_USERS_BASE.map((user, index) => {
+  if (user.rankCode) return user;
+  if (user.id === 'usr-sofia-vidal') return { ...user, rankCode: 'ALF' };
+  if (user.id === 'usr-diego-molina') return { ...user, rankCode: 'TEN' };
+  if (user.roleIds.includes('role-student')) {
+    return { ...user, rankCode: PERSON_RANKS[index % 2] };
+  }
+  return { ...user, rankCode: PERSON_RANKS[2 + (index % 2)] };
+});
 
 export const SEED_PASSWORDS: Record<string, string> = Object.fromEntries(
   SEED_USERS.map((user) => [user.id, 'Helvia.2026']),

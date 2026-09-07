@@ -23,7 +23,8 @@ describe('legajo personal', () => {
     const board = await firstValueFrom(new ListPersonnelDossiers(new MockAdminCatalogRepository()).execute(adsys));
     expect(board.needsSquadron).toBe(false);
     const sofia = board.rows.find((row) => row.userId === 'usr-sofia-vidal');
-    expect(sofia?.firstName).toBe('Sofía');
+    expect(sofia?.gradeLabel).toBe('ALF');
+    expect(sofia?.specialtyLabel).toBe('Pilotaje');
     expect(sofia?.lastName).toContain('Vidal');
     expect(sofia?.serial).toMatch(/^O-\d{5}-[ABO]+[+-]$/);
     expect(sofia?.expiresOn).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
@@ -40,7 +41,7 @@ describe('legajo personal', () => {
     expect(detail.failedMissions).toBeGreaterThanOrEqual(EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD);
     expect(detail.councilEligible).toBe(true);
     expect(detail.failThreshold).toBe(EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD);
-    expect(detail.photoUrl).toBe('/portraits/diego.jpg');
+    expect(detail.photoUrl).toBe('/carnets/diego.jpg');
     expect(detail.programs.length).toBeGreaterThan(0);
   });
 
