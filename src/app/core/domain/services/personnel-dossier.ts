@@ -192,7 +192,7 @@ export function dossierTrajectory(
   return [...log]
     .reverse()
     .filter((row) => row.score !== null)
-    .slice(-8)
+    .slice(-20)
     .map((row) => ({
       label: row.missionCode,
       score: row.score ?? 0,
@@ -284,6 +284,175 @@ function latestCompletedDate(
 ): string | null {
   const completed = rows.filter((row) => row.execution.status === 'completed');
   return completed[0]?.assignment.date ?? null;
+}
+
+export interface DossierSpecialtyAircraftArt {
+  label: string;
+  imageUrl: string;
+}
+
+const SPECIALTY_AIRCRAFT_ART: ReadonlyArray<{
+  keys: readonly string[];
+  generic?: boolean;
+  label: string;
+  imageUrl: string;
+}> = [
+  {
+    keys: ['piloto de transporte', 'transporte'],
+    label: 'Piloto de Transporte',
+    imageUrl: '/aircraft/air-hercules.png',
+  },
+  {
+    keys: ['piloto de caza', 'caza'],
+    label: 'Piloto de Caza',
+    imageUrl: '/aircraft/air-mirage2000.png',
+  },
+  {
+    keys: ['piloto de helicoptero', 'helicoptero', 'heli'],
+    label: 'Piloto de Helicóptero',
+    imageUrl: '/aircraft/air-enstrom.png',
+  },
+  {
+    keys: ['piloto instructor', 'instruccion de vuelo'],
+    label: 'Piloto Instructor',
+    imageUrl: '/aircraft/air-kt1p.png',
+  },
+  {
+    keys: ['piloto alumno', 'pilotaje'],
+    generic: true,
+    label: 'Piloto Alumno',
+    imageUrl: '/aircraft/air-ch2000.png',
+  },
+];
+
+function foldSpecialty(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function matchSpecialtyAircraftArt(
+  specialtyNames: readonly string[],
+  generic: boolean,
+): DossierSpecialtyAircraftArt | null {
+  for (const name of specialtyNames) {
+    const folded = foldSpecialty(name);
+    const hit = SPECIALTY_AIRCRAFT_ART.find(
+      (item) => !!item.generic === generic && item.keys.some((key) => folded === key || folded.includes(key)),
+    );
+    if (hit) return { label: hit.label, imageUrl: hit.imageUrl };
+  }
+  return null;
+}
+
+export function dossierSpecialtyAircraftArt(
+  specialtyNames: readonly string[],
+  programType?: string | null,
+): DossierSpecialtyAircraftArt | null {
+  const specific = matchSpecialtyAircraftArt(specialtyNames, false);
+  if (specific) return specific;
+  if (programType === 'HELI') {
+    return { label: 'Piloto de Helicóptero', imageUrl: '/aircraft/air-enstrom.png' };
+  }
+  if (programType === 'ATPL') {
+    return { label: 'Piloto de Transporte', imageUrl: '/aircraft/air-hercules.png' };
+  }
+  if (programType === 'FI') {
+    return { label: 'Piloto Instructor', imageUrl: '/aircraft/air-kt1p.png' };
+  }
+  if (programType === 'PPL' || programType === 'CPL') {
+    return { label: 'Piloto Alumno', imageUrl: '/aircraft/air-ch2000.png' };
+  }
+  return matchSpecialtyAircraftArt(specialtyNames, true);
+}
+
+export function dossierAssignedAircraft(log: readonly DossierMissionLogRow[]): { registration: string; hours: number } | null {
+  const hoursByReg = new Map<string, number>();
+  for (const row of log) {
+    if (!row.aircraft || row.aircraft === '—') continue;
+    hoursByReg.set(row.aircraft, (hoursByReg.get(row.aircraft) ?? 0) + row.hours);
+  }
+  let best: { registration: string; hours: number } | null = null;
+  for (const [registration, hours] of hoursByReg) {
+    if (!best || hours > best.hours) best = { registration, hours: roundHours(hours) };
+  }
+  return best;
+}
+
+export interface DossierInstructorStat {
+  name: string;
+  hours: number;
+  missions: number;
+  average: number | null;
+}
+
+export function dossierInstructors(log: readonly DossierMissionLogRow[]): DossierInstructorStat[] {
+  const grouped = new Map<string, { hours: number; missions: number; scores: number[] }>();
+  for (const row of log) {
+    if (!row.instructorName || row.instructorName === '—') continue;
+    const current = grouped.get(row.instructorName) ?? { hours: 0, missions: 0, scores: [] };
+    current.hours += row.hours;
+    current.missions += 1;
+    if (row.score !== null) current.scores.push(row.score);
+    grouped.set(row.instructorName, current);
+  }
+  return [...grouped.entries()]
+    .map(([name, value]) => ({
+      name,
+      hours: roundHours(value.hours),
+      missions: value.missions,
+      average: value.scores.length
+        ? roundHours(value.scores.reduce((sum, score) => sum + score, 0) / value.scores.length)
+        : null,
+    }))
+    .sort((a, b) => b.hours - a.hours)
+    .slice(0, 5);
+}
+
+export interface DossierFolio {
+  id: string;
+  code: string;
+  date: string;
+  title: string;
+  source: string;
+}
+
+export function dossierFolios(
+  log: readonly DossierMissionLogRow[],
+  licenses: readonly DossierLicense[],
+  resolutions: readonly DossierResolution[],
+): DossierFolio[] {
+  const fromLog = [...log]
+    .slice(0, 8)
+    .map((row, index) => ({
+      id: row.executionId,
+      code: String(log.length - index).padStart(3, '0'),
+      date: row.date,
+      title: `${row.missionCode} · ${row.missionName}`,
+      source: row.aircraft,
+    }));
+  const fromLicenses = licenses.map((item, index) => ({
+    id: item.id,
+    code: `H${String(index + 1).padStart(2, '0')}`,
+    date: item.expires,
+    title: item.title,
+    source: item.detail,
+  }));
+  const fromResolutions = resolutions.map((item, index) => ({
+    id: item.id,
+    code: `D${String(index + 1).padStart(2, '0')}`,
+    date: item.date,
+    title: item.title,
+    source: item.summary,
+  }));
+  return [...fromLog, ...fromLicenses, ...fromResolutions].slice(0, 8);
+}
+
+export function dossierPeakScore(points: readonly DossierTrajectoryPoint[]): DossierTrajectoryPoint | null {
+  if (!points.length) return null;
+  return points.reduce((best, point) => (point.score > best.score ? point : best));
 }
 
 function roundHours(value: number): number {

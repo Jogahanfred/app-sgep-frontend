@@ -134,6 +134,66 @@ function completedIrTrack(
   return { assignments, executions };
 }
 
+function completedReadyTrack(
+  prefix: string,
+  studentId: string,
+  instructorId: string,
+  aircraftId: string,
+): { assignments: IndividualMissionAssignmentEntity[]; executions: MissionExecutionEntity[] } {
+  const missions = ['mt-local', 'mt-nav', 'mt-ifr'] as const;
+  const grades = ['B', 'E', 'B', 'R', 'E', 'B', 'E', 'B'] as const;
+  const assignments: IndividualMissionAssignmentEntity[] = [];
+  const executions: MissionExecutionEntity[] = [];
+  grades.forEach((grade, index) => {
+    const assignmentId = `${prefix}-ppl-${index + 1}`;
+    const executionId = `${prefix}-ppl-ex-${index + 1}`;
+    const day = String(10 + index).padStart(2, '0');
+    const date = `2026-04-${day}`;
+    const night = index >= 6;
+    assignments.push({
+      id: assignmentId,
+      assignmentCase: 'pdi',
+      studentId,
+      externalPerson: null,
+      programId: 'prg-ppl',
+      missionId: missions[index % missions.length],
+      instructorId,
+      date,
+      status: 'completed',
+    });
+    executions.push({
+      id: executionId,
+      individualAssignmentId: assignmentId,
+      status: 'completed',
+      startDate: date,
+      startTime: night ? '20:30' : '08:00',
+      takeoffTime: night ? '20:40' : '08:10',
+      landingTime: night ? '21:50' : '09:20',
+      executedHours: 1.1 + index * 0.1,
+      aircraftId,
+      observations: '',
+      strengths: '',
+      improvements: '',
+      recommendations: '',
+      result: grade === 'R' ? 'approved-observations' : 'approved',
+      instructorSignature:
+        index > 1
+          ? {
+              signerUserId: instructorId,
+              signerName: 'Instructor',
+              signedAt: `${date}T10:00:00`,
+              method: 'type',
+              value: instructorId,
+            }
+          : null,
+      evaluations: [
+        { id: `${executionId}-ev`, maneuverId: 'man-toff', grade, observation: '', evidenceName: null },
+      ],
+    });
+  });
+  return { assignments, executions };
+}
+
 const built = ROSTERS.map((roster, rosterIndex) => {
   const instructorName = INSTRUCTOR_NAMES[rosterIndex] ?? INSTRUCTOR_NAMES[0];
   const instructorId = `usr-fo-${roster.tag}-ins`;
@@ -273,6 +333,10 @@ const built = ROSTERS.map((roster, rosterIndex) => {
     ],
   };
   const ir = completedIrTrack(`fo-${roster.tag}`, done.id, instructorId);
+  const readyTrack =
+    roster.tag === '510'
+      ? completedReadyTrack(`fo-${roster.tag}-ready`, ready.id, instructorId, `ac-fo-${roster.tag}-a`)
+      : { assignments: [], executions: [] };
   const aircraft: AircraftEntity[] = [
     {
       id: `ac-fo-${roster.tag}-a`,
@@ -299,8 +363,8 @@ const built = ROSTERS.map((roster, rosterIndex) => {
     members,
     enrollments,
     aircraft,
-    assignments: [nextAssignment, scheduledAssignment, ...ir.assignments],
-    executions: [nextExecution, scheduledExecution, ...ir.executions],
+    assignments: [nextAssignment, scheduledAssignment, ...ir.assignments, ...readyTrack.assignments],
+    executions: [nextExecution, scheduledExecution, ...ir.executions, ...readyTrack.executions],
   };
 });
 

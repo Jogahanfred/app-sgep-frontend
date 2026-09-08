@@ -5,20 +5,28 @@ import { AcademicRecordAccessError } from '../../domain/errors/domain-error';
 import { EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD } from '../../domain/constants/evaluation-council.constants';
 import { buildAcademicRecord } from '../../domain/services/academic-progress';
 import {
+  dossierAssignedAircraft,
+  dossierFolios,
   dossierGradeLabel,
   dossierHoursBreakdown,
+  dossierInstructors,
   dossierLicenses,
   dossierMissionLog,
+  dossierPeakScore,
   dossierProgramCards,
   dossierResolutions,
+  dossierSpecialtyAircraftArt,
   dossierTrajectory,
   studentMissionExecutions,
   unitAndSquadronLabel,
   type DossierHoursBreakdown,
+  type DossierFolio,
+  type DossierInstructorStat,
   type DossierLicense,
   type DossierMissionLogRow,
   type DossierProgramCard,
   type DossierResolution,
+  type DossierSpecialtyAircraftArt,
   type DossierTrajectoryPoint,
 } from '../../domain/services/personnel-dossier';
 import { exceedsEvaluationCouncilThreshold, failedMissionCount } from '../../domain/services/evaluation-council';
@@ -50,6 +58,15 @@ export interface PersonnelDossierDetail {
   failedMissions: number;
   councilEligible: boolean;
   failThreshold: number;
+  programCode: string | null;
+  programImageUrl: string | null;
+  assignedAircraft: { registration: string; hours: number; imageUrl: string | null } | null;
+  specialtyAircraft: DossierSpecialtyAircraftArt | null;
+  instructors: DossierInstructorStat[];
+  folios: DossierFolio[];
+  signedCount: number;
+  evaluatedCount: number;
+  peakScore: DossierTrajectoryPoint | null;
 }
 
 export class GetPersonnelDossier {
@@ -83,6 +100,26 @@ export class GetPersonnelDossier {
         const log = dossierMissionLog(rows, snapshot.missionTypes, snapshot.aircraft, snapshot.users);
         const failed = failedMissionCount(userId, snapshot.assignments, snapshot.executions);
         const placement = unitAndSquadronLabel(user, snapshot.units, snapshot.squadrons);
+        const licenses = dossierLicenses({
+            programName: program?.name ?? null,
+            academicStatus: progress?.academicStatus ?? null,
+            userStatus: user.status,
+            hours,
+          });
+        const resolutions = dossierResolutions(
+            rows,
+            snapshot.missionTypes,
+            progress?.academicStatus === 'completed',
+            program?.name ?? null,
+          );
+        const specialtyNames = user.specialtyIds
+          .map((id) => snapshot.specialties.find((item) => item.id === id)?.name)
+          .filter((item): item is string => !!item);
+        const trajectory = dossierTrajectory(log);
+        const assigned = dossierAssignedAircraft(log);
+        const plane = assigned
+          ? snapshot.aircraft.find((item) => item.registration === assigned.registration)
+          : null;
         return {
           userId,
           displayName: `${user.firstName} ${user.lastName}`.trim(),
@@ -90,9 +127,7 @@ export class GetPersonnelDossier {
           documentNumber: user.documentNumber,
           photoUrl: user.photoUrl ?? null,
           rankCode: dossierGradeLabel(user.rankCode),
-          specialtyNames: user.specialtyIds
-            .map((id) => snapshot.specialties.find((item) => item.id === id)?.name)
-            .filter((item): item is string => !!item),
+          specialtyNames,
           promotionName: promotion?.name ?? null,
           programName: program?.name ?? null,
           programs: dossierProgramCards({
@@ -111,22 +146,23 @@ export class GetPersonnelDossier {
           squadronName: placement.squadronName,
           hours,
           log,
-          licenses: dossierLicenses({
-            programName: program?.name ?? null,
-            academicStatus: progress?.academicStatus ?? null,
-            userStatus: user.status,
-            hours,
-          }),
-          resolutions: dossierResolutions(
-            rows,
-            snapshot.missionTypes,
-            progress?.academicStatus === 'completed',
-            program?.name ?? null,
-          ),
-          trajectory: dossierTrajectory(log),
+          licenses,
+          resolutions,
+          trajectory,
           failedMissions: failed,
           councilEligible: exceedsEvaluationCouncilThreshold(failed),
           failThreshold: EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD,
+          programCode: program?.code ?? null,
+          programImageUrl: program?.imageUrl ?? null,
+          assignedAircraft: assigned
+            ? { registration: assigned.registration, hours: assigned.hours, imageUrl: plane?.imageUrl ?? null }
+            : null,
+          specialtyAircraft: dossierSpecialtyAircraftArt(specialtyNames, program?.programType),
+          instructors: dossierInstructors(log),
+          folios: dossierFolios(log, licenses, resolutions),
+          signedCount: log.filter((item) => item.signed).length,
+          evaluatedCount: log.filter((item) => item.score !== null).length,
+          peakScore: dossierPeakScore(trajectory),
         };
       }),
     );

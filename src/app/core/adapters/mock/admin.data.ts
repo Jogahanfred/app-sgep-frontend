@@ -198,6 +198,36 @@ export const SEED_SPECIALTIES: SpecialtyEntity[] = [
     description: 'Reportes, barreras y cultura de seguridad en la operación.',
     status: 'inactive',
   },
+  {
+    id: 'spc-transport',
+    name: 'Piloto de Transporte',
+    description: 'Operación de aeronaves de transporte táctico y logístico.',
+    status: 'active',
+  },
+  {
+    id: 'spc-fighter',
+    name: 'Piloto de Caza',
+    description: 'Operación de aeronaves de caza y ataque.',
+    status: 'active',
+  },
+  {
+    id: 'spc-heli',
+    name: 'Piloto de Helicóptero',
+    description: 'Operación de ala rotatoria e instrucción en helicóptero.',
+    status: 'active',
+  },
+  {
+    id: 'spc-student-pilot',
+    name: 'Piloto Alumno',
+    description: 'Formación inicial de vuelo como alumno.',
+    status: 'active',
+  },
+  {
+    id: 'spc-instructor-pilot',
+    name: 'Piloto Instructor',
+    description: 'Instrucción de vuelo y evaluación en aeronave de entrenamiento.',
+    status: 'active',
+  },
 ];
 
 const EXTRA_PEOPLE: [string, string][] = [

@@ -20,132 +20,275 @@
       </div>
     }
 
-    <app-card [interactive]="false" [padded]="true">
-      <div class="pd__cv">
-        <figure class="pd__photo">
-          @if (data.photoUrl) {
-            <img [src]="data.photoUrl" [alt]="data.displayName" />
-          } @else {
-            <ui-avatar [name]="data.displayName" size="lg" shape="rounded" />
-          }
-        </figure>
-        <div class="pd__identity">
-          <p class="pd__kicker">{{ copy.identity }}</p>
-          <h1>{{ data.displayName }}</h1>
-          <p class="pd__meta">
-            {{ copy.cardGrade }}: {{ data.rankCode }}
-            · {{ copy.document }}: {{ data.documentNumber }}
-            @if (data.indicative) {
-              · {{ data.indicative }}
+    <section id="pd-hero" class="pd__hero">
+      <span class="pd__hero-glow" aria-hidden="true"></span>
+      <div class="pd__hero-main">
+        <div class="pd__id-row">
+          <figure class="pd__photo">
+            @if (data.photoUrl) {
+              <img [src]="data.photoUrl" [alt]="data.displayName" />
+            } @else {
+              <ui-avatar [name]="data.displayName" size="lg" shape="rounded" />
             }
-          </p>
-          <p class="pd__role">{{ data.specialtyNames.join(', ') || copy.none }}</p>
-          <span class="pd__badge">{{ copy.statusActive }}</span>
-          <dl class="pd__facts">
-            <div>
-              <dt>{{ copy.unit }}</dt>
-              <dd>{{ data.unitName }}</dd>
+            <span class="pd__photo-mark">{{ data.rankCode }}</span>
+          </figure>
+          <div class="pd__identity">
+            <div class="pd__title-row">
+              <h1>{{ data.rankCode }} {{ data.displayName }}</h1>
+              @if (data.indicative) {
+                <span class="pd__chip">{{ data.indicative }}</span>
+              }
+              <span class="pd__chip pd__chip--live">{{ statusLabel() }}</span>
             </div>
-            <div>
-              <dt>{{ copy.squadron }}</dt>
-              <dd>{{ data.squadronName }}</dd>
-            </div>
-            <div>
-              <dt>{{ copy.promotion }}</dt>
-              <dd>{{ data.promotionName || copy.none }}</dd>
-            </div>
-            <div>
-              <dt>{{ copy.colProgram }}</dt>
-              <dd>{{ data.programName || copy.none }}</dd>
-            </div>
-          </dl>
+            <p class="pd__meta">
+              <app-icon name="shield" />
+              <span>{{ data.squadronName }}</span>
+              <span class="pd__dot">·</span>
+              <strong>{{ data.programName || copy.none }}</strong>
+              @if (data.specialtyNames[0]; as specialty) {
+                <span class="pd__dot">·</span>
+                <span>{{ specialty }}</span>
+              }
+              <span class="pd__dot">·</span>
+              <span>{{ copy.document }}: {{ data.documentNumber }}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="pd__hero-bar">
+          <div class="pd__kpis">
+            <article class="pd__kpi">
+              <app-icon name="calendar" />
+              <div>
+                <span>{{ copy.kpiFlight }}</span>
+                <strong>{{ data.hours.total }}{{ copy.hoursUnit }}</strong>
+              </div>
+            </article>
+            <article class="pd__kpi">
+              <app-icon name="shield" />
+              <div>
+                <span>{{ copy.kpiLicense }}</span>
+                <strong>{{ licenseChip()?.title || copy.none }}</strong>
+              </div>
+            </article>
+            <article class="pd__kpi">
+              <app-icon name="inbox" />
+              <div>
+                <span>{{ copy.kpiFile }}</span>
+                <strong>{{ data.folios.length }} {{ copy.folderFolios }}</strong>
+              </div>
+            </article>
+            <article class="pd__kpi">
+              <app-icon name="trend" />
+              <div>
+                <span>{{ copy.kpiNight }}</span>
+                <strong>{{ data.hours.night }}{{ copy.hoursUnit }}</strong>
+              </div>
+            </article>
+          </div>
+          <div class="pd__hero-actions">
+            <app-button size="sm" icon="lock" (click)="notifySign()">{{ copy.signAction }}</app-button>
+            <app-button variant="secondary" size="sm" icon="inbox" (click)="notifyDownload()">{{ copy.downloadAction }}</app-button>
+          </div>
         </div>
       </div>
-    </app-card>
 
-    <section class="pd__programs">
-      <div class="pd__hours-head">
-        <h2>{{ copy.programsTitle }}</h2>
-        <span>{{ copy.programsLead }}</span>
-      </div>
-      @if (!data.programs.length) {
-        <app-alert>{{ copy.noPrograms }}</app-alert>
-      } @else {
-        <div class="pd__program-grid">
-          @for (program of data.programs; track program.programId) {
-            <ui-program-card
-              [href]="programHref(program.programId)"
-              [title]="program.name"
-              [kicker]="program.code"
-              [description]="program.description"
-              [imageUrl]="program.imageUrl"
-              [imageAlt]="program.name"
-              [typeBadge]="copy.openProgram"
-              [status]="program.status === 'suspended' ? 'inactive' : 'active'"
-              [statusLabel]="copy.status[program.status]"
-              [stats]="programStats(program)"
-            />
+      <aside class="pd__craft">
+        <div class="pd__craft-head">
+          <p class="pd__kicker">
+            <app-icon name="trend" />
+            {{ copy.aircraftTitle }}
+          </p>
+          @if (data.assignedAircraft; as plane) {
+            <span class="pd__chip pd__chip--mono">{{ plane.registration }}</span>
           }
         </div>
-      }
+        <div class="pd__craft-visual">
+          @if (data.specialtyAircraft; as art) {
+            <img [src]="art.imageUrl" [alt]="art.label" />
+          } @else if (data.assignedAircraft?.imageUrl) {
+            <img [src]="data.assignedAircraft.imageUrl" [alt]="data.assignedAircraft.registration" />
+          } @else if (data.programImageUrl) {
+            <img [src]="data.programImageUrl" [alt]="data.programName || copy.aircraftTitle" />
+          } @else {
+            <p>{{ copy.noAircraft }}</p>
+          }
+        </div>
+        <div class="pd__craft-foot">
+          <span>{{ data.specialtyAircraft?.label || copy.aircraftSpec }}</span>
+          <strong>
+            @if (data.assignedAircraft; as plane) {
+              {{ plane.hours }}{{ copy.hoursUnit }} · {{ copy.aircraftHours }}
+            } @else {
+              {{ data.programCode || copy.none }}
+            }
+          </strong>
+        </div>
+      </aside>
     </section>
 
-    <div class="pd__hours-head">
-      <h2>{{ copy.hoursTitle }}</h2>
-      <span>{{ copy.hoursCut }}</span>
-    </div>
-    <div class="pd__metrics">
-      <app-card [interactive]="false" [padded]="true">
-        <div class="pd__metric pd__metric--hero">
-          <span>{{ copy.hoursTotal }}</span>
-          <strong>{{ data.hours.total }} <small>{{ copy.hoursUnit }}</small></strong>
-          @if (data.percentComplete !== null) {
-            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="data.percentComplete" aria-valuemin="0" aria-valuemax="100">
-              <span [style.width.%]="data.percentComplete"></span>
+    <section class="pd__block">
+      <div class="pd__block-head">
+        <div class="pd__block-title">
+          <app-icon name="inbox" />
+          <h2>{{ copy.foldersTitle }}</h2>
+          <span class="pd__chip">{{ folders().length }} {{ copy.foldersCount }}</span>
+        </div>
+        <div class="pd__toggle">
+          <button type="button" [class.pd__toggle-on]="folderView() === 'grid'" (click)="folderView.set('grid')">
+            <app-icon name="card" />
+            <span>{{ copy.folderGrid }}</span>
+          </button>
+          <button type="button" [class.pd__toggle-on]="folderView() === 'list'" (click)="folderView.set('list')">
+            <app-icon name="menu" />
+            <span>{{ copy.folderList }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="pd__folders" [class.pd__folders--list]="folderView() === 'list'">
+        @for (folder of folders(); track folder.id) {
+          <a class="pd__folder" [href]="folder.href">
+            <span class="pd__folder-mark">
+              <span class="pd__folder-icon"></span>
+              <span class="pd__folder-count">{{ folder.count }}</span>
+            </span>
+            <strong>{{ folder.title }}</strong>
+            <small>{{ folder.hint }}</small>
+          </a>
+        }
+      </div>
+    </section>
+
+    <section id="pd-folios" class="pd__block">
+      <div class="pd__block-head">
+        <div class="pd__block-title">
+          <app-icon name="card" />
+          <h2>{{ copy.foliosTitle }}</h2>
+        </div>
+        <ui-input id="dossier-log-filter" [label]="copy.folioSearch" type="search" icon="search" [field]="filter" />
+      </div>
+      <div class="pd__folios">
+        @for (folio of filteredFolios(); track folio.id) {
+          <article class="pd__folio">
+            <div class="pd__folio-icon">
+              <app-icon name="card" />
             </div>
-            <small>{{ data.percentComplete }}%</small>
-          }
+            <div>
+              <p class="pd__kicker">#{{ folio.code }} · {{ folio.date }}</p>
+              <h3>{{ folio.title }}</h3>
+              <p>{{ folio.source }}</p>
+            </div>
+            <button type="button" class="pd__icon-btn" [attr.aria-label]="copy.folioDownload" (click)="notifyDownload()">
+              <app-icon name="inbox" />
+            </button>
+          </article>
+        } @empty {
+          <app-alert>{{ copy.none }}</app-alert>
+        }
+      </div>
+    </section>
+
+    <section class="pd__block">
+      <div class="pd__block-head pd__block-head--stack">
+        <div class="pd__block-title">
+          <app-icon name="trend" />
+          <div>
+            <h2>{{ copy.analyticsTitle }}</h2>
+            <p class="pd__lead">{{ copy.analyticsLead }}</p>
+          </div>
         </div>
-      </app-card>
-      <app-card [interactive]="false" [padded]="true">
-        <div class="pd__metric">
-          <span>{{ copy.hoursDual }}</span>
-          <strong>{{ data.hours.dual }} <small>{{ copy.hoursUnit }}</small></strong>
-          <small>{{ percent(data.hours.dual, data.hours.total) }}</small>
-        </div>
-      </app-card>
-      <app-card [interactive]="false" [padded]="true">
-        <div class="pd__metric">
-          <span>{{ copy.hoursNight }}</span>
-          <strong>{{ data.hours.night }} <small>{{ copy.hoursUnit }}</small></strong>
-        </div>
-      </app-card>
-      <app-card [interactive]="false" [padded]="true">
-        <div class="pd__metric">
-          <span>{{ copy.hoursIfr }}</span>
-          <strong>{{ data.hours.ifr }} <small>{{ copy.hoursUnit }}</small></strong>
-        </div>
-      </app-card>
-    </div>
+        <span class="pd__chip pd__chip--live">{{ data.programCode || copy.colProgram }}</span>
+      </div>
+      <div class="pd__metrics">
+        <app-card [interactive]="false" [padded]="true">
+          <article class="pd__stat">
+            <span>{{ copy.metricProgress }}</span>
+            <strong>{{ data.percentComplete === null ? copy.none : data.percentComplete + '%' }}</strong>
+            <small>{{ copy.metricGoal }}</small>
+            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="data.percentComplete ?? 0" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="data.percentComplete ?? 0"></span>
+            </div>
+          </article>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <article class="pd__stat">
+            <span>{{ copy.metricAverage }}</span>
+            <strong>{{ data.average === null ? copy.none : data.average.toFixed(2) }}</strong>
+            <small>{{ copy.chartScale }}</small>
+            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="data.average ?? 0" aria-valuemin="0" aria-valuemax="20">
+              <span [style.width.%]="data.average === null ? 0 : (data.average / 20) * 100"></span>
+            </div>
+          </article>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <article class="pd__stat">
+            <span>{{ copy.metricSigned }}</span>
+            <strong>{{ signedPercent() }}%</strong>
+            <small>{{ data.signedCount }} / {{ data.log.length }}</small>
+            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="signedPercent()" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="signedPercent()"></span>
+            </div>
+            <small>{{ copy.failedMissions }}: {{ data.failedMissions }}</small>
+          </article>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <article class="pd__stat">
+            <span>{{ copy.metricHours }}</span>
+            <strong>{{ data.hours.total }}{{ copy.hoursUnit }}</strong>
+            <small>
+              @if (hoursTarget(); as target) {
+                / {{ target }}{{ copy.hoursUnit }}
+              } @else {
+                {{ copy.hoursDual }} {{ data.hours.dual }}{{ copy.hoursUnit }}
+              }
+            </small>
+            <div class="pd__bar" role="progressbar" [attr.aria-valuenow]="data.percentComplete ?? 0" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="data.percentComplete ?? 0"></span>
+            </div>
+            @if (hoursRemaining(); as missing) {
+              <small>{{ copy.hoursRemaining }}: {{ missing }}{{ copy.hoursUnit }}</small>
+            }
+          </article>
+        </app-card>
+      </div>
+    </section>
 
     <div class="pd__layout">
       <div class="pd__main">
-        <app-card [interactive]="false" [padded]="true">
-          <p class="pd__kicker">{{ copy.chartTitle }}</p>
+        <app-card id="pd-chart" [interactive]="false" [padded]="true">
+          <div class="pd__chart-head">
+            <p class="pd__kicker">{{ copy.chartTitle }}</p>
+            <div class="pd__legend">
+              <span><i class="pd__swatch pd__swatch--line"></i>{{ copy.chartMission }}</span>
+              <span><i class="pd__swatch pd__swatch--avg"></i>{{ copy.chartAverage }}</span>
+              <span><i class="pd__swatch pd__swatch--pass"></i>{{ copy.chartPass }}</span>
+            </div>
+          </div>
           <h2>{{ copy.chartLead }}</h2>
-          @if (chartPath()) {
-            <svg class="pd__svg" viewBox="0 0 700 160" role="img" [attr.aria-label]="copy.chartTitle">
-              <path [attr.d]="chartPath()" fill="none" stroke="currentColor" stroke-width="3" />
-            </svg>
+          @if (data.peakScore; as peak) {
+            <p class="pd__peak">{{ copy.peakNote }}: {{ peak.score.toFixed(1) }} · {{ peak.label }}</p>
           }
-          @if (data.average !== null) {
-            <p class="pd__meta">{{ copy.colAverage }}: {{ data.average.toFixed(2) }}</p>
+          @if (chart(); as plot) {
+            <svg class="pd__svg" viewBox="0 0 760 180" role="img" [attr.aria-label]="copy.chartTitle">
+              <line x1="44" x2="744" [attr.y1]="plot.topY" [attr.y2]="plot.topY" stroke="currentColor" stroke-dasharray="3 3" opacity="0.2" />
+              @if (plot.averageY !== null) {
+                <line x1="44" x2="744" [attr.y1]="plot.averageY" [attr.y2]="plot.averageY" stroke="currentColor" stroke-dasharray="4 2" opacity="0.45" />
+              }
+              <line x1="44" x2="744" [attr.y1]="plot.passY" [attr.y2]="plot.passY" class="pd__pass-line" stroke-dasharray="3 3" />
+              <polygon [attr.points]="plot.area" fill="currentColor" opacity="0.12" />
+              <polyline [attr.points]="plot.line" fill="none" stroke="currentColor" stroke-width="2.5" />
+              @for (dot of plot.coords; track $index) {
+                <circle [attr.cx]="dot.x" [attr.cy]="dot.y" r="3.2" fill="#fff" stroke="currentColor" stroke-width="2" />
+              }
+              @for (label of plot.labels; track label.text) {
+                <text [attr.x]="label.x" y="172" text-anchor="middle" font-size="10">{{ label.text }}</text>
+              }
+            </svg>
           }
         </app-card>
 
-        <div class="pd__log-head">
+        <div id="pd-log" class="pd__log-head">
           <h2>{{ copy.logTitle }}</h2>
-          <ui-input id="dossier-log-filter" [label]="copy.logFilter" type="search" icon="search" [field]="filter" />
         </div>
         <div class="pd__missions">
           @for (row of filteredLog(); track row.executionId) {
@@ -171,6 +314,77 @@
 
       <aside class="pd__side">
         <app-card [interactive]="false" [padded]="true">
+          <p class="pd__kicker">{{ copy.projectionTitle }}</p>
+          <div class="pd__ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="currentColor" stroke-width="10" opacity="0.15" />
+              <circle
+                class="pd__ring-progress"
+                cx="60"
+                cy="60"
+                r="48"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="10"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="ring().outer"
+                [attr.stroke-dashoffset]="ring().outerOffset"
+              />
+              <circle
+                class="pd__ring-signed"
+                cx="60"
+                cy="60"
+                r="36"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="5"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="ring().inner"
+                [attr.stroke-dashoffset]="ring().innerOffset"
+              />
+            </svg>
+            <div>
+              <strong>{{ data.percentComplete === null ? copy.none : data.percentComplete + '%' }}</strong>
+              <span>{{ copy.projectionRing }}</span>
+            </div>
+          </div>
+          <p class="pd__lead">{{ copy.projectionLead }}</p>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <h2>{{ copy.instructorsTitle }}</h2>
+          <p class="pd__meta">{{ copy.instructorsLead }} · {{ data.hours.total }}{{ copy.hoursUnit }}</p>
+          <ul class="pd__people">
+            @for (item of data.instructors; track item.name) {
+              <li>
+                <span class="pd__avatar">{{ initials(item.name) }}</span>
+                <div>
+                  <strong>{{ item.name }}</strong>
+                  <small>{{ item.hours }}{{ copy.hoursUnit }} · {{ item.missions }} {{ copy.missionsWord }}</small>
+                </div>
+                <em>{{ item.average === null ? copy.none : item.average.toFixed(1) }}</em>
+              </li>
+            } @empty {
+              <li>{{ copy.none }}</li>
+            }
+          </ul>
+        </app-card>
+        <app-card [interactive]="false" [padded]="true">
+          <h2>{{ copy.pendingTitle }}</h2>
+          <ul class="pd__people">
+            @for (row of unsignedLog(); track row.executionId) {
+              <li>
+                <span class="pd__avatar">{{ row.missionCode.slice(0, 2) }}</span>
+                <div>
+                  <strong>{{ row.missionName }}</strong>
+                  <small>{{ row.date }} · {{ row.hours }} {{ copy.hoursUnit }}</small>
+                </div>
+              </li>
+            } @empty {
+              <li>{{ copy.pendingEmpty }}</li>
+            }
+          </ul>
+        </app-card>
+        <app-card id="pd-licenses" [interactive]="false" [padded]="true">
           <h2>{{ copy.licensesTitle }}</h2>
           <p class="pd__meta">{{ copy.licensesLead }}</p>
           <ul class="pd__licenses">
@@ -186,21 +400,34 @@
             }
           </ul>
         </app-card>
-        <app-card [interactive]="false" [padded]="true">
-          <h2>{{ copy.rulingsTitle }}</h2>
-          <ol class="pd__timeline">
-            @for (item of data.resolutions; track item.id) {
-              <li>
-                <span class="pd__kicker">{{ item.date }}</span>
-                <strong>{{ item.title }}</strong>
-                <p>{{ item.summary }}</p>
-              </li>
-            } @empty {
-              <li>{{ copy.none }}</li>
-            }
-          </ol>
-        </app-card>
       </aside>
     </div>
+
+    <section id="pd-programs" class="pd__programs">
+      <div class="pd__hours-head">
+        <h2>{{ copy.programsTitle }}</h2>
+        <span>{{ copy.programsLead }}</span>
+      </div>
+      @if (!data.programs.length) {
+        <app-alert>{{ copy.noPrograms }}</app-alert>
+      } @else {
+        <div class="pd__program-grid">
+          @for (program of data.programs; track program.programId) {
+            <ui-program-card
+              [href]="programHref(program.programId)"
+              [title]="program.name"
+              [kicker]="program.code"
+              [description]="program.description"
+              [imageUrl]="program.imageUrl"
+              [imageAlt]="program.name"
+              [typeBadge]="copy.openProgram"
+              [status]="program.status === 'suspended' ? 'inactive' : 'active'"
+              [statusLabel]="copy.status[program.status]"
+              [stats]="programStats(program)"
+            />
+          }
+        </div>
+      }
+    </section>
   }
 </div>

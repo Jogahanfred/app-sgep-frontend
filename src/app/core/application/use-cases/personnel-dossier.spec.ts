@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { MockAdminCatalogRepository } from '../../adapters/mock/mock-admin-catalog.repository';
 import type { OperationalContext } from '../../domain/entities/operational-context';
 import { EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD } from '../../domain/constants/evaluation-council.constants';
+import { dossierSpecialtyAircraftArt } from '../../domain/services/personnel-dossier';
 import { GetPersonnelDossier } from './get-personnel-dossier';
 import { GetPersonnelDossierCurriculum } from './get-personnel-dossier-curriculum';
 import { ListPersonnelDossiers } from './list-personnel-dossiers';
@@ -43,6 +44,38 @@ describe('legajo personal', () => {
     expect(detail.failThreshold).toBe(EVALUATION_COUNCIL_FAILED_MISSION_THRESHOLD);
     expect(detail.photoUrl).toBe('/carnets/diego.jpg');
     expect(detail.programs.length).toBeGreaterThan(0);
+  });
+
+  it('elige el croquis de aeronave según especialidad y programa', async () => {
+    expect(dossierSpecialtyAircraftArt(['Piloto de Transporte'])?.imageUrl).toBe('/aircraft/air-hercules.png');
+    expect(dossierSpecialtyAircraftArt(['Piloto de Caza'])?.imageUrl).toBe('/aircraft/air-mirage2000.png');
+    expect(dossierSpecialtyAircraftArt(['Piloto de Helicóptero'])?.imageUrl).toBe('/aircraft/air-enstrom.png');
+    expect(dossierSpecialtyAircraftArt(['Piloto Alumno'])?.imageUrl).toBe('/aircraft/air-ch2000.png');
+    expect(dossierSpecialtyAircraftArt(['Piloto Instructor'])?.imageUrl).toBe('/aircraft/air-kt1p.png');
+    const repo = new MockAdminCatalogRepository();
+    const sofia = await firstValueFrom(new GetPersonnelDossier(repo).execute(adsys, 'usr-sofia-vidal'));
+    expect(sofia.specialtyAircraft?.imageUrl).toBe('/aircraft/air-enstrom.png');
+    const ga510: OperationalContext = { ...adsys, unitId: 'unit-ga-51', squadronId: 'sq-510' };
+    const fo = await firstValueFrom(new GetPersonnelDossier(repo).execute(ga510, 'usr-fo-510-ready'));
+    expect(fo.specialtyAircraft?.imageUrl).toBe('/aircraft/air-ch2000.png');
+    expect(fo.specialtyAircraft?.label).toBe('Piloto Alumno');
+  });
+
+  it('arma el expediente de un alumno FO con aeronave, folios e instructores', async () => {
+    const ga510: OperationalContext = {
+      ...adsys,
+      unitId: 'unit-ga-51',
+      squadronId: 'sq-510',
+    };
+    const detail = await firstValueFrom(
+      new GetPersonnelDossier(new MockAdminCatalogRepository()).execute(ga510, 'usr-fo-510-ready'),
+    );
+    expect(detail.displayName).toContain('Mena');
+    expect(detail.rankCode).toBe('ALF');
+    expect(detail.log.length).toBeGreaterThan(0);
+    expect(detail.folios.length).toBeGreaterThan(0);
+    expect(detail.instructors.length).toBeGreaterThan(0);
+    expect(detail.assignedAircraft?.registration).toBeTruthy();
   });
 
   it('arma el currículo de un programa con fases y misiones', async () => {
